@@ -32,6 +32,9 @@ sudo cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Exploit.efi /t
 sudo cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Example1_App.efi /tmp/VHD
 sudo umount /tmp/VHD
 cp VHD.vhd simics/simics-qsp-x86-6.0.65/targets/qsp-x86/images/
+sudo -i
+echo core >/proc/sys/kernel/core_pattern
+exit
 
 # patch the scripts
 patch -p0 < modified-FV.patch
