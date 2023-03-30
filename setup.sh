@@ -5,6 +5,7 @@ main_dir=$PWD
 folder_name="src"
 repo_url="https://github.com/BreakingBoot"
 edk2_url="edk2"
+edk2_branch="fuzzuer"
 fsp_url="FSP"
 edk2_platforms_url="edk2-platforms"
 edk2_platforms_branch="modified-fuzz"
@@ -18,7 +19,7 @@ fi
 
 # get all of the necessary repos from github
 cd "$folder_name"
-git clone "$repo_url/$edk2_url"
+git clone -b $edk2_branch "$repo_url/$edk2_url"
 cd "$edk2_url" && git submodule update --init --recursive
 cd ..
 git clone "$repo_url/$fsp_url"
@@ -30,17 +31,8 @@ cd ..
 git clone "$repo_url/$edk2_non_osi_url"
 cd "$edk2_non_osi_url" && git submodule update --init --recursive
 cd $main_dir
-git clone "https://github.com/AFLplusplus/AFLplusplus"
-cd AFLplusplus && git submodule update --init --recursive
+git clone -b "lcov-bitmap" "https://github.com/cglosner/AFLplusplus"
 cd $main_dir
-
-# patch the src directory with necessary files
-cp -r "BBClient" "$folder_name/$edk2_url/MdeModulePkg/Application/"
-cp -r "Example1_App" "$folder_name/$edk2_url/MdeModulePkg/Application/"
-cp -r "Example1_Driver_Lockbox" "$folder_name/$edk2_url/MdeModulePkg/Application/"
-cp -r "SmmHarden" "$folder_name/$edk2_url/MdeModulePkg/Application/"
-cp -r "Exploit" "$folder_name/$edk2_url/MdeModulePkg/Application/"
-patch -p0 < "src_directory.patch"
 
 # download simics and install it
 mkdir simics
