@@ -47,7 +47,7 @@ gcc -shared -Wall -I$current_dir/AFLplusplus/include custom_mutator.c -o custom_
 export AFL_CUSTOM_MUTATOR_LIBRARY="$PWD/custom_mutator.so"
 mkdir fuzz_output
 # Create a snapshot of the FW at the EFI Shell
-./simics -no-win -batch-mode targets/qsp-x86/qsp-modern-core.simics -e "run-seconds seconds = 30" -e "write-configuration shell-restore.conf"
+./simics -no-win -batch-mode targets/qsp-x86/qsp-modern-core.simics -e "run-seconds seconds = 30" -e "board.software.delete-tracker" -e "board.software.insert-tracker tracker = uefi_fw_tracker_comp" -e "write-configuration shell-restore.conf"
 
 
 cd $current_dir

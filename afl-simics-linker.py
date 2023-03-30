@@ -43,9 +43,9 @@ def fuzz(input):
     cli.quiet_run_command('$cc.stop')
     cli.quiet_run_command('$cc.save coverage -overwrite')
     os.system("rm -rf coverage-lcov")
+    os.system("rm merged_tracefile.info")
     cli.quiet_run_command('$cc.lcov-output coverage-lcov')
-    os.system("lcov_tracefile=$(ls coverage-lcov | sed -e \"s/^/-a coverage-lcov\//\")")
-    os.system("lcov $lcov_tracefile -o merged_tracefile.info")    #cli.quiet_run_command('$cc.html-report uefi-report')
+    os.system("lcov_tracefile=$(ls coverage-lcov | sed -e \"s/^/-a coverage-lcov\//\") && lcov $lcov_tracefile -o merged_tracefile.info")
     #print("generated report")
 
     # Stop serial output
