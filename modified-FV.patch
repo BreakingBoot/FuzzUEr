@@ -14,6 +14,6 @@
    default num_cores = 2
    default num_threads = 2
  }
-+$disk1_image="%simics%/targets/qsp-x86/images/TestVHD.vhd"
++$disk1_image="%simics%/targets/qsp-x86/images/VHD.vhd"
  
  run-command-file "%simics%/targets/qsp-x86/qsp-clear-linux.simics"
