@@ -56,16 +56,19 @@ def fuzz(input):
 
     # Stop serial output
     cli.quiet_run_command('board.serconsole.con.capture-stop')
-    bp = cli.quiet_run_command('bp.show id = 1')
+    bp = cli.quiet_run_command("bp.list")
     with open("log.txt", "a") as f:
         f.write(str(bp)+"\n")
     
     # If the breakpoint is triggered then save the input into a crash log
     # and then exit with SIGABRT so AFL can detect a crash
-    if int(bp[1].split(":")[-1]) > 0:
-        with open("crashes.txt", "a") as f:
-            f.write(fuzz_input + " " + str(bp)+"\n")
-        sys.exit(signal.SIGABRT)
+    for i in bp[0]:
+        bp_info = cli.quiet_run_command("bp.show id = " + str(i))
+        if int(bp_info[1].split(":")[-1]) > 0:
+            with open("crashes.txt", "a") as f:
+                f.write(fuzz_input + " " + str(bp)+"\n")
+            sys.exit(signal.SIGABRT)
+        
 
 def main():
     input = sys.argv[-1]

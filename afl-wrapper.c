@@ -5,7 +5,7 @@
 
 int fuzz(char* input)
 {
-    char* cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -e \"bp.console_string.break object = board.serconsole.con string = FAILED\" -p afl-simics-linker.py ";
+    char* cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p afl-simics-linker.py ";
     int len = strlen(input);
     char* final_command = malloc(strlen(cmd) + len);
     memcpy(final_command, cmd, strlen(cmd));
