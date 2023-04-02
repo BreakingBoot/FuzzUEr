@@ -13,7 +13,7 @@ if ! [[ $1 =~ ^-?[0-9]+$ ]]; then
 fi
 
 # Check if the argument is greater than or equal to 0 and less than 5
-if ! [[ $1 -ge 0 ] && [ $1 -lt 5 ]]; then
+if [ $1 -lt 0 ] || [ $1 -ge 5 ]; then
   echo "The argument is outside the specified range."
   exit 1
 fi
