@@ -6,6 +6,10 @@ This repo is responsible for fuzzing the EDK2 UEFI through the use of a harness 
 
 The custom drivers and applications that are needed are included here in this repo, but the custom internal driver responsible for creating the well formed input is called the BBClient.
 
+Currently, the input in plumbed into Simics through the use of both `afl-simics-linker.py` and `afl-wrapper.c`. Where `afl-simics-linker.py` uses the simics API to handle directly dealing with simics while `afl-wrapper.c` just handles reading the input from afl and processes it for simics. The coverage isn't perfect matching because Simics provides and LCOV tracefile which provides line numbers and whether they have been reached or not. Therefore, the modified AFL program handles reading the tracfile and roughly mapping the line coverage to edge coverage.
+
+Reporting crashes is also done roughly (for now), breakpoints are set in Simics anytime the word "FAILED" is seen on ther serial console, so anytime a breakpoint is reached a SIGABRT signal is sent to AFL to handle properly reporting a crash. TODO: Add a breakpoint on a function that can be called naturally like `CpuDeadLoop` or `DXE_ASSERT`.
+
 ## Stucture
 The important bash scripts that are included are:
 
@@ -17,8 +21,27 @@ The important bash scripts that are included are:
 
 All of these steps can be done at the same time by running the run.sh script, but if you are adding additional functionality or running into issues because you are testing this code in a different environment it may be useful to run the scripts one at a time so you know where the problem is happening.
 
-Debug statements are included throughout the code to provide useful information, and these are stored in a file called execute.log. TODO: by adding the -D flag when running the scripts the debug statements will be displayed on in the terminal too.
+Debug statements are included throughout the code to provide useful information, and these are stored in a file called `log.txt`. TODO: by adding the -D flag when running the scripts the debug statements will be displayed on in the terminal too.
 
+## Execution
+
+Once this repository has been downloaded, all you will need to do is run the following command:
+```
+./run.sh <service to fuzz>
+Example for ProcessFirmwareVolume service:
+./run.sh 0
+```
+
+Currently, the following services are supported:
+```
+0 : ProcessFirmwareVolume
+1 : CloseEvent
+2 : LoadImage
+3 : SmmHarden
+4 : Example1
+```
+
+The code for the added examples and for the BBClient harness can be found [here](https://github.com/BreakingBoot/edk2/tree/fuzzuer).
 
 Limitations:
 - Currently, this is being tested on an Ubuntu 22.04 LTS VM
