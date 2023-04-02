@@ -1,17 +1,11 @@
 #!/bin/bash
 
 current_dir=$PWD
+simics_dir="src/edk2-platforms/Platform/Intel/"
 
 # compile the code
 cd "src/edk2"
-make -C "BaseTools"
-source edksetup.sh
-build -p EmulatorPkg/EmulatorPkg.dsc -a X64 -t GCC5
-cd $current_dir
-
-simics_dir="src/edk2-platforms/Platform/Intel/"
-cd $simics_dir
-python build_bios.py -p BoardX58Ich10 -t GCC5
+make -C "BaseTools" && source edksetup.sh && cd $current_dir/$simics_dir && python build_bios.py -p BoardX58Ich10 -t GCC5
 cd $current_dir
 
 # create a simics project
@@ -41,14 +35,13 @@ patch -p0 < modified-FV.patch
 
 # copy the additional scripts from the main dir to simics project
 cd $current_dir
-cp afl-wrapper.c afl-simics-linker.py custom_mutator.c custom_mutator_helpers.h simics/fuzzer-project
+cp afl-wrapper.c afl-simics-linker.py simics/fuzzer-project
 cp -R testcases simics/fuzzer-project
 
 cd simics/fuzzer-project
 gcc afl-wrapper.c -o afl-wrapper
-gcc -shared -Wall -I$current_dir/AFLplusplus/include custom_mutator.c -o custom_mutator.so
-export AFL_CUSTOM_MUTATOR_LIBRARY="$PWD/custom_mutator.so"
 mkdir fuzz_output
+
 # Create a snapshot of the FW at the EFI Shell
 ./simics -no-win -batch-mode targets/qsp-x86/qsp-modern-core.simics -e "run-seconds seconds = 30" -e "board.software.delete-tracker" -e "board.software.insert-tracker tracker = uefi_fw_tracker_comp" -e "write-configuration shell-restore.conf"
 
