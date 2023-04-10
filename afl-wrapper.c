@@ -3,9 +3,13 @@
 #include <string.h>
 #include <signal.h>
 
-int fuzz(char* input)
+int fuzz(char* input, int execs)
 {
-    char* cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p breakpoints.py -p afl-simics-linker.py ";
+    char* cmd = "./simics -no-win -c \"checkpoint.conf\" -batch-mode -p breakpoints.py -p afl-simics-linker.py ";
+    if((execs%10) == 0)
+    {
+        cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p breakpoints.py -p afl-simics-linker.py ";
+    }
     int len = strlen(input);
     char* final_command = malloc(strlen(cmd) + len);
     memcpy(final_command, cmd, strlen(cmd));
@@ -28,6 +32,7 @@ int main(int argc, char* argv[])
     if(argc > 0)
     {
         char* filename = argv[2];
+        int execs = atoi(argv[3]);
         FILE *fp = fopen(filename, "r");
         fseek(fp, 0, SEEK_END);
         int size = ftell(fp);
@@ -35,7 +40,7 @@ int main(int argc, char* argv[])
         char buffer[size+1];
         memcpy(buffer, argv[1], sizeof(char));
         fread(buffer+1, size, 1, fp);
-        return fuzz(buffer);
+        return fuzz(buffer, execs);
     }
     return 0;
 }
