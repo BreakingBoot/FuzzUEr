@@ -53,6 +53,10 @@ def fuzz(input):
     os.system("rm merged_tracefile.info")
     cli.quiet_run_command('$cc.lcov-output coverage-lcov')
     os.system("lcov_tracefile=$(ls coverage-lcov | sed -e \"s/^/-a coverage-lcov\//\") && lcov $lcov_tracefile -o merged_tracefile.info")
+    
+    # save the new checkpoint
+    os.system('rm -rf checkpoint.conf')
+    cli.quiet_run_command("write-configuration checkpoint.conf")
 
     # Stop serial output
     cli.quiet_run_command('board.serconsole.con.capture-stop')
