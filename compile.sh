@@ -20,11 +20,11 @@ cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/FV/BOARDX58ICH10.fd sim
 dd if=/dev/zero of=VHD.vhd bs=1M count=1200
 mkfs -t fat VHD.vhd 
 mkdir /tmp/VHD
-sudo mount -o loop VHD.vhd /tmp/VHD
-sudo cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/BBClient.efi /tmp/VHD
-sudo cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Exploit.efi /tmp/VHD
-sudo cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Example1_App.efi /tmp/VHD
-sudo umount /tmp/VHD
+fusefat -o rw+ VHD.vhd /tmp/VHD
+cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/BBClient.efi /tmp/VHD
+cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Exploit.efi /tmp/VHD
+cp src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_GCC5/X64/Example1_App.efi /tmp/VHD
+fusermount -u /tmp/VHD
 cp VHD.vhd simics/simics-qsp-x86-6.0.65/targets/qsp-x86/images/
 
 # patch the scripts
