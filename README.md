@@ -45,3 +45,17 @@ The code for the added examples and for the BBClient harness can be found [here]
 
 Limitations:
 - Currently, this is being tested on an Ubuntu 22.04 LTS VM
+
+## Docker
+
+It has been modified to now use a docker as well. By following these steps:
+
+1. Pull this repo
+2. Run `docker build -t <name> .`
+3. To execute fuzzer use:
+    ```
+    docker run -it --rm <name>
+    ./execute.sh <servce #>
+    ```
+
+This will allow you to fuzz it on any platform that can run docker.
