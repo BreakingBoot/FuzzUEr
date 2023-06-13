@@ -3,12 +3,11 @@
 main_dir=$PWD
 # these are the remote branches to pull from
 folder_name="src"
-repo_url="https://github.com/BreakingBoot"
-edk2_url="edk2"
-edk2_branch="fuzzuer"
+PAT="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"
+repo_url="https://$PAT@github.com/BreakingBoot"
+edk2_url="edk2-fuzzuer"
 fsp_url="FSP"
-edk2_platforms_url="edk2-platforms"
-edk2_platforms_branch="modified-fuzz"
+edk2_platforms_url="edk2-platforms-fuzzuer"
 edk2_non_osi_url="edk2-non-osi"
 
 # create the folder if it doesn't exist and clone the repos
@@ -19,14 +18,14 @@ fi
 
 # get all of the necessary repos from github
 cd "$folder_name"
-git clone -b $edk2_branch "$repo_url/$edk2_url"
-cd "$edk2_url" && git submodule update --init --recursive
+git clone "$repo_url/$edk2_url" "edk2"
+cd "edk2" && git submodule update --init --recursive
 cd ..
 git clone "$repo_url/$fsp_url"
 cd "$fsp_url" && git submodule update --init --recursive
 cd ..
-git clone -b $edk2_platforms_branch "$repo_url/$edk2_platforms_url"
-cd "$edk2_platforms_url" && git submodule update --init --recursive
+git clone "$repo_url/$edk2_platforms_url" "edk2-platforms"
+cd "edk2-platforms" && git submodule update --init --recursive
 cd ..
 git clone "$repo_url/$edk2_non_osi_url"
 cd "$edk2_non_osi_url" && git submodule update --init --recursive
