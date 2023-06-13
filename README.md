@@ -35,10 +35,74 @@ Example for ProcessFirmwareVolume service:
 Currently, the following services are supported:
 ```
 0 : ProcessFirmwareVolume
-1 : CloseEvent
+1 : Events
+    - CreateEvent
+    - WaitForEvent
+    - SignalEvent
+    - CloseEvent
+    - CheckEvent
+    - CreateEventEx
 2 : LoadImage
 3 : SmmHarden
 4 : Example1
+    - SetLockPin
+    - WriteDataWrapper
+    - WriteData
+    - ReadData
+5 : MemoryServices
+    - AddMemorySpace
+    - AllocateMemorySpace
+    - FreeMemorySpace
+    - RemoveMemorySpace
+    - GetMemorySpaceDescriptor
+    - SetMemorySpaceAttributes
+    - GetMemorySpaceMap
+    - SetMemorySpaceCapabilities
+    - GetMemoryMap
+    - AllocatePages
+    - FreePages
+    - AllocatePool
+    - FreePool
+    - CopyMem
+    - SetMem
+6 : ProtocolServcices
+    - InstallProtocolInterface
+    - ReinstallProtocolInterface
+    - UninstallProtocolInterface
+    - HandleProtocol
+    - RegisterProtocolNotify
+    - OpenProtocol
+    - CloseProtocol
+    - OpenProtocolInformation
+    - ProtocolsPerHandle
+    - LocateProtocol
+    - InstallMultipleProtocolInterfaces
+    - UninstallMultipleProtocolInterfaces
+7 : Protocols
+8 : Demo1Challenge
+    - GetAccessVariable
+    - SetAccessVariable
+    - BobProtocol
+    - AliceProtocol
+    - ValidateAccessKey
+    - GenerateAccessKey
+9 : RuntimeServices
+    - GetTime
+    - SetTime
+    - GetWakeupTime
+    - SetWakeupTime
+    - SetVirtualAddressMap
+    - ConvertPointer
+    - GetVariable
+    - GetNextVariableName
+    - SetVariable
+    - GetAccessVariable
+    - SetAccessVariable
+    - GetNextHighMonotonicCount
+    - ResetSystem
+    - UpdateCapsule
+    - QueryCapsuleCapabilities
+    - QueryVariableInfo
 ```
 
 The code for the added examples and for the BBClient harness can be found [here](https://github.com/BreakingBoot/edk2/tree/fuzzuer).
@@ -56,6 +120,13 @@ It has been modified to now use a docker as well. By following these steps:
     ```
     docker run -it --rm <name>
     ./execute.sh <servce #>
+    ```
+4. If this is your first time running it you will need to execute the following on the host machine as root:
+    ```
+    echo core >/proc/sys/kernel/core_pattern
+
+    cd /sys/devices/system/cpu
+    echo performance | tee cpu*/cpufreq/scaling_governor
     ```
 
 This will allow you to fuzz it on any platform that can run docker.
