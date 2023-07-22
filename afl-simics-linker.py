@@ -133,7 +133,7 @@ def save_coverage():
     cli.quiet_run_command("coverage_cc_0.save coverage -overwrite")
 
 def main():
-    input = sys.argv[-1]
+    input = simenv.fuzz_arg
     fuzz(input)
 
 if __name__ == "__main__":
