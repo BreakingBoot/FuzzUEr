@@ -3,6 +3,12 @@ import os
 import sys
 import time
 import signal
+import pickle
+import json
+import ctypes
+from ctypes import c_uint8
+
+
 
 #SIM_continue() # Continue Simulation
 #SIM_run_command_file(filename) # Run a command rile
@@ -30,12 +36,7 @@ def fuzz(input):
             f.write("ERROR: Couldn't set up simics tracker\n")
         
     # Set up code coverage
-    cli.quiet_run_command('$cc = (collect-coverage context-query="\'UEFI Firmware\'")')
-    try:
-        cli.quiet_run_command('$cc.add-report \"coverage\"')
-    except:
-        with open("log.txt", "a") as f:
-            f.write("ERROR: Couldn't load existing code coverage report\n")
+    start_coverage()
           
     # Normally add a path map, but I don't need one since I am in the same system
     # Run
@@ -47,16 +48,10 @@ def fuzz(input):
 
     
     # Stop code coverage capture and create a report
-    cli.quiet_run_command('$cc.stop')
-    cli.quiet_run_command('$cc.save coverage -overwrite')
-    os.system("rm -rf coverage-lcov")
-    os.system("rm merged_tracefile.info")
-    cli.quiet_run_command('$cc.lcov-output coverage-lcov')
-    os.system("lcov_tracefile=$(ls coverage-lcov | sed -e \"s/^/-a coverage-lcov\//\") && lcov $lcov_tracefile -o merged_tracefile.info")
+    save_coverage()
     
-    # save the new checkpoint
-    os.system('rm -rf checkpoint.conf')
-    cli.quiet_run_command("write-configuration checkpoint.conf")
+    # Update the snapshot
+    update_checkpoint()
 
     # Stop serial output
     cli.quiet_run_command('board.serconsole.con.capture-stop')
@@ -73,6 +68,69 @@ def fuzz(input):
                 f.write(fuzz_input + " " + str(bp)+"\n")
             sys.exit(signal.SIGABRT)
         
+def unpickle_data():
+    # unpickling the object
+    pickle_in = open("coverage", "rb")
+    unpickled_data = pickle.load(pickle_in)
+    pickle_in.close()
+
+    modify_shared_memory(unpickled_data)
+
+def modify_shared_memory(unpickled_coverage):
+    # Get shared memory ID from environment variable
+    shm_id_str = os.environ.get("__AFL_SHM_ID")
+    if shm_id_str is None:
+        print("Not running under AFL.")
+        exit(1)
+
+    shm_id = int(shm_id_str)
+
+    # Attach to the shared memory segment
+    libc = ctypes.CDLL('libc.so.6')
+    data_pointer = libc.shmat(shm_id, None, 0)
+    if data_pointer == -1:
+        print("shmat call failed")
+        exit(1)
+
+    # Now we have a pointer to the shared memory segment, but we need to
+    # tell Python how to use it. We create an array of c_uint8. The size of the 
+    # array (65536) is the size of AFL's shared memory segment.
+    afl_area_ptr = (c_uint8 * 65536).from_address(data_pointer)
+
+    # Now you can modify the shared memory. For example, to set the first byte:
+    for map in unpickled_coverage["mappings"]:
+        try:
+            for cur_location, info in map["branches"].items():
+                afl_area_ptr[(cur_location ^ prev_location)%len(afl_area_ptr)] += info["taken"]
+
+                # Shift cur_location right by 1 bit and store the result in prev_location for the next iteration
+                prev_location = cur_location >> 1
+        except:
+            NotImplemented
+    # After you're done with the shared memory
+    result = libc.shmdt(ctypes.c_void_p(data_pointer))
+    if result == -1:
+        print("shmdt call failed")
+        exit(1)
+
+
+def update_checkpoint():
+    # save the new checkpoint
+    os.system('rm -rf checkpoint.conf')
+    cli.quiet_run_command("write-configuration checkpoint.conf")
+
+def start_coverage():
+    cli.quiet_run_command("collect-coverage -access-count -branch-coverage -linear context-query = \"'UEFI Firmware'\" name = cc")
+    try:
+        cli.quiet_run_command("coverage_cc_0.add-report -ignore-addresses input = coverage")
+    except:
+        NotImplemented
+
+def save_coverage():
+    cli.quiet_run_command("coverage_cc_0.stop")
+    cli.quiet_run_command("coverage_cc_0.remove-unknown-addresses")
+    cli.quiet_run_command("coverage_cc_0.combine-mappings")
+    cli.quiet_run_command("coverage_cc_0.save coverage -overwrite")
 
 def main():
     input = sys.argv[-1]
