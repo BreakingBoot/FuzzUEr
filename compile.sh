@@ -36,7 +36,7 @@ cp afl-wrapper.c afl-simics-linker.py breakpoints.py simics/fuzzer-project
 cp -R testcases simics/fuzzer-project
 
 cd simics/fuzzer-project
-gcc afl-wrapper.c -o afl-wrapper
+gcc afl-wrapper.c -o afl-wrapper -lssl -lcrypto
 mkdir fuzz_output
 
 # Create a snapshot of the FW at the EFI Shell

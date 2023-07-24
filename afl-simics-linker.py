@@ -16,7 +16,6 @@ from ctypes import c_uint8
 #cli.quiet_run_command(input) # Run a CLI command, same as directly inputting into the terminal
 def fuzz(input):
     # Create  Input
-    input = input[:-7]
     fuzz_input = "BBClient.efi " + input + "\n"
     
     # Save to log file
