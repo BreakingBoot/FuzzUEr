@@ -7,6 +7,7 @@ import pickle
 import json
 import ctypes
 from ctypes import c_uint8
+#from libc.stdlib cimport getenv
 
 
 
@@ -50,13 +51,13 @@ def fuzz(input):
     save_coverage()
     
     # Update the snapshot
-    update_checkpoint()
+    # update_checkpoint()
+
+    update_coverage_file()
 
     # Stop serial output
     cli.quiet_run_command('board.serconsole.con.capture-stop')
     bp = cli.quiet_run_command("bp.list")
-    with open("log.txt", "a") as f:
-        f.write(str(bp)+"\n")
     
     # If the breakpoint is triggered then save the input into a crash log
     # and then exit with SIGABRT so AFL can detect a crash
@@ -64,53 +65,8 @@ def fuzz(input):
         bp_info = cli.quiet_run_command("bp.show id = " + str(i))
         if int(bp_info[1].split(":")[-1]) > 0:
             with open("crashes.txt", "a") as f:
-                f.write(fuzz_input + " " + str(bp)+"\n")
+                f.write(fuzz_input +"\n")
             sys.exit(signal.SIGABRT)
-        
-def unpickle_data():
-    # unpickling the object
-    pickle_in = open("coverage", "rb")
-    unpickled_data = pickle.load(pickle_in)
-    pickle_in.close()
-
-    modify_shared_memory(unpickled_data)
-
-def modify_shared_memory(unpickled_coverage):
-    # Get shared memory ID from environment variable
-    shm_id_str = os.environ.get("__AFL_SHM_ID")
-    if shm_id_str is None:
-        print("Not running under AFL.")
-        exit(1)
-
-    shm_id = int(shm_id_str)
-
-    # Attach to the shared memory segment
-    libc = ctypes.CDLL('libc.so.6')
-    data_pointer = libc.shmat(shm_id, None, 0)
-    if data_pointer == -1:
-        print("shmat call failed")
-        exit(1)
-
-    # Now we have a pointer to the shared memory segment, but we need to
-    # tell Python how to use it. We create an array of c_uint8. The size of the 
-    # array (65536) is the size of AFL's shared memory segment.
-    afl_area_ptr = (c_uint8 * 65536).from_address(data_pointer)
-
-    # Now you can modify the shared memory. For example, to set the first byte:
-    for map in unpickled_coverage["mappings"]:
-        try:
-            for cur_location, info in map["branches"].items():
-                afl_area_ptr[(cur_location ^ prev_location)%len(afl_area_ptr)] += info["taken"]
-
-                # Shift cur_location right by 1 bit and store the result in prev_location for the next iteration
-                prev_location = cur_location >> 1
-        except:
-            NotImplemented
-    # After you're done with the shared memory
-    result = libc.shmdt(ctypes.c_void_p(data_pointer))
-    if result == -1:
-        print("shmdt call failed")
-        exit(1)
 
 
 def update_checkpoint():
@@ -130,6 +86,12 @@ def save_coverage():
     cli.quiet_run_command("coverage_cc_0.remove-unknown-addresses")
     cli.quiet_run_command("coverage_cc_0.combine-mappings")
     cli.quiet_run_command("coverage_cc_0.save coverage -overwrite")
+    pickle_in = open("coverage", "rb")
+    unpickled_data = pickle.load(pickle_in)
+    pickle_in.close()
+    
+    with open("unpickled_coverage.json", "w") as f:
+        json.dump(unpickled_data, f, indent=4)
 
 def main():
     input = simenv.fuzz_arg

@@ -23,4 +23,4 @@ simics_dir=$main_dir/simics/fuzzer-project
 
 # run the fuzzer
 cd $simics_dir
-$main_dir/AFLplusplus/afl-fuzz -i testcases/ -o fuzz_output/ -n -t 100000 -- ./afl-wrapper $1 @@
+$main_dir/AFLplusplus/afl-fuzz -i testcases/ -o fuzz_output1/ -t 100000 -- ./afl-wrapper $1 @@
