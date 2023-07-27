@@ -73,6 +73,9 @@ create_log_dir() {
 init_log() {
     dir_name="$log_folder/$(get_name "$1")"
     create_log_dir "$dir_name"
+    
+    dir_name="$crash_folder/$(get_name "$1")"
+    create_log_dir "$dir_name"
 }
 
 init_log $1

@@ -104,19 +104,18 @@ int fuzz(char* input, char* logfile) //, int execs)
 
     char *cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p breakpoints.py -e \"@cli.simenv.fuzz_arg = \'";
     char* fuzz_input = base64(input, strlen(input));
-    char* simics_helper = "\'\" -p afl-simics-linker.py ";
-    char* simics_log = "-e \"@cli.simenv.logfile = \'";
-    char* end_cmd = "\'\"";
+    char* simics_log = "\'\" -e \"@cli.simenv.logfile = \'";
+    char* end_cmd = "\'\" ";
+    char* simics_helper = "-p afl-simics-linker.py";
     char* final_command = malloc(strlen(cmd) + strlen(fuzz_input) + strlen(simics_helper) + strlen(simics_log) + strlen(logfile) + strlen(end_cmd));
 
     // Create the command
     strcpy(final_command, cmd);
-    strcpy(final_command, fuzz_input);
-    strcpy(final_command, simics_helper);
-    strcpy(final_command, simics_log);
-    strcpy(final_command, logfile);
-    strcpy(final_command, end_cmd);
-    
+    strcat(final_command, fuzz_input);
+    strcat(final_command, simics_log);
+    strcat(final_command, logfile);
+    strcat(final_command, end_cmd);
+    strcat(final_command, simics_helper);    
 
     // Save to the command to an output file for logging
     log_msg(logfile, LOG_INFO, final_command);

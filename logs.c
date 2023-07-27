@@ -13,6 +13,7 @@ name_type_map mapping[] = {
                     {"Demo1", 8}
                     };
 
+char* name;
 // Function to log a message
 void log_msg(char* logfile, LogLevel level, char* msg) {
     FILE* file = fopen(logfile, "a");
@@ -53,7 +54,7 @@ char* get_log_filename(int type) {
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
 
-    char* name = get_name(type);
+    name = get_name(type);
     if (!getcwd(cwd, sizeof(cwd))) exit(1);
 
     if(cwd[strlen(cwd)-1] != '/') {
@@ -61,18 +62,19 @@ char* get_log_filename(int type) {
     }
     // Allocate memory for the filename string on the heap instead of stack.
     char* filename = malloc(2000 * sizeof(char));
-    sprintf(filename, "%s%s%s_%d%02d%02d_%02d%02d%02d", cwd, LOG_DIR, name, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    sprintf(filename, "%s%s%s/%s_%d%02d%02d_%02d%02d%02d", cwd, LOG_DIR, name, name, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
     return filename;
 }
 
 // Copies logfile from it's normal location to the crash folder
 void report_crash(char* logfile)
 {
-    char *dest = malloc(sizeof(cwd) + sizeof(CRASHES_DIR) + 1);
+    char *dest = malloc(strlen(cwd) + strlen(CRASHES_DIR) + strlen(name) + 1);
     strcpy(dest, cwd);
-    strcpy(dest, CRASHES_DIR);
+    strcat(dest, CRASHES_DIR);
+    strcat(dest, name);
 
-    char* cmd = malloc(sizeof(dest) + sizeof(logfile) + 5);
+    char* cmd = malloc(strlen(dest) + strlen(logfile) + strlen("cp  ") + 1);
 
     sprintf(cmd, "cp %s %s", logfile, dest);
 
