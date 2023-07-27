@@ -18,25 +18,25 @@ if [ $1 -lt 0 ] || [ $1 -ge 9 ]; then
   exit 1
 fi
 
+main_dir=$PWD
+simics_dir=$main_dir/simics/fuzzer-project
+
 # Folder names
-base_folder="FuzzUEr_logs"
+base_folder="$simics_dir/FuzzUEr_logs"
 log_folder="$base_folder/logs"
 crash_folder="$base_folder/crashes"
 
 # Check if the folders exist and create them if they don't
 if [ ! -d "$base_folder" ]; then
     mkdir "$base_folder"
-    echo "Created directory $base_folder"
 fi
 
 if [ ! -d "$log_folder" ]; then
     mkdir "$log_folder"
-    echo "Created directory $log_folder"
 fi
 
 if [ ! -d "$crash_folder" ]; then
     mkdir "$crash_folder"
-    echo "Created directory $crash_folder"
 fi
 
 # Mock-up get_name function
@@ -71,12 +71,7 @@ create_log_dir() {
 }
 
 init_log() {
-    cwd=$(pwd)
-    if [[ "${cwd: -1}" != "/" ]]; then
-        cwd="${cwd}/"
-    fi
-
-    dir_name="${cwd}${base_folder}$(get_name "$1")"
+    dir_name="$log_folder/$(get_name "$1")"
     create_log_dir "$dir_name"
 }
 
