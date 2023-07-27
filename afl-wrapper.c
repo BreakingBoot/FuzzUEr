@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <openssl/bio.h>
 #include <jansson.h>
+#include "logs.h"
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 #include <stdint.h>
@@ -91,7 +92,8 @@ char* base64(const unsigned char* input, int length) {
 
     return buff;
 }
-int fuzz(char* input)//, int execs)
+
+int fuzz(char* input, char* logfile) //, int execs)
 {
     // Command specifications
     // char* cmd = "./simics -no-win -c \"checkpoint.conf\" -batch-mode -p breakpoints.py -e \"@cli.simenv.fuzz_arg = \'";
@@ -99,28 +101,34 @@ int fuzz(char* input)//, int execs)
     // {
     //     cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p breakpoints.py -e \"@cli.simenv.fuzz_arg = \'";
     // }
+
     char *cmd = "./simics -no-win -c \"shell-restore.conf\" -batch-mode -p breakpoints.py -e \"@cli.simenv.fuzz_arg = \'";
     char* fuzz_input = base64(input, strlen(input));
-    int len = strlen(fuzz_input);
-    char* last = "\'\" -p afl-simics-linker.py";
-    char* final_command = malloc(strlen(cmd) + len + strlen(last));
+    char* simics_helper = "\'\" -p afl-simics-linker.py ";
+    char* simics_log = "-e \"@cli.simenv.logfile = \'";
+    char* end_cmd = "\'\"";
+    char* final_command = malloc(strlen(cmd) + strlen(fuzz_input) + strlen(simics_helper) + strlen(simics_log) + strlen(logfile) + strlen(end_cmd));
 
     // Create the command
-    memcpy(final_command, cmd, strlen(cmd));
-    memcpy(final_command + strlen(cmd), fuzz_input, len);
-    memcpy(final_command + strlen(cmd) + len, last, strlen(last));
+    strcpy(final_command, cmd);
+    strcpy(final_command, fuzz_input);
+    strcpy(final_command, simics_helper);
+    strcpy(final_command, simics_log);
+    strcpy(final_command, logfile);
+    strcpy(final_command, end_cmd);
+    
 
     // Save to the command to an output file for logging
-    FILE *out = fopen("command-output.txt", "a");
-    fwrite(final_command, strlen(final_command), 1, out);
-    fwrite("\n", 1, 1, out);
-    fclose(out);
+    log_msg(logfile, LOG_INFO, final_command);
 
     // Run the Simics command
     int status = system(final_command);
+    free(final_command);
     int exit = WEXITSTATUS(status);
     if(exit == 6)
     {
+        log_msg(logfile, LOG_ERROR, "========= CRASH ========");
+        report_crash(logfile);
         raise(SIGABRT);
     }
     update_bitmap();
@@ -132,7 +140,7 @@ int main(int argc, char* argv[])
     if(argc > 0)
     {
         char* filename = argv[2];
-        //int execs = atoi(argv[3]);
+        // int execs = atoi(argv[3]);
         FILE *fp = fopen(filename, "r");
         fseek(fp, 0, SEEK_END);
         int size = ftell(fp);
@@ -140,8 +148,9 @@ int main(int argc, char* argv[])
         char buffer[size+1];
         memcpy(buffer, argv[1], sizeof(char));
         fread(buffer+1, size, 1, fp);
+        char* logfile = get_log_filename(atoi(argv[1]));
         fclose(fp);
-        return fuzz(buffer);//, execs);
+        return fuzz(buffer, logfile); //, execs);
     }
     return 0;
 }

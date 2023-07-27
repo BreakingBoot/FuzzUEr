@@ -48,4 +48,4 @@ cd "AFLplusplus"
 make all
 
 cd $current_dir/simics/fuzzer-project
-$current_dir/AFLplusplus/afl-gcc afl-wrapper.c -o afl-wrapper -lssl -lcrypto -ljansson -lrt
+$current_dir/AFLplusplus/afl-gcc afl-wrapper.c logs.c -o afl-wrapper -lssl -lcrypto -ljansson -lrt

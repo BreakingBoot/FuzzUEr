@@ -18,6 +18,70 @@ if [ $1 -lt 0 ] || [ $1 -ge 9 ]; then
   exit 1
 fi
 
+# Folder names
+base_folder="FuzzUEr_logs"
+log_folder="$base_folder/logs"
+crash_folder="$base_folder/crashes"
+
+# Check if the folders exist and create them if they don't
+if [ ! -d "$base_folder" ]; then
+    mkdir "$base_folder"
+    echo "Created directory $base_folder"
+fi
+
+if [ ! -d "$log_folder" ]; then
+    mkdir "$log_folder"
+    echo "Created directory $log_folder"
+fi
+
+if [ ! -d "$crash_folder" ]; then
+    mkdir "$crash_folder"
+    echo "Created directory $crash_folder"
+fi
+
+# Mock-up get_name function
+get_name() {
+    case "$1" in
+        0) echo "ProcessFirmwareVolume" ;;
+        1) echo "Event" ;;
+        2) echo "LoadImage" ;;
+        3) echo "SmmHarden" ;;
+        4) echo "Example" ;;
+        5) echo "Memory" ;;
+        6) echo "Unknown" ;;
+        7) echo "Protocol" ;;
+        8) echo "Demo1" ;;
+    esac
+}
+
+# Check if directory exists
+log_dir_exist() {
+    if [ -d "$1" ]; then
+        return 0  # exists and is a directory
+    else
+        return 1  # does not exist, or it's not a directory
+    fi
+}
+
+# Create directory if it doesn't exist
+create_log_dir() {
+    if ! log_dir_exist "$1"; then
+        mkdir -p "$1"
+    fi
+}
+
+init_log() {
+    cwd=$(pwd)
+    if [[ "${cwd: -1}" != "/" ]]; then
+        cwd="${cwd}/"
+    fi
+
+    dir_name="${cwd}${base_folder}$(get_name "$1")"
+    create_log_dir "$dir_name"
+}
+
+init_log $1
+
 main_dir=$PWD
 simics_dir=$main_dir/simics/fuzzer-project
 

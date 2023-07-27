@@ -7,36 +7,29 @@ import pickle
 import json
 import ctypes
 from ctypes import c_uint8
-#from libc.stdlib cimport getenv
+from datetime import datetime
 
 
-
-#SIM_continue() # Continue Simulation
-#SIM_run_command_file(filename) # Run a command rile
-#SIM_simics_is_running() # Check if simics is running
-#cli.quiet_run_command(input) # Run a CLI command, same as directly inputting into the terminal
-def fuzz(input):
+def fuzz(input, logfile):
     # Create  Input
     fuzz_input = "BBClient.efi " + input + "\n"
     
     # Save to log file
-    with open("log.txt", "a") as f:
-        f.write("INPUT: " + fuzz_input)
+    log(logfile, "LOG_INFO", f'Fuzzer input: {fuzz_input}')
 
     # Start simics
     # Set up serial output
-    cli.quiet_run_command('board.serconsole.con.capture-start "log.txt"')
+    cli.quiet_run_command('board.serconsole.con.capture-start "'+ logfile +'"')
 
     # Set up code coverage
     try:
         cli.quiet_run_command('board.software.tracker.detect-parameters -load')
         cli.quiet_run_command('board.software.enable-tracker')
     except:
-        with open("log.txt", "a") as f:
-            f.write("ERROR: Couldn't set up simics tracker\n")
+        log(logfile, "LOG_WARNING", "Couldn't set up the simics tracker (may be the first run)")
         
     # Set up code coverage
-    start_coverage()
+    start_coverage(logfile)
           
     # Normally add a path map, but I don't need one since I am in the same system
     # Run
@@ -53,8 +46,6 @@ def fuzz(input):
     # Update the snapshot
     # update_checkpoint()
 
-    update_coverage_file()
-
     # Stop serial output
     cli.quiet_run_command('board.serconsole.con.capture-stop')
     bp = cli.quiet_run_command("bp.list")
@@ -64,8 +55,6 @@ def fuzz(input):
     for i in bp[0]:
         bp_info = cli.quiet_run_command("bp.show id = " + str(i))
         if int(bp_info[1].split(":")[-1]) > 0:
-            with open("crashes.txt", "a") as f:
-                f.write(fuzz_input +"\n")
             sys.exit(signal.SIGABRT)
 
 
@@ -74,12 +63,20 @@ def update_checkpoint():
     os.system('rm -rf checkpoint.conf')
     cli.quiet_run_command("write-configuration checkpoint.conf")
 
-def start_coverage():
+def start_coverage(logfile):
     cli.quiet_run_command("collect-coverage -access-count -branch-coverage -linear context-query = \"'UEFI Firmware'\" name = cc")
     try:
         cli.quiet_run_command("coverage_cc_0.add-report -ignore-addresses input = coverage")
     except:
-        NotImplemented
+        log(logfile, "LOG_WARNING", "Couldn't import previous coverage file")
+
+def log(logfile, level, msg):
+    with open(logfile, "a") as file:
+        # Get current time
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Write the log message
+        file.write(f'[{current_time}] [{level}] {msg}\n')
 
 def save_coverage():
     cli.quiet_run_command("coverage_cc_0.stop")
@@ -95,7 +92,8 @@ def save_coverage():
 
 def main():
     input = simenv.fuzz_arg
-    fuzz(input)
+    logfile = simenv.logfile
+    fuzz(input, logfile)
 
 if __name__ == "__main__":
     main() 

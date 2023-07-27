@@ -2,40 +2,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+typedef enum {
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR
+} LogLevel;
+
+#define LOG_DIR "FuzzUEr_logs/logs/"
+#define CRASHES_DIR "FuzzUEr_logs/crashes/"
 
 typedef struct {
     char name[50];
     int type;
 } name_type_map;
 
-name_type_map map[] = {
-                    {"ProcessFirmwareVolume", 0},
-                    {"Event", 1},
-                    {"LoadImage", 2},
-                    {"SmmHarden", 3},
-                    {"Example", 4},
-                    {"Memory", 5},
-                    {"Unknown", 6},
-                    {"Protocol", 7},
-                    {"Demo1", 8}
-                    };
+extern name_type_map mapping[];
 
-char* get_log_filename(int type) {
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+char* get_log_filename(int type);
 
-    char* name = NULL;
-    for(int i = 0; i < sizeof(map) / sizeof(map[0]); i++)
-    {
-        if(map[i].type == type)
-        {
-            name = map[i].name;
-            break;
-        }
-    }
+void log_msg(char* logfile, LogLevel level, char* msg);
 
-    // Allocate memory for the filename string on the heap instead of stack.
-    char* filename = malloc(100 * sizeof(char));
-    sprintf(filename, "%s_%d%02d%02d_%02d%02d%02d", name, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    return filename;
-}
+char* get_name(int type);
+
+void report_crash(char* logfile);
+
+const char* get_log_level_str(LogLevel level);
