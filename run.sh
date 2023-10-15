@@ -1,31 +1,21 @@
 #!/bin/bash
 
-# Check if an argument is provided
-if [ $# -eq 0 ]; then
-  echo "Please provide an argument."
-  exit 1
-fi
+# cargo run --release --features=6.0.169 -- \
+#   -c /tmp/corpus/ -o /tmp/solution/ -l ERROR -t -C 1 \
+#   -P 2096:6.0.70 \
+#   -f Harness/BBClient.efi:%simics%/targets/Harness/BBClient.efi \
+#   -f Harness/app.py:%simics%/scripts/app.py \
+#   -f Harness/app.yml:%simics%/scripts/app.yml \
+#   -f Harness/run_uefi_app.nsh:%simics%/targets/Harness/run_uefi_app.nsh \
+#   -f Harness/run-uefi-app.simics:%simics%/targets/Harness/run-uefi-app.simics \
+#   -x CONFIG:%simics%/scripts/app.yml
 
-# Check if the argument is an integer
-if ! [[ $1 =~ ^-?[0-9]+$ ]]; then
-  echo "Please provide an integer."
-  exit 1
-fi
 
-# Check if the argument is greater than or equal to 0 and less than 5
-if [ $1 -lt 0 ] || [ $1 -ge 5 ]; then
-  echo "The argument is outside the specified range."
-  exit 1
-fi
-
-# install libraries
-./install_libraries.sh
-
-# setup the program
-./setup.sh 
-
-# compile
-./compile.sh 
-
-# fuzz UEFI
-./execute.sh $1
+  cargo run --release --features=6.0.169 -- \
+    --corpus /tmp/corpus --solutions solution --log-level INFO --cores 1  \
+    --file Harness/BBClient.efi:%simics%/BBClient.efi \
+    --file Harness/fuzz.simics:%simics%/fuzz.simics \
+    --file Harness/BOARDX58ICH10.fd:%simics%/BOARDX58ICH10.fd \
+    --file "Harness/minimal_boot_disk.craff:%simics%/minimal_boot_disk.craff" \
+    --package 2096:6.0.70 \
+    --command 'COMMAND:run-script "%simics%/fuzz.simics"'
