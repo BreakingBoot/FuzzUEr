@@ -1,132 +1,42 @@
 # FuzzUEr
-This is the tool is designed for setting up and Fuzzing the EDK2 firmware, specifically the BoardX58Ich10 board via Simics. The code here is responsible for automating downloading, installing, compiling, and executing the UEFI firmware on Simics.
+
+This is the tool is designed for setting up and Fuzzing the EDK2 firmware. The tool is designed to work with either [kAFL](https://github.com/IntelLabs/kAFL) or [TSFFS](https://github.com/intel/tsffs).
 
 ## Overview
-This repo is responsible for fuzzing the EDK2 UEFI through the use of a harness driver that is reposible for creating well formed inputs to pass to other drivers. The fuzzing is done by using AFL and plmbing it into Simics.
 
-The custom drivers and applications that are needed are included here in this repo, but the custom internal driver responsible for creating the well formed input is called the BBClient.
+This repo is responsible for fuzzing the EDK2 UEFI through the use of a harness UEFI application that is reposible for creating well formed inputs to pass to other drivers. The tool generates the harness for both kAFL and TSFFS automatically. Everything has been configured to run within Docker containers to make it easier to use and more portable. FuzzUEr has 3 main components:
 
-Currently, the input in plumbed into Simics through the use of both `afl-simics-linker.py` and `afl-wrapper.c`. Where `afl-simics-linker.py` uses the simics API to handle directly dealing with simics while `afl-wrapper.c` just handles reading the input from afl and processes it for simics. The coverage isn't perfect matching because Simics provides and LCOV tracefile which provides line numbers and whether they have been reached or not. Therefore, the modified AFL program handles reading the tracfile and roughly mapping the line coverage to edge coverage.
+1. [Firness](https://github.com/BreakingBoot/firness)
+2. [Sanitizer]()
+3. Testing Platform: [kAFL](https://github.com/IntelLabs/kAFL) or [TSFFS](https://github.com/intel/tsffs)
 
-Reporting crashes is also done roughly (for now), breakpoints are set in Simics anytime the word "FAILED" is seen on ther serial console, so anytime a breakpoint is reached a SIGABRT signal is sent to AFL to handle properly reporting a crash. TODO: Add a breakpoint on a function that can be called naturally like `CpuDeadLoop` or `DXE_ASSERT`.
+![FuzzUEr Overview](./FuzzUEr_Overview.png)
 
-## Stucture
-The important bash scripts that are included are:
+Firness and the sanitizer instrumentation both take the original firmware image as input and output the generated harness and instrumented firmware image with ASan, respectively. The whole system is neatly package in a Docker compose file, so it can be run end-to-end without the need for intervention, unless you want to customize different steps.
 
-* `install_libraries.sh`: It is responsible for downloading all of the needed libraries via `sudo apt install`.
-* `setup.sh`: It is responsible for downloading and "setting up" all of the required libraries and additional tools, like Simics and EDK2.
-* `compile.sh`: This compiles the EDK2 for Simics and the custom AFL repo, and it also copies all of the necessary files to where they need to be so it can be run with `execute.sh`.
-* `execute.sh`: This scripts creates a checkpoint or "snapshot" within Simics within the UEFI shell to optimize the fuzzing process and then runs the custom `afl-fuzz` on it.
-* `run.sh`: It puts all of the scripts together and makes it easy to run all of the commands.
+## Running FuzzUEr
 
-All of these steps can be done at the same time by running the run.sh script, but if you are adding additional functionality or running into issues because you are testing this code in a different environment it may be useful to run the scripts one at a time so you know where the problem is happening.
+Once you get all of the code, with:
 
-Debug statements are included throughout the code to provide useful information, and these are stored in a file called `log.txt`. TODO: by adding the -D flag when running the scripts the debug statements will be displayed on in the terminal too.
-
-## Execution
-
-Once this repository has been downloaded, all you will need to do is run the following command:
 ```
-./run.sh <service to fuzz>
-Example for ProcessFirmwareVolume service:
-./run.sh 0
+git clone git@github.com:BreakingBoot/FuzzUEr.git
+cd FuzzUEr && git submodule update --init --recursive
 ```
 
-Currently, the following services are supported:
+There are are only two things that you will need to do in order to run the system: create a shared folder for the input firmware and run the Docker compose file.
+
 ```
-0 : ProcessFirmwareVolume
-1 : Events
-    - CreateEvent
-    - WaitForEvent
-    - SignalEvent
-    - CloseEvent
-    - CheckEvent
-    - CreateEventEx
-2 : LoadImage
-3 : SmmHarden
-4 : Example1
-    - SetLockPin
-    - WriteDataWrapper
-    - WriteData
-    - ReadData
-5 : MemoryServices
-    - AddMemorySpace
-    - AllocateMemorySpace
-    - FreeMemorySpace
-    - RemoveMemorySpace
-    - GetMemorySpaceDescriptor
-    - SetMemorySpaceAttributes
-    - GetMemorySpaceMap
-    - SetMemorySpaceCapabilities
-    - GetMemoryMap
-    - AllocatePages
-    - FreePages
-    - AllocatePool
-    - FreePool
-    - CopyMem
-    - SetMem
-6 : ProtocolServcices
-    - InstallProtocolInterface
-    - ReinstallProtocolInterface
-    - UninstallProtocolInterface
-    - HandleProtocol
-    - RegisterProtocolNotify
-    - OpenProtocol
-    - CloseProtocol
-    - OpenProtocolInformation
-    - ProtocolsPerHandle
-    - LocateProtocol
-    - InstallMultipleProtocolInterfaces
-    - UninstallMultipleProtocolInterfaces
-7 : Protocols
-8 : Demo1Challenge
-    - GetAccessVariable
-    - SetAccessVariable
-    - BobProtocol
-    - AliceProtocol
-    - ValidateAccessKey
-    - GenerateAccessKey
-9 : RuntimeServices
-    - GetTime
-    - SetTime
-    - GetWakeupTime
-    - SetWakeupTime
-    - SetVirtualAddressMap
-    - ConvertPointer
-    - GetVariable
-    - GetNextVariableName
-    - SetVariable
-    - GetAccessVariable
-    - SetAccessVariable
-    - GetNextHighMonotonicCount
-    - ResetSystem
-    - UpdateCapsule
-    - QueryCapsuleCapabilities
-    - QueryVariableInfo
+mkdir input_FW
+export FUZZER_OPTION=1 # 1 for running inside of Simics and 0 for QEMU
+docker-compose up
 ```
 
-The code for the added examples and for the BBClient harness can be found [here](https://github.com/BreakingBoot/edk2/tree/fuzzuer).
+### Generating the Harness
 
-Limitations:
-- Currently, this is being tested on an Ubuntu 22.04 LTS VM
+### Adding a Sanitizer
 
-## Docker
+### Fuzzing
 
-It has been modified to now use a docker as well. By following these steps:
+#### How to use with kAFL
 
-1. Pull this repo
-2. Run `docker build -t <name> .`
-3. To execute fuzzer use:
-    ```
-    docker run -it --rm <name>
-    ./execute.sh <servce #>
-    ```
-4. If this is your first time running it you will need to execute the following on the host machine as root:
-    ```
-    echo core >/proc/sys/kernel/core_pattern
-
-    cd /sys/devices/system/cpu
-    echo performance | tee cpu*/cpufreq/scaling_governor
-    ```
-
-This will allow you to fuzz it on any platform that can run docker.
+#### How to use with TSFFS
