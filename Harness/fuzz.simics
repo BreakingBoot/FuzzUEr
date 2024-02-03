@@ -1,59 +1,37 @@
-# Copyright (C) 2023 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+load-module tsffs
+@tsffs = SIM_create_object(SIM_get_class("tsffs"), "tsffs", [])
+tsffs.log-level 4
+@tsffs.iface.tsffs.set_start_on_harness(True)
+@tsffs.iface.tsffs.set_stop_on_harness(True)
+@tsffs.iface.tsffs.set_timeout(10.0)
+@tsffs.iface.tsffs.add_exception_solution(13)
+@tsffs.iface.tsffs.add_exception_solution(14)
+@tsffs.iface.tsffs.set_generate_random_corpus(True)
+@tsffs.iface.tsffs.set_use_snapshots(True)
+@tsffs.iface.tsffs.set_cmplog_enabled(True)
 
-$bios_image = (lookup-file "%simics%/BOARDX58ICH10.fd")
-$disk0_image = (lookup-file "%simics%/minimal_boot_disk.craff")
-run-command-file "%simics%/targets/qsp-x86/qsp-clear-linux.simics" 
+load-module uefi-fw-tracker
 
-script-branch "UEFI Shell Enter Branch" {
-    local $kbd = $system.mb.sb.kbd
-    local $con = $system.console.con
-    local $sercon = $system.serconsole.con
+load-target "qsp-x86/qsp-uefi-custom" namespace = qsp machine:hardware:firmware:bios = "/input/src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGDWARF/FV/BOARDX58ICH10.fd" machine:hardware:storage:disk0:image = "minimal_boot_disk.craff"
 
-    bp.time.wait-for seconds = 10
+new-os-awareness name = qsp.software
+qsp.software.insert-tracker tracker = uefi_fw_tracker_comp
+qsp.software.tracker.detect-parameters -overwrite param-file = "uefi.params" map-file = "/input/src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGDWARF/SimicsX58.map"
+qsp.software.tracker.load-parameters "uefi.params"
+qsp.software.enable-tracker
 
-    $kbd.key-press ESC
-    bp.time.wait-for seconds = 3
 
-    foreach $i in (range 2) {
-        $kbd.key-press KP_DOWN
-        bp.time.wait-for seconds = .5
-    }
-
-    $kbd.key-press ENTER
+script-branch {
+    local $con = qsp.serconsole.con
+    bp.console_string.wait-for $con "Shell>"
+    bp.time.wait-for seconds = .5   
+    qsp.serconsole.con.input "FS0:\n"
     bp.time.wait-for seconds = .5
-
-    $kbd.key-press KP_UP
-    bp.time.wait-for seconds = .5
-
-    $kbd.key-press ENTER
-    bp.time.wait-for seconds = .5
-
-    $kbd.key-press ENTER         
-    bp.time.wait-for seconds = .5
-
-    $con.input "FS0:\n"
-    bp.time.wait-for seconds = 10
-
-    # We are now in the UEFI shell, we'll download our EFI app
     local $manager = (start-agent-manager)
-    $con.input ("SimicsAgent.efi --download " + (lookup-file "%simics%/targets/Harness/BBClient.efi") + "\n")
+    qsp.serconsole.con.input ("SimicsAgent.efi --download " + (lookup-file "/input/src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGDWARF/X64/Firness.efi") + "\n")
     bp.time.wait-for seconds = .5
-
-    stop
-
-
-    @conf.tsffs_module.iface.tsffs_module.init()
-    @conf.tsffs_module.iface.tsffs_module.add_processor(SIM_get_object(simenv.system).mb.cpu0.core[0][0])
-    # Page fault
-    @conf.tsffs_module.iface.tsffs_module.add_fault(14)
-    # Invalid opcode
-    @conf.tsffs_module.iface.tsffs_module.add_fault(6)
-    # Invalid opcode
-    @conf.tsffs_module.iface.tsffs_module.add_fault(13)
-
-    $con.input "BBClient.efi\n"
-    continue
-
+    qsp.serconsole.con.input "Firness.efi\n"
 }
+
+
 run
