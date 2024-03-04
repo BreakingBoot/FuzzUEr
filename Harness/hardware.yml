@@ -1,0 +1,264 @@
+%YAML 1.2
+---
+description: |
+  Sets up the hardware for a QSP-x86 virtual machine, exposing many
+  configuration options as Simics parameters. This include file is used by
+  other scripts to setup a complete virtual machine.
+  Adds two disks to the machine. If disk image and disk size are NIL, no disk
+  will be added. Also adds a CD-ROM to the machine.
+
+params:
+  name:
+    type: str
+    required: true
+    description: Name of the machine. Used for the top level component.
+  memory_megs:
+    type: int
+    default: 8192
+    description: |
+      Amount of RAM in the machine, in MiB. The highest supported value is
+      65536 (64 GiB). More than 64 GiB is not supported since the x86QSP1
+      processor is limited to a 36-bit physical address space.
+
+  processor:
+    description: Processor settings
+    class:
+      type: str
+      default: x86QSP2
+      description: |
+        It should be specified as processor component class without
+        the "processor_" prefix and with underscores replaced with hyphens,
+        e.g. x86-intel64. Tip: to obtain the list of processor component classes
+        please use the "list-classes substr = processor_" Simics command.
+    num_cores:
+      type: int
+      default: 1
+      description: |
+        Number of cores per physical processor or slot in the machine.
+        Allowed values are 1 - 128.
+    freq_mhz:
+      type: int
+      default: 2000
+      description: Processor frequency in MHz.
+    cpi:
+      type: int
+      default: 1
+      advanced: 3
+      description: | 
+        Clock cycles per executed instruction for the processors.
+        Must be a power of 2.
+    num_slots:
+      advanced: 2
+      type: int
+      default: 1
+      description: Number of physical processors in the machine.
+    num_cores_small:
+      type: int
+      default: 0
+      advanced: 2
+      description: |
+        Number of small cores per physical processor in the machine
+        (only applicable if the processor class specified by the cpu_comp_class
+        parameter supports heterogeneous setups).
+    num_threads:
+      type: int
+      default: 1
+      advanced: 2
+      values: [1, 2, 4]
+      description: Number of threads per processor core in the machine.
+    num_threads_small:
+      type: int
+      default: 0
+      advanced: 2
+      values: [0, 1, 2, 4]
+      description: |
+        Number of threads per small core in the machine (only applicable
+        if the processor class specified by the cpu_comp_class parameter
+        supports heterogeneous setups).
+    apic_freq_mhz:
+      type: int
+      default: 133
+      description: APIC frequency in MHz.
+      advanced: 3
+  
+  consoles:
+    advanced: 2
+    con0:
+      create:
+        type: bool
+        default: true
+        description: |
+          Create a console for COM1 (a.k.a. com[0]).
+      show:
+        type: bool
+        default: true
+        description: |
+          Automatically display the text console on the first serial port.
+      fg_color:
+        type: str
+        default: white
+        description: "The foreground color, or RGB in #12ab89 format."
+      bg_color:
+        type: str
+        default: black
+        description: "The background color, or RGB in #12ab89 format."
+    con1:
+      create:
+        type: bool
+        default: false
+        description: |
+          Create a console for COM2 (a.k.a. com[1]).
+      show:
+        type: bool
+        default: false
+        description: |
+          Automatically display the text console on the second serial port.
+      fg_color:
+        type: str
+        default: white
+        description: "The foreground color, or RGB in #12ab89 format."
+      bg_color:
+        type: str
+        default: black
+        description: "The background color, or RGB in #12ab89 format."
+    gfx_con:
+      create:
+        type: bool
+        default: true
+        description: |
+          Create a graphics console.
+      show:
+        type: bool
+        default: false
+        description: |
+          Automatically display the graphics console.
+  storage:
+    disk0:
+      import: "%simics%/targets/common/disk-ide-sata.yml"
+      provides:
+        - name
+        - slot
+    disk1:
+      import: "%simics%/targets/common/disk-ide-sata.yml"
+      provides:
+        - name
+        - slot
+    cdrom:
+      create:
+        type: bool
+        advanced: 2
+        default: true
+      name:
+        type: str
+        advanced: 2
+        description: The name of the cdrom component (to be created underneath $system).
+        default: cdrom
+      interface:
+        advanced: 2
+        type: str
+        default: sata
+        values: ["sata", "ide"]
+        description: |      
+          Create and connect to the target machine a virtual hard disk of type
+          SATA or IDE. Simics object machine_name.disk0 is
+          created and connected to the target machine.
+
+  rtc:
+    time:
+      type: str
+      default: "2023-04-20 04:17:56" # UTC of max solar eclipse
+      description: |
+        The date and time of the simulated real-time clock set when the
+        configuration is created. The format is "YYYY-MM-DD HH:MM:SS". Can also
+        be set to "auto" to use the current host time.
+  usb_tablet:
+    create:
+      type: bool
+      default: false
+      advanced: 2
+      description: |
+        Connects a USB tablet device for input using absolute positioning that
+        provides better user experience than a mouse.
+  apic_bus:
+    class:
+      type: str
+      default: "auto_apic_bus"
+      advanced: 2
+      description: |
+        APIC bus class. It should be the apic bus class that comes with the same
+        module as the apic used in the CPU model. If set to "auto_apic_bus" the script
+        will attempt to find the correct apic bus class automatically. If that fails
+        the apic-bus class will be used.
+  nic:
+    mac_address:
+      advanced: 2
+      type: str
+      default: auto
+      description: |
+        MAC address of the built-in Ethernet adapter in the ICH10 chipset.
+        The format is "XX:XX:XX:XX:XX:XX". Can also be set to "auto" to obtain an
+        auto-generated MAC address.
+
+  firmware:
+    description: Firmware images used by the HW.
+    advanced: 5
+    bios:
+      type: file
+      description: BIOS file.
+      required: true
+    lan_bios:
+      type: file
+      description: ROM BIOS file for the ICH10 LAN Ethernet adaptor
+    spi_flash:
+      type: file
+      required: true
+      description: The ICH10 SPI flash file to use.
+
+  simulation:
+    description: Simulation setting information needed by the HW.
+    advanced: 5  
+    enable_break_on_reboot:
+      type: bool
+      default: false
+      description: Interrupts the simulation if the machine is rebooted.
+    system_clock:
+      enable:
+        type: bool
+        default: false
+        description: |
+          Enables a configuration with a separate clock to which devices are
+          bound instead of to the first CPU.
+      class:
+        type: str
+        default: clock
+        description: |
+          The class used for the system clock if the
+          enable_system_clock parameter is true.
+    use_vmp:
+      type: bool
+      default: true
+      description: |
+        Enables host virtualization (VMP) for better simulation performance.
+        This option affects simulated time. See the performance chapter in the
+        Simics User's Guide for more information about VMP.
+
+  output:
+    system:
+      type: str
+      output: true
+      description: "The system top-level component object, output parameter"
+    console:
+      type: str
+      output: true
+      description: "The serial console of the created system, output parameter"
+    mac_address:
+      type: str
+      output: true
+      description: "The mac address assigned to the NIC."
+    eth_slot:
+      type: str
+      output: true
+      description: "Board ethernet connector"
+script: "%script%/hardware.yml.include"
+...
+

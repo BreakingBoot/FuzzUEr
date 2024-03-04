@@ -28,28 +28,23 @@ run-script "%simics%/targets/common/sn-setup.yml" namespace = network:service_no
 
 local $system = (params.get machine:hardware:output:system)
 
-local $system = (params.get machine:hardware:output:system)
-
 script-branch {
-        local $con = $system.serconsole.con
-        # NOTE: We have to modify this from the included target because
-        # the custom BIOS doesn't print the original message until the menu appears
-        bp.console_string.wait-for $con "End Load Options Dumping"
-        bp.time.wait-for seconds = 5.0
-        echo "Got load options dump"
-        echo "Opening EFI shell"
-        $con.input -e Esc
-        bp.time.wait-for seconds = 5.0
+    local $con = $system.console.con
+    # NOTE: We have to modify this from the included target because
+    # the custom BIOS doesn't print the original message until the menu appears
+    bp.console_string.wait-for $system.serconsole.con "End Load Options Dumping"
+    bp.time.wait-for seconds = 15.0
+    echo "Got load options dump"
+    echo "Opening EFI shell"
+    $con.input -e Esc
+    bp.time.wait-for seconds = 5.0
+    $con.input -e Down
+    $con.input -e Down
+    $con.input -e Enter
+    bp.time.wait-for seconds = 5.0
 
-        $con.input -e Down
-        $con.input -e Down
-        $con.input -e Enter
-        bp.time.wait-for seconds = 5.0
+    $con.input -e Up
 
-        foreach $i in (range 6) {
-                $con.input -e Down
-        }
-
-        $con.input -e Enter
-        $con.input -e Enter
+    $con.input -e Enter
+    $con.input -e Enter
 }

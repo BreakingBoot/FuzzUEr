@@ -38,7 +38,7 @@ params:
         bios:
           type: file
           description: BIOS file.
-          default: "/input/src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGDWARF/FV/BOARDX58ICH10.fd"
+          default: "/input/local_test/src/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd"
         lan_bios:
           type: file
           required: false
