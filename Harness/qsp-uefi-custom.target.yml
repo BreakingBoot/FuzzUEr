@@ -17,7 +17,7 @@ params:
           create: true
         firmware:
           bios: ^machine:software:firmware:bios
-          lan_bios:  
+          lan_bios:  ^machine:software:firmware:lan_bios
           spi_flash: ^machine:software:firmware:spi_flash
     uefi_device:
       advanced: 2
