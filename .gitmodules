@@ -4,3 +4,6 @@
 [submodule "firness"]
 	path = firness
 	url = git@github.com:BreakingBoot/firness
+[submodule "uefi_asan"]
+	path = uefi_asan
+	url = git@github.com:BreakingBoot/uefi_asan.git
