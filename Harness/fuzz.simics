@@ -4,7 +4,7 @@ init-tsffs
 @tsffs.start_on_harness = True
 @tsffs.stop_on_harness = True
 @tsffs.timeout = 3.0
-@tsffs.exceptions = [13, 14]
+@tsffs.exceptions = [12, 13, 14]
 @tsffs.generate_random_corpus = True
 
 @tsffs.use_snapshots = True
