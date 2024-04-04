@@ -1,9 +1,9 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-# hadolint global ignore=DL3041,DL3040
+FROM ubuntu:22.04
 
-FROM fedora:38
+# Suppresses a debconf error during apt-get install.
+ENV DEBIAN_FRONTEND=noninteractive
 
+WORKDIR /workspace
 # Download links can be obtained from:
 # https://lemcenter.intel.com/productDownload/?Product=256660e5-a404-4390-b436-f64324d94959
 ENV PUBLIC_SIMICS_PKGS_URL="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ead79ef5-28b5-48c7-8d1f-3cde7760798f/simics-6-packages-2024-05-linux64.ispm"
@@ -21,71 +21,116 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # - Tools for creating a CRAFF image to load into a model
 # - Python, including checkers/linters
 # - Rust (will be on the PATH due to the ENV command above)
-RUN dnf -y update && \
-    dnf -y install \
-        @development-tools \
-        z3-devel \
-        unzip \
-        zlib-devel \
-        json-devel \
-        wget \
+# Set timezone.
+ENV TZ=UTC
+
+ENV GCC_MAJOR_VERSION=12
+
+# Install and update the package list
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends \
+        software-properties-common \
+        apt-utils \
         cryptsetup \
-        libuuid-devel \
-        lcov \
-        nasm \
-        acpica-tools \
-        virtualenv \
-        dtc \
-        mono-devel \
-        bear \
-        ca-certificates \
-        alsa-lib \
-        atk \
-        bash \
+        apt-transport-https \
+        sudo \
+        wget \
         clang \
-        clang-libs \
-        clang-resource-filesystem \
-        clang-tools-extra \
+        llvm \
+        clang-tools \
         cmake \
         cups \
         curl \
         dosfstools \
-        g++ \
-        gcc \
+        unzip \
+        libjsoncpp-dev \
+        bear \
+        build-essential \
+        uuid-dev \
         git \
-        git-lfs \
-        glibc-devel \
-        glibc-devel.i686 \
-        glibc-static \
-        glibc-static.i686 \
-        gtk3 \
-        lld \
-        lld-devel \
-        lld-libs \
-        llvm \
-        llvm-libs \
-        llvm-static \
-        make \
-        mesa-libgbm \
-        mtools \
-        ninja-build \
-        openssl \
-        openssl-devel \
-        openssl-libs \
-        python3 \
+        lcov \
+        nasm \
+        acpica-tools \
+        virtualenv \
+        device-tree-compiler \
+        mono-devel \
+        python3\
         python3-pip \
-        vim \
-        yamllint && \
+        python3-venv \
+        locales \
+        gnupg \
+        ca-certificates \
+        ninja-build && \
+    apt-get install --yes --no-install-recommends \
+        g++-${GCC_MAJOR_VERSION} gcc-${GCC_MAJOR_VERSION} \
+        g++-${GCC_MAJOR_VERSION}-x86-64-linux-gnux32 gcc-${GCC_MAJOR_VERSION}-x86-64-linux-gnux32 \
+        g++-${GCC_MAJOR_VERSION}-aarch64-linux-gnu gcc-${GCC_MAJOR_VERSION}-aarch64-linux-gnu \
+        g++-${GCC_MAJOR_VERSION}-riscv64-linux-gnu gcc-${GCC_MAJOR_VERSION}-riscv64-linux-gnu \
+        g++-${GCC_MAJOR_VERSION}-arm-linux-gnueabi gcc-${GCC_MAJOR_VERSION}-arm-linux-gnueabi \
+        g++-${GCC_MAJOR_VERSION}-arm-linux-gnueabihf gcc-${GCC_MAJOR_VERSION}-arm-linux-gnueabihf && \
     python3 -m pip install --no-cache-dir \
         black==23.10.1 \
         flake8==6.1.0 \
         isort==5.12.0 \
         mypy==1.6.1 \
-        pylint==3.0.2 && \
+        pylint==3.0.2 \
+        matplotlib==3.8.3 && \
     curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain nightly
 
 
-WORKDIR /llvm-source
+RUN \
+    update-alternatives \
+      --install /usr/bin/python python /usr/bin/python3.10 1 &&\
+    update-alternatives \
+      --install /usr/bin/python3 python3 /usr/bin/python3.10 1 &&\
+    update-alternatives \
+      --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_MAJOR_VERSION} 100 \
+      --slave /usr/bin/g++ g++ /usr/bin/g++-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_MAJOR_VERSION} && \
+    update-alternatives \
+      --install /usr/bin/cpp cpp /usr/bin/cpp-${GCC_MAJOR_VERSION} 100 && \
+    update-alternatives \
+      --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-${GCC_MAJOR_VERSION} 100 \
+      --slave /usr/bin/aarch64-linux-gnu-g++ aarch64-linux-gnu-g++ /usr/bin/aarch64-linux-gnu-g++-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/aarch64-linux-gnu-gcc-ar aarch64-linux-gnu-gcc-ar /usr/bin/aarch64-linux-gnu-gcc-ar-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/aarch64-linux-gnu-gcc-nm aarch64-linux-gnu-gcc-nm /usr/bin/aarch64-linux-gnu-gcc-nm-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/aarch64-linux-gnu-gcc-ranlib aarch64-linux-gnu-gcc-ranlib /usr/bin/aarch64-linux-gnu-gcc-ranlib-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/aarch64-linux-gnu-gcov aarch64-linux-gnu-gcov /usr/bin/aarch64-linux-gnu-gcov-${GCC_MAJOR_VERSION} && \
+    update-alternatives \
+      --install /usr/bin/aarch64-linux-gnu-cpp aarch64-linux-gnu-cpp /usr/bin/aarch64-linux-gnu-cpp-${GCC_MAJOR_VERSION} 100 && \
+    update-alternatives \
+      --install /usr/bin/arm-linux-gnueabi-gcc arm-linux-gnueabi-gcc /usr/bin/arm-linux-gnueabi-gcc-${GCC_MAJOR_VERSION} 100 \
+      --slave /usr/bin/arm-linux-gnueabi-g++ arm-linux-gnueabi-g++ /usr/bin/arm-linux-gnueabi-g++-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/arm-linux-gnueabi-gcc-ar arm-linux-gnueabi-gcc-ar /usr/bin/arm-linux-gnueabi-gcc-ar-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/arm-linux-gnueabi-gcc-nm arm-linux-gnueabi-gcc-nm /usr/bin/arm-linux-gnueabi-gcc-nm-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/arm-linux-gnueabi-gcc-ranlib arm-linux-gnueabi-gcc-ranlib /usr/bin/arm-linux-gnueabi-gcc-ranlib-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/arm-linux-gnueabi-gcov arm-linux-gnueabi-gcov /usr/bin/arm-linux-gnueabi-gcov-${GCC_MAJOR_VERSION} && \
+    update-alternatives \
+      --install /usr/bin/arm-linux-gnueabi-cpp arm-linux-gnueabi-cpp /usr/bin/arm-linux-gnueabi-cpp-${GCC_MAJOR_VERSION} 100 && \
+    update-alternatives \
+      --install /usr/bin/riscv64-linux-gnu-gcc riscv64-linux-gnu-gcc /usr/bin/riscv64-linux-gnu-gcc-${GCC_MAJOR_VERSION} 100 \
+      --slave /usr/bin/riscv64-linux-gnu-g++ riscv64-linux-gnu-g++ /usr/bin/riscv64-linux-gnu-g++-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/riscv64-linux-gnu-gcc-ar riscv64-linux-gnu-gcc-ar /usr/bin/riscv64-linux-gnu-gcc-ar-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/riscv64-linux-gnu-gcc-nm riscv64-linux-gnu-gcc-nm /usr/bin/riscv64-linux-gnu-gcc-nm-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/riscv64-linux-gnu-gcc-ranlib riscv64-linux-gnu-gcc-ranlib /usr/bin/riscv64-linux-gnu-gcc-ranlib-${GCC_MAJOR_VERSION} \
+      --slave /usr/bin/riscv64-linux-gnu-gcov riscv64-linux-gnu-gcov /usr/bin/riscv64-linux-gnu-gcov-${GCC_MAJOR_VERSION} && \
+    update-alternatives \
+      --install /usr/bin/riscv64-linux-gnu-cpp riscv64-linux-gnu-cpp /usr/bin/riscv64-linux-gnu-cpp-${GCC_MAJOR_VERSION} 100
+
+# Set toolchains prefix
+ENV GCC5_AARCH64_PREFIX /usr/bin/aarch64-linux-gnu-
+ENV GCC5_ARM_PREFIX     /usr/bin/arm-linux-gnueabi-
+ENV GCC5_RISCV64_PREFIX /usr/bin/riscv64-linux-gnu-
+
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 RUN wget -q https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-15.0.7.zip \
     && unzip llvmorg-15.0.7.zip \
@@ -99,18 +144,19 @@ RUN cd llvm-15.0.7 \
     && cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;llvm" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON \
     && ninja -j4
 
-ENV PATH /llvm-source/llvm-15.0.7/build/bin:$PATH
+ENV PATH /workspace/llvm-15.0.7/build/bin:$PATH
 
-COPY ./firness/pipeline_analysis.sh /llvm-source/analyze.sh
-COPY ./firness /llvm-source/llvm-15.0.7/clang-tools-extra/firness
-COPY ./firness/harness_generator /llvm-source/harness_generator
-COPY ./firness/HarnessHelpers /llvm-source/HarnessHelpers
+COPY ./firness/pipeline_analysis.sh /workspace/analyze.sh
+COPY ./firness /workspace/llvm-15.0.7/clang-tools-extra/firness
+COPY ./firness/harness_generator /workspace/harness_generator
+COPY ./firness/HarnessHelpers /workspace/HarnessHelpers
 
-RUN /llvm-source/llvm-15.0.7/clang-tools-extra/firness/patch.sh \
+RUN apt-get install -y nlohmann-json3-dev
+
+RUN /workspace/llvm-15.0.7/clang-tools-extra/firness/patch.sh \
     && cd llvm-15.0.7/build \
     && ninja -j4
 
-WORKDIR /workspace
 
 # Download and install public SIMICS. This installs all the public packages as well as the
 # ispm SIMICS package and project manager. ISPM will be on the path due to the ENV command
@@ -154,8 +200,6 @@ COPY ./Harness/minimal_boot_disk.craff /workspace/projects/example/
 # - QSP CPU (8112)
 # - Crypto Engine (1030) [only necessary because it is required by Golden Cove]
 # - TSFFS Fuzzer (31337)
-# - A built EFI application (test.efi) which checks a password and crashes when it gets the
-#   password "fuzzing!"
 # - A SIMICS script that configures the fuzzer for the example and starts fuzzing it
 RUN ispm projects /workspace/projects/example/ --create \
     1000-latest \
@@ -164,7 +208,8 @@ RUN ispm projects /workspace/projects/example/ --create \
     1030-latest \
     31337-latest --ignore-existing-files --non-interactive 
 
-RUN echo 'echo "To run the demo, run ./simics -no-gui --no-win fuzz.simics"' >> /root/.bashrc
+WORKDIR /workspace/
 
-
-
+COPY ./scripts /workspace/scripts/
+COPY ./uefi_asan /workspace/uefi_asan/
+COPY ./scripts/firness.py /workspace/
