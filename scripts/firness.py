@@ -14,12 +14,14 @@ def compile(src, compile_script='build_bios.py'):
     test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && source edksetup.sh'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     # Change directory to Intel Platform and run build_bios.py
     dir2 = os.path.join(src, 'edk2-platforms', 'Silicon', 'Intel', 'Tools')
     dir3 = os.path.join(src, 'edk2-platforms', 'Platform', 'Intel')
     test_cmd2 = f'cd {dir1} && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && cd {dir3} && python {compile_script} --cleanall && make -C {dir2} clean && python {compile_script} -p BoardX58Ich10 -t CLANGSAN'
     process = subprocess.run(test_cmd2, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log += process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     return log
 
 
@@ -84,6 +86,7 @@ def asan_instrumetation(src, dir):
     patch_cmd = 'patch -p1 -d ' + dir + ' < ' + patch_path + ' --binary'
     process = subprocess.run(patch_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
 
     open(os.path.join(dir, 'patch_applied'), 'w').close()
 
@@ -95,6 +98,7 @@ def run_firness(edk_dir, output_dir, input_file):
     cmd = 'firness -p ' + edk_dir +' -o ' + output_dir + ' -i ' + input_file + ' dummyfile'
     process = subprocess.run(cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     print('++++ Ran Static Analysis Tool ++++')
     return log
 
@@ -106,18 +110,21 @@ def generate_harness(src, output_dir, input_file):
     generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -f {output_dir}/functions.json -o {dst}'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     relocate_cmd = f'cp -r {dst}/Firness {output_dir}'
     process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log += process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     print('++++ Generated Harness ++++')
     return log
 
 # compile the harness
 def compile_harness(src):
     dir1 = os.path.join(src, 'edk2')
-    test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && source edksetup.sh && build -a X64 -b DEBUG -p Firness/FirnessHarnesses.inf -t CLANGSAN'
+    test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     print('++++ Compiled Harness ++++')
     return log
 
@@ -127,23 +134,33 @@ def compile_firmware(src):
     print('++++ Compiled Firmware ++++')
     return log
 
-# run the fuzzer
 def run_fuzzer(simics_dir, timeout):
     # reset the coverage log
     open(os.path.join(simics_dir, 'log.json'), 'w').close()
-    # spawn the fuzzer in a subprocess and kill it after a certain time
+
+    # spawn the fuzzer in a subprocess
     cmd = "./simics -no-win -no-gui fuzz.simics"
+    process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
+
     try:
-        subprocess.run(cmd, cwd=simics_dir, timeout=timeout, executable='/bin/bash', shell=True)
-        print('++++ Ran Fuzzer ++++')
-    except subprocess.TimeoutExpired as e:
-        print("Fuzzer timed out. Killing process.")
+        out, err = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        out, err = process.communicate()
+        print('Fuzzer timed out. Killing process.')
+    print('++++ Ran Fuzzer ++++')
+
+    log = out.decode('utf-8', errors='ignore')
+    log += err.decode('utf-8', errors='ignore')
+
+    return log
 
 
-def run_stacktrace():
-    # this will need to utilize the stack trace info generated by simics
-    # via the debug-context and stack-trace commands
-    pass
+def reproduce_crash(simics_dir):
+    # spawn the fuzzer in a subprocess and kill it after a certain time
+    cmd = "./simics -no-win -no-gui reproduce.simics"
+    subprocess.run(cmd, cwd=simics_dir, executable='/bin/bash', shell=True)
+
 
 def collect_unique_crashes():
     pass
@@ -220,13 +237,10 @@ def sanity_check(dir):
 def cleanup(src, tmp_dir, output):
     # move output to src
     os.system(f'cp -r {output} {src}')
-    # remove the tmp directory
-    os.system('rm -rf ' + tmp_dir)
-    os.system('rm -rf ' + output)
-    os.system('reset')
+    # os.system('reset')
 
-def write_log(output, logs):
-    with open(os.path.join(output, 'log.txt'), 'w') as f:
+def write_log(output, logs, filename='log.txt'):
+    with open(os.path.join(output, filename), 'w') as f:
         for log in logs:
             f.write(log + '\n')
 
@@ -235,6 +249,7 @@ def main():
     parser.add_argument('-s', '--src', type=str, help='Path to the source directory with edk2 and input.txt')
     parser.add_argument('-a', '--analyze', action='store_true', help='Run the static analysis tool')
     parser.add_argument('-f', '--fuzz', action='store_true', help='Run the fuzzer')
+    parser.add_argument('-r', '--reproduce', action='store_true', help='Reproduce a crash')
     parser.add_argument('-g', '--generate', action='store_true', help='Generate the harness')
     parser.add_argument('-t', '--timeout', type=int, help='Timeout for the fuzzer')
     args = parser.parse_args()
@@ -242,10 +257,12 @@ def main():
 
     # create a tmp directory to copy the source files to and work out of
     tmp_dir = os.path.join(os.getcwd(), 'tmp')
-    os.mkdir(tmp_dir)
-    os.system(f'cp -r {args.src}/* {tmp_dir}')
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+        os.system(f'cp -r {args.src}/* {tmp_dir}')
     output = os.path.join(os.getcwd(), 'firness_output')
-    os.mkdir(output)
+    if not os.path.exists(output):
+        os.mkdir(output)
     input_file = os.path.join(tmp_dir, 'input.txt')
     asan_dir = os.path.join(os.getcwd(), 'uefi_asan')
 
@@ -253,6 +270,9 @@ def main():
     if not sanity_check(tmp_dir):
         return
 
+    if args.reproduce:
+        reproduce_crash(os.path.join(os.getcwd(), 'projects', 'example'))
+        return
     # run the static analysis tool
     if args.analyze or complete_analysis or args.generate:
         # compile the firmware to get compilation database
@@ -265,13 +285,14 @@ def main():
         log += compile_harness(tmp_dir)
 
     if args.fuzz or complete_analysis:
-        # log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
+        log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
         # compile the firmware
         log += compile_firmware(tmp_dir)
 
         # run the fuzzer
         simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
-        run_fuzzer(simics_dir, args.timeout)
+        fuzzer_log = run_fuzzer(simics_dir, args.timeout)
+        write_log(output, fuzzer_log.split('\n'), 'fuzzer_log.txt')
         generate_report(simics_dir, output)
     
     write_log(output, log.split('\n'))

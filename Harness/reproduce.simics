@@ -1,0 +1,35 @@
+load-module tsffs
+init-tsffs
+@tsffs.log_level = 4
+@tsffs.start_on_harness = True
+@tsffs.stop_on_harness = True
+@tsffs.timeout = 3.0
+@tsffs.exceptions = [12, 13, 14]
+@tsffs.generate_random_corpus = True
+
+@tsffs.use_snapshots = True
+@tsffs.cmplog = True
+
+load-module uefi-fw-tracker
+
+load-target "qsp-x86/qsp-uefi-custom" namespace = qsp machine:hardware:firmware:bios = "/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd" machine:hardware:storage:disk0:image = "minimal_boot_disk.craff"
+
+new-os-awareness name = qsp.software
+qsp.software.insert-tracker tracker = uefi_fw_tracker_comp
+qsp.software.tracker.detect-parameters -overwrite param-file = "uefi.params" map-file = "/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/SimicsX58.map"
+qsp.software.tracker.load-parameters "uefi.params"
+qsp.software.enable-tracker
+debug-context object = "qsp.mb.cpu0.core[0][0]"
+
+
+script-branch {
+    local $con = qsp.console.con
+    bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping"
+    bp.time.wait-for seconds = 30    
+    qsp.console.con.input "FS0:\n"
+    bp.time.wait-for seconds = 5
+    local $manager = (start-agent-manager)
+    qsp.console.con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
+    bp.time.wait-for seconds = 5
+    qsp.console.con.input "Firness.efi\n"
+}
