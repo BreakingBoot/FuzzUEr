@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import os
 import json
+import time
 import argparse
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -141,13 +142,15 @@ def run_fuzzer(simics_dir, timeout):
     # spawn the fuzzer in a subprocess
     cmd = "./simics -no-win -no-gui fuzz.simics"
     process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
+    execution_time = 0
+    while execution_time < timeout:
+        print(f'Execution time: {execution_time}', end="", flush=True)
+        time.sleep(1)
+        execution_time += 1
 
-    try:
-        out, err = process.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        out, err = process.communicate()
-        print('Fuzzer timed out. Killing process.')
+
+    process.kill()
+    out, err = process.communicate()
     print('++++ Ran Fuzzer ++++')
 
     log = out.decode('utf-8', errors='ignore')
