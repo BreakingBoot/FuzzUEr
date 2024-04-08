@@ -144,7 +144,10 @@ def run_fuzzer(simics_dir, timeout):
     process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
     execution_time = 0
     while execution_time < timeout:
-        print(f'Execution time: {execution_time}', end="", flush=True)
+        hours, rem = divmod(execution_time, 3600)
+        minutes, seconds = divmod(rem, 60)
+        formatted_time = f'{int(hours)}hrs {int(minutes)}mins {int(seconds)}secs'
+        print(f'Execution time: {formatted_time}', end="\r")
         time.sleep(1)
         execution_time += 1
 
