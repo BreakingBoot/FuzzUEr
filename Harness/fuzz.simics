@@ -6,6 +6,7 @@ init-tsffs
 @tsffs.timeout = 3.0
 @tsffs.exceptions = [12, 13, 14]
 @tsffs.generate_random_corpus = True
+@tsffs.executor_timeout = 6000
 
 @tsffs.use_snapshots = True
 @tsffs.cmplog = True
