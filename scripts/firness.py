@@ -3,9 +3,12 @@ import subprocess
 import os
 import json
 import time
+import re
 import argparse
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import networkx as nx
+import pydot
 
 
 def compile(src, compile_script='build_bios.py'):
@@ -103,6 +106,208 @@ def run_firness(edk_dir, output_dir, input_file):
     print('++++ Ran Static Analysis Tool ++++')
     return log
 
+
+# inside the output dir, create one subdirectory for each input file in the input dir
+# and run the static analysis tool on each of them
+def eval_firness(edk2_dir, output_dir, input_dir):
+    total_files = len(os.listdir(input_dir))
+    for i, file in enumerate(os.listdir(input_dir)):
+        if os.path.isfile(os.path.join(input_dir, file)):
+            new_dir = os.path.join(output_dir, os.path.basename(file).split('.')[0])
+            if not os.path.exists(new_dir):
+                os.mkdir(new_dir)
+            result = run_firness(edk2_dir, new_dir, os.path.join(input_dir, file))
+            print(f'\t++++ INFO: Finished running static analysis tool on {file} ++++')
+            get_total_edges(output_dir, os.path.join(input_dir, file))
+            result += generate_harness(edk2_dir, new_dir, os.path.join(input_dir, file))
+            print(f'\t++++ INFO: Finished generating harness for {file} ++++')
+            result += compile_harness(new_dir)
+            print(f'\t++++ INFO: Finished compiling harness for {file} ++++')
+            write_log(new_dir, result.split('\n'), 'log.txt')
+            print(f'Completed {i+1}/{total_files}', end='\r')
+
+
+def collect_callgraphs(src, dst):
+    compilation_db_file = os.path.join(src, 'compile_commands.json')
+    bitcode_dir = os.path.join(dst, 'bitcode')
+    if not os.path.exists(bitcode_dir):
+        os.mkdir(bitcode_dir)
+    # Load compilation commands from compilation database
+    with open(compilation_db_file, 'r') as f:
+        compilation_db = json.load(f)
+    # create a cfg directory
+    cfg_dir = os.path.join(src, 'cfg')
+    if not os.path.exists(cfg_dir):
+        os.mkdir(cfg_dir)
+    os.chdir(cfg_dir)
+    bitcode_dir = os.path.join(src, 'bitcode')
+    bitcode_cmd = ['-Xclang', '-disable-O0-optnone', '-S', '-emit-llvm']
+
+    # Iterate over each compilation command
+    for entry in compilation_db:
+        command = entry['arguments']
+        # get the output file name
+        output_index = command.index('-o') + 1
+        output_file = command[output_index]
+        # get the base file name
+        base_file = os.path.basename(output_file)
+        new_output_file = os.path.join(bitcode_dir, base_file)
+        cfg_cmd = ['opt', '-dot-cfg', new_output_file]
+        command[output_index] = new_output_file
+
+        command.extend(bitcode_cmd)
+        # Execute the compilation command
+        try:
+            subprocess.run(' '.join(command), shell=True, check=True)
+            subprocess.run(' '.join(cfg_cmd), shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Compilation failed with exit code {e.returncode}")
+
+def generate_callgraph(src, dst):
+    # make a {src}/callgraphs directory if it doesn't exist
+    callgraphs_dir = os.path.join(dst, 'callgraphs')
+    if not os.path.exists(callgraphs_dir):
+        os.mkdir(callgraphs_dir)
+
+    # compile the firmware to generate the call graphs
+    collect_callgraphs(src, callgraphs_dir)
+    combine_cfgs(callgraphs_dir)
+    print('++++ Generated Callgraph ++++')
+
+def get_all_functions(functions, out_dir):
+    # I need to get all of the function aliases that are stored in
+    # the function-aliases.json file
+    function_aliases = os.path.join(out_dir, 'function-aliases.json')
+    with open(function_aliases, 'r') as file:
+        data = json.load(file)
+    all_functions = []
+    for function in functions:
+        if function in data.keys():
+            all_functions.append(function)
+            all_functions.extend(data[function])
+    return all_functions
+
+def collect_functions(out_dir, input_file):
+    with open(input_file, 'r') as file:
+        data = file.readlines()
+    functions = []
+    for line in data:
+        if line.strip() != "":
+            if not line.strip().startswith("//") and not line.strip().startswith("["):
+                if ':' in line:
+                    functions.append(line.split(':')[1].strip())
+                else:
+                    functions.append(line.strip())
+    functions = get_all_functions(functions, out_dir)
+    return functions
+
+
+def get_total_edges(src, input_file):
+    callgraphs_dir = os.path.join(src, 'callgraphs')
+    functions = collect_functions(src, input_file)
+    total_edges = 0
+    for function in functions:
+        total_edges += search_callgraph(callgraphs_dir, function)
+    print(f'++++ Total edges in firmware callgraph: {total_edges} ++++')
+    return total_edges
+
+def search_callgraph(src, function):
+    # make a {src}/callgraphs directory if it doesn't exist
+    firmware_callgraph = os.path.join(src, 'firmware.callgraph')
+    callgraph = nx.drawing.nx_pydot.read_dot(firmware_callgraph)
+    firmware_info = f'{firmware_callgraph}.json'
+    with open(firmware_info, 'r') as file:
+        function_edge_map = json.load(file)
+    
+    # search for the function in the callgraph and make a new subgraph with function as root
+    subgraph = nx.DiGraph()
+    for node in callgraph.nodes():
+        if function in node:
+            subgraph.add_node(node)
+            get_subgraph(callgraph, subgraph, node)
+            break
+    
+    # write the subgraph to a .dot file
+    subgraphs = os.path.join(src, 'subpgraphs')
+    if not os.path.exists(subgraphs):
+        os.mkdir(subgraphs)
+
+    total_edges = sum(function_edge_map.get(node, {'edges': 0}).get('edges', 0) for node in subgraph.nodes())
+    total_edges += subgraph.number_of_edges()
+    nx.drawing.nx_pydot.write_dot(subgraph, os.path.join(subgraphs, f'{function}.dot'))
+    return total_edges
+
+def get_subgraph(callgraph, subgraph, node):
+    neighbors = list(callgraph.neighbors(node))
+    if not neighbors:
+        # do a fuzzy search for the node
+        for n in callgraph.nodes():
+            n_neighbors = list(callgraph.neighbors(n))
+            if node.lower() in n.lower() and node.lower() != n.lower() and n_neighbors:
+                subgraph.add_edge(node, n)
+                node = n
+
+                break
+    for neighbor in callgraph.neighbors(node):
+        if neighbor not in subgraph.nodes():
+            subgraph.add_node(neighbor)
+            subgraph.add_edge(node, neighbor)
+            get_subgraph(callgraph, subgraph, neighbor)
+
+def convert_cfg_to_callgraph(cfg_file, callgraph, function_edge_map):
+    with open(cfg_file, 'r') as file:
+        dot_data = file.read()
+
+    # Parse the .dot data
+    cfg_graph = pydot.graph_from_dot_data(dot_data)[0]
+    function_node = os.path.basename(cfg_file).split('.')[1]
+    
+    callgraph.add_node(function_node)
+    all_function_calls = []
+
+    for node in cfg_graph.get_node_list():
+        node_label = node.get_label()
+        function_calls = (get_function_calls(node_label))
+        all_function_calls.extend(function_calls)
+        for call in function_calls:
+            callgraph.add_edge(function_node, call)
+    num_edges = len(list(cfg_graph.get_edges()))
+    function_edge_map[function_node] = {'edges': num_edges, 'function_calls': (all_function_calls)}
+
+    return callgraph, function_edge_map
+
+def get_function_calls(node_label):
+    function_calls = []
+    get_call = re.findall(r'call (\S+)?(\s+)?void (%|@)([^,(]+)', node_label)
+    for call in get_call:
+        # if the call[-1] is an int then it is a function pointer
+        if not call[-1].isdigit():
+            function_calls.append(call[-1])
+        else:
+            pattern = r'%s = load void(.*?)%%([^,]+)' % str(call[-1])
+            get_function_ptr = re.findall(pattern, node_label)
+            if get_function_ptr:
+                function_calls.append(get_function_ptr[0][-1])
+    return function_calls
+
+def combine_cfgs(src):
+    # create a cfg directory
+    cfg_callgraph = os.path.join(src, 'firmware.callgraph')
+    cfg_dir = os.path.join(src, 'cfg')
+
+    cfg_files = [os.path.join(cfg_dir, file) for file in os.listdir(cfg_dir) if file.endswith('.dot')]
+    callgraph = nx.DiGraph()
+    function_edge_map = defaultdict(list)
+    counter = 1
+    for cfg_file in cfg_files:        
+        callgraph, function_edge_map = convert_cfg_to_callgraph(cfg_file, callgraph, function_edge_map)
+        print(f' +++  {counter}:{len(cfg_files)}  +++', end='\r')
+        counter += 1
+    
+    with open(f'{cfg_callgraph}.json', 'w') as file:
+        json.dump(function_edge_map, file)
+    nx.drawing.nx_pydot.write_dot(callgraph, cfg_callgraph)
+
 # generate the harness for fuzzing with the results from the static analysis tool
 def generate_harness(src, output_dir, input_file):
     dst = os.path.join(src, 'edk2')
@@ -122,7 +327,7 @@ def generate_harness(src, output_dir, input_file):
 # compile the harness
 def compile_harness(src):
     dir1 = os.path.join(src, 'edk2')
-    test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
+    test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
@@ -250,17 +455,44 @@ def write_log(output, logs, filename='log.txt'):
         for log in logs:
             f.write(log + '\n')
 
+def run_eval(edk2_dir, input_dir):
+    # create fresh output directory or clear existing one
+    output_dir = os.path.join('/input', 'firness_eval')
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.mkdir(output_dir)
+    # create fresh source directory or clear existing one
+    src_dir = os.path.join(os.getcwd(), 'tmp')
+    if os.path.exists(src_dir):
+        shutil.rmtree(src_dir)
+    os.mkdir(src_dir)
+    # copy the source files to the tmp directory
+    os.system(f'cp -r {edk2_dir}/* {src_dir}')
+
+    # get compilation database
+    get_compilation_database('/workspace/scripts', src_dir)
+    generate_callgraph(src_dir, output_dir)
+    eval_firness(src_dir, output_dir, input_dir)
+
+    print('++++ Finished Evaluation ++++')
+
+
 def main():
     parser = argparse.ArgumentParser(description='Firness')
+    parser.add_argument('-i', '--input', type=str, help='Path to the input directory with the source files')
     parser.add_argument('-s', '--src', type=str, help='Path to the source directory with edk2 and input.txt')
     parser.add_argument('-a', '--analyze', action='store_true', help='Run the static analysis tool')
     parser.add_argument('-f', '--fuzz', action='store_true', help='Run the fuzzer')
     parser.add_argument('-r', '--reproduce', action='store_true', help='Reproduce a crash')
     parser.add_argument('-g', '--generate', action='store_true', help='Generate the harness')
     parser.add_argument('-t', '--timeout', type=int, help='Timeout for the fuzzer')
+    parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
     args = parser.parse_args()
     complete_analysis = not args.analyze and not args.fuzz and not args.generate
 
+    if args.eval:
+        run_eval(args.src, args.input)
+        return 
     # create a tmp directory to copy the source files to and work out of
     tmp_dir = os.path.join(os.getcwd(), 'tmp')
     if not os.path.exists(tmp_dir):
