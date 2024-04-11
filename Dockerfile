@@ -75,7 +75,9 @@ RUN apt-get update && \
         mypy==1.6.1 \
         pylint==3.0.2 \
         matplotlib==3.8.3 \
-        fuzzywuzzy==0.18.0 && \
+        fuzzywuzzy==0.18.0 \
+        networkx==3.1 \
+        pydot==1.4.2 && \
     curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain nightly
 
 
