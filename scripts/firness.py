@@ -3,6 +3,7 @@ import subprocess
 import os
 import json
 import time
+import signal
 import re
 import argparse
 from collections import defaultdict
@@ -37,6 +38,34 @@ def get_compilation_database(src, dst):
     shutil.copyfile(src_file, platforms_dir)
     # # run it
     log = compile(dst, 'build_bios2.py')
+    # there are a couple gcc commands that need to be removed from the compilation database
+    # remove them
+    compilation_db = os.path.join(dst, 'compile_commands.json')
+    with open(compilation_db, 'r') as f:
+        compile_commands = json.load(f)
+
+    filtered_commands = [cmd for cmd in compile_commands if 'gcc' not in cmd['arguments'][0]]
+
+    with open(compilation_db, 'w') as f:
+        json.dump(filtered_commands, f, indent=2)
+    print('++++ Generated Compilation Database ++++')
+    return log
+
+
+def compile2(src):
+    # Change directory to BaseTools and run make
+    test_cmd = f'cd /workspace/edk2 && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/ && export EDK_TOOLS_PATH=/workspace/edk2/BaseTools && export CONF_PATH=/workspace/edk2/Conf && source edksetup.sh && cd {src} && bear -- build -a X64 -t CLANGDWARF -p OvmfPkg/OvmfPkgX64.dsc'
+    process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log = process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
+    return log
+
+
+# Run bear on the entire simics code base to get the compilation database
+def get_compilation_database2(src, dst):
+    # # run it
+    os.system(f'cp -r {src}/BackupBase/* {dst}/BaseTools/')
+    log = compile2(dst)
     # there are a couple gcc commands that need to be removed from the compilation database
     # remove them
     compilation_db = os.path.join(dst, 'compile_commands.json')
@@ -109,7 +138,8 @@ def run_firness(edk_dir, output_dir, input_file):
 
 # inside the output dir, create one subdirectory for each input file in the input dir
 # and run the static analysis tool on each of them
-def eval_firness(edk2_dir, output_dir, input_dir):
+def eval_firness(edk2_dir, output_dir, input_dir, random):
+    collected_stats = dict()
     total_files = len(os.listdir(input_dir))
     for i, file in enumerate(os.listdir(input_dir)):
         if os.path.isfile(os.path.join(input_dir, file)):
@@ -118,14 +148,46 @@ def eval_firness(edk2_dir, output_dir, input_dir):
                 os.mkdir(new_dir)
             result = run_firness(edk2_dir, new_dir, os.path.join(input_dir, file))
             print(f'\t++++ INFO: Finished running static analysis tool on {file} ++++')
-            get_total_edges(output_dir, os.path.join(input_dir, file))
-            result += generate_harness(edk2_dir, new_dir, os.path.join(input_dir, file))
+            # get_total_edges(output_dir, os.path.join(input_dir, file), new_dir)
+            # print(f'\t++++ INFO: Finished getting total edges for {file} ++++')
+            result = generate_harness(edk2_dir, new_dir, os.path.join(input_dir, file), random)
             print(f'\t++++ INFO: Finished generating harness for {file} ++++')
             result += compile_harness(new_dir)
             print(f'\t++++ INFO: Finished compiling harness for {file} ++++')
             write_log(new_dir, result.split('\n'), 'log.txt')
+            collected_stats[file] = collect_stats(new_dir)
             print(f'Completed {i+1}/{total_files}', end='\r')
+    #print stats 
+    print_stats(collected_stats)
+    # write the collected stats to a file
+    with open(os.path.join(output_dir, 'stats.csv'), 'w') as file:
+        for key, value in collected_stats.items():
+            line = f'{key},'
+            for k, v in value.items():
+                line += f'{v},'
+            file.write(line + '\n')
 
+
+def print_stats(stats):
+    for key, value in stats.items():
+        line = f'{key}: '
+        for k, v in value.items():
+            line += f'{v} '
+        print(line)
+
+def collect_stats(dir):
+    stats = dict()
+    # read in the csv file called stats.csv
+    stats_file = os.path.join(dir, 'stats.csv')
+    try:
+        with open(stats_file, 'r') as file:
+            data = file.readlines()
+        for line in data:
+            key, value = line.strip().split(',')
+            stats[key] = value
+    except FileNotFoundError:
+        print('Error: stats.csv not found')
+    return stats
 
 def collect_callgraphs(src, dst):
     compilation_db_file = os.path.join(src, 'compile_commands.json')
@@ -136,11 +198,11 @@ def collect_callgraphs(src, dst):
     with open(compilation_db_file, 'r') as f:
         compilation_db = json.load(f)
     # create a cfg directory
-    cfg_dir = os.path.join(src, 'cfg')
+    cfg_dir = os.path.join(dst, 'cfg')
     if not os.path.exists(cfg_dir):
         os.mkdir(cfg_dir)
     os.chdir(cfg_dir)
-    bitcode_dir = os.path.join(src, 'bitcode')
+    bitcode_dir = os.path.join(dst, 'bitcode')
     bitcode_cmd = ['-Xclang', '-disable-O0-optnone', '-S', '-emit-llvm']
 
     # Iterate over each compilation command
@@ -158,8 +220,8 @@ def collect_callgraphs(src, dst):
         command.extend(bitcode_cmd)
         # Execute the compilation command
         try:
-            subprocess.run(' '.join(command), shell=True, check=True)
-            subprocess.run(' '.join(cfg_cmd), shell=True, check=True)
+            subprocess.run(' '.join(command), shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(' '.join(cfg_cmd), shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
             print(f"Compilation failed with exit code {e.returncode}")
 
@@ -177,46 +239,65 @@ def generate_callgraph(src, dst):
 def get_all_functions(functions, out_dir):
     # I need to get all of the function aliases that are stored in
     # the function-aliases.json file
-    function_aliases = os.path.join(out_dir, 'function-aliases.json')
-    with open(function_aliases, 'r') as file:
+    function_aliases_file = os.path.join(out_dir, 'function-aliases.json')
+    with open(function_aliases_file, 'r') as file:
         data = json.load(file)
-    all_functions = []
+    if not data:
+        return functions
+    function_aliases = {item["Function"]: item["Aliases"] for item in data}
+
+    all_functions = set()
     for function in functions:
-        if function in data.keys():
-            all_functions.append(function)
-            all_functions.extend(data[function])
+        if function in function_aliases.keys():
+            all_functions.add(function)
+            for function2 in function_aliases[function]:
+                all_functions.add(function2)
     return all_functions
 
 def collect_functions(out_dir, input_file):
     with open(input_file, 'r') as file:
         data = file.readlines()
-    functions = []
+    functions = set()
     for line in data:
         if line.strip() != "":
             if not line.strip().startswith("//") and not line.strip().startswith("["):
                 if ':' in line:
-                    functions.append(line.split(':')[1].strip())
+                    functions.add(line.split(':')[1].strip())
                 else:
-                    functions.append(line.strip())
+                    functions.add(line.strip())
     functions = get_all_functions(functions, out_dir)
     return functions
 
 
-def get_total_edges(src, input_file):
+def get_total_edges(src, input_file, output_dir):
     callgraphs_dir = os.path.join(src, 'callgraphs')
-    functions = collect_functions(src, input_file)
+    edge_dir = os.path.join(output_dir, 'function_edges')
+    if not os.path.exists(edge_dir):
+        os.mkdir(edge_dir)
+    functions = collect_functions(output_dir, input_file)
+    counter = 1
     total_edges = 0
     for function in functions:
-        total_edges += search_callgraph(callgraphs_dir, function)
+        subgraph_edges = search_callgraph(output_dir, function, callgraphs_dir)
+        print(f'++++ Completed: {function} - {counter}/{len(functions)} ++++', end='\r')
+        # save the subgraph edges to a file called .{function}_edges.txt
+        with open(os.path.join(edge_dir, f'.{function}_edges.txt'), 'w') as file:
+            file.write(str(subgraph_edges))
+        counter += 1
+        total_edges += subgraph_edges
+    
+    # write the total number of edges to a file
+    with open(os.path.join(output_dir, 'total_edges.txt'), 'w') as file:
+        file.write(str(total_edges))
     print(f'++++ Total edges in firmware callgraph: {total_edges} ++++')
     return total_edges
 
-def search_callgraph(src, function):
+def search_callgraph(src, function, callgraphs_dir):
     # make a {src}/callgraphs directory if it doesn't exist
-    firmware_callgraph = os.path.join(src, 'firmware.callgraph')
+    firmware_callgraph = os.path.join(src, 'call-graph.dot')
+    function_edge_file = os.path.join(callgraphs_dir, 'call-graph.dot.json')
     callgraph = nx.drawing.nx_pydot.read_dot(firmware_callgraph)
-    firmware_info = f'{firmware_callgraph}.json'
-    with open(firmware_info, 'r') as file:
+    with open(function_edge_file, 'r') as file:
         function_edge_map = json.load(file)
     
     # search for the function in the callgraph and make a new subgraph with function as root
@@ -243,7 +324,7 @@ def get_subgraph(callgraph, subgraph, node):
         # do a fuzzy search for the node
         for n in callgraph.nodes():
             n_neighbors = list(callgraph.neighbors(n))
-            if node.lower() in n.lower() and node.lower() != n.lower() and n_neighbors:
+            if node.lower() in n.lower() and node.lower() != n.lower() and n_neighbors and n not in subgraph.nodes():
                 subgraph.add_edge(node, n)
                 node = n
 
@@ -254,7 +335,7 @@ def get_subgraph(callgraph, subgraph, node):
             subgraph.add_edge(node, neighbor)
             get_subgraph(callgraph, subgraph, neighbor)
 
-def convert_cfg_to_callgraph(cfg_file, callgraph, function_edge_map):
+def convert_cfg_to_callgraph(cfg_file, function_edge_map):
     with open(cfg_file, 'r') as file:
         dot_data = file.read()
 
@@ -262,19 +343,10 @@ def convert_cfg_to_callgraph(cfg_file, callgraph, function_edge_map):
     cfg_graph = pydot.graph_from_dot_data(dot_data)[0]
     function_node = os.path.basename(cfg_file).split('.')[1]
     
-    callgraph.add_node(function_node)
-    all_function_calls = []
-
-    for node in cfg_graph.get_node_list():
-        node_label = node.get_label()
-        function_calls = (get_function_calls(node_label))
-        all_function_calls.extend(function_calls)
-        for call in function_calls:
-            callgraph.add_edge(function_node, call)
     num_edges = len(list(cfg_graph.get_edges()))
-    function_edge_map[function_node] = {'edges': num_edges, 'function_calls': (all_function_calls)}
+    function_edge_map[function_node] = {'edges': num_edges}
 
-    return callgraph, function_edge_map
+    return function_edge_map
 
 def get_function_calls(node_label):
     function_calls = []
@@ -292,35 +364,35 @@ def get_function_calls(node_label):
 
 def combine_cfgs(src):
     # create a cfg directory
-    cfg_callgraph = os.path.join(src, 'firmware.callgraph')
+    cfg_callgraph = os.path.join(src, 'call-graph.dot')
     cfg_dir = os.path.join(src, 'cfg')
 
     cfg_files = [os.path.join(cfg_dir, file) for file in os.listdir(cfg_dir) if file.endswith('.dot')]
-    callgraph = nx.DiGraph()
     function_edge_map = defaultdict(list)
     counter = 1
     for cfg_file in cfg_files:        
-        callgraph, function_edge_map = convert_cfg_to_callgraph(cfg_file, callgraph, function_edge_map)
+        function_edge_map = convert_cfg_to_callgraph(cfg_file, function_edge_map)
         print(f' +++  {counter}:{len(cfg_files)}  +++', end='\r')
         counter += 1
     
     with open(f'{cfg_callgraph}.json', 'w') as file:
         json.dump(function_edge_map, file)
-    nx.drawing.nx_pydot.write_dot(callgraph, cfg_callgraph)
 
 # generate the harness for fuzzing with the results from the static analysis tool
-def generate_harness(src, output_dir, input_file):
-    dst = os.path.join(src, 'edk2')
+def generate_harness(src, output_dir, input_file, random: bool = False):
+    dst = output_dir#os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
     # so we can hard code them
     generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -f {output_dir}/functions.json -o {dst}'
+    if random:
+        generate_cmd += ' -r'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
-    relocate_cmd = f'cp -r {dst}/Firness {output_dir}'
-    process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    log += process.stdout.decode('utf-8', errors='ignore')
-    log += process.stderr.decode('utf-8', errors='ignore')
+    # relocate_cmd = f'cp -r {dst}/Firness {output_dir}'
+    # process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # log += process.stdout.decode('utf-8', errors='ignore')
+    # log += process.stderr.decode('utf-8', errors='ignore')
     print('++++ Generated Harness ++++')
     return log
 
@@ -331,7 +403,10 @@ def compile_harness(src):
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
-    print('++++ Compiled Harness ++++')
+    if process.returncode != 0:
+        print('Error: Harness compilation failed')
+    else:
+        print('++++ Compiled Harness ++++')
     return log
 
 # compile the firmware
@@ -340,13 +415,13 @@ def compile_firmware(src):
     print('++++ Compiled Firmware ++++')
     return log
 
-def run_fuzzer(simics_dir, timeout):
+def run_fuzzer(simics_dir, timeout, output_dir):
     # reset the coverage log
     open(os.path.join(simics_dir, 'log.json'), 'w').close()
 
     # spawn the fuzzer in a subprocess
-    cmd = "./simics -no-win -no-gui fuzz.simics"
-    process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
+    cmd = f"./simics -no-win -no-gui fuzz.simics &> {os.path.join(output_dir, 'fuzz.log')}"
+    process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
     execution_time = 0
     while execution_time < timeout:
         hours, rem = divmod(execution_time, 3600)
@@ -356,15 +431,9 @@ def run_fuzzer(simics_dir, timeout):
         time.sleep(1)
         execution_time += 1
 
-
     process.kill()
-    out, err = process.communicate()
+    os.system(f'cp {simics_dir}/log.json {output_dir}')
     print('++++ Ran Fuzzer ++++')
-
-    log = out.decode('utf-8', errors='ignore')
-    log += err.decode('utf-8', errors='ignore')
-
-    return log
 
 
 def reproduce_crash(simics_dir):
@@ -430,9 +499,6 @@ def generate_report(simics_dir, output_dir):
 def sanity_check(dir):
     # make sure there is at least an input.txt file
     # and the edk2 directory
-    if not os.path.exists(os.path.join(dir, 'input.txt')):
-        print('Error: input.txt not found')
-        return False
     if not os.path.exists(os.path.join(dir, 'edk2')):
         print('Error: edk2 directory not found')
         return False
@@ -455,9 +521,9 @@ def write_log(output, logs, filename='log.txt'):
         for log in logs:
             f.write(log + '\n')
 
-def run_eval(edk2_dir, input_dir):
+def run_eval(edk2_dir, input_dir, random):
     # create fresh output directory or clear existing one
-    output_dir = os.path.join('/input', 'firness_eval')
+    output_dir = os.path.join('/input', 'firness_eval_random' if random else 'firness_eval')
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.mkdir(output_dir)
@@ -472,27 +538,67 @@ def run_eval(edk2_dir, input_dir):
     # get compilation database
     get_compilation_database('/workspace/scripts', src_dir)
     generate_callgraph(src_dir, output_dir)
-    eval_firness(src_dir, output_dir, input_dir)
+    eval_firness(src_dir, output_dir, input_dir, random)
 
     print('++++ Finished Evaluation ++++')
 
 
+def run_eval2(src):
+    # iterate over all directories in the src directory
+    # for dir in os.listdir(src):
+    #     if os.path.isdir(os.path.join(src, dir)):
+    # main = os.path.join(src, 'edk2')
+    # get the only dir inside the path
+    for edk in os.listdir(src):
+        if os.path.isdir(os.path.join(src, edk)):
+            edk2_dir = os.path.join(src, edk)
+    # create fresh output directory or clear existing one
+    print(f'++++ Starting Evaluation {edk2_dir} ++++')
+    output_dir = os.path.join(src, 'firness_eval2')
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.mkdir(output_dir)
+    
+    # create fresh source directory or clear existing one
+    src_dir = os.path.join(os.getcwd(), 'tmp')
+    if os.path.exists(src_dir):
+        shutil.rmtree(src_dir)
+    os.mkdir(src_dir)
+    # copy the source files to the tmp directory
+    os.system(f'cp -r {edk2_dir}/* {src_dir}')
+    # get compilation database
+    get_compilation_database2('/workspace/', src_dir)
+    # generate_callgraph(src_dir, output_dir)
+    eval_firness(src_dir, output_dir, src, False)
+
+    print(f'++++ Finished Evaluation {dir} ++++')
+
+
 def main():
     parser = argparse.ArgumentParser(description='Firness')
-    parser.add_argument('-i', '--input', type=str, help='Path to the input directory with the source files')
+    parser.add_argument('-i', '--input', type=str, help='Path to the input directory with the source files or input file for single run')
     parser.add_argument('-s', '--src', type=str, help='Path to the source directory with edk2 and input.txt')
     parser.add_argument('-a', '--analyze', action='store_true', help='Run the static analysis tool')
     parser.add_argument('-f', '--fuzz', action='store_true', help='Run the fuzzer')
-    parser.add_argument('-r', '--reproduce', action='store_true', help='Reproduce a crash')
+    parser.add_argument('-r', '--random', action='store_true', help='randomize the input for the static analysis tool')
+    # parser.add_argument('-r', '--reproduce', action='store_true', help='Reproduce a crash')
     parser.add_argument('-g', '--generate', action='store_true', help='Generate the harness')
     parser.add_argument('-t', '--timeout', type=int, help='Timeout for the fuzzer')
     parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
     args = parser.parse_args()
     complete_analysis = not args.analyze and not args.fuzz and not args.generate
 
+    # if args.eval and args.generate:
+    #     print(generate_harness(args.src, args.src, args.input))
+    #     return 
+
     if args.eval:
-        run_eval(args.src, args.input)
+        # run_eval2(args.src)
+        run_eval(args.src, args.input, args.random)
         return 
+    # input_file = args.input
+    if args.input:
+        input_file = os.path.normpath(args.input)
     # create a tmp directory to copy the source files to and work out of
     tmp_dir = os.path.join(os.getcwd(), 'tmp')
     if not os.path.exists(tmp_dir):
@@ -501,20 +607,20 @@ def main():
     output = os.path.join(os.getcwd(), 'firness_output')
     if not os.path.exists(output):
         os.mkdir(output)
-    input_file = os.path.join(tmp_dir, 'input.txt')
     asan_dir = os.path.join(os.getcwd(), 'uefi_asan')
 
     # copy the source files to the tmp directory
     if not sanity_check(tmp_dir):
         return
-
-    if args.reproduce:
-        reproduce_crash(os.path.join(os.getcwd(), 'projects', 'example'))
-        return
+    
+    log = ''
+    # if args.reproduce:
+    #     reproduce_crash(os.path.join(os.getcwd(), 'projects', 'example'))
+    #     return
     # run the static analysis tool
     if args.analyze or complete_analysis or args.generate:
         # compile the firmware to get compilation database
-        log = get_compilation_database('/workspace/scripts', tmp_dir)
+        log += get_compilation_database('/workspace/scripts', tmp_dir)
         log += run_firness(tmp_dir, output, input_file)
 
     # generate the harness
@@ -523,14 +629,14 @@ def main():
         log += compile_harness(tmp_dir)
 
     if args.fuzz or complete_analysis:
-        log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
+        # log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
         # compile the firmware
-        log += compile_firmware(tmp_dir)
+        # log += compile_firmware(tmp_dir)
+        # log += compile_harness(tmp_dir)
 
         # run the fuzzer
         simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
-        fuzzer_log = run_fuzzer(simics_dir, args.timeout)
-        write_log(output, fuzzer_log.split('\n'), 'fuzzer_log.txt')
+        run_fuzzer(simics_dir, args.timeout, output)
         generate_report(simics_dir, output)
     
     write_log(output, log.split('\n'))
