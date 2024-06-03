@@ -6,9 +6,6 @@ init-tsffs
 @tsffs.timeout = 3.0
 @tsffs.exceptions = [12, 13, 14]
 @tsffs.generate_random_corpus = True
-@tsffs.executor_timeout = 6000
-
-@tsffs.use_snapshots = True
 @tsffs.cmplog = True
 
 load-module uefi-fw-tracker
@@ -20,6 +17,7 @@ qsp.software.insert-tracker tracker = uefi_fw_tracker_comp
 qsp.software.tracker.detect-parameters -overwrite param-file = "uefi.params" map-file = "/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/SimicsX58.map"
 qsp.software.tracker.load-parameters "uefi.params"
 qsp.software.enable-tracker
+collect-coverage -access-count -branch-coverage -linear context-query = "'UEFI Firmware'" name = cc
 debug-context object = "qsp.mb.cpu0.core[0][0]"
 
 
