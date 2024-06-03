@@ -140,12 +140,16 @@ def run_firness(edk_dir, output_dir, input_file):
 # and run the static analysis tool on each of them
 def eval_firness(edk2_dir, output_dir, input_dir, random):
     collected_stats = dict()
+    min_time = 0
+    max_time = 0
+    runtimes = dict()
     total_files = len(os.listdir(input_dir))
     for i, file in enumerate(os.listdir(input_dir)):
         if os.path.isfile(os.path.join(input_dir, file)):
             new_dir = os.path.join(output_dir, os.path.basename(file).split('.')[0])
             if not os.path.exists(new_dir):
                 os.mkdir(new_dir)
+            start_time = time.time()
             result = run_firness(edk2_dir, new_dir, os.path.join(input_dir, file))
             print(f'\t++++ INFO: Finished running static analysis tool on {file} ++++')
             # get_total_edges(output_dir, os.path.join(input_dir, file), new_dir)
@@ -156,9 +160,18 @@ def eval_firness(edk2_dir, output_dir, input_dir, random):
             print(f'\t++++ INFO: Finished compiling harness for {file} ++++')
             write_log(new_dir, result.split('\n'), 'log.txt')
             collected_stats[file] = collect_stats(new_dir)
+            runtimes[file] = collect_runtime_stats((time.time() - start_time), new_dir, os.path.join(input_dir, file))
             print(f'Completed {i+1}/{total_files}', end='\r')
     #print stats 
     print_stats(collected_stats)
+
+    with open(os.path.join(output_dir, 'runtimes.csv'), 'w') as file:
+        for key, value in runtimes.items():
+            line = f'{key},'
+            for k, v in value.items():
+                line += f'{v},'
+            file.write(line + '\n')
+
     # write the collected stats to a file
     with open(os.path.join(output_dir, 'stats.csv'), 'w') as file:
         for key, value in collected_stats.items():
@@ -166,6 +179,28 @@ def eval_firness(edk2_dir, output_dir, input_dir, random):
             for k, v in value.items():
                 line += f'{v},'
             file.write(line + '\n')
+
+def collect_runtime_stats(time, dir, input_file):
+    functions = collect_functions(dir, input_file)
+    stats = dict()
+    stats['time'] = time
+    stats['functions'] = len(functions)
+    stats['lines'] = get_lines(dir)
+    return stats
+
+def get_lines(dir):
+    # look for a folder called Firness in the dir
+    # and get the number of lines in all .c and .h files
+    lines = 0
+    firness_dir = os.path.join(dir, 'Firness')
+    if os.path.exists(firness_dir):
+        for file in os.listdir(firness_dir):
+            if file.endswith('.c') or file.endswith('.h'):
+                with open(os.path.join(firness_dir, file), 'r') as f:
+                    lines += len(f.readlines())
+    return lines
+        
+
 
 
 def print_stats(stats):
@@ -265,7 +300,7 @@ def collect_functions(out_dir, input_file):
                     functions.add(line.split(':')[1].strip())
                 else:
                     functions.add(line.strip())
-    functions = get_all_functions(functions, out_dir)
+    # functions = get_all_functions(functions, out_dir)
     return functions
 
 
@@ -383,7 +418,7 @@ def generate_harness(src, output_dir, input_file, random: bool = False):
     dst = output_dir#os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
     # so we can hard code them
-    generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -f {output_dir}/functions.json -o {dst}'
+    generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -s {output_dir}/cast-map.json -f {output_dir}/functions.json -o {dst}'
     if random:
         generate_cmd += ' -r'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -523,7 +558,7 @@ def write_log(output, logs, filename='log.txt'):
 
 def run_eval(edk2_dir, input_dir, random):
     # create fresh output directory or clear existing one
-    output_dir = os.path.join('/input', 'firness_eval_random' if random else 'firness_eval')
+    output_dir = os.path.join('/input', 'firness_eval')
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.mkdir(output_dir)
@@ -537,7 +572,7 @@ def run_eval(edk2_dir, input_dir, random):
 
     # get compilation database
     get_compilation_database('/workspace/scripts', src_dir)
-    generate_callgraph(src_dir, output_dir)
+    # generate_callgraph(src_dir, output_dir)
     eval_firness(src_dir, output_dir, input_dir, random)
 
     print('++++ Finished Evaluation ++++')
