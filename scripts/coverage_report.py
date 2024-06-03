@@ -19,12 +19,15 @@ def parse_coverage_into(filename):
         for line in file:
             data = json.loads(line)
             if 'Interesting' in data.keys():
-                map |= set(data['Interesting']['indices'])
+                for edge in data['Interesting']['edges']:
+                    map.add(edge['afl_idx'])
+                # map |= set(data['Interesting']['edges'])
             elif 'Message' in data.keys():
                 # Extract timestamp from the key (assuming it's the timestamp)
                 timestamp = data['Message'].split(',')[0].split(' ')[-1]
                 # Store coverage information for this timestamp
                 coverage_per_time[parse_time_to_seconds(timestamp)] = len(map)
+    print(f'Maximum coverage: {len(map)}')
     return coverage_per_time
 
 
