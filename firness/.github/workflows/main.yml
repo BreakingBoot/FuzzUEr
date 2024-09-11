@@ -1,0 +1,63 @@
+name: Auto-Harness Generation
+on: [workflow_dispatch]
+jobs:
+  Centrifuge:
+    runs-on: ubuntu-latest
+    name: "Automatic Harness Generation for EDK2"
+    steps:
+      # - name: Grab source code
+      #   uses: actions/checkout@v3
+      #   with:
+      #     repository: cglosner/fuzz-edk2
+      #     path: edk2
+
+      - name: Checkout Current repo
+        uses: actions/checkout@v3
+          
+      - name: Install required fuzzing packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: apt-utils fusefat wget tar python3 git acpica-tools python3-distutils uuid-dev nasm python-is-python3 gcc-multilib make g++ lcov clang-15 libclang-15-dev cmake
+          version: 1.0
+          
+      # - name: Create the compilation database
+      #   run: |
+      #     cd edk2
+      #     make -C "BaseTools"
+      #     source edksetup.sh
+      #     bear -- build -p OvmfPkg/OvmfPkgX64.dsc -a X64 -t CLANG38
+
+      - name: Create build directory
+        run: |
+          mkdir build
+
+      - name: Run CMake
+        working-directory: build
+        run: |
+          cmake ..
+
+      - name: Build
+        working-directory: build
+        run: |
+          make
+          
+      # - name: Run firmware analyzer
+      #   run: |
+      #     ./firmware_analyzer -p edk2/ edk2/  
+    
+      # - name: Generate Harness with CodeGenerator
+      #   run: |
+      #     python3 generate_code.py
+
+      #- name: "centrifuge(src) => [capabilities]"
+      #  run: |
+      #    pwd
+      #    ls -ltr
+      #    echo "discovering capabilities" $(mkdir -v capabilities)
+      #    echo "capabilities">capabilities/artifact.txt
+
+      #- name: 'upload capabilities'
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: capabilities
+      #    path: capabilities      

@@ -1,0 +1,46 @@
+## @file
+#  Implement the compiler instrumentation routines for AddressSanitizer(ASan).
+#  AddressSanitizer is an address sanity checker, see its details in below link:
+#  https://github.com/google/sanitizers/wiki/AddressSanitizer
+#   
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AsanLibNull
+  FILE_GUID                      = 5EB20804-535B-4fb4-940C-8C656856AB82
+  MODULE_TYPE                    = DXE_CORE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = AsanLib|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER DXE_SMM_DRIVER UEFI_APPLICATION UEFI_DRIVER DXE_CORE PEIM SMM_CORE
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64 
+#
+
+[Sources]
+  AsanNull.c
+  SerialDebug.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  HobLib
+
+[Guids]
+  gAsanInfoGuid
+  gEfiEventVirtualAddressChangeGuid
+
+[BuildOptions]
+  GCC:*_*_*_SAN_FLAGS == -fno-sanitize=all

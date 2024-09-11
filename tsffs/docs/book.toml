@@ -1,0 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+[book]
+authors = ["novafacing"]
+language = "en"
+multilingual = false
+src = "src"
+title = "TSFFS: Target Software Fuzzer for SIMICS"
+
+[output.html]
+
+[output.linkcheck]

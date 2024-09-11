@@ -1,0 +1,50 @@
+from typing import Dict, List
+from common.types import FunctionBlock
+
+def gen_firness_main(functions: Dict[str, FunctionBlock]) -> List[str]:
+    output = []
+
+    output.append("#include \"FirnessHarnesses_std.h\"")
+    output.append("")
+    output.append("INPUT_BUFFER Input;")
+    output.append("")
+    output.append("int main (int argc, char *argv[])")
+    output.append("{")
+    output.append("    if (argc != 2) {")
+    output.append("        printf(\"Usage: %s <filename>\\n\", argv[0]);")
+    output.append("        return 1;")
+    output.append("    }")
+    output.append("")
+    output.append("    int Status = 0;")
+    output.append("")
+    output.append('    uint64_t input_max_size = 0x1000;')
+    output.append('    Input.Length = input_max_size;')
+    output.append('    uint8_t *input = (uint8_t *)malloc(sizeof(uint8_t)*input_max_size);')
+    output.append("")
+    output.append("    if (!input) {")
+    output.append("        return 1;")
+    output.append("    }")
+    output.append("")
+    output.append("    memset(input, 0, input_max_size);")
+    output.append("    read_byte_file(argv[1], input, input_max_size);")
+    output.append("    Input.Buffer = input;")
+    output.append("")
+    output.append("    uint8_t DriverChoice = 0;")
+    output.append("    ReadBytes(&Input, sizeof(uint8_t), &DriverChoice);")
+    output.append(f'    switch(DriverChoice%{len(functions)})')
+    output.append("    {")
+    for index, function in enumerate(functions):
+        output.append(f'        case {index}:')
+        output.append(f'            Status = Fuzz{function}(&Input);')
+        output.append("            break;")
+    output.append("    }")
+    output.append("")
+    output.append("    if(input)")
+    output.append("    {")
+    output.append("        free(input);")
+    output.append("    }")
+    output.append("")
+    output.append("    return Status;")
+    output.append("}")
+
+    return output

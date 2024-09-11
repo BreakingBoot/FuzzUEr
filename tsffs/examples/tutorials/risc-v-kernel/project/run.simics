@@ -1,0 +1,26 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+load-module tsffs
+init-tsffs
+
+tsffs.log-level 4
+@tsffs.start_on_harness = True
+@tsffs.stop_on_harness = True
+@tsffs.timeout = 3.0
+@tsffs.exceptions = [14]
+
+load-target "risc-v-simple/linux" namespace = riscv machine:hardware:storage:disk1:image = "test.fs.craff"
+
+script-branch {
+    bp.time.wait-for seconds = 15
+    board.console.con.input "mkdir /mnt/disk0\r\n"
+    bp.time.wait-for seconds = 1.0
+    board.console.con.input "mount /dev/vdb /mnt/disk0\r\n"
+    bp.time.wait-for seconds = 1.0
+    board.console.con.input "insmod /mnt/disk0/tutorial-mod.ko\r\n"
+    bp.time.wait-for seconds = 1.0
+    board.console.con.input "/mnt/disk0/tutorial-mod-driver\r\n"
+}
+
+run

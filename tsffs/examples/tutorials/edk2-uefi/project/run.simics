@@ -1,0 +1,28 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Load the TSFFS module (to make sure we can load it)
+
+load-module tsffs
+init-tsffs
+tsffs.log-level 2
+@tsffs.start_on_harness = True
+@tsffs.stop_on_harness = True
+@tsffs.timeout = 3.0
+@tsffs.exceptions = [13, 14]
+
+load-target "qsp-x86/uefi-shell" namespace = qsp machine:hardware:storage:disk0:image = "minimal_boot_disk.craff"
+
+script-branch {
+    bp.time.wait-for seconds = 15
+    qsp.serconsole.con.input "\n"
+    bp.time.wait-for seconds = .5
+    qsp.serconsole.con.input "FS0:\n"
+    bp.time.wait-for seconds = .5
+    local $manager = (start-agent-manager)
+    qsp.serconsole.con.input ("SimicsAgent.efi --download " + (lookup-file "%simics%/Tutorial.efi") + "\n")
+    bp.time.wait-for seconds = .5
+    qsp.serconsole.con.input "Tutorial.efi\n"
+}
+
+run

@@ -1,0 +1,81 @@
+[OtherFunctions]
+
+[Protocols]
+
+[BootServices]
+    RaiseTPL
+    RestoreTPL
+    AllocatePages
+    FreePages
+    GetMemoryMap
+    AllocatePool
+    FreePool
+    CreateEvent
+    SetTimer
+    WaitForEvent
+    SignalEvent
+    CloseEvent
+    CheckEvent
+    InstallProtocolInterface
+    ReinstallProtocolInterface
+    UninstallProtocolInterface
+    HandleProtocol
+    RegisterProtocolNotify
+    LocateHandle
+    LocateDevicePath
+    InstallConfigurationTable
+    LoadImage
+    StartImage
+    Exit
+    UnloadImage
+    ExitBootServices
+    Stall
+    SetWatchdogTimer
+    ConnectController
+    DisconnectController
+    OpenProtocol
+    CloseProtocol
+    OpenProtocolInformation
+    ProtocolsPerHandle
+    LocateHandleBuffer
+    LocateProtocol
+    InstallMultipleProtocolInterfaces
+    UninstallMultipleProtocolInterfaces
+    CopyMem
+    SetMem
+    CreateEventEx
+
+[RuntimeServices]
+    GetTime
+    SetTime
+    GetWakeupTime
+    SetWakeupTime
+    SetVirtualAddressMap
+    ConvertPointer
+    GetVariable
+    GetNextVariableName
+    SetVariable
+    GetAccessVariable
+    SetAccessVariable
+    GetNextHighMonotonicCount
+    ResetSystem
+    UpdateCapsule
+    QueryCapsuleCapabilities
+    QueryVariableInfo
+
+[DxeServices]
+    AddMemorySpace
+    AllocateMemorySpace
+    FreeMemorySpace
+    RemoveMemorySpace
+    GetMemorySpaceDescriptor
+    SetMemorySpaceAttributes
+    GetMemorySpaceMap
+    AddIoSpace
+    AllocateIoSpace
+    FreeIoSpace
+    RemoveIoSpace
+    GetIoSpaceDescriptor
+    GetIoSpaceMap
+    SetMemorySpaceCapabilities
+    ProcessFirmwareVolume

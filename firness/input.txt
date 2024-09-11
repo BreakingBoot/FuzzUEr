@@ -1,0 +1,11 @@
+[OtherFunctions]
+
+[Protocols]
+    TimerDriverRegisterHandler
+    TimerDriverSetTimerPeriod
+    TimerDriverGetTimerPeriod
+    TimerDriverGenerateSoftInterrupt
+
+[BootServices]
+
+[RuntimeServices]
