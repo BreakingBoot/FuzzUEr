@@ -3,14 +3,44 @@ import subprocess
 import os
 import json
 import time
+import random
 import signal
 import re
 import argparse
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from typing import List, Dict
 import networkx as nx
 import pydot
 
+fuzzer_process = None
+final_output_dir = ""
+fuzzing_dir = ""
+
+
+def generate_includes(src):
+    includes = []
+    with open(os.path.join(src, 'includes.txt'), 'r') as f:
+        includes = [line.strip() for line in f.readlines()]
+    # randomize the includes
+    random.shuffle(includes)
+
+    output = []
+    output.append("#ifndef __FIRNESS_INCLUDES__")
+    output.append("#define __FIRNESS_INCLUDES__")
+
+    output.append("")
+    for include in includes:
+        output.append(f"#include <{include}>")
+
+    output.append("")
+    output.append("#endif // __FIRNESS_INCLUDES__")
+    gen_file(os.path.join(src, 'includes.txt'), includes)
+    gen_file(os.path.join(src, 'FirnessIncludes.h'), output)
+
+def gen_file(filename: str, output: List[str]):
+    with open(filename, 'w') as f:
+        f.writelines([line + '\n' for line in output])
 
 def compile(src, compile_script='build_bios.py'):
 
@@ -415,30 +445,40 @@ def combine_cfgs(src):
 
 # generate the harness for fuzzing with the results from the static analysis tool
 def generate_harness(src, output_dir, input_file, random: bool = False):
-    dst = output_dir#os.path.join(src, 'edk2')
+    dst = output_dir
+    edk2_dir = os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
     # so we can hard code them
-    generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -s {output_dir}/cast-map.json -f {output_dir}/functions.json -o {dst}'
+    generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -gd {output_dir}/generators.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -s {output_dir}/cast-map.json -in {output_dir}/includes.json -f {output_dir}/functions.json --edk2 {edk2_dir} -o {dst}'
     if random:
         generate_cmd += ' -r'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
-    # relocate_cmd = f'cp -r {dst}/Firness {output_dir}'
-    # process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # log += process.stdout.decode('utf-8', errors='ignore')
-    # log += process.stderr.decode('utf-8', errors='ignore')
+    # copy the generated harness to the output directory
+    # take into account if the dst directory already exists
+    if os.path.exists(os.path.join(edk2_dir, 'Firness')):
+        shutil.rmtree(os.path.join(edk2_dir, 'Firness'))
+    relocate_cmd = f'cp -r {dst}/Firness {edk2_dir}'
+    process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log += process.stdout.decode('utf-8', errors='ignore')
+    log += process.stderr.decode('utf-8', errors='ignore')
     print('++++ Generated Harness ++++')
     return log
 
 # compile the harness
-def compile_harness(src):
+def compile_harness(src, count=0):
     dir1 = os.path.join(src, 'edk2')
     test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
     if process.returncode != 0:
+        generate_includes(os.path.join(dir1, 'Firness'))
+        if count < 5:
+            compile_harness(src, count + 1)
+        else:
+            exit(1)
         print('Error: Harness compilation failed')
     else:
         print('++++ Compiled Harness ++++')
@@ -451,12 +491,15 @@ def compile_firmware(src):
     return log
 
 def run_fuzzer(simics_dir, timeout, output_dir):
+    global fuzzer_process
     # reset the coverage log
     open(os.path.join(simics_dir, 'log.json'), 'w').close()
-
+    signal.signal(signal.SIGINT, generate_report2)
     # spawn the fuzzer in a subprocess
-    cmd = f"./simics -no-win -no-gui fuzz.simics &> {os.path.join(output_dir, 'fuzz.log')}"
-    process = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
+    cmd = f"./simics -no-win -no-gui fuzz.simics"
+    fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
+    if timeout is None:
+        timeout = 86400
     execution_time = 0
     while execution_time < timeout:
         hours, rem = divmod(execution_time, 3600)
@@ -466,8 +509,9 @@ def run_fuzzer(simics_dir, timeout, output_dir):
         time.sleep(1)
         execution_time += 1
 
-    process.kill()
+    fuzzer_process.kill()
     os.system(f'cp {simics_dir}/log.json {output_dir}')
+    os.system(f'cp {simics_dir}/fuzz.log {output_dir}')
     print('++++ Ran Fuzzer ++++')
 
 
@@ -519,6 +563,28 @@ def save_coverage_to_file(coverage_per_time, filename):
             file.write(f"{timestamp},{num_edges}\n")
 
 # generate the results report
+def generate_report2(sig, frame):
+    global fuzzer_process
+    global final_output_dir
+    global fuzzing_dir
+
+    if fuzzer_process:
+        fuzzer_process.terminate()
+        fuzzer_process.wait()  # Wait for the process to terminate
+
+    os.system(f'cp {fuzzing_dir}/log.json {final_output_dir}')
+    os.system(f'cp {fuzzing_dir}/log.json {final_output_dir}')
+    # analyze the results from the coverage log 
+    # and from the cmd line output that contains the crash results
+    log_file = os.path.join(fuzzing_dir, 'log.json')
+    output_csv = os.path.join(final_output_dir, 'coverage.csv')
+    output_plot = os.path.join(final_output_dir, 'coverage.png')
+    coverage_per_time = parse_coverage_into(log_file)
+    save_coverage_to_file(coverage_per_time, output_csv)
+    plot_coverage(coverage_per_time, output_plot)
+    print('++++ Generated Report ++++')
+    exit(0)
+
 def generate_report(simics_dir, output_dir):
     # analyze the results from the coverage log 
     # and from the cmd line output that contains the crash results
@@ -610,6 +676,8 @@ def run_eval2(src):
 
 
 def main():
+    global final_output_dir
+    global fuzzing_dir
     parser = argparse.ArgumentParser(description='Firness')
     parser.add_argument('-i', '--input', type=str, help='Path to the input directory with the source files or input file for single run')
     parser.add_argument('-s', '--src', type=str, help='Path to the source directory with edk2 and input.txt')
@@ -640,6 +708,7 @@ def main():
         os.mkdir(tmp_dir)
         os.system(f'cp -r {args.src}/* {tmp_dir}')
     output = os.path.join(os.getcwd(), 'firness_output')
+    final_output_dir = output
     if not os.path.exists(output):
         os.mkdir(output)
     asan_dir = os.path.join(os.getcwd(), 'uefi_asan')
@@ -671,6 +740,7 @@ def main():
 
         # run the fuzzer
         simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
+        fuzzing_dir = simics_dir
         run_fuzzer(simics_dir, args.timeout, output)
         generate_report(simics_dir, output)
     
