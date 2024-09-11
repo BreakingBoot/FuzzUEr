@@ -1,6 +1,6 @@
 load-module tsffs
 init-tsffs
-@tsffs.log_level = 4
+@tsffs.log_level = 2
 @tsffs.start_on_harness = True
 @tsffs.stop_on_harness = True
 @tsffs.timeout = 3.0
@@ -19,6 +19,7 @@ qsp.software.tracker.load-parameters "uefi.params"
 qsp.software.enable-tracker
 collect-coverage -access-count -branch-coverage -linear context-query = "'UEFI Firmware'" name = cc
 debug-context object = "qsp.mb.cpu0.core[0][0]"
+qsp.serconsole.con.capture-start -overwrite filename = fuzz.txt
 
 
 script-branch {
