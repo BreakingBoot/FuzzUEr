@@ -7,3 +7,19 @@
 [submodule "uefi_asan"]
 	path = uefi_asan
 	url = git@github.com:BreakingBoot/uefi_asan.git
+[submodule "eval_source/edk2"]
+	path = eval_source/edk2
+	url = git@github.com:cglosner/edk2.git
+	branch = simics-sanitizer
+[submodule "eval_source/edk2-non-osi"]
+	path = eval_source/edk2-non-osi
+	url = git@github.com:cglosner/edk2-non-osi
+	branch = simics-sanitizer
+[submodule "eval_source/edk2-platforms"]
+	path = eval_source/edk2-platforms
+	url = git@github.com:cglosner/edk2-platforms
+	branch = simics-sanitizer
+[submodule "eval_source/FSP"]
+	path = eval_source/FSP
+	url = git@github.com:cglosner/FSP
+	branch = simics-sanitizer
