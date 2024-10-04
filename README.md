@@ -4,7 +4,7 @@ This is the tool is designed for setting up and Fuzzing the EDK2 firmware. The t
 
 ## Overview
 
-This repo is responsible for fuzzing the EDK2 UEFI through the use of a harness UEFI application that is reposible for creating well formed inputs to pass to other drivers. The tool generates the harness for both kAFL and TSFFS automatically. Everything has been configured to run within Docker containers to make it easier to use and more portable. FuzzUEr has 3 main components:
+This repo is responsible for fuzzing the EDK2 UEFI through the use of a harness UEFI application that is reposible for creating well formed inputs to pass to other drivers. The tool generates the harness for TSFFS automatically. Everything has been configured to run within Docker containers to make it easier to use and more portable. FuzzUEr has 3 main components:
 
 1. [Firness](https://github.com/BreakingBoot/firness)
 2. [Sanitizer](https://github.com/BreakingBoot/uefi_asan)
@@ -16,23 +16,7 @@ Firness and the sanitizer instrumentation both take the original firmware image 
 
 ## Running FuzzUEr
 
-Once you get all of the code, with:
-
-```
-git clone git@github.com:BreakingBoot/FuzzUEr.git
-cd FuzzUEr && git submodule update --init --recursive
-```
-
-There are are only two things that you will need to do in order to run the system: create a shared folder for the input firmware and the input file descibing the protocols to harness. Get the source code with:
-
-```
-mkdir input_FW
-cd input_FW
-git clone git@github.com:tianocore/edk2.git
-git clone git@github.com:tianocore/edk2-platforms.git
-git clone git@github.com:tianocore/edk2-non-osi.git
-git clone git@github.com:Intel/FSP.git
-```
+There are are only two things that you will need to do in order to run the system: create a shared folder for the input firmware and the input file descibing the protocols to harness. For our experiments we have all of the source code already added as submodules within the `eval_source` directory.
 
 And then you can add the input file containing the target functions, for example:
 
@@ -48,12 +32,12 @@ And then you can add the input file containing the target functions, for example
   gEfiIp4ProtocolGuid:Cancel
   gEfiIp4ProtocolGuid:Poll
 ```
+This file is already included in the `eval_source` directory.
 
-
-This can utilized in the pre-built docker image in this organization:
+A new docker container can be created by running the following commands:
 ```
-docker pull ghcr.io/breakingboot/fuzzuer/breakingboot-image:v2.0
-docker run -it -v ./input_FW/:/input ghcr.io/breakingboot/fuzzuer/breakingboot-image:v2.0
+docker build -t fuzzuer-image .
+docker run -it -v ./eval_source/:/input fuzzuer-image
 ```
 
 And then you can run everything with the helper script `firness.py`:
@@ -88,3 +72,20 @@ Once everything has been compiled then it can be run by utilizing the `fuzz.simi
 ```
 ./simics -no-win -no-gui fuzz.simics
 ```
+
+### Example
+
+This is an example of running the system with the `eval_source` directory:
+
+```
+# build the docker image
+docker build -t fuzzuer-image .
+
+# run the docker image
+docker run -it -v ./eval_source/:/input fuzzuer-image
+
+# run the firness.py script
+python firness.py -i /input/input.txt -s /input/edk2
+```
+
+This will automatically generate the compilation database, analyze the source code, generate the harness, compile the firmware and harness, and then run the fuzzer. Note: it will run the fuzzer indefinitely, so make sure to CTRL+C to stop it. The results will be in the `/workspace/firness_output` directory, where the most recent harness is in a folder called `Firness` but all generated harness are stored based on time they are generated.
