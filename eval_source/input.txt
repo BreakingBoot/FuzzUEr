@@ -1,0 +1,10 @@
+[Protocols]
+  // EFI_IP4_PROTOCOL
+  gEfiIp4ProtocolGuid:GetModeData
+  gEfiIp4ProtocolGuid:Configure
+  gEfiIp4ProtocolGuid:Groups
+  gEfiIp4ProtocolGuid:Routes
+  gEfiIp4ProtocolGuid:Transmit
+  gEfiIp4ProtocolGuid:Receive
+  gEfiIp4ProtocolGuid:Cancel
+  gEfiIp4ProtocolGuid:Poll
