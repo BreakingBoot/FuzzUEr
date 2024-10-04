@@ -12,10 +12,20 @@ import matplotlib.pyplot as plt
 from typing import List, Dict
 import networkx as nx
 import pydot
+from tabulate import tabulate
 
 fuzzer_process = None
 final_output_dir = ""
 fuzzing_dir = ""
+
+class AsanError:
+    def __init__(self, file, line, error_type = "", message = "", asan_msg = "", count = 1):
+        self.file = file
+        self.line = line
+        self.error_type = error_type
+        self.count = count
+        self.message = message
+        self.asan_msg = asan_msg
 
 
 def generate_includes(src):
@@ -157,8 +167,11 @@ def asan_instrumetation(src, dir):
     return log
 
 # run the static analysis tool on the compilation database
-def run_firness(edk_dir, output_dir, input_file):
-    cmd = 'firness -p ' + edk_dir +' -o ' + output_dir + ' -i ' + input_file + ' dummyfile'
+def run_firness(edk_dir, output_dir, input_file, smi):
+    cmd = 'firness -p ' + edk_dir +' -o ' + output_dir + ' -i ' + input_file 
+    if smi:
+        cmd += ' -smi '
+    cmd += ' dummyfile'
     process = subprocess.run(cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
@@ -444,17 +457,21 @@ def combine_cfgs(src):
         json.dump(function_edge_map, file)
 
 # generate the harness for fuzzing with the results from the static analysis tool
-def generate_harness(src, output_dir, input_file, random: bool = False):
+def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False):
     dst = output_dir
     edk2_dir = os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
     # so we can hard code them
     generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -gd {output_dir}/generators.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -s {output_dir}/cast-map.json -in {output_dir}/includes.json -f {output_dir}/functions.json --edk2 {edk2_dir} -o {dst}'
+    if smi:
+        generate_cmd += f' --smi -sm {output_dir}/smi-function-guid-map.json'
     if random:
         generate_cmd += ' -r'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
+    print(process.stdout.decode('utf-8', errors='ignore'))
+    print(process.stderr.decode('utf-8', errors='ignore'))
     # copy the generated harness to the output directory
     # take into account if the dst directory already exists
     if os.path.exists(os.path.join(edk2_dir, 'Firness')):
@@ -497,7 +514,7 @@ def run_fuzzer(simics_dir, timeout, output_dir):
     signal.signal(signal.SIGINT, generate_report2)
     # spawn the fuzzer in a subprocess
     cmd = f"./simics -no-win -no-gui fuzz.simics"
-    fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
+    fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, shell=True, executable='/bin/bash')
     if timeout is None:
         timeout = 86400
     execution_time = 0
@@ -521,8 +538,51 @@ def reproduce_crash(simics_dir):
     subprocess.run(cmd, cwd=simics_dir, executable='/bin/bash', shell=True)
 
 
-def collect_unique_crashes():
-    pass
+def save_crashes_to_file(crashes):
+    crash_list = [['File', 'Line', 'Asan Msg', 'ErrorType', 'Message', 'Count']]
+    for key, crash in crashes.items():
+        crash_info = [crash.file, f'{crash.line}', crash.asan_msg, crash.error_type, crash.message, f'{crash.count}']
+        crash_list.append(crash_info)
+    with open('crashes.csv', 'w') as file:
+        for crash in crash_list:
+            file.write(f'{",".join(crash)}\n')
+    
+    return crash_list
+
+def collect_unique_crashes(log_file):
+    # parse the log file and collect statisitics on the run:
+    # file name, line number, and the number of times it crashed
+    # along with ErrorType and the asan error message
+    crashes = dict()
+    with open(log_file, 'r', encoding='utf-8', errors='ignore') as file:
+        prev_line = ""
+        all_lines = file.readlines()
+        for line in all_lines:
+            if "ASAN" in line:
+                if 'line' in prev_line and 'column' in prev_line:
+                    crash = AsanError("", "", "", "", "")
+                    data = prev_line.split(',')
+                    file = data[0]
+                    line_num = data[1].split(':')[1]
+                    if 'ErrorType' in data[2]:
+                        error_msg = data[2].split('=')[1]
+                        error_type = error_msg.split(':')[0]
+                        error = error_msg.split(':')[1]
+                        crash.error_type = error_type
+                        crash.message = error.strip()
+                    crash.asan_msg = line.split("!")[1].split(" ")[1]
+                    crash.file = file
+                    crash.line = int(line_num, 16)
+                    crash_key = f'{file}:{line_num}'
+                    if crash_key not in crashes.keys():
+                        crashes[crash_key] = crash
+                    else:
+                        crashes[crash_key].count += 1
+            prev_line = line
+    
+    crash_list = save_crashes_to_file(crashes)
+    print('++++ Collected Unique Crashes ++++')
+    print(tabulate(crash_list, headers='firstrow', tablefmt='grid'))
 
 
 def parse_time_to_seconds(time_str):
@@ -540,10 +600,10 @@ def parse_coverage_into(filename):
         for line in file:
             data = json.loads(line)
             if 'Interesting' in data.keys():
-                map |= set(data['Interesting']['indices'])
+                map |= set(data['Interesting']['message']['indices'])
             elif 'Message' in data.keys():
                 # Extract timestamp from the key (assuming it's the timestamp)
-                timestamp = data['Message'].split(',')[0].split(' ')[-1]
+                timestamp = data['Message']['message'].split(',')[0].split(' ')[-1]
                 # Store coverage information for this timestamp
                 coverage_per_time[parse_time_to_seconds(timestamp)] = len(map)
     return coverage_per_time
@@ -573,7 +633,7 @@ def generate_report2(sig, frame):
         fuzzer_process.wait()  # Wait for the process to terminate
 
     os.system(f'cp {fuzzing_dir}/log.json {final_output_dir}')
-    os.system(f'cp {fuzzing_dir}/log.json {final_output_dir}')
+    os.system(f'cp {fuzzing_dir}/fuzz.txt {final_output_dir}')
     # analyze the results from the coverage log 
     # and from the cmd line output that contains the crash results
     log_file = os.path.join(fuzzing_dir, 'log.json')
@@ -582,18 +642,22 @@ def generate_report2(sig, frame):
     coverage_per_time = parse_coverage_into(log_file)
     save_coverage_to_file(coverage_per_time, output_csv)
     plot_coverage(coverage_per_time, output_plot)
+    collect_unique_crashes(os.path.join(fuzzing_dir, 'fuzz.txt'))
     print('++++ Generated Report ++++')
     exit(0)
 
 def generate_report(simics_dir, output_dir):
     # analyze the results from the coverage log 
     # and from the cmd line output that contains the crash results
+    fuzz_log = os.path.join(simics_dir, 'fuzz.txt')
+    os.system(f'cp {fuzz_log} {output_dir}')
     log_file = os.path.join(simics_dir, 'log.json')
     output_csv = os.path.join(output_dir, 'coverage.csv')
     output_plot = os.path.join(output_dir, 'coverage.png')
     coverage_per_time = parse_coverage_into(log_file)
     save_coverage_to_file(coverage_per_time, output_csv)
     plot_coverage(coverage_per_time, output_plot)
+    
     print('++++ Generated Report ++++')
 
 # make sure all of the source files are there
@@ -688,6 +752,7 @@ def main():
     parser.add_argument('-g', '--generate', action='store_true', help='Generate the harness')
     parser.add_argument('-t', '--timeout', type=int, help='Timeout for the fuzzer')
     parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
+    parser.add_argument('--smi', action='store_true', help='Run the SMI fuzzer')
     args = parser.parse_args()
     complete_analysis = not args.analyze and not args.fuzz and not args.generate
 
@@ -721,28 +786,29 @@ def main():
     # if args.reproduce:
     #     reproduce_crash(os.path.join(os.getcwd(), 'projects', 'example'))
     #     return
+
     # run the static analysis tool
-    if args.analyze or complete_analysis or args.generate:
-        # compile the firmware to get compilation database
-        log += get_compilation_database('/workspace/scripts', tmp_dir)
-        log += run_firness(tmp_dir, output, input_file)
+    # if args.analyze or complete_analysis or args.generate:
+    #     # compile the firmware to get compilation database
+    #     log += get_compilation_database('/workspace/scripts', tmp_dir)
+    #     log += run_firness(tmp_dir, output, input_file, args.smi)
 
     # generate the harness
     if args.generate or complete_analysis:
-        log += generate_harness(tmp_dir, output, input_file)
+        log += generate_harness(tmp_dir, output, input_file, False, args.smi)
         log += compile_harness(tmp_dir)
 
-    if args.fuzz or complete_analysis:
-        # log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
-        # compile the firmware
-        # log += compile_firmware(tmp_dir)
-        # log += compile_harness(tmp_dir)
+    # if args.fuzz or complete_analysis:
+    #     # log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
+    #     # compile the firmware
+    #     # log += compile_firmware(tmp_dir)
+    #     # log += compile_harness(tmp_dir)
 
-        # run the fuzzer
-        simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
-        fuzzing_dir = simics_dir
-        run_fuzzer(simics_dir, args.timeout, output)
-        generate_report(simics_dir, output)
+    #     # run the fuzzer
+    #     simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
+    #     fuzzing_dir = simics_dir
+    #     run_fuzzer(simics_dir, args.timeout, output)
+    #     generate_report(simics_dir, output)
     
     write_log(output, log.split('\n'))
     cleanup(args.src, tmp_dir, output)
