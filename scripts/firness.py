@@ -491,11 +491,11 @@ def compile_harness(src, count=0):
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
     if process.returncode != 0:
-        generate_includes(os.path.join(dir1, 'Firness'))
-        if count < 5:
-            compile_harness(src, count + 1)
-        else:
-            exit(1)
+        # generate_includes(os.path.join(dir1, 'Firness'))
+        # if count < 5:
+        #     compile_harness(src, count + 1)
+        # else:
+        #     exit(1)
         print('Error: Harness compilation failed')
     else:
         print('++++ Compiled Harness ++++')

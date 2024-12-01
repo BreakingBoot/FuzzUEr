@@ -216,3 +216,4 @@ WORKDIR /workspace/
 COPY ./scripts /workspace/scripts/
 COPY ./uefi_asan /workspace/uefi_asan/
 COPY ./scripts/firness.py /workspace/
+RUN pip3 install tabulate
