@@ -5,3 +5,5 @@ eval_source/firness_output/
 eval_source/protocols/
 eval_source/sweep/
 __pycache__/
+# scratch output from local sweeps
+eval_source/_*/
