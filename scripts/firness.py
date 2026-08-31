@@ -1,4 +1,5 @@
 import shutil
+import sys
 import subprocess
 import os
 import json
@@ -18,14 +19,24 @@ fuzzer_process = None
 final_output_dir = ""
 fuzzing_dir = ""
 
+# These four paths are also spelled out in Harness/fuzz.simics and
+# Harness/qsp-uefi-custom.target.yml; if you change one, change them all.
+BUILD_TARGET = 'DEBUG_CLANGSAN'
+FIRMWARE_BUILD_DIR = f'/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/{BUILD_TARGET}'
+FIRMWARE_IMAGE = f'{FIRMWARE_BUILD_DIR}/FV/BOARDX58ICH10.fd'
+FIRMWARE_MAP = f'{FIRMWARE_BUILD_DIR}/SimicsX58.map'
+HARNESS_IMAGE = f'/workspace/tmp/edk2/Build/Firness/{BUILD_TARGET}/X64/Firness.efi'
+
 class AsanError:
-    def __init__(self, file, line, error_type = "", message = "", asan_msg = "", count = 1):
+    def __init__(self, file, line, error_type = "", message = "", asan_msg = "", count = 1, phase = "boot"):
         self.file = file
         self.line = line
         self.error_type = error_type
         self.count = count
         self.message = message
         self.asan_msg = asan_msg
+        # "boot" before the harness ran, "fuzz" after -- boot reports repeat every campaign
+        self.phase = phase
 
 
 def generate_includes(src):
@@ -52,7 +63,12 @@ def gen_file(filename: str, output: List[str]):
     with open(filename, 'w') as f:
         f.writelines([line + '\n' for line in output])
 
-def compile(src, compile_script='build_bios.py'):
+# build the firmware. when capture_db is set the whole build runs under bear so the
+# compilation database firness needs lands at {src}/compile_commands.json.
+# this used to need scripts/build_bios2.py -- a 41KB copy of upstream build_bios.py whose
+# only change was prefixing one command with "bear --". wrapping the outer script instead
+# produces an identical database (1180 entries either way, measured) and nothing to rot.
+def compile(src, capture_db=False):
 
     # Change directory to BaseTools and run make
     dir1 = os.path.join(src, 'edk2')
@@ -63,7 +79,8 @@ def compile(src, compile_script='build_bios.py'):
     # Change directory to Intel Platform and run build_bios.py
     dir2 = os.path.join(src, 'edk2-platforms', 'Silicon', 'Intel', 'Tools')
     dir3 = os.path.join(src, 'edk2-platforms', 'Platform', 'Intel')
-    test_cmd2 = f'cd {dir1} && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && cd {dir3} && python {compile_script} --cleanall && make -C {dir2} clean && python {compile_script} -p BoardX58Ich10 -t CLANGSAN'
+    bear = f'bear --output {os.path.join(src, "compile_commands.json")} -- ' if capture_db else ''
+    test_cmd2 = f'cd {dir1} && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && cd {dir3} && python build_bios.py --cleanall && make -C {dir2} clean && {bear}python build_bios.py -p BoardX58Ich10 -t CLANGSAN'
     process = subprocess.run(test_cmd2, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log += process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
@@ -72,12 +89,8 @@ def compile(src, compile_script='build_bios.py'):
 
 # Run bear on the entire simics code base to get the compilation database
 def get_compilation_database(src, dst):
-    # copy the modified build script to the platforms directory
-    src_file = os.path.join(src, 'build_bios2.py')
-    platforms_dir = os.path.join(dst, 'edk2-platforms/Platform/Intel', 'build_bios2.py')
-    shutil.copyfile(src_file, platforms_dir)
-    # # run it
-    log = compile(dst, 'build_bios2.py')
+    # run the stock upstream build under bear
+    log = compile(dst, capture_db=True)
     # there are a couple gcc commands that need to be removed from the compilation database
     # remove them
     compilation_db = os.path.join(dst, 'compile_commands.json')
@@ -154,12 +167,27 @@ def asan_instrumetation(src, dir):
         print('++++ Instrumented Firmware ++++')
         return "Patch already applied"
 
-    # apply the patch file in src to the entire dst dir
+    # apply the patch file in src to the entire dst dir.
+    # --forward/--batch are needed because eval_source/edk2 already carries this patch,
+    # and plain patch blocks on an interactive "Assume -R? [n]" prompt
     patch_path = os.path.join(src, 'asan.patch')
-    patch_cmd = 'patch -p1 -d ' + dir + ' < ' + patch_path + ' --binary'
+    patch_cmd = f'patch -p1 --forward --batch --binary -d {dir} < {patch_path}'
     process = subprocess.run(patch_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
+
+    # patch exits 1 both for "already applied" (fine) and for rejected hunks (not fine)
+    already_applied = 'Reversed (or previously applied) patch detected' in log
+    rejected = '.rej' in log or 'FAILED at' in log
+    if process.returncode != 0 and not already_applied:
+        print(f'Error: failed to apply {patch_path} (exit {process.returncode})')
+        print(log)
+        return log
+    if rejected:
+        print(f'Warning: some hunks of {patch_path} were rejected; the firmware may '
+              f'be only partially instrumented. See the .rej files under {dir}.')
+    elif already_applied:
+        print('Patch was already present in the source tree.')
 
     open(os.path.join(dir, 'patch_applied'), 'w').close()
 
@@ -167,7 +195,7 @@ def asan_instrumetation(src, dir):
     return log
 
 # run the static analysis tool on the compilation database
-def run_firness(edk_dir, output_dir, input_file, smi):
+def run_firness(edk_dir, output_dir, input_file, smi=False):
     cmd = 'firness -p ' + edk_dir +' -o ' + output_dir + ' -i ' + input_file 
     if smi:
         cmd += ' -smi '
@@ -457,7 +485,8 @@ def combine_cfgs(src):
         json.dump(function_edge_map, file)
 
 # generate the harness for fuzzing with the results from the static analysis tool
-def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False):
+def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False,
+                     backend: str = 'tsffs'):
     dst = output_dir
     edk2_dir = os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
@@ -467,6 +496,9 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
         generate_cmd += f' --smi -sm {output_dir}/smi-function-guid-map.json'
     if random:
         generate_cmd += ' -r'
+    # the harness compiles against whichever fuzzer it will run under
+    if backend and backend != 'tsffs':
+        generate_cmd += f' --backend {backend}'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
@@ -507,82 +539,221 @@ def compile_firmware(src):
     print('++++ Compiled Firmware ++++')
     return log
 
-def run_fuzzer(simics_dir, timeout, output_dir):
+# block until tsffs has actually reached HARNESS_START. the magic start instruction
+# kicks off the fuzzer thread, which creates corpus/ and solutions/ and makes
+# save_initial_snapshot() append the first record to log.json. all three default to
+# "%simics%/..." which resolves to simics_dir, so their appearance means the harness
+# was reached. returns False on timeout or if simics exits early
+def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
+    log_path = os.path.join(simics_dir, 'log.json')
+    corpus_dir = os.path.join(simics_dir, 'corpus')
+    solutions_dir = os.path.join(simics_dir, 'solutions')
+    start = time.time()
+    while time.time() - start < deadline_s:
+        if process.poll() is not None:
+            print(f'\nError: simics exited (status {process.returncode}) before the harness '
+                  f'was reached. See {simics_dir}/fuzz.txt for how far the boot got.')
+            return False
+        try:
+            log_started = os.path.getsize(log_path) > 0
+        except OSError:
+            log_started = False
+        fresh_dir = any(os.path.isdir(d) and d not in stale_dirs
+                        for d in (corpus_dir, solutions_dir))
+        if log_started or fresh_dir:
+            print(f'\n++++ Harness reached after {int(time.time() - start)}s of boot ++++')
+            return True
+        print(f'Booting to the harness: {int(time.time() - start)}s ', end='\r')
+        time.sleep(2)
+    print(f'\nError: the harness was never reached within {deadline_s}s, so ZERO fuzzing '
+          f'iterations ran. Re-run with a larger --boot-timeout and check '
+          f'{simics_dir}/fuzz.txt for how far the boot got.')
+    return False
+
+
+def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700):
     global fuzzer_process
-    # reset the coverage log
-    open(os.path.join(simics_dir, 'log.json'), 'w').close()
+    log_path = os.path.join(simics_dir, 'log.json')
+    corpus_dir = os.path.join(simics_dir, 'corpus')
+    solutions_dir = os.path.join(simics_dir, 'solutions')
+    # tsffs appends to log.json, so a stale file would look like an instant start.
+    # corpus/ and solutions/ are never truncated, so remember which already existed
+    open(log_path, 'w').close()
+    stale_dirs = {d for d in (corpus_dir, solutions_dir) if os.path.isdir(d)}
+
     signal.signal(signal.SIGINT, generate_report2)
     # spawn the fuzzer in a subprocess
     cmd = f"./simics -no-win -no-gui fuzz.simics"
     fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, shell=True, executable='/bin/bash')
+
+    # -t is a fuzzing budget, not a budget for the whole simics run. the instrumented
+    # firmware has to boot, walk the boot menu, start the shell and pull Firness.efi
+    # over the agent first; charging that to -t is why short runs reported no iterations
+    print(f'Waiting up to {boot_timeout}s for the boot to reach the harness; the '
+          f'{timeout if timeout is not None else 86400}s fuzzing budget starts after that.')
+    started = wait_for_fuzzing_start(simics_dir, fuzzer_process, boot_timeout, stale_dirs)
+
     if timeout is None:
         timeout = 86400
     execution_time = 0
-    while execution_time < timeout:
+    while started and execution_time < timeout:
         hours, rem = divmod(execution_time, 3600)
         minutes, seconds = divmod(rem, 60)
         formatted_time = f'{int(hours)}hrs {int(minutes)}mins {int(seconds)}secs'
-        print(f'Execution time: {formatted_time}', end="\r")
+        print(f'Fuzzing time: {formatted_time}', end="\r")
         time.sleep(1)
         execution_time += 1
 
     fuzzer_process.kill()
+    fuzzer_process.wait()
     os.system(f'cp {simics_dir}/log.json {output_dir}')
-    os.system(f'cp {simics_dir}/fuzz.log {output_dir}')
-    print('++++ Ran Fuzzer ++++')
+    # fuzz.simics writes the serial capture to fuzz.txt, not fuzz.log
+    os.system(f'cp {simics_dir}/fuzz.txt {output_dir}')
+    for d in ('corpus', 'solutions'):
+        if os.path.isdir(os.path.join(simics_dir, d)):
+            os.system(f'cp -r {simics_dir}/{d} {output_dir}')
+    print('++++ Ran Fuzzer ++++' if started else '++++ Fuzzer never started ++++')
+    return started
 
 
-def reproduce_crash(simics_dir):
-    # spawn the fuzzer in a subprocess and kill it after a certain time
-    cmd = "./simics -no-win -no-gui reproduce.simics"
-    subprocess.run(cmd, cwd=simics_dir, executable='/bin/bash', shell=True)
+# replay one saved test case, defaulting to the first file in solutions/.
+# tsffs ships no python trampolines in this build, so its fuzz.repro() interface is not
+# reachable from a script; instead stage the test case in a corpus of its own and let
+# reproduce.simics run a single iteration against it
+def reproduce_crash(simics_dir, testcase=None):
+    script = os.path.join(simics_dir, 'reproduce.simics')
+    if not os.path.isfile(script):
+        print(f'Error: {script} is missing. It is installed by the Dockerfile; '
+              f'rebuild the image if you are on an older one.')
+        return 1
+
+    solutions = os.path.join(simics_dir, 'solutions')
+    if not testcase:
+        found = sorted(f for f in os.listdir(solutions) if not f.startswith('.')) \
+            if os.path.isdir(solutions) else []
+        if not found:
+            print(f'Error: no test case given and {solutions} is empty. '
+                  f'Pass --testcase <path>.')
+            return 1
+        testcase = os.path.join(solutions, found[0])
+    if not os.path.isabs(testcase):
+        testcase = os.path.join(simics_dir, testcase)
+    if not os.path.isfile(testcase):
+        print(f'Error: test case {testcase} does not exist')
+        return 1
+
+    # a corpus holding only this input, so the single iteration runs exactly it
+    repro_dir = os.path.join(simics_dir, 'repro_corpus')
+    if os.path.isdir(repro_dir):
+        shutil.rmtree(repro_dir)
+    os.mkdir(repro_dir)
+    shutil.copy2(testcase, os.path.join(repro_dir, os.path.basename(testcase)))
+
+    print(f'++++ Reproducing {testcase} ++++')
+    cmd = './simics -no-win -no-gui -e \'$testcase_dir="repro_corpus"\' reproduce.simics'
+    process = subprocess.run(cmd, cwd=simics_dir, executable='/bin/bash', shell=True)
+    capture = os.path.join(simics_dir, 'reproduce.txt')
+    if os.path.isfile(capture):
+        collect_unique_crashes(capture, simics_dir)
+    return process.returncode
 
 
-def save_crashes_to_file(crashes):
-    crash_list = [['File', 'Line', 'Asan Msg', 'ErrorType', 'Message', 'Count']]
-    for key, crash in crashes.items():
-        crash_info = [crash.file, f'{crash.line}', crash.asan_msg, crash.error_type, crash.message, f'{crash.count}']
-        crash_list.append(crash_info)
-    with open('crashes.csv', 'w') as file:
-        for crash in crash_list:
-            file.write(f'{",".join(crash)}\n')
-    
+def save_crashes_to_file(crashes, output_dir=None):
+    crash_list = [['Phase', 'File', 'Line', 'Asan Msg', 'ErrorType', 'Message', 'Count']]
+    # fuzzing findings first, boot reports are a fixed baseline
+    ordered = sorted(crashes.values(), key=lambda c: (c.phase != 'fuzz', c.file, c.line))
+    for crash in ordered:
+        crash_list.append([crash.phase, crash.file, f'{crash.line}', crash.asan_msg,
+                           crash.error_type, crash.message, f'{crash.count}'])
+    path = os.path.join(output_dir, 'crashes.csv') if output_dir else 'crashes.csv'
+    with open(path, 'w') as out:
+        for row in crash_list:
+            out.write(f'{",".join(str(c) for c in row)}\n')
+
     return crash_list
 
-def collect_unique_crashes(log_file):
-    # parse the log file and collect statisitics on the run:
-    # file name, line number, and the number of times it crashed
-    # along with ErrorType and the asan error message
+# parse the log file and collect statisitics on the run:
+# file name, line number, and the number of times it crashed
+# along with ErrorType and the asan error message.
+# the firmware emits hundreds of reports before the harness ever runs, so split them
+# on the line where DXE dispatches the harness image: everything before that is a boot
+# baseline that repeats on every campaign, everything after is attributable to an input.
+# uefi_asan produces two report shapes:
+#   <path>, line:0x0D28, column:0x0027
+#   ASAN MEMORY ACCESS check fail! __ubsan_handle_pointer_overflow is called:
+# and
+#   [ASan] ERROR: Invalid memory access: address 0x..., size 0x60, is_write 0x1, ip 0x...
+#   bug_descr=unknown-crash in file: <path> at line: 0x3B
+def collect_unique_crashes(log_file, output_dir=None):
     crashes = dict()
-    with open(log_file, 'r', encoding='utf-8', errors='ignore') as file:
-        prev_line = ""
-        all_lines = file.readlines()
-        for line in all_lines:
-            if "ASAN" in line:
-                if 'line' in prev_line and 'column' in prev_line:
-                    crash = AsanError("", "", "", "", "")
-                    data = prev_line.split(',')
-                    file = data[0]
-                    line_num = data[1].split(':')[1]
-                    if 'ErrorType' in data[2]:
-                        error_msg = data[2].split('=')[1]
-                        error_type = error_msg.split(':')[0]
-                        error = error_msg.split(':')[1]
-                        crash.error_type = error_type
-                        crash.message = error.strip()
-                    crash.asan_msg = line.split("!")[1].split(" ")[1]
-                    crash.file = file
-                    crash.line = int(line_num, 16)
-                    crash_key = f'{file}:{line_num}'
-                    if crash_key not in crashes.keys():
-                        crashes[crash_key] = crash
-                    else:
-                        crashes[crash_key].count += 1
+    phase = 'boot'
+
+    def record(path, line_text, asan_msg, error_type='', message=''):
+        path = path.strip()
+        if not path:
+            return
+        try:
+            line_no = int(line_text, 16)
+        except (ValueError, TypeError):
+            try:
+                line_no = int(line_text)
+            except (ValueError, TypeError):
+                line_no = 0
+        key = f'{phase}:{path}:{line_no}'
+        existing = crashes.get(key)
+        if existing is None:
+            crashes[key] = AsanError(path, line_no, error_type, message, asan_msg, 1, phase)
+        else:
+            existing.count += 1
+
+    with open(log_file, 'r', encoding='utf-8', errors='ignore') as handle:
+        prev_line = ''
+        for line in handle:
+            # anything after DXE dispatches Firness.efi is attributable to an input
+            if phase == 'boot' and 'EntryPoint=' in line and 'Firness.efi' in line:
+                phase = 'fuzz'
+
+            if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev_line:
+                parts = prev_line.split(',')
+                path = parts[0]
+                line_no = ''
+                if len(parts) > 1 and ':' in parts[1]:
+                    line_no = parts[1].split(':', 1)[1].strip()
+                error_type = message = ''
+                if len(parts) > 2 and 'ErrorType' in parts[2] and '=' in parts[2]:
+                    body = parts[2].split('=', 1)[1]
+                    bits = body.split(':', 1)
+                    error_type = bits[0].strip()
+                    message = bits[1].strip() if len(bits) > 1 else ''
+                asan_msg = ''
+                if '!' in line:
+                    tail = line.split('!', 1)[1].strip().split(' ')
+                    asan_msg = tail[0] if tail else ''
+                record(path, line_no, asan_msg, error_type, message)
+
+            elif line.startswith('bug_descr=') and ' in file: ' in line and ' at line: ' in line:
+                descr = line.split('=', 1)[1].split(' in file: ', 1)[0].strip()
+                rest = line.split(' in file: ', 1)[1]
+                path, _, line_no = rest.partition(' at line: ')
+                detail = ''
+                if 'ERROR: Invalid memory access' in prev_line:
+                    detail = prev_line.split('Invalid memory access:', 1)[1].strip()
+                record(path, line_no.strip(), descr, 'asan', detail)
+
             prev_line = line
-    
-    crash_list = save_crashes_to_file(crashes)
+
+    crash_list = save_crashes_to_file(crashes, output_dir)
+    boot = sum(c.count for c in crashes.values() if c.phase == 'boot')
+    fuzz = sum(c.count for c in crashes.values() if c.phase == 'fuzz')
+    n_fuzz = sum(1 for c in crashes.values() if c.phase == 'fuzz')
     print('++++ Collected Unique Crashes ++++')
-    print(tabulate(crash_list, headers='firstrow', tablefmt='grid'))
+    print(f'  boot baseline: {boot} report(s) at '
+          f'{sum(1 for c in crashes.values() if c.phase == "boot")} site(s) -- not fuzzing findings')
+    print(f'  fuzzing:       {fuzz} report(s) at {n_fuzz} site(s)')
+    if len(crash_list) > 1:
+        print(tabulate(crash_list, headers='firstrow', tablefmt='grid'))
+    else:
+        print('  (no sanitizer reports in the capture)')
 
 
 def parse_time_to_seconds(time_str):
@@ -598,14 +769,25 @@ def parse_coverage_into(filename):
     map = set()
     with open(filename, 'r') as file:
         for line in file:
-            data = json.loads(line)
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except ValueError:
+                # a run killed mid-write leaves a partial final line
+                continue
             if 'Interesting' in data.keys():
-                map |= set(data['Interesting']['message']['indices'])
+                map |= set(data['Interesting']['message'].get('indices') or [])
             elif 'Message' in data.keys():
-                # Extract timestamp from the key (assuming it's the timestamp)
-                timestamp = data['Message']['message'].split(',')[0].split(' ')[-1]
-                # Store coverage information for this timestamp
-                coverage_per_time[parse_time_to_seconds(timestamp)] = len(map)
+                text = data['Message'].get('message', '')
+                if 'run time:' not in text:
+                    continue
+                timestamp = text.split(',')[0].split(' ')[-1]
+                try:
+                    coverage_per_time[parse_time_to_seconds(timestamp)] = len(map)
+                except (ValueError, IndexError):
+                    continue
     return coverage_per_time
 
 
@@ -642,7 +824,7 @@ def generate_report2(sig, frame):
     coverage_per_time = parse_coverage_into(log_file)
     save_coverage_to_file(coverage_per_time, output_csv)
     plot_coverage(coverage_per_time, output_plot)
-    collect_unique_crashes(os.path.join(fuzzing_dir, 'fuzz.txt'))
+    collect_unique_crashes(os.path.join(fuzzing_dir, 'fuzz.txt'), final_output_dir)
     print('++++ Generated Report ++++')
     exit(0)
 
@@ -657,7 +839,9 @@ def generate_report(simics_dir, output_dir):
     coverage_per_time = parse_coverage_into(log_file)
     save_coverage_to_file(coverage_per_time, output_csv)
     plot_coverage(coverage_per_time, output_plot)
-    
+    # the timeout path needs the same crash triage the Ctrl+C path does
+    collect_unique_crashes(fuzz_log, output_dir)
+
     print('++++ Generated Report ++++')
 
 # make sure all of the source files are there
@@ -750,23 +934,46 @@ def main():
     parser.add_argument('-r', '--random', action='store_true', help='randomize the input for the static analysis tool')
     # parser.add_argument('-r', '--reproduce', action='store_true', help='Reproduce a crash')
     parser.add_argument('-g', '--generate', action='store_true', help='Generate the harness')
-    parser.add_argument('-t', '--timeout', type=int, help='Timeout for the fuzzer')
+    parser.add_argument('-t', '--timeout', type=int,
+                        help='Fuzzing budget in seconds, counted from the moment the harness '
+                             'is reached (not from simics startup)')
+    parser.add_argument('--boot-timeout', type=int, default=2700,
+                        help='Seconds to wait for the instrumented firmware to boot and reach '
+                             'HARNESS_START before giving up (default: 2700)')
     parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
     parser.add_argument('--smi', action='store_true', help='Run the SMI fuzzer')
+    parser.add_argument('--backend', type=str, default='tsffs',
+                        choices=['tsffs', 'qemu', 'nyx', 'none'],
+                        help='Fuzzer the generated harness targets (default: tsffs)')
+    parser.add_argument('--reproduce', action='store_true',
+                        help='Replay a saved test case under reproduce.simics instead of fuzzing')
+    parser.add_argument('--testcase', type=str,
+                        help='Test case to replay with --reproduce (default: first file in solutions/)')
     args = parser.parse_args()
     complete_analysis = not args.analyze and not args.fuzz and not args.generate
 
-    # if args.eval and args.generate:
-    #     print(generate_harness(args.src, args.src, args.input))
-    #     return 
-
     if args.eval:
-        # run_eval2(args.src)
         run_eval(args.src, args.input, args.random)
-        return 
-    # input_file = args.input
-    if args.input:
-        input_file = os.path.normpath(args.input)
+        return 0
+
+    # replaying a saved test case needs neither the target list nor the source tree
+    if args.reproduce:
+        simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
+        fuzzing_dir = simics_dir
+        return reproduce_crash(simics_dir, args.testcase)
+
+    if not args.src:
+        print('Error: -s/--src is required. Pass the directory that CONTAINS edk2, '
+              'edk2-platforms, edk2-non-osi and FSP (e.g. -s /input), not edk2 itself.')
+        return 2
+    if not args.input:
+        print('Error: -i/--input is required (the [Protocols] target file, e.g. /input/input.txt).')
+        return 2
+    input_file = os.path.normpath(args.input)
+    if not os.path.isfile(input_file):
+        print(f'Error: input file {input_file} does not exist')
+        return 2
+
     # create a tmp directory to copy the source files to and work out of
     tmp_dir = os.path.join(os.getcwd(), 'tmp')
     if not os.path.exists(tmp_dir):
@@ -777,42 +984,56 @@ def main():
     if not os.path.exists(output):
         os.mkdir(output)
     asan_dir = os.path.join(os.getcwd(), 'uefi_asan')
+    simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
 
     # copy the source files to the tmp directory
     if not sanity_check(tmp_dir):
-        return
-    
+        return 2
+
     log = ''
-    # if args.reproduce:
-    #     reproduce_crash(os.path.join(os.getcwd(), 'projects', 'example'))
-    #     return
+    fuzz_started = True
 
     # run the static analysis tool
-    # if args.analyze or complete_analysis or args.generate:
-    #     # compile the firmware to get compilation database
-    #     log += get_compilation_database('/workspace/scripts', tmp_dir)
-    #     log += run_firness(tmp_dir, output, input_file, args.smi)
+    if args.analyze or complete_analysis:
+        # make sure the tree carries the sanitizer before anything is compiled;
+        # this is a no-op when the tree is already instrumented
+        log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
+        # compile the firmware to get the compilation database; this also produces
+        # the instrumented BOARDX58ICH10.fd that fuzz.simics boots
+        log += get_compilation_database('/workspace/scripts', tmp_dir)
+        log += run_firness(tmp_dir, output, input_file, args.smi)
 
     # generate the harness
     if args.generate or complete_analysis:
-        log += generate_harness(tmp_dir, output, input_file, False, args.smi)
+        if not os.path.isfile(os.path.join(output, 'call-database.json')):
+            print(f'Error: {output}/call-database.json is missing -- run the analysis '
+                  f'stage first (-a, or no stage flags at all).')
+            return 1
+        log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend)
         log += compile_harness(tmp_dir)
 
-    # if args.fuzz or complete_analysis:
-    #     # log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
-    #     # compile the firmware
-    #     # log += compile_firmware(tmp_dir)
-    #     # log += compile_harness(tmp_dir)
+    if args.fuzz or complete_analysis:
+        if not os.path.isfile(FIRMWARE_IMAGE):
+            print(f'Error: {FIRMWARE_IMAGE} is missing -- run the analysis stage '
+                  f'first so the instrumented firmware is built.')
+            return 1
+        if not os.path.isfile(HARNESS_IMAGE):
+            print(f'Error: {HARNESS_IMAGE} is missing -- run the generate stage first.')
+            return 1
 
-    #     # run the fuzzer
-    #     simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
-    #     fuzzing_dir = simics_dir
-    #     run_fuzzer(simics_dir, args.timeout, output)
-    #     generate_report(simics_dir, output)
-    
+        # run the fuzzer
+        fuzzing_dir = simics_dir
+        fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout)
+        generate_report(simics_dir, output)
+        if not fuzz_started:
+            print('Warning: ZERO fuzzing iterations ran, so coverage.csv is empty and every '
+                  'row of the crash table is boot-time sanitizer noise, not a finding.')
+
     write_log(output, log.split('\n'))
     cleanup(args.src, tmp_dir, output)
+    # a stage that produced nothing must not look like success
+    return 0 if fuzz_started else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -27,9 +27,14 @@ def asan_instrumetation(src, dir):
     copy(src, dir, 'AsanMemoryLib', 'MdePkg/Library/', False)
     copy(src, dir, 'AsanMemoryLibRepStr', 'MdePkg/Library/', False)
 
-    # apply the patch file in src to the entire dst dir
+    # Apply the patch file in src to the entire dst dir.
+    # --forward/--batch keep this non-interactive on a tree that already carries the
+    # patch (as eval_source/edk2 does); plain `patch` blocks on "Assume -R? [n]".
     patch_path = os.path.join(src, 'asan.patch')
-    os.system('patch -p1 -d ' + dir + ' < ' + patch_path + ' --binary')
+    rc = os.system(f'patch -p1 --forward --batch --binary -d {dir} < {patch_path}')
+    if os.waitstatus_to_exitcode(rc) != 0:
+        print(f'Warning: patch reported errors applying {patch_path}; check for .rej '
+              f'files under {dir} before trusting the instrumented tree.')
 
 
 def main():

@@ -1,6 +1,5 @@
 import json
 from collections import defaultdict
-import matplotlib.pyplot as plt
 import argparse
 
 
@@ -12,26 +11,59 @@ def parse_time_to_seconds(time_str):
     total_seconds = hours * 3600 + minutes * 60 + seconds
     return total_seconds
 
+# parse the JSONL tsffs writes to log_path (default %simics%/log.json). the log module
+# serialises an externally-tagged enum, so every record is {"<Variant>": {...}} and the
+# payload of Interesting/Solution/Timeout is nested under a "message" key:
+#   {"Interesting": {"timestamp":.., "message": {"indices":[..], "input":[..],
+#                                                "edges":[{"pc":..,"afl_idx":..}]}}}
+#   {"Message":     {"timestamp":.., "message": "[Stats #0] run time: 0h-5m-23s, ..."}}
+# this used to read data['Interesting']['edges'] and treat data['Message'] as a string,
+# so it raised on the first real record
 def parse_coverage_into(filename):
-    coverage_per_time = defaultdict(list)
-    map = set()
+    coverage_per_time = {}
+    covered = set()
     with open(filename, 'r') as file:
         for line in file:
-            data = json.loads(line)
-            if 'Interesting' in data.keys():
-                for edge in data['Interesting']['edges']:
-                    map.add(edge['afl_idx'])
-                # map |= set(data['Interesting']['edges'])
-            elif 'Message' in data.keys():
-                # Extract timestamp from the key (assuming it's the timestamp)
-                timestamp = data['Message'].split(',')[0].split(' ')[-1]
-                # Store coverage information for this timestamp
-                coverage_per_time[parse_time_to_seconds(timestamp)] = len(map)
-    print(f'Maximum coverage: {len(map)}')
-    return coverage_per_time
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except ValueError:
+                # a run killed mid-write leaves a partial final line
+                continue
+            if not isinstance(data, dict):
+                continue
+
+            for variant in ('Interesting', 'Solution', 'Timeout'):
+                payload = data.get(variant)
+                if isinstance(payload, dict):
+                    message = payload.get('message')
+                    if isinstance(message, dict):
+                        covered |= set(message.get('indices') or [])
+                        for edge in message.get('edges') or []:
+                            if isinstance(edge, dict) and 'afl_idx' in edge:
+                                covered.add(edge['afl_idx'])
+
+            payload = data.get('Message')
+            if isinstance(payload, dict):
+                text = payload.get('message')
+                if isinstance(text, str) and 'run time:' in text:
+                    stamp = text.split(',')[0].split(' ')[-1]
+                    try:
+                        coverage_per_time[parse_time_to_seconds(stamp)] = len(covered)
+                    except (ValueError, IndexError):
+                        continue
+
+    print(f'Maximum coverage: {len(covered)}')
+    return dict(sorted(coverage_per_time.items()))
 
 
 def plot_coverage(coverage_per_time, filename):
+    # imported here rather than at module scope so the parser above can be reused by
+    # tooling that has no plotting dependency
+    import matplotlib.pyplot as plt
+
     plt.plot(coverage_per_time.keys(), coverage_per_time.values())
     plt.title('Coverage over time')
     plt.xlabel('Time (s)')
