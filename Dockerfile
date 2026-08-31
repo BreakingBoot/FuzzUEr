@@ -3,6 +3,11 @@ FROM ubuntu:22.04
 # Suppresses a debconf error during apt-get install.
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Parallelism for the two from-source LLVM builds below, which dominate the image
+# build time. Override with:  docker build --build-arg NJOBS=$(nproc) ...
+# Keep in mind that clang/lld link steps want roughly 2 GB of RAM per job.
+ARG NJOBS=4
+
 WORKDIR /workspace
 # Download links can be obtained from:
 # https://lemcenter.intel.com/productDownload/?Product=256660e5-a404-4390-b436-f64324d94959
@@ -145,20 +150,27 @@ RUN cd llvm-15.0.7 \
     && mkdir build \
     && cd build \
     && cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;llvm" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON \
-    && ninja -j4
+    && ninja -j"${NJOBS}"
 
 ENV PATH /workspace/llvm-15.0.7/build/bin:$PATH
 
 COPY ./firness/pipeline_analysis.sh /workspace/analyze.sh
-COPY ./firness /workspace/llvm-15.0.7/clang-tools-extra/firness
-COPY ./firness/harness_generator /workspace/harness_generator
-COPY ./firness/HarnessHelpers /workspace/HarnessHelpers
+
+# only the clang tool source belongs in the llvm tree. copying all of ./firness here meant
+# an edit to the python generator invalidated the ninja build below, which is the most
+# expensive layer in this file
+COPY ./firness/CMakeLists.txt ./firness/patch.sh /workspace/llvm-15.0.7/clang-tools-extra/firness/
+COPY ./firness/firness /workspace/llvm-15.0.7/clang-tools-extra/firness/firness
 
 RUN apt-get install -y nlohmann-json3-dev
 
 RUN /workspace/llvm-15.0.7/clang-tools-extra/firness/patch.sh \
     && cd llvm-15.0.7/build \
-    && ninja -j4
+    && ninja -j"${NJOBS}"
+
+# after the llvm build, so that changing either only rebuilds these two layers
+COPY ./firness/harness_generator /workspace/harness_generator
+COPY ./firness/HarnessHelpers /workspace/HarnessHelpers
 
 
 # Download and install public SIMICS. This installs all the public packages as well as the
@@ -195,6 +207,10 @@ COPY ./Harness/hardware.yml /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-
 COPY ./Harness/qsp-uefi-custom.target.yml /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-x86/
 COPY ./Harness/qsp-uefi-custom.target.yml.include /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-x86/
 COPY ./Harness/fuzz.simics /workspace/projects/example/
+# reproduce.simics and the seed corpus were never installed, so --reproduce died
+# file-not-found and TSFFS always started from randomly generated seeds.
+COPY ./Harness/reproduce.simics /workspace/projects/example/
+COPY ./Harness/corpus/ /workspace/projects/example/corpus/
 COPY ./Harness/minimal_boot_disk.craff /workspace/projects/example/
 
 # Create an example project with:
@@ -210,6 +226,24 @@ RUN ispm projects /workspace/projects/example/ --create \
     8112-latest \
     1030-latest \
     31337-latest --ignore-existing-files --non-interactive 
+
+# QEMU is vendored as a submodule rather than installed from apt so it can be patched
+# for extra harness support. It is the LibAFL bridge fork, which is what the
+# FIRNESS_BACKEND_LIBAFL_QEMU path in HarnessHelpers/FirnessBackend.h talks to.
+# Skip it with --build-arg WITH_QEMU=0 (saves roughly 25 minutes and 2 GB).
+ARG WITH_QEMU=1
+COPY ./qemu /workspace/qemu/
+RUN if [ "${WITH_QEMU}" = "1" ]; then \
+      apt-get update && \
+      apt-get install --yes --no-install-recommends \
+        libglib2.0-dev libpixman-1-dev flex bison && \
+      mkdir -p /workspace/qemu/build && cd /workspace/qemu/build && \
+      ../configure --target-list=x86_64-softmmu --disable-werror --disable-docs \
+        --disable-gtk --disable-sdl --disable-vnc --disable-curses --enable-slirp && \
+      ninja -j"${NJOBS}" && \
+      /workspace/qemu/build/qemu-system-x86_64 --version ; \
+    else echo "WITH_QEMU=0, skipping qemu build" ; fi
+ENV PATH="/workspace/qemu/build:${PATH}"
 
 WORKDIR /workspace/
 

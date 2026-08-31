@@ -1,0 +1,12 @@
+# The build context only needs: Dockerfile, firness/, tsffs/, uefi_asan/, Harness/, scripts/.
+# Everything else -- notably the ~1 GB of edk2/FSP sources under eval_source/ -- is
+# bind-mounted at runtime (`docker run -v ./eval_source/:/input`), so shipping it to the
+# daemon just makes every build slower. Without this file the context is ~3.6 GB.
+eval_source/
+.git/
+**/.git/
+tsffs/target/
+FuzzUEr_Overview.png
+**/__pycache__/
+qemu/build/
+qemu/.git/
