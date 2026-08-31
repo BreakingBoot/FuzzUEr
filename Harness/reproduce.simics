@@ -1,14 +1,29 @@
+# Replay a single saved test case against the instrumented firmware.
+#
+#   ./simics -no-win -no-gui -e '$testcase_dir="repro_corpus"' reproduce.simics
+#
+# NOTE: tsffs exposes a fuzz.repro() interface, but this build ships only libtsffs.so
+# with no python trampolines, so tsffs.iface.fuzz is None and repro() cannot be called
+# from a script. Instead point the corpus at a directory holding just the one test case
+# and stop after a single iteration.
+#
+# NOTE: no @tsffs.use_snapshots -- that field is #[attr_value(skip)] in tsffs, so it is
+# not a registered attribute and setting it aborts the script.
+
 load-module tsffs
 init-tsffs
 @tsffs.log_level = 4
 @tsffs.start_on_harness = True
 @tsffs.stop_on_harness = True
 @tsffs.timeout = 3.0
-@tsffs.exceptions = [12, 13, 14]
-@tsffs.generate_random_corpus = True
-
-@tsffs.use_snapshots = True
+# 6 = #UD: -fsanitize=local-bounds traps with ud2 rather than calling a runtime
+# handler, so without vector 6 an out-of-bounds array access is never scored
+@tsffs.exceptions = [6, 12, 13, 14]
+@tsffs.generate_random_corpus = False
 @tsffs.cmplog = True
+@tsffs.corpus_directory = simenv.testcase_dir
+@tsffs.iteration_limit = 1
+@tsffs.quit_on_iteration_limit = True
 
 load-module uefi-fw-tracker
 
@@ -20,16 +35,29 @@ qsp.software.tracker.detect-parameters -overwrite param-file = "uefi.params" map
 qsp.software.tracker.load-parameters "uefi.params"
 qsp.software.enable-tracker
 debug-context object = "qsp.mb.cpu0.core[0][0]"
+qsp.serconsole.con.capture-start -overwrite filename = reproduce.txt
 
-
+# same handshake as fuzz.simics
 script-branch {
     local $con = qsp.console.con
-    bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping"
-    bp.time.wait-for seconds = 30    
-    qsp.console.con.input "FS0:\n"
-    bp.time.wait-for seconds = 5
-    local $manager = (start-agent-manager)
-    qsp.console.con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
-    bp.time.wait-for seconds = 5
-    qsp.console.con.input "Firness.efi\n"
+    try {
+        bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping" timeout-rt = 3600
+        bp.console_string.wait-for qsp.serconsole.con "Shell.efi" timeout-rt = 3600
+        bp.time.wait-for seconds = 2
+        $con.input "FS0:\n"
+        bp.time.wait-for seconds = 1
+        local $manager = (start-agent-manager)
+        $con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
+        bp.console_string.wait-for qsp.serconsole.con "Created new directory entry 'Firness.efi'" timeout-rt = 1800
+        bp.time.wait-for seconds = 2
+        $con.input "Firness.efi\n"
+        bp.console_string.wait-for qsp.serconsole.con -regexp "EntryPoint=.*Firness.efi" timeout-rt = 900
+        echo "FUZZUER: harness launched, replaying the test case"
+    } except {
+        echo "FUZZUER: ERROR - timed out waiting for a boot milestone."
+        echo "FUZZUER: reproduce.txt in this directory shows how far the boot got."
+        quit 1
+    }
 }
+
+run

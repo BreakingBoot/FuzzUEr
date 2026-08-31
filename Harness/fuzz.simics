@@ -4,7 +4,9 @@ init-tsffs
 @tsffs.start_on_harness = True
 @tsffs.stop_on_harness = True
 @tsffs.timeout = 3.0
-@tsffs.exceptions = [12, 13, 14]
+# 6 = #UD: -fsanitize=local-bounds traps with ud2 rather than calling a runtime
+# handler, so without vector 6 an out-of-bounds array access is never scored
+@tsffs.exceptions = [6, 12, 13, 14]
 @tsffs.generate_random_corpus = True
 @tsffs.cmplog = True
 
@@ -17,21 +19,36 @@ qsp.software.insert-tracker tracker = uefi_fw_tracker_comp
 qsp.software.tracker.detect-parameters -overwrite param-file = "uefi.params" map-file = "/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/SimicsX58.map"
 qsp.software.tracker.load-parameters "uefi.params"
 qsp.software.enable-tracker
-collect-coverage -access-count -branch-coverage -linear context-query = "'UEFI Firmware'" name = cc
+# NOTE: the whole-campaign collect-coverage that used to run here was never saved or
+# read -- coverage comes from log.json via coverage_report.py. Removing it took boot to
+# first harness hit from 2282s to 425s and the fuzz loop from 1.6 to 11.0 exec/s.
 debug-context object = "qsp.mb.cpu0.core[0][0]"
 qsp.serconsole.con.capture-start -overwrite filename = fuzz.txt
 
 
 script-branch {
     local $con = qsp.console.con
-    bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping"
-    bp.time.wait-for seconds = 30    
-    qsp.console.con.input "FS0:\n"
-    bp.time.wait-for seconds = 5
-    local $manager = (start-agent-manager)
-    qsp.console.con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
-    bp.time.wait-for seconds = 5
-    qsp.console.con.input "Firness.efi\n"
+    try {
+        # NOTE: these wait on strings the firmware really prints instead of fixed
+        # virtual-time sleeps, and carry a real-time watchdog. Virtual time under an
+        # instrumented image with VMP unavailable costs far more wall-clock than it
+        # looks, and a missed milestone used to hang the run with no diagnostic.
+        bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping" timeout-rt = 3600
+        bp.console_string.wait-for qsp.serconsole.con "Shell.efi" timeout-rt = 3600
+        bp.time.wait-for seconds = 2
+        $con.input "FS0:\n"
+        bp.time.wait-for seconds = 1
+        local $manager = (start-agent-manager)
+        $con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
+        bp.console_string.wait-for qsp.serconsole.con "Created new directory entry 'Firness.efi'" timeout-rt = 1800
+        bp.time.wait-for seconds = 2
+        $con.input "Firness.efi\n"
+        bp.console_string.wait-for qsp.serconsole.con -regexp "EntryPoint=.*Firness.efi" timeout-rt = 900
+        echo "FUZZUER: harness launched, fuzzing loop is live"
+    } except {
+        echo "FUZZUER: ERROR - timed out waiting for a boot milestone, see fuzz.txt"
+        quit 1
+    }
 }
 
 run
