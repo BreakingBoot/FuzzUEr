@@ -90,7 +90,7 @@ docker build -t fuzzuer-image .
 docker run -it -v ./eval_source/:/input fuzzuer-image
 
 # run the firness.py script
-python firness.py -i /input/input.txt -s /input/edk2
+python firness.py -i /input/input.txt -s /input
 ```
 
 This will automatically generate the compilation database, analyze the source code, generate the harness, compile the firmware and harness, and then run the fuzzer. Note: it will run the fuzzer indefinitely, so make sure to CTRL+C to stop it. The results will be in the `/workspace/firness_output` directory, where the most recent harness is in a folder called `Firness` but all generated harness are stored based on time they are generated.
