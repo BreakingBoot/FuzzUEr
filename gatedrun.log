@@ -1,0 +1,8 @@
+4 protocol(s) to fuzz, 4 at a time, 600s each
+  started EdkiiFormBrowserEx2 (1 launched, 3 queued)
+  started EfiEbc (2 launched, 2 queued)
+  started EfiDiskIo2 (3 launched, 1 queued)
+  started EfiAtaPassThru (4 launched, 0 queued)
+
+launched 4, failed to launch 0
+summarise with: python3 /home/gl055/research/tianoshield/FuzzUEr/scripts/coverage_matrix.py -r eval_source/verify/gated_runs

@@ -1,0 +1,49 @@
+## @file
+#  Implement the compiler instrumentation routines for AddressSanitizer(ASan).
+#  AddressSanitizer is an address sanity checker, see its details in below link:
+#  https://github.com/google/sanitizers/wiki/AddressSanitizer
+#   
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AsanLib
+  MODULE_UNI_FILE                = AsanLib.uni
+  FILE_GUID                      = 36599735-C74D-4282-B693-D46D7B575FFF
+  MODULE_TYPE                    = DXE_CORE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = AsanLib|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER DXE_SMM_DRIVER UEFI_APPLICATION UEFI_DRIVER DXE_CORE SMM_CORE
+  CONSTRUCTOR                    = AsanLibConstructor
+  
+#
+#  VALID_ARCHITECTURES           = IA32 X64 
+#
+
+[Sources]
+  Asan.c
+  SerialDebug.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  HobLib
+
+[Guids]
+  gAsanInfoGuid
+
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -Wno-frame-address
+  GCC:*_*_*_SAN_FLAGS == -fno-sanitize=all
+
