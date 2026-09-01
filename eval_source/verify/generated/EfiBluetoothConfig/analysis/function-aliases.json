@@ -1,0 +1,28 @@
+[
+    {
+        "Aliases": [
+            "EfiIp4Config2GetData",
+            "EfiIp6ConfigGetData",
+            "Ip4Config2GetIfInfo",
+            "Ip6ConfigGetIfInfo"
+        ],
+        "Function": "GetData"
+    },
+    {
+        "Aliases": [
+            "EfiIp4Config2SetData",
+            "EfiIp6ConfigSetData",
+            "Ip4Config2SetDnsServer",
+            "Ip4Config2SetGateway",
+            "Ip4Config2SetManualAddress",
+            "Ip4Config2SetPolicy",
+            "Ip6ConfigSetAltIfId",
+            "Ip6ConfigSetDadXmits",
+            "Ip6ConfigSetDnsServer",
+            "Ip6ConfigSetGateway",
+            "Ip6ConfigSetManualAddress",
+            "Ip6ConfigSetPolicy"
+        ],
+        "Function": "SetData"
+    }
+]

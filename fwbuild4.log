@@ -1,0 +1,8 @@
+RC=1
+-rw-r--r-- 1 root root 16777216 Aug 27 16:26 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+/usr/bin/ld: /usr/bin/ld: DWARF error: invalid or unhandled FORM value: 0x23
+--
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG

@@ -1,0 +1,46 @@
+[
+    {
+        "Aliases": [
+            "ExtScsiPassThruBuildDevicePath",
+            "NvmExpressBuildDevicePath"
+        ],
+        "Function": "BuildDevicePath"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruGetNextTarget"
+        ],
+        "Function": "GetNextTarget"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruGetNextTargetLun"
+        ],
+        "Function": "GetNextTargetLun"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruGetTargetLun"
+        ],
+        "Function": "GetTargetLun"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruPassThru",
+            "NvmExpressPassThru"
+        ],
+        "Function": "PassThru"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruResetChannel"
+        ],
+        "Function": "ResetChannel"
+    },
+    {
+        "Aliases": [
+            "ExtScsiPassThruResetTargetLun"
+        ],
+        "Function": "ResetTargetLun"
+    }
+]

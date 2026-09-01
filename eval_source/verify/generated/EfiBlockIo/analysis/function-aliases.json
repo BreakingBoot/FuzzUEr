@@ -1,0 +1,59 @@
+[
+    {
+        "Aliases": [
+            "AtaBlockIoFlushBlocks",
+            "CpuDisableInterrupt",
+            "CpuEnableInterrupt",
+            "DiskIo2Cancel",
+            "NvmeBlockIoFlushBlocks",
+            "PartitionFlushBlocks",
+            "ScsiDiskFlushBlocks",
+            "UsbMassFlushBlocks"
+        ],
+        "Function": "FlushBlocks"
+    },
+    {
+        "Aliases": [
+            "NvmeBlockIoReadBlocks",
+            "PartitionReadBlocks",
+            "ScsiDiskReadBlocks",
+            "UsbMassReadBlocks"
+        ],
+        "Function": "ReadBlocks"
+    },
+    {
+        "Aliases": [
+            "AtaBlockIoReset",
+            "ConsoleLoggerReset",
+            "CpuGetInterruptState",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "AtaBlockIoReadBlocks",
+            "AtaBlockIoWriteBlocks",
+            "NvmeBlockIoWriteBlocks",
+            "PartitionWriteBlocks",
+            "ScsiDiskWriteBlocks",
+            "UsbMassWriteBlocks"
+        ],
+        "Function": "WriteBlocks"
+    }
+]

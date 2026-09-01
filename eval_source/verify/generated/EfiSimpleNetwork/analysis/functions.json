@@ -1,0 +1,1108 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Initialize",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraRxBufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraTxBufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Initialize",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraRxBufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraTxBufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Shutdown",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Shutdown",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "ReceiveFilters",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Enable"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Disable"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResetMCastFilter"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MCastFilterCnt"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MCastFilter"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "ReceiveFilters",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Enable"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Disable"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResetMCastFilter"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MCastFilterCnt"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MCastFilter"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "StationAddress",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Reset"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "New"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "StationAddress",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Reset"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "New"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Statistics",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Reset"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StatisticsSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_NETWORK_STATISTICS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StatisticsTable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Statistics",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Reset"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StatisticsSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_NETWORK_STATISTICS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StatisticsTable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "MCastIpToMac",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IPv6"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IP"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MAC"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "MCastIpToMac",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IPv6"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IP"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MAC"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "NvData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ReadWrite"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "NvData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ReadWrite"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "GetStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InterruptStatus"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TxBuf"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "GetStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InterruptStatus"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TxBuf"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Transmit",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Transmit",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Receive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Receive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

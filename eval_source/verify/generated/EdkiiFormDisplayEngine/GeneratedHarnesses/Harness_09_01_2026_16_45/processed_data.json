@@ -1,0 +1,54 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "FORM_DISPLAY_ENGINE_FORM *",
+                    "Assignment": "NULL",
+                    "Data Type": "FORM_DISPLAY_ENGINE_FORM *",
+                    "Usage": "gEdkiiFormDisplayEngineProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "USER_INPUT *",
+                    "Assignment": "",
+                    "Data Type": "USER_INPUT *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FormDisplay",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/DisplayProtocol.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "ExitDisplay",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/DisplayProtocol.h"
+        ],
+        "return_type": "VOID"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "ConfirmDataChange",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/DisplayProtocol.h"
+        ],
+        "return_type": "UINTN"
+    }
+]

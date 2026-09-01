@@ -1,0 +1,34 @@
+[
+    {
+        "Aliases": [
+            "AtaDiskInfoIdentify",
+            "AtaDiskInfoInquiry",
+            "NvmExpressDiskInfoIdentify",
+            "NvmExpressDiskInfoInquiry",
+            "ScsiDiskInfoIdentify",
+            "ScsiDiskInfoInquiry",
+            "UsbDiskInfoIdentify",
+            "UsbDiskInfoInquiry"
+        ],
+        "Function": "Identify"
+    },
+    {
+        "Aliases": [
+            "AtaDiskInfoSenseData",
+            "NvmExpressDiskInfoSenseData",
+            "ScsiDiskInfoSenseData",
+            "SenseData",
+            "UsbDiskInfoSenseData"
+        ],
+        "Function": "SenseData"
+    },
+    {
+        "Aliases": [
+            "AtaDiskInfoWhichIde",
+            "NvmExpressDiskInfoWhichIde",
+            "ScsiDiskInfoWhichIde",
+            "UsbDiskInfoWhichIde"
+        ],
+        "Function": "WhichIde"
+    }
+]

@@ -1,0 +1,1819 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Stop",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_TFTP_OPCODE",
+                    "Assignment": "EFI_PXE_BASE_CODE_TFTP_GET_FILE_SIZE",
+                    "Data Type": "int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__ENUM_ARG__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "SATA_ENUMER_ALL",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "StrToIpv4Address",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibStrToIp4",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibAsciiStrToIp4",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_8": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_MTFTP_INFO *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_DATA_STRUCT__"
+                }
+            ],
+            "Arg_9": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "SATA_ENUMER_ALL",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Mtftp",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "MEMORY_PROFILE_RECORDING_ENABLE",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Dhcp",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Guid/MemoryProfile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_DISCOVER_INFO *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_DATA_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Discover",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetParameters",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_10": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_DHCPV6_PACKET *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "StrToIpv4Address",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "HttpUrlGetIp4",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibStrToIp4",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibAsciiStrToIp4",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_UDP_PORT",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_UDP_PORT",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_8": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_9": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UdpWrite",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "EFI_PXE_BASE_CODE_UDP_OPFLAGS_ANY_DEST_IP",
+                    "Data Type": "int",
+                    "Usage": "EFI_PXE_BASE_CODE_UDP_OPFLAGS_ANY_DEST_IP",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_MAYBE_INT__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "EFI_PXE_BASE_CODE_UDP_OPFLAGS_ANY_SRC_IP | EFI_PXE_BASE_CODE_UDP_OPFLAGS_ANY_DEST_IP",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_UDP_PORT",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "Private->ServerIp",
+                    "Data Type": "EFI_IP_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "ServerIp"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_UDP_PORT",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_8": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_9": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "struct (unnamed struct at /workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h:191:3)",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UdpRead",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_PXE_BASE_CODE_IP_FILTER *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_PXE_BASE_CODE_IP_FILTER *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetIpFilter",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "&Private->PxeBc",
+                    "Data Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "MEMORY_PROFILE_RECORDING_ENABLE",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Start",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/Dpc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dns6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ManagedNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiRuntimeServicesTableLib.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/NetLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcBoot.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Mtftp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/AdapterInformation.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ServiceBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Udp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DevicePathLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/DpcLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/SmBios.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcMtftp.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Arp.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/LoadFile.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Guid/MemoryProfile.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "StrToIpv4Address",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibStrToIp4",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibAsciiStrToIp4",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MAC_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Arp",
+        "includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "StrToIpv4Address",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibStrToIp4",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "NetLibAsciiStrToIp4",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetStationIp",
+        "includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "gEfiPxeBaseCodeProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_10": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_11": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_12": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_8": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_9": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PXE_BASE_CODE_PACKET *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetPackets",
+        "includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

@@ -1,0 +1,420 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetNumberOfProcessors",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_PROCESSOR_INFORMATION *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PROCESSOR_INFORMATION *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetProcessorInfo",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_AP_PROCEDURE",
+                    "Assignment": "",
+                    "Data Type": "EFI_AP_PROCEDURE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_EVENT",
+                    "Assignment": "",
+                    "Data Type": "EFI_EVENT",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN * *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "StartupAllAPs",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_AP_PROCEDURE",
+                    "Assignment": "",
+                    "Data Type": "EFI_AP_PROCEDURE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_EVENT",
+                    "Assignment": "",
+                    "Data Type": "EFI_EVENT",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "NULL",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "StartupThisAP",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SwitchBSP",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT32 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "EnableDisableAP",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_MP_SERVICES_PROTOCOL *",
+                    "Usage": "gEfiMpServiceProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "WhoAmI",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/MpService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

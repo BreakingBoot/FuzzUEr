@@ -1,0 +1,120 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "gEsrtManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetEsrtEntry",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Usage": "gEsrtManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UpdateEsrtEntry",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SYSTEM_RESOURCE_ENTRY *",
+                    "Usage": "gEsrtManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegisterEsrtEntry",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "gEsrtManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UnRegisterEsrtEntry",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "SyncEsrtFmp",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "LockEsrtRepository",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EsrtManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

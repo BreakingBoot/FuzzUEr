@@ -1,0 +1,1637 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Snp->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL_OPERATION",
+                    "Assignment": "DirectionFlag",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL_OPERATION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__ENUM_ARG__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "PeiServicesAllocatePages",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "GetVariableFlashFtwWorkingInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "GetVariableFlashFtwSpareInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "GetVariableFlashNvStorageInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void **",
+                    "Assignment": "",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Map",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Snp->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Unmap",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Uhc->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Flush",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/UsbIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiStatusCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/ReportStatusCodeLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PeImage.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Usb.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/EventGroup.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Usb2HostController.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DebugSupport.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Uhc->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL_ATTRIBUTE_OPERATION",
+                    "Assignment": "EfiPciIoAttributeOperationSet",
+                    "Data Type": "int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__ENUM_ARG__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "kEmptyHashValue",
+                    "Data Type": "int",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "EFI_PCI_IO_ATTRIBUTE_DUAL_ADDRESS_CYCLE",
+                    "Data Type": "int",
+                    "Usage": "EFI_PCI_IO_ATTRIBUTE_DUAL_ADDRESS_CYCLE",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_MAYBE_INT__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "(~Attributes) & (PciIoDevice->Supports)",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "EFI_PCI_DEVICE_ENABLE",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_INT__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "EFI_PCI_DEVICE_ENABLE | EFI_PCI_IO_ATTRIBUTE_VGA_MEMORY | EFI_PCI_IO_ATTRIBUTE_VGA_IO",
+                    "Data Type": "int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_INT__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Attributes",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "SegmentNumber"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "BusNumber"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "DeviceNumber"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "FunctionNumber"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetLocation",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiStatusCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PeImage.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DebugSupport.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Pool->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ALLOCATE_TYPE",
+                    "Assignment": "AllocateAnyPages",
+                    "Data Type": "int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__ENUM_ARG__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_MEMORY_TYPE",
+                    "Assignment": "EfiBootServicesData",
+                    "Data Type": "int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__ENUM_ARG__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "kNumPosSlotBits",
+                    "Data Type": "int",
+                    "Usage": "kNumPosSlotBits",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "SNP_MEM_PAGES (4096)",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void **",
+                    "Assignment": "",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AllocateBuffer",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "Pool->PciIo",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "kNumPosSlotBits",
+                    "Data Type": "int",
+                    "Usage": "kNumPosSlotBits",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned int",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "SNP_MEM_PAGES (4096)",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "unsigned long long",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "EFI_SIZE_TO_PAGES (EFI_PAGE_SIZE)",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "EFI_SIZE_TO_PAGES (4096)",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "PeiServicesAllocatePages",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "GetVariableFlashFtwWorkingInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "GetVariableFlashFtwSpareInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void *",
+                    "Assignment": "GetVariableFlashNvStorageInfo",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "FreeBuffer",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "kEmptyHashValue",
+                    "Data Type": "int",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__CONSTANT_UNKNOWN__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "kEmptyHashValue",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "void **",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetBarAttributes",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverBinding.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleFileSystem.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci22.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress31.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciCodeId.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Pci23.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress21.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PciExpress40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/ComponentName2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "Result"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "PollIo",
+        "includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetBarAttributes",
+        "includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "PollMem",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/PciIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL *",
+                    "Usage": "gEfiPciIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Assignment": "",
+                    "Data Type": "EFI_PCI_IO_PROTOCOL_WIDTH",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "CopyMem",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/PciIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

@@ -1,0 +1,94 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetCapability",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxSpeed"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Is64BitCapable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetCapability",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxSpeed"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Is64BitCapable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

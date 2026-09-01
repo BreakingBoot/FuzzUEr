@@ -1,0 +1,86 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Firness
+  FILE_GUID                      = 91e60631-78c8-4ae2-a851-9237236710ac
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FirnessMain
+
+#
+#  This flag specifies whether HII resource section is generated into PE image.
+#
+  UEFI_HII_RESOURCE_SECTION      = TRUE
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 EBC
+#
+
+[Sources]
+  FirnessMain.c
+  FirnessHarnesses.c
+  FirnessHelpers.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ShellPkg/ShellPkg.dec
+  NetworkPkg/NetworkPkg.dec
+  OvmfPkg/OvmfPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+
+[LibraryClasses]
+  UefiHiiServicesLib
+  DpcLib
+  UdpIoLib
+  ShellCommandLib
+  SmbusLib
+  UefiBootManagerLib
+  TimerLib
+  DxeServicesLib
+  ReportStatusCodeLib
+  PerformanceLib
+  HiiLib
+  MtrrLib
+  PcdLib
+  SortLib
+  HandleParsingLib
+  PciCf8Lib
+  SynchronizationLib
+  DebugLib
+  PciCapPciIoLib
+  VariablePolicyHelperLib
+  IoLib
+  PciSegmentLib
+  IpIoLib
+  HobLib
+  LockBoxLib
+  UefiBootServicesTableLib
+  S3BootScriptLib
+  PeCoffGetEntryPointLib
+  ShellLib
+  PrintLib
+  UefiLib
+  PciExpressLib
+  UefiApplicationEntryPoint
+  HttpIoLib
+  FileHandleLib
+  BaseMemoryLib
+  OrderedCollectionLib
+  MemoryAllocationLib
+  RegisterFilterLib
+  DevicePathLib
+  UefiRuntimeServicesTableLib
+  PciLib
+  TcpIoLib
+  SerialPortLib
+  CpuLib
+  BaseLib
+  TimeBaseLib
+  DxeServicesTableLib
+
+[Guids]
+
+[Protocols]
+  gEfiHiiImageExProtocolGuid

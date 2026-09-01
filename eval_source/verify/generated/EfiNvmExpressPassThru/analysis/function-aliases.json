@@ -1,0 +1,26 @@
+[
+    {
+        "Aliases": [
+            "NvmExpressBuildDevicePath"
+        ],
+        "Function": "BuildDevicePath"
+    },
+    {
+        "Aliases": [
+            "NvmExpressGetNamespace"
+        ],
+        "Function": "GetNamespace"
+    },
+    {
+        "Aliases": [
+            "NvmExpressGetNextNamespace"
+        ],
+        "Function": "GetNextNamespace"
+    },
+    {
+        "Aliases": [
+            "NvmExpressPassThru"
+        ],
+        "Function": "PassThru"
+    }
+]

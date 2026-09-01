@@ -1,0 +1,292 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Usage": "gEfiLegacyRegion2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Decode",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacyRegion2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Usage": "gEfiLegacyRegion2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Lock",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacyRegion2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Usage": "gEfiLegacyRegion2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT32 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "BootLock",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacyRegion2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Usage": "gEfiLegacyRegion2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UnLock",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacyRegion2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION2_PROTOCOL *",
+                    "Usage": "gEfiLegacyRegion2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_LEGACY_REGION_DESCRIPTOR * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_REGION_DESCRIPTOR * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetInfo",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacyRegion2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

@@ -1,0 +1,7 @@
+RC=0
+test_Common_BuildToolError (CheckPythonSyntax.Tests) ... ok
+test_Ecc_EccToolError (CheckPythonSyntax.Tests) ... ok
+test_Eot_EotToolError (CheckPythonSyntax.Tests) ... ok
+test_UPT_Logger_ToolError (CheckPythonSyntax.Tests) ... ok
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf [X64]
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf [IA32]

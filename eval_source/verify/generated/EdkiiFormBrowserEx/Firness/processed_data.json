@@ -1,0 +1,113 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "BROWSER_SETTING_SCOPE",
+                    "Assignment": "",
+                    "Data Type": "BROWSER_SETTING_SCOPE",
+                    "Usage": "gEdkiiFormBrowserExProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetScope",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_INPUT_KEY *",
+                    "Assignment": "",
+                    "Data Type": "EFI_INPUT_KEY *",
+                    "Usage": "gEdkiiFormBrowserExProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_STRING",
+                    "Assignment": "",
+                    "Data Type": "EFI_STRING",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegisterHotKey",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EXIT_HANDLER",
+                    "Assignment": "",
+                    "Data Type": "EXIT_HANDLER",
+                    "Usage": "gEdkiiFormBrowserExProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegiserExitHandler",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx.h"
+        ],
+        "return_type": "VOID"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "SaveReminder",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx.h"
+        ],
+        "return_type": "UINT32"
+    }
+]

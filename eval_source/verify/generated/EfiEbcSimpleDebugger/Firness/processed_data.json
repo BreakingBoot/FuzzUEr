@@ -1,0 +1,237 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Usage": "gEfiEbcSimpleDebuggerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VM_CONTEXT *",
+                    "Assignment": "NULL",
+                    "Data Type": "VM_CONTEXT *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Debugger",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiS3BootScript.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/CacheMaintenanceLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDependency.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcDebuggerHook.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiBootMode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiFirmwareFile.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PeImage.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/PiDxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/PeCoffImageEmulator.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeCoffLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDxeCis.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcExecute.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/EbcSimpleDebugger.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiDriverEntryPoint.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiFirmwareVolume.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ebc.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiHob.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiStatusCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DebugSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/EbcVmTest.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h"
+        ],
+        "return_type": "void"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Usage": "gEfiEbcSimpleDebuggerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VM_CONTEXT *",
+                    "Assignment": "NULL",
+                    "Data Type": "VM_CONTEXT *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EXCEPTION_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_EXCEPTION_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SignalException",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EbcSimpleDebugger.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Usage": "gEfiEbcSimpleDebuggerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VM_CONTEXT *",
+                    "Assignment": "NULL",
+                    "Data Type": "VM_CONTEXT *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT16 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Dasm",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EbcSimpleDebugger.h"
+        ],
+        "return_type": "UINT32"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EBC_SIMPLE_DEBUGGER_PROTOCOL *",
+                    "Usage": "gEfiEbcSimpleDebuggerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Configure",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/EbcSimpleDebugger.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

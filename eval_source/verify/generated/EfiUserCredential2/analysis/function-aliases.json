@@ -1,0 +1,18 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvDelete",
+            "FileInterfaceFileDelete",
+            "FileInterfaceNopGeneric"
+        ],
+        "Function": "Delete"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    }
+]

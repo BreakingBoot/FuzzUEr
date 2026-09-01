@@ -1,0 +1,116 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VAR_CHECK_SET_VARIABLE_CHECK_HANDLER",
+                    "Assignment": "",
+                    "Data Type": "VAR_CHECK_SET_VARIABLE_CHECK_HANDLER",
+                    "Usage": "gEdkiiVarCheckProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegisterSetVariableCheckHandler",
+        "includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEdkiiVarCheckProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VAR_CHECK_VARIABLE_PROPERTY *",
+                    "Assignment": "",
+                    "Data Type": "VAR_CHECK_VARIABLE_PROPERTY *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "VariablePropertySet",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/VarCheck.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEdkiiVarCheckProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "VAR_CHECK_VARIABLE_PROPERTY *",
+                    "Assignment": "",
+                    "Data Type": "VAR_CHECK_VARIABLE_PROPERTY *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "VariablePropertyGet",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/VarCheck.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

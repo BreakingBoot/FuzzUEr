@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "VlanConfigFind"
+        ],
+        "Function": "Find"
+    },
+    {
+        "Aliases": [
+            "VlanConfigRemove"
+        ],
+        "Function": "Remove"
+    },
+    {
+        "Aliases": [
+            "VlanConfigSet"
+        ],
+        "Function": "Set"
+    }
+]

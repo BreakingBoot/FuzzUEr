@@ -1,0 +1,116 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiIp4ConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EVENT",
+                    "Assignment": "",
+                    "Data Type": "EFI_EVENT",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EVENT",
+                    "Assignment": "",
+                    "Data Type": "EFI_EVENT",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Start",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Ip4Config.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiIp4ConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Stop",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Ip4Config.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_IP4_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiIp4ConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_IP4_IPCONFIG_DATA *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_IP4_IPCONFIG_DATA *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetData",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Ip4Config.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

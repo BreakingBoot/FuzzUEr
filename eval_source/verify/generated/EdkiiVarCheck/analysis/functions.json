@@ -1,0 +1,77 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h",
+        "Function": "RegisterSetVariableCheckHandler",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "VAR_CHECK_SET_VARIABLE_CHECK_HANDLER",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h",
+        "Function": "RegisterSetVariableCheckHandler",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "VAR_CHECK_SET_VARIABLE_CHECK_HANDLER",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h",
+        "Function": "VariablePropertyGet",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Name"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "VAR_CHECK_VARIABLE_PROPERTY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VariableProperty"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

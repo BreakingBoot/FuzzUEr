@@ -1,0 +1,64 @@
+[
+    {
+        "Aliases": [
+            "ConSplitterTextInReadKeyStrokeEx",
+            "KeyboardReadKeyStrokeEx",
+            "TerminalConInReadKeyStrokeEx",
+            "USBKeyboardReadKeyStrokeEx"
+        ],
+        "Function": "ReadKeyStrokeEx"
+    },
+    {
+        "Aliases": [
+            "ConSplitterTextInRegisterKeyNotify",
+            "KeyboardRegisterKeyNotify",
+            "TerminalConInRegisterKeyNotify",
+            "USBKeyboardRegisterKeyNotify"
+        ],
+        "Function": "RegisterKeyNotify"
+    },
+    {
+        "Aliases": [
+            "ConSplitterTextInResetEx",
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "TerminalConInResetEx",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "ConSplitterTextInSetState",
+            "EhcSetState",
+            "KeyboardSetState",
+            "TerminalConInSetState",
+            "USBKeyboardSetState",
+            "Uhci2SetState"
+        ],
+        "Function": "SetState"
+    },
+    {
+        "Aliases": [
+            "ConSplitterTextInUnregisterKeyNotify",
+            "KeyboardUnregisterKeyNotify",
+            "TerminalConInUnregisterKeyNotify",
+            "USBKeyboardUnregisterKeyNotify"
+        ],
+        "Function": "UnregisterKeyNotify"
+    }
+]

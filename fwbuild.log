@@ -1,0 +1,3 @@
+escalation sites now in container: 12
+Error: -i/--input is required (the [Protocols] target file, e.g. /input/input.txt).
+-rw-r--r-- 1 root root 16777216 Aug 27 16:26 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd

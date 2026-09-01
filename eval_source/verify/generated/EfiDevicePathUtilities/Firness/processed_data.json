@@ -1,0 +1,410 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetDevicePathSize",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "DuplicateDevicePath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AppendDevicePath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AppendDeviceNode",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AppendDevicePathInstance",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL * *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetNextDevicePathInstance",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "IsDevicePathMultiInstance",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "gEfiDevicePathUtilitiesProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "CreateDeviceNode",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DevicePathUtilities.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

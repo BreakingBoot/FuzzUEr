@@ -1,0 +1,4233 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Library/MpInitLib/MpLib.h",
+        "Name": "AP_INIT_STATE",
+        "Values": [
+            "ApInitConfig",
+            "ApInitDone",
+            "ApInitReconfig"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Library/MpInitLib/MpLib.h",
+        "Name": "AP_LOOP_MODE",
+        "Values": [
+            "ApInHltLoop",
+            "ApInMwaitLoop",
+            "ApInRunLoop"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Name": "ARP_ADDRESS_TYPE",
+        "Values": [
+            "Hardware",
+            "Protocol"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "BASE_BOARD_TYPE",
+        "Values": [
+            "BaseBoardTypeConnectivitySwitch",
+            "BaseBoardTypeDaughterBoard",
+            "BaseBoardTypeIOModule",
+            "BaseBoardTypeInterconnectBoard",
+            "BaseBoardTypeMemoryModule",
+            "BaseBoardTypeMotherBoard",
+            "BaseBoardTypeOther",
+            "BaseBoardTypeProcessorIOModule",
+            "BaseBoardTypeProcessorMemoryModule",
+            "BaseBoardTypeProcessorModule",
+            "BaseBoardTypeServerBlade",
+            "BaseBoardTypeSystemManagementModule",
+            "BaseBoardTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.c",
+        "Name": "BCFG_OPERATION_TARGET",
+        "Values": [
+            "BcfgTargetBootOrder",
+            "BcfgTargetDriverOrder",
+            "BcfgTargetMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.c",
+        "Name": "BCFG_OPERATION_TYPE",
+        "Values": [
+            "BcfgTypeAdd",
+            "BcfgTypeAddh",
+            "BcfgTypeAddp",
+            "BcfgTypeDump",
+            "BcfgTypeMax",
+            "BcfgTypeMod",
+            "BcfgTypeModf",
+            "BcfgTypeModh",
+            "BcfgTypeModp",
+            "BcfgTypeMv",
+            "BcfgTypeOpt",
+            "BcfgTypeRm"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel1CommandsLib/If.c",
+        "Name": "BIN_OPERATOR_TYPE",
+        "Values": [
+            "OperatorEqual",
+            "OperatorGreaterThan",
+            "OperatorGreatorOrEqual",
+            "OperatorLessOrEqual",
+            "OperatorLessThan",
+            "OperatorMax",
+            "OperatorNotEqual",
+            "OperatorUnisgnedGreaterThan",
+            "OperatorUnsignedGreaterOrEqual",
+            "OperatorUnsignedLessOrEqual",
+            "OperatorUnsignedLessThan"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "BMC_INTERFACE_TYPE",
+        "Values": [
+            "IPMIDeviceInfoInterfaceTypeBT",
+            "IPMIDeviceInfoInterfaceTypeKCS",
+            "IPMIDeviceInfoInterfaceTypeSMIC",
+            "IPMIDeviceInfoInterfaceTypeSSIF",
+            "IPMIDeviceInfoInterfaceTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/UefiBootManagerLib/InternalBm.h",
+        "Name": "BM_BOOT_TYPE",
+        "Values": [
+            "BmAcpiFloppyBoot",
+            "BmHardwareDeviceBoot",
+            "BmMessageAtapiBoot",
+            "BmMessageSataBoot",
+            "BmMessageScsiBoot",
+            "BmMessageUsbBoot",
+            "BmMiscBoot"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Name": "BROWSER_GET_DEFAULT_VALUE",
+        "Values": [
+            "GetDefaultForAll",
+            "GetDefaultForMax",
+            "GetDefaultForNoStorage",
+            "GetDefaultForStorage"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx.h",
+        "Name": "BROWSER_SETTING_SCOPE",
+        "Values": [
+            "FormLevel",
+            "FormSetLevel",
+            "MaxLevel",
+            "SystemLevel"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "BUILTIN_POINTING_DEVICE_INTERFACE",
+        "Values": [
+            "PointingDeviceInterfaceADB",
+            "PointingDeviceInterfaceBusMouse",
+            "PointingDeviceInterfaceBusMouseDB9",
+            "PointingDeviceInterfaceBusMouseMicroDin",
+            "PointingDeviceInterfaceHpHil",
+            "PointingDeviceInterfaceI2c",
+            "PointingDeviceInterfaceInfrared",
+            "PointingDeviceInterfaceOther",
+            "PointingDeviceInterfacePs2",
+            "PointingDeviceInterfaceSerial",
+            "PointingDeviceInterfaceSpi",
+            "PointingDeviceInterfaceUnknown",
+            "PointingDeviceInterfaceUsb"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "BUILTIN_POINTING_DEVICE_TYPE",
+        "Values": [
+            "PointingDeviceOpticalSensor",
+            "PointingDeviceTouchPad",
+            "PointingDeviceTouchScreen",
+            "PointingDeviceTypeGlidePoint",
+            "PointingDeviceTypeMouse",
+            "PointingDeviceTypeOther",
+            "PointingDeviceTypeTrackBall",
+            "PointingDeviceTypeTrackPoint",
+            "PointingDeviceTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "CACHE_ASSOCIATIVITY_DATA",
+        "Values": [
+            "CacheAssociativity12Way",
+            "CacheAssociativity16Way",
+            "CacheAssociativity20Way",
+            "CacheAssociativity24Way",
+            "CacheAssociativity2Way",
+            "CacheAssociativity32Way",
+            "CacheAssociativity48Way",
+            "CacheAssociativity4Way",
+            "CacheAssociativity64Way",
+            "CacheAssociativity8Way",
+            "CacheAssociativityDirectMapped",
+            "CacheAssociativityFully",
+            "CacheAssociativityOther",
+            "CacheAssociativityUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/FatPkg/EnhancedFatDxe/Fat.h",
+        "Name": "CACHE_DATA_TYPE",
+        "Values": [
+            "CacheData",
+            "CacheFat",
+            "CacheMaxType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "CACHE_ERROR_TYPE_DATA",
+        "Values": [
+            "CacheErrorMultiBit",
+            "CacheErrorNone",
+            "CacheErrorOther",
+            "CacheErrorParity",
+            "CacheErrorSingleBit",
+            "CacheErrorUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "CACHE_TYPE_DATA",
+        "Values": [
+            "CacheTypeData",
+            "CacheTypeInstruction",
+            "CacheTypeOther",
+            "CacheTypeUnified",
+            "CacheTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/ConfidentialComputingGuestAttr.h",
+        "Name": "CC_GUEST_TYPE",
+        "Values": [
+            "CcGuestTypeAmdSev",
+            "CcGuestTypeIntelTdx",
+            "CcGuestTypeNonEncrypted"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/ConfidentialComputingGuestAttr.h",
+        "Name": "CONFIDENTIAL_COMPUTING_GUEST_ATTR",
+        "Values": [
+            "CCAttrAmdSev",
+            "CCAttrAmdSevEs",
+            "CCAttrAmdSevSnp",
+            "CCAttrIntelTdx",
+            "CCAttrNotEncrypted"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatform.h",
+        "Name": "CONPLATFORM_VAR_OPERATION",
+        "Values": [
+            "Append",
+            "Check",
+            "Delete"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Library/UefiBootManagerLib.h",
+        "Name": "CONSOLE_TYPE",
+        "Values": [
+            "ConIn",
+            "ConInDev",
+            "ConOut",
+            "ConOutDev",
+            "ConsoleTypeMax",
+            "ErrOut",
+            "ErrOutDev"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Include/AcpiCpuData.h",
+        "Name": "CPU_FEATURE_DEPENDENCE_TYPE",
+        "Values": [
+            "CoreDepType",
+            "InvalidDepType",
+            "NoneDepType",
+            "PackageDepType",
+            "ThreadDepType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Library/MpInitLib/MpLib.h",
+        "Name": "CPU_STATE",
+        "Values": [
+            "CpuStateBusy",
+            "CpuStateDisabled",
+            "CpuStateFinished",
+            "CpuStateIdle",
+            "CpuStateReady"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/SetVar.c",
+        "Name": "DATA_TYPE",
+        "Values": [
+            "DataTypeAscii",
+            "DataTypeDevicePath",
+            "DataTypeHexArray",
+            "DataTypeHexNumber",
+            "DataTypeUnKnow",
+            "DataTypeUnicode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Name": "DEFAULT_VALUE_TYPE",
+        "Values": [
+            "DefaultValueFromDefault",
+            "DefaultValueFromFlag",
+            "DefaultValueFromOpcode",
+            "DefaultValueFromOtherDefault"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Silicon/Intel/SimicsX58SktPkg/Smm/Access/SmramInternal.h",
+        "Name": "DESCRIPTOR_INDEX",
+        "Values": [
+            "DescIdxCount",
+            "DescIdxMain",
+            "DescIdxSmmS3ResumeState"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+        "Name": "DHCP6_DUID_TYPE",
+        "Values": [
+            "Dhcp6DuidTypeEn",
+            "Dhcp6DuidTypeLl",
+            "Dhcp6DuidTypeLlt",
+            "Dhcp6DuidTypeUuid"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+        "Name": "DHCP6_MSG_TYPE",
+        "Values": [
+            "Dhcp6MsgAdvertise",
+            "Dhcp6MsgConfirm",
+            "Dhcp6MsgDecline",
+            "Dhcp6MsgInfoRequest",
+            "Dhcp6MsgRebind",
+            "Dhcp6MsgReconfigure",
+            "Dhcp6MsgRelease",
+            "Dhcp6MsgRenew",
+            "Dhcp6MsgReply",
+            "Dhcp6MsgRequest",
+            "Dhcp6MsgSolicit"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+        "Name": "DHCP6_OPT_CODE",
+        "Values": [
+            "Dhcp6OptAuthentication",
+            "Dhcp6OptClientId",
+            "Dhcp6OptElapsedTime",
+            "Dhcp6OptIaAddr",
+            "Dhcp6OptIana",
+            "Dhcp6OptIata",
+            "Dhcp6OptInterfaceId",
+            "Dhcp6OptPreference",
+            "Dhcp6OptRapidCommit",
+            "Dhcp6OptReconfigMessage",
+            "Dhcp6OptReconfigureAccept",
+            "Dhcp6OptReplayMessage",
+            "Dhcp6OptRequestOption",
+            "Dhcp6OptServerId",
+            "Dhcp6OptServerUnicast",
+            "Dhcp6OptStatusCode",
+            "Dhcp6OptUserClass",
+            "Dhcp6OptVendorClass",
+            "Dhcp6OptVendorInfo"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Dhcp.h",
+        "Name": "DHCP6_STS_CODE",
+        "Values": [
+            "Dhcp6StsNoAddrsAvail",
+            "Dhcp6StsNoBinding",
+            "Dhcp6StsNotOnLink",
+            "Dhcp6StsSuccess",
+            "Dhcp6StsUnspecFail",
+            "Dhcp6StsUseMulticast"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/DmpStore.c",
+        "Name": "DMP_STORE_TYPE",
+        "Values": [
+            "DmpStoreDelete",
+            "DmpStoreDisplay",
+            "DmpStoreLoad",
+            "DmpStoreSave"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDriver1CommandsLib/DrvDiag.c",
+        "Name": "DRV_DIAG_TEST_MODE",
+        "Values": [
+            "TestModeExtended",
+            "TestModeList",
+            "TestModeManufacturing",
+            "TestModeMax",
+            "TestModeStandard"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/EditTitleBar.h",
+        "Name": "EDIT_FILE_TYPE",
+        "Values": [
+            "FileTypeAscii",
+            "FileTypeDiskBuffer",
+            "FileTypeFileBuffer",
+            "FileTypeMemBuffer",
+            "FileTypeNone",
+            "FileTypeUnicode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Protocol/HttpCallback.h",
+        "Name": "EDKII_HTTP_CALLBACK_EVENT",
+        "Values": [
+            "HttpEventConnectTcp",
+            "HttpEventDns",
+            "HttpEventInitSession",
+            "HttpEventTlsConnectSession"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/IoMmu.h",
+        "Name": "EDKII_IOMMU_OPERATION",
+        "Values": [
+            "EdkiiIoMmuOperationBusMasterCommonBuffer",
+            "EdkiiIoMmuOperationBusMasterCommonBuffer64",
+            "EdkiiIoMmuOperationBusMasterRead",
+            "EdkiiIoMmuOperationBusMasterRead64",
+            "EdkiiIoMmuOperationBusMasterWrite",
+            "EdkiiIoMmuOperationBusMasterWrite64",
+            "EdkiiIoMmuOperationMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/PlatformLogo.h",
+        "Name": "EDKII_PLATFORM_LOGO_DISPLAY_ATTRIBUTE",
+        "Values": [
+            "EdkiiPlatformLogoDisplayAttributeCenter",
+            "EdkiiPlatformLogoDisplayAttributeCenterBottom",
+            "EdkiiPlatformLogoDisplayAttributeCenterLeft",
+            "EdkiiPlatformLogoDisplayAttributeCenterRight",
+            "EdkiiPlatformLogoDisplayAttributeCenterTop",
+            "EdkiiPlatformLogoDisplayAttributeLeftBottom",
+            "EdkiiPlatformLogoDisplayAttributeLeftTop",
+            "EdkiiPlatformLogoDisplayAttributeRightBottom",
+            "EdkiiPlatformLogoDisplayAttributeRightTop"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Edit/TextEditorTypes.h",
+        "Name": "EE_NEWLINE_TYPE",
+        "Values": [
+            "NewLineTypeCarriageReturn",
+            "NewLineTypeCarriageReturnLineFeed",
+            "NewLineTypeDefault",
+            "NewLineTypeLineFeed",
+            "NewLineTypeLineFeedCarriageReturn",
+            "NewLineTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+        "Name": "EFI_ALLOCATE_TYPE",
+        "Values": [
+            "AllocateAddress",
+            "AllocateAnyPages",
+            "AllocateMaxAddress",
+            "MaxAllocateType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AtaAtapiPassThru.h",
+        "Name": "EFI_ATA_DEVICE_TYPE",
+        "Values": [
+            "EfiIdeCdrom",
+            "EfiIdeHarddisk",
+            "EfiIdeUnknown",
+            "EfiPortMultiplier"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IdeControllerInit.h",
+        "Name": "EFI_ATA_EXT_TRANSFER_PROTOCOL",
+        "Values": [
+            "EfiAtaSataTransferProtocol"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AtaAtapiPassThru.h",
+        "Name": "EFI_ATA_HC_WORK_MODE",
+        "Values": [
+            "EfiAtaAhciMode",
+            "EfiAtaIdeMode",
+            "EfiAtaRaidMode",
+            "EfiAtaUnknownMode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/IdeMode.h",
+        "Name": "EFI_ATA_MDMA_MODE",
+        "Values": [
+            "EfiAtaMdmaMode0",
+            "EfiAtaMdmaMode1",
+            "EfiAtaMdmaMode2"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/IdeMode.h",
+        "Name": "EFI_ATA_PIO_MODE",
+        "Values": [
+            "EfiAtaPioMode2",
+            "EfiAtaPioMode3",
+            "EfiAtaPioMode4",
+            "EfiAtaPioModeBelow2"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/IdeMode.h",
+        "Name": "EFI_ATA_UDMA_MODE",
+        "Values": [
+            "EfiAtaUdmaMode0",
+            "EfiAtaUdmaMode1",
+            "EfiAtaUdmaMode2",
+            "EfiAtaUdmaMode3",
+            "EfiAtaUdmaMode4",
+            "EfiAtaUdmaMode5"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/DxeLogoLib/OemBadging.h",
+        "Name": "EFI_BADGING_DISPLAY_ATTRIBUTE",
+        "Values": [
+            "EfiBadgingDisplayAttributeCenter",
+            "EfiBadgingDisplayAttributeCenterBottom",
+            "EfiBadgingDisplayAttributeCenterLeft",
+            "EfiBadgingDisplayAttributeCenterRight",
+            "EfiBadgingDisplayAttributeCenterTop",
+            "EfiBadgingDisplayAttributeCustomized",
+            "EfiBadgingDisplayAttributeLeftBottom",
+            "EfiBadgingDisplayAttributeLeftTop",
+            "EfiBadgingDisplayAttributeRightBottom",
+            "EfiBadgingDisplayAttributeRightTop"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/DxeLogoLib/OemBadging.h",
+        "Name": "EFI_BADGING_FORMAT",
+        "Values": [
+            "EfiBadgingFormatBMP",
+            "EfiBadgingFormatGIF",
+            "EfiBadgingFormatJPEG",
+            "EfiBadgingFormatTIFF",
+            "EfiBadgingFormatUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Library/UefiBootManagerLib.h",
+        "Name": "EFI_BOOT_MANAGER_LOAD_OPTION_NUMBER",
+        "Values": [
+            "LoadOptionNumberMax",
+            "LoadOptionNumberUnassigned"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Library/UefiBootManagerLib.h",
+        "Name": "EFI_BOOT_MANAGER_LOAD_OPTION_TYPE",
+        "Values": [
+            "LoadOptionTypeBoot",
+            "LoadOptionTypeDriver",
+            "LoadOptionTypeMax",
+            "LoadOptionTypePlatformRecovery",
+            "LoadOptionTypeSysPrep"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Pi/PiS3BootScript.h",
+        "Name": "EFI_BOOT_SCRIPT_WIDTH",
+        "Values": [
+            "EfiBootScriptWidthFifoUint16",
+            "EfiBootScriptWidthFifoUint32",
+            "EfiBootScriptWidthFifoUint64",
+            "EfiBootScriptWidthFifoUint8",
+            "EfiBootScriptWidthFillUint16",
+            "EfiBootScriptWidthFillUint32",
+            "EfiBootScriptWidthFillUint64",
+            "EfiBootScriptWidthFillUint8",
+            "EfiBootScriptWidthMaximum",
+            "EfiBootScriptWidthUint16",
+            "EfiBootScriptWidthUint32",
+            "EfiBootScriptWidthUint64",
+            "EfiBootScriptWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Cpu.h",
+        "Name": "EFI_CPU_FLUSH_TYPE",
+        "Values": [
+            "EfiCpuFlushTypeInvalidate",
+            "EfiCpuFlushTypeWriteBack",
+            "EfiCpuFlushTypeWriteBackInvalidate",
+            "EfiCpuMaxFlushType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Cpu.h",
+        "Name": "EFI_CPU_INIT_TYPE",
+        "Values": [
+            "EfiCpuInit",
+            "EfiCpuMaxInitType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/CpuIo2.h",
+        "Name": "EFI_CPU_IO_PROTOCOL_WIDTH",
+        "Values": [
+            "EfiCpuIoWidthFifoUint16",
+            "EfiCpuIoWidthFifoUint32",
+            "EfiCpuIoWidthFifoUint64",
+            "EfiCpuIoWidthFifoUint8",
+            "EfiCpuIoWidthFillUint16",
+            "EfiCpuIoWidthFillUint32",
+            "EfiCpuIoWidthFillUint64",
+            "EfiCpuIoWidthFillUint8",
+            "EfiCpuIoWidthMaximum",
+            "EfiCpuIoWidthUint16",
+            "EfiCpuIoWidthUint32",
+            "EfiCpuIoWidthUint64",
+            "EfiCpuIoWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+        "Name": "EFI_DHCP4_EVENT",
+        "Values": [
+            "Dhcp4AddressLost",
+            "Dhcp4BoundCompleted",
+            "Dhcp4EnterRebinding",
+            "Dhcp4EnterRenewing",
+            "Dhcp4Fail",
+            "Dhcp4RcvdAck",
+            "Dhcp4RcvdNak",
+            "Dhcp4RcvdOffer",
+            "Dhcp4SelectOffer",
+            "Dhcp4SendDecline",
+            "Dhcp4SendDiscover",
+            "Dhcp4SendRequest"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp4.h",
+        "Name": "EFI_DHCP4_STATE",
+        "Values": [
+            "Dhcp4Bound",
+            "Dhcp4Init",
+            "Dhcp4InitReboot",
+            "Dhcp4Rebinding",
+            "Dhcp4Rebooting",
+            "Dhcp4Renewing",
+            "Dhcp4Requesting",
+            "Dhcp4Selecting",
+            "Dhcp4Stopped"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+        "Name": "EFI_DHCP6_EVENT",
+        "Values": [
+            "Dhcp6EnterRebinding",
+            "Dhcp6EnterRenewing",
+            "Dhcp6RcvdAdvertise",
+            "Dhcp6RcvdReconfigure",
+            "Dhcp6RcvdReply",
+            "Dhcp6SelectAdvertise",
+            "Dhcp6SendConfirm",
+            "Dhcp6SendDecline",
+            "Dhcp6SendRelease",
+            "Dhcp6SendRequest",
+            "Dhcp6SendSolicit"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Dhcp6.h",
+        "Name": "EFI_DHCP6_STATE",
+        "Values": [
+            "Dhcp6Bound",
+            "Dhcp6Confirming",
+            "Dhcp6Declining",
+            "Dhcp6Init",
+            "Dhcp6Rebinding",
+            "Dhcp6Releasing",
+            "Dhcp6Renewing",
+            "Dhcp6Requesting",
+            "Dhcp6Selecting"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h",
+        "Name": "EFI_DRIVER_CONFIGURATION_ACTION_REQUIRED",
+        "Values": [
+            "EfiDriverConfigurationActionMaximum",
+            "EfiDriverConfigurationActionNone",
+            "EfiDriverConfigurationActionRestartController",
+            "EfiDriverConfigurationActionRestartPlatform",
+            "EfiDriverConfigurationActionStopController"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverDiagnostics.h",
+        "Name": "EFI_DRIVER_DIAGNOSTIC_TYPE",
+        "Values": [
+            "EfiDriverDiagnosticTypeCancel",
+            "EfiDriverDiagnosticTypeExtended",
+            "EfiDriverDiagnosticTypeManufacturing",
+            "EfiDriverDiagnosticTypeMaximum",
+            "EfiDriverDiagnosticTypeStandard"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/UgaIo.h",
+        "Name": "EFI_DRIVER_HANOFF_ENUM",
+        "Values": [
+            "EfiDriverHandoffMax",
+            "EfiUgaDriverFromPciRom",
+            "EfiUgaDriverFromSystem"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DriverHealth.h",
+        "Name": "EFI_DRIVER_HEALTH_STATUS",
+        "Values": [
+            "EfiDriverHealthStatusConfigurationRequired",
+            "EfiDriverHealthStatusFailed",
+            "EfiDriverHealthStatusHealthy",
+            "EfiDriverHealthStatusRebootRequired",
+            "EfiDriverHealthStatusReconnectRequired",
+            "EfiDriverHealthStatusRepairRequired"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDxeCis.h",
+        "Name": "EFI_GCD_ALLOCATE_TYPE",
+        "Values": [
+            "EfiGcdAllocateAddress",
+            "EfiGcdAllocateAnySearchBottomUp",
+            "EfiGcdAllocateAnySearchTopDown",
+            "EfiGcdAllocateMaxAddressSearchBottomUp",
+            "EfiGcdAllocateMaxAddressSearchTopDown",
+            "EfiGcdMaxAllocateType"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDxeCis.h",
+        "Name": "EFI_GCD_IO_TYPE",
+        "Values": [
+            "EfiGcdIoTypeIo",
+            "EfiGcdIoTypeMaximum",
+            "EfiGcdIoTypeNonExistent",
+            "EfiGcdIoTypeReserved"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDxeCis.h",
+        "Name": "EFI_GCD_MEMORY_TYPE",
+        "Values": [
+            "EfiGcdMemoryTypeMaximum",
+            "EfiGcdMemoryTypeMemoryMappedIo",
+            "EfiGcdMemoryTypeMoreReliable",
+            "EfiGcdMemoryTypeNonExistent",
+            "EfiGcdMemoryTypePersistent",
+            "EfiGcdMemoryTypePersistentMemory",
+            "EfiGcdMemoryTypeReserved",
+            "EfiGcdMemoryTypeSystemMemory"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+        "Name": "EFI_GRAPHICS_OUTPUT_BLT_OPERATION",
+        "Values": [
+            "EfiBltBufferToVideo",
+            "EfiBltVideoFill",
+            "EfiBltVideoToBltBuffer",
+            "EfiBltVideoToVideo",
+            "EfiGraphicsOutputBltOperationMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/GraphicsOutput.h",
+        "Name": "EFI_GRAPHICS_PIXEL_FORMAT",
+        "Values": [
+            "PixelBitMask",
+            "PixelBltOnly",
+            "PixelBlueGreenRedReserved8BitPerColor",
+            "PixelFormatMax",
+            "PixelRedGreenBlueReserved8BitPerColor"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/HiiImageDecoder.h",
+        "Name": "EFI_HII_IMAGE_DECODER_COLOR_TYPE",
+        "Values": [
+            "EFI_HII_IMAGE_DECODER_COLOR_TYPE_CMYK",
+            "EFI_HII_IMAGE_DECODER_COLOR_TYPE_RGB",
+            "EFI_HII_IMAGE_DECODER_COLOR_TYPE_RGBA",
+            "EFI_HII_IMAGE_DECODER_COLOR_TYPE_UNKNOWN"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/HiiPopup.h",
+        "Name": "EFI_HII_POPUP_SELECTION",
+        "Values": [
+            "EfiHiiPopupSelectionCancel",
+            "EfiHiiPopupSelectionNo",
+            "EfiHiiPopupSelectionOk",
+            "EfiHiiPopupSelectionYes"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/HiiPopup.h",
+        "Name": "EFI_HII_POPUP_STYLE",
+        "Values": [
+            "EfiHiiPopupStyleError",
+            "EfiHiiPopupStyleInfo",
+            "EfiHiiPopupStyleWarning"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/HiiPopup.h",
+        "Name": "EFI_HII_POPUP_TYPE",
+        "Values": [
+            "EfiHiiPopupTypeOk",
+            "EfiHiiPopupTypeOkCancel",
+            "EfiHiiPopupTypeYesNo",
+            "EfiHiiPopupTypeYesNoCancel"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciHotPlugInit.h",
+        "Name": "EFI_HPC_PADDING_ATTRIBUTES",
+        "Values": [
+            "EfiPaddingPciBus",
+            "EfiPaddingPciRootBridge"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/HttpBootCallback.h",
+        "Name": "EFI_HTTP_BOOT_CALLBACK_DATA_TYPE",
+        "Values": [
+            "HttpBootDhcp4",
+            "HttpBootDhcp6",
+            "HttpBootHttpAuthInfo",
+            "HttpBootHttpEntityBody",
+            "HttpBootHttpRequest",
+            "HttpBootHttpResponse",
+            "HttpBootTypeMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Http.h",
+        "Name": "EFI_HTTP_METHOD",
+        "Values": [
+            "HttpMethodConnect",
+            "HttpMethodDelete",
+            "HttpMethodGet",
+            "HttpMethodHead",
+            "HttpMethodMax",
+            "HttpMethodOptions",
+            "HttpMethodPatch",
+            "HttpMethodPost",
+            "HttpMethodPut",
+            "HttpMethodTrace"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Http.h",
+        "Name": "EFI_HTTP_STATUS_CODE",
+        "Values": [
+            "HTTP_STATUS_100_CONTINUE",
+            "HTTP_STATUS_101_SWITCHING_PROTOCOLS",
+            "HTTP_STATUS_200_OK",
+            "HTTP_STATUS_201_CREATED",
+            "HTTP_STATUS_202_ACCEPTED",
+            "HTTP_STATUS_203_NON_AUTHORITATIVE_INFORMATION",
+            "HTTP_STATUS_204_NO_CONTENT",
+            "HTTP_STATUS_205_RESET_CONTENT",
+            "HTTP_STATUS_206_PARTIAL_CONTENT",
+            "HTTP_STATUS_300_MULTIPLE_CHOICES",
+            "HTTP_STATUS_301_MOVED_PERMANENTLY",
+            "HTTP_STATUS_302_FOUND",
+            "HTTP_STATUS_303_SEE_OTHER",
+            "HTTP_STATUS_304_NOT_MODIFIED",
+            "HTTP_STATUS_305_USE_PROXY",
+            "HTTP_STATUS_307_TEMPORARY_REDIRECT",
+            "HTTP_STATUS_308_PERMANENT_REDIRECT",
+            "HTTP_STATUS_400_BAD_REQUEST",
+            "HTTP_STATUS_401_UNAUTHORIZED",
+            "HTTP_STATUS_402_PAYMENT_REQUIRED",
+            "HTTP_STATUS_403_FORBIDDEN",
+            "HTTP_STATUS_404_NOT_FOUND",
+            "HTTP_STATUS_405_METHOD_NOT_ALLOWED",
+            "HTTP_STATUS_406_NOT_ACCEPTABLE",
+            "HTTP_STATUS_407_PROXY_AUTHENTICATION_REQUIRED",
+            "HTTP_STATUS_408_REQUEST_TIME_OUT",
+            "HTTP_STATUS_409_CONFLICT",
+            "HTTP_STATUS_410_GONE",
+            "HTTP_STATUS_411_LENGTH_REQUIRED",
+            "HTTP_STATUS_412_PRECONDITION_FAILED",
+            "HTTP_STATUS_413_REQUEST_ENTITY_TOO_LARGE",
+            "HTTP_STATUS_414_REQUEST_URI_TOO_LARGE",
+            "HTTP_STATUS_415_UNSUPPORTED_MEDIA_TYPE",
+            "HTTP_STATUS_416_REQUESTED_RANGE_NOT_SATISFIED",
+            "HTTP_STATUS_417_EXPECTATION_FAILED",
+            "HTTP_STATUS_500_INTERNAL_SERVER_ERROR",
+            "HTTP_STATUS_501_NOT_IMPLEMENTED",
+            "HTTP_STATUS_502_BAD_GATEWAY",
+            "HTTP_STATUS_503_SERVICE_UNAVAILABLE",
+            "HTTP_STATUS_504_GATEWAY_TIME_OUT",
+            "HTTP_STATUS_505_HTTP_VERSION_NOT_SUPPORTED",
+            "HTTP_STATUS_UNSUPPORTED_STATUS"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Http.h",
+        "Name": "EFI_HTTP_VERSION",
+        "Values": [
+            "HttpVersion10",
+            "HttpVersion11",
+            "HttpVersionUnsupported"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/IdeMode.h",
+        "Name": "EFI_IDE_CHANNEL",
+        "Values": [
+            "EfiIdeMaxChannel",
+            "EfiIdePrimary",
+            "EfiIdeSecondary"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IdeControllerInit.h",
+        "Name": "EFI_IDE_CONTROLLER_ENUM_PHASE",
+        "Values": [
+            "EfiIdeAfterChannelEnumeration",
+            "EfiIdeAfterChannelReset",
+            "EfiIdeBeforeChannelEnumeration",
+            "EfiIdeBeforeChannelReset",
+            "EfiIdeBusAfterDevicePresenceDetection",
+            "EfiIdeBusBeforeDevicePresenceDetection",
+            "EfiIdeBusPhaseMaximum",
+            "EfiIdeResetMode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/IdeMode.h",
+        "Name": "EFI_IDE_DEVICE",
+        "Values": [
+            "EfiIdeMaster",
+            "EfiIdeMaxDevice",
+            "EfiIdeSlave"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Guid/StatusCodeDataTypeId.h",
+        "Name": "EFI_INIT_CACHE_TYPE",
+        "Values": [
+            "EfiInitCacheBoth",
+            "EfiInitCacheDataOnly",
+            "EfiInitCacheInstrOnly",
+            "EfiInitCacheUnspecified"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DebugSupport.h",
+        "Name": "EFI_INSTRUCTION_SET_ARCHITECTURE",
+        "Values": [
+            "IsaAArch64",
+            "IsaArm",
+            "IsaEbc",
+            "IsaIa32",
+            "IsaIpf",
+            "IsaX64"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+        "Name": "EFI_INTERFACE_TYPE",
+        "Values": [
+            "EFI_NATIVE_INTERFACE"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DeviceIo.h",
+        "Name": "EFI_IO_OPERATION_TYPE",
+        "Values": [
+            "EfiBusMasterCommonBuffer",
+            "EfiBusMasterRead",
+            "EfiBusMasterWrite"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/DeviceIo.h",
+        "Name": "EFI_IO_WIDTH",
+        "Values": [
+            "IO_UINT16",
+            "IO_UINT32",
+            "IO_UINT64",
+            "IO_UINT8",
+            "MMIO_COPY_UINT16",
+            "MMIO_COPY_UINT32",
+            "MMIO_COPY_UINT64",
+            "MMIO_COPY_UINT8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+        "Name": "EFI_IP4_CONFIG2_DATA_TYPE",
+        "Values": [
+            "Ip4Config2DataTypeDnsServer",
+            "Ip4Config2DataTypeGateway",
+            "Ip4Config2DataTypeInterfaceInfo",
+            "Ip4Config2DataTypeManualAddress",
+            "Ip4Config2DataTypeMaximum",
+            "Ip4Config2DataTypePolicy"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip4Config2.h",
+        "Name": "EFI_IP4_CONFIG2_POLICY",
+        "Values": [
+            "Ip4Config2PolicyDhcp",
+            "Ip4Config2PolicyMax",
+            "Ip4Config2PolicyStatic"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+        "Name": "EFI_IP6_CONFIG_DATA_TYPE",
+        "Values": [
+            "Ip6ConfigDataTypeAltInterfaceId",
+            "Ip6ConfigDataTypeDnsServer",
+            "Ip6ConfigDataTypeDupAddrDetectTransmits",
+            "Ip6ConfigDataTypeGateway",
+            "Ip6ConfigDataTypeInterfaceInfo",
+            "Ip6ConfigDataTypeManualAddress",
+            "Ip6ConfigDataTypeMaximum",
+            "Ip6ConfigDataTypePolicy"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6Config.h",
+        "Name": "EFI_IP6_CONFIG_POLICY",
+        "Values": [
+            "Ip6ConfigPolicyAutomatic",
+            "Ip6ConfigPolicyManual"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Ip6.h",
+        "Name": "EFI_IP6_NEIGHBOR_STATE",
+        "Values": [
+            "EfiNeighborDelay",
+            "EfiNeighborInComplete",
+            "EfiNeighborProbe",
+            "EfiNeighborReachable",
+            "EfiNeighborStale"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_ACTION",
+        "Values": [
+            "EfiIPsecActionBypass",
+            "EfiIPsecActionDiscard",
+            "EfiIPsecActionProtect"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_AUTH_METHOD",
+        "Values": [
+            "EfiIPsecAuthMethodCertificates",
+            "EfiIPsecAuthMethodMaximum",
+            "EfiIPsecAuthMethodPreSharedSecret"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_AUTH_PROTOCOL_TYPE",
+        "Values": [
+            "EfiIPsecAuthProtocolIKEv1",
+            "EfiIPsecAuthProtocolIKEv2",
+            "EfiIPsecAuthProtocolMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_CONFIG_DATA_TYPE",
+        "Values": [
+            "IPsecConfigDataTypeMaximum",
+            "IPsecConfigDataTypePad",
+            "IPsecConfigDataTypeSad",
+            "IPsecConfigDataTypeSpd"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_MODE",
+        "Values": [
+            "EfiIPsecTransport",
+            "EfiIPsecTunnel"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_PROTOCOL_TYPE",
+        "Values": [
+            "EfiIPsecAH",
+            "EfiIPsecESP"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_TRAFFIC_DIR",
+        "Values": [
+            "EfiIPsecInBound",
+            "EfiIPsecOutBound"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/IpSecConfig.h",
+        "Name": "EFI_IPSEC_TUNNEL_DF_OPTION",
+        "Values": [
+            "EfiIPsecTunnelClearDf",
+            "EfiIPsecTunnelCopyDf",
+            "EfiIPsecTunnelSetDf"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+        "Name": "EFI_KEY",
+        "Values": [
+            "EfiKeyA0",
+            "EfiKeyA2",
+            "EfiKeyA3",
+            "EfiKeyA4",
+            "EfiKeyAsterisk",
+            "EfiKeyB0",
+            "EfiKeyB1",
+            "EfiKeyB10",
+            "EfiKeyB2",
+            "EfiKeyB3",
+            "EfiKeyB4",
+            "EfiKeyB5",
+            "EfiKeyB6",
+            "EfiKeyB7",
+            "EfiKeyB8",
+            "EfiKeyB9",
+            "EfiKeyBackSpace",
+            "EfiKeyC1",
+            "EfiKeyC10",
+            "EfiKeyC11",
+            "EfiKeyC12",
+            "EfiKeyC2",
+            "EfiKeyC3",
+            "EfiKeyC4",
+            "EfiKeyC5",
+            "EfiKeyC6",
+            "EfiKeyC7",
+            "EfiKeyC8",
+            "EfiKeyC9",
+            "EfiKeyCapsLock",
+            "EfiKeyD1",
+            "EfiKeyD10",
+            "EfiKeyD11",
+            "EfiKeyD12",
+            "EfiKeyD13",
+            "EfiKeyD2",
+            "EfiKeyD3",
+            "EfiKeyD4",
+            "EfiKeyD5",
+            "EfiKeyD6",
+            "EfiKeyD7",
+            "EfiKeyD8",
+            "EfiKeyD9",
+            "EfiKeyDel",
+            "EfiKeyDownArrow",
+            "EfiKeyE0",
+            "EfiKeyE1",
+            "EfiKeyE10",
+            "EfiKeyE11",
+            "EfiKeyE12",
+            "EfiKeyE2",
+            "EfiKeyE3",
+            "EfiKeyE4",
+            "EfiKeyE5",
+            "EfiKeyE6",
+            "EfiKeyE7",
+            "EfiKeyE8",
+            "EfiKeyE9",
+            "EfiKeyEight",
+            "EfiKeyEnd",
+            "EfiKeyEnter",
+            "EfiKeyEsc",
+            "EfiKeyF1",
+            "EfiKeyF10",
+            "EfiKeyF11",
+            "EfiKeyF12",
+            "EfiKeyF2",
+            "EfiKeyF3",
+            "EfiKeyF4",
+            "EfiKeyF5",
+            "EfiKeyF6",
+            "EfiKeyF7",
+            "EfiKeyF8",
+            "EfiKeyF9",
+            "EfiKeyFive",
+            "EfiKeyFour",
+            "EfiKeyHome",
+            "EfiKeyIns",
+            "EfiKeyLAlt",
+            "EfiKeyLCtrl",
+            "EfiKeyLShift",
+            "EfiKeyLeftArrow",
+            "EfiKeyMinus",
+            "EfiKeyNLck",
+            "EfiKeyNine",
+            "EfiKeyOne",
+            "EfiKeyPause",
+            "EfiKeyPeriod",
+            "EfiKeyPgDn",
+            "EfiKeyPgUp",
+            "EfiKeyPlus",
+            "EfiKeyPrint",
+            "EfiKeyRCtrl",
+            "EfiKeyRShift",
+            "EfiKeyRightArrow",
+            "EfiKeySLck",
+            "EfiKeySeven",
+            "EfiKeySix",
+            "EfiKeySlash",
+            "EfiKeySpaceBar",
+            "EfiKeyTab",
+            "EfiKeyThree",
+            "EfiKeyTwo",
+            "EfiKeyUpArrow",
+            "EfiKeyZero"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+        "Name": "EFI_LOCATE_SEARCH_TYPE",
+        "Values": [
+            "AllHandles",
+            "ByProtocol",
+            "ByRegisterNotify"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+        "Name": "EFI_LOCK_STATE",
+        "Values": [
+            "EfiLockAcquired",
+            "EfiLockReleased",
+            "EfiLockUninitialized"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+        "Name": "EFI_MEMORY_TYPE",
+        "Values": [
+            "EfiACPIMemoryNVS",
+            "EfiACPIReclaimMemory",
+            "EfiBootServicesCode",
+            "EfiBootServicesData",
+            "EfiConventionalMemory",
+            "EfiLoaderCode",
+            "EfiLoaderData",
+            "EfiMaxMemoryType",
+            "EfiMemoryMappedIO",
+            "EfiMemoryMappedIOPortSpace",
+            "EfiPalCode",
+            "EfiPersistentMemory",
+            "EfiReservedMemoryType",
+            "EfiRuntimeServicesCode",
+            "EfiRuntimeServicesData",
+            "EfiUnacceptedMemoryType",
+            "EfiUnusableMemory"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmIoTrapDispatch.h",
+        "Name": "EFI_MM_IO_TRAP_DISPATCH_TYPE",
+        "Values": [
+            "IoTrapTypeMaximum",
+            "ReadTrap",
+            "ReadWriteTrap",
+            "WriteTrap"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmCpuIo.h",
+        "Name": "EFI_MM_IO_WIDTH",
+        "Values": [
+            "MM_IO_UINT16",
+            "MM_IO_UINT32",
+            "MM_IO_UINT64",
+            "MM_IO_UINT8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmCpu.h",
+        "Name": "EFI_MM_SAVE_STATE_IO_TYPE",
+        "Values": [
+            "EFI_MM_SAVE_STATE_IO_TYPE_INPUT",
+            "EFI_MM_SAVE_STATE_IO_TYPE_OUTPUT",
+            "EFI_MM_SAVE_STATE_IO_TYPE_REP_PREFIX",
+            "EFI_MM_SAVE_STATE_IO_TYPE_STRING"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmCpu.h",
+        "Name": "EFI_MM_SAVE_STATE_IO_WIDTH",
+        "Values": [
+            "EFI_MM_SAVE_STATE_IO_WIDTH_UINT16",
+            "EFI_MM_SAVE_STATE_IO_WIDTH_UINT32",
+            "EFI_MM_SAVE_STATE_IO_WIDTH_UINT64",
+            "EFI_MM_SAVE_STATE_IO_WIDTH_UINT8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmCpu.h",
+        "Name": "EFI_MM_SAVE_STATE_REGISTER",
+        "Values": [
+            "EFI_MM_SAVE_STATE_REGISTER_CR0",
+            "EFI_MM_SAVE_STATE_REGISTER_CR3",
+            "EFI_MM_SAVE_STATE_REGISTER_CR4",
+            "EFI_MM_SAVE_STATE_REGISTER_CS",
+            "EFI_MM_SAVE_STATE_REGISTER_DATAOFFSET",
+            "EFI_MM_SAVE_STATE_REGISTER_DR6",
+            "EFI_MM_SAVE_STATE_REGISTER_DR7",
+            "EFI_MM_SAVE_STATE_REGISTER_DS",
+            "EFI_MM_SAVE_STATE_REGISTER_ES",
+            "EFI_MM_SAVE_STATE_REGISTER_FCW",
+            "EFI_MM_SAVE_STATE_REGISTER_FP_CS",
+            "EFI_MM_SAVE_STATE_REGISTER_FP_DS",
+            "EFI_MM_SAVE_STATE_REGISTER_FP_EIP",
+            "EFI_MM_SAVE_STATE_REGISTER_FS",
+            "EFI_MM_SAVE_STATE_REGISTER_FSW",
+            "EFI_MM_SAVE_STATE_REGISTER_FTW",
+            "EFI_MM_SAVE_STATE_REGISTER_GDTBASE",
+            "EFI_MM_SAVE_STATE_REGISTER_GDTLIMIT",
+            "EFI_MM_SAVE_STATE_REGISTER_GS",
+            "EFI_MM_SAVE_STATE_REGISTER_IDTBASE",
+            "EFI_MM_SAVE_STATE_REGISTER_IDTLIMIT",
+            "EFI_MM_SAVE_STATE_REGISTER_IO",
+            "EFI_MM_SAVE_STATE_REGISTER_LDTBASE",
+            "EFI_MM_SAVE_STATE_REGISTER_LDTINFO",
+            "EFI_MM_SAVE_STATE_REGISTER_LDTLIMIT",
+            "EFI_MM_SAVE_STATE_REGISTER_LDTR_SEL",
+            "EFI_MM_SAVE_STATE_REGISTER_LMA",
+            "EFI_MM_SAVE_STATE_REGISTER_MM0",
+            "EFI_MM_SAVE_STATE_REGISTER_MM1",
+            "EFI_MM_SAVE_STATE_REGISTER_MM2",
+            "EFI_MM_SAVE_STATE_REGISTER_MM3",
+            "EFI_MM_SAVE_STATE_REGISTER_MM4",
+            "EFI_MM_SAVE_STATE_REGISTER_MM5",
+            "EFI_MM_SAVE_STATE_REGISTER_MM6",
+            "EFI_MM_SAVE_STATE_REGISTER_MM7",
+            "EFI_MM_SAVE_STATE_REGISTER_OPCODE",
+            "EFI_MM_SAVE_STATE_REGISTER_PROCESSOR_ID",
+            "EFI_MM_SAVE_STATE_REGISTER_R10",
+            "EFI_MM_SAVE_STATE_REGISTER_R11",
+            "EFI_MM_SAVE_STATE_REGISTER_R12",
+            "EFI_MM_SAVE_STATE_REGISTER_R13",
+            "EFI_MM_SAVE_STATE_REGISTER_R14",
+            "EFI_MM_SAVE_STATE_REGISTER_R15",
+            "EFI_MM_SAVE_STATE_REGISTER_R8",
+            "EFI_MM_SAVE_STATE_REGISTER_R9",
+            "EFI_MM_SAVE_STATE_REGISTER_RAX",
+            "EFI_MM_SAVE_STATE_REGISTER_RBP",
+            "EFI_MM_SAVE_STATE_REGISTER_RBX",
+            "EFI_MM_SAVE_STATE_REGISTER_RCX",
+            "EFI_MM_SAVE_STATE_REGISTER_RDI",
+            "EFI_MM_SAVE_STATE_REGISTER_RDX",
+            "EFI_MM_SAVE_STATE_REGISTER_RFLAGS",
+            "EFI_MM_SAVE_STATE_REGISTER_RIP",
+            "EFI_MM_SAVE_STATE_REGISTER_RSI",
+            "EFI_MM_SAVE_STATE_REGISTER_RSP",
+            "EFI_MM_SAVE_STATE_REGISTER_SS",
+            "EFI_MM_SAVE_STATE_REGISTER_TR_SEL",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM0",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM1",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM10",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM11",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM12",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM13",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM14",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM15",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM2",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM3",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM4",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM5",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM6",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM7",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM8",
+            "EFI_MM_SAVE_STATE_REGISTER_XMM9"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/NetworkInterfaceIdentifier.h",
+        "Name": "EFI_NETWORK_INTERFACE_TYPE",
+        "Values": [
+            "EfiNetworkInterfaceUndi"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/SerialIo.h",
+        "Name": "EFI_PARITY_TYPE",
+        "Values": [
+            "DefaultParity",
+            "EvenParity",
+            "MarkParity",
+            "NoParity",
+            "OddParity",
+            "SpaceParity"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Pi/PiMultiPhase.h",
+        "Name": "EFI_PCD_TYPE",
+        "Values": [
+            "EFI_PCD_TYPE_16",
+            "EFI_PCD_TYPE_32",
+            "EFI_PCD_TYPE_64",
+            "EFI_PCD_TYPE_8",
+            "EFI_PCD_TYPE_BOOL",
+            "EFI_PCD_TYPE_PTR"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciHostBridgeResourceAllocation.h",
+        "Name": "EFI_PCI_CONTROLLER_RESOURCE_ALLOCATION_PHASE",
+        "Values": [
+            "EfiPciBeforeChildBusEnumeration",
+            "EfiPciBeforeResourceCollection"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciPlatform.h",
+        "Name": "EFI_PCI_EXECUTION_PHASE",
+        "Values": [
+            "AfterPciHostBridge",
+            "BeforePciHostBridge",
+            "ChipsetEntry",
+            "ChipsetExit",
+            "MaximumChipsetPhase"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciHostBridgeResourceAllocation.h",
+        "Name": "EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PHASE",
+        "Values": [
+            "EfiMaxPciHostBridgeEnumerationPhase",
+            "EfiPciHostBridgeAllocateResources",
+            "EfiPciHostBridgeBeginBusAllocation",
+            "EfiPciHostBridgeBeginEnumeration",
+            "EfiPciHostBridgeBeginResourceAllocation",
+            "EfiPciHostBridgeEndBusAllocation",
+            "EfiPciHostBridgeEndEnumeration",
+            "EfiPciHostBridgeEndResourceAllocation",
+            "EfiPciHostBridgeFreeResources",
+            "EfiPciHostBridgeSetResources"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciHotPlugRequest.h",
+        "Name": "EFI_PCI_HOTPLUG_OPERATION",
+        "Values": [
+            "EfiPciHotPlugRequestAdd",
+            "EfiPciHotplugRequestRemove"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+        "Name": "EFI_PCI_IO_PROTOCOL_ATTRIBUTE_OPERATION",
+        "Values": [
+            "EfiPciIoAttributeOperationDisable",
+            "EfiPciIoAttributeOperationEnable",
+            "EfiPciIoAttributeOperationGet",
+            "EfiPciIoAttributeOperationMaximum",
+            "EfiPciIoAttributeOperationSet",
+            "EfiPciIoAttributeOperationSupported"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+        "Name": "EFI_PCI_IO_PROTOCOL_OPERATION",
+        "Values": [
+            "EfiPciIoOperationBusMasterCommonBuffer",
+            "EfiPciIoOperationBusMasterRead",
+            "EfiPciIoOperationBusMasterWrite",
+            "EfiPciIoOperationMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciIo.h",
+        "Name": "EFI_PCI_IO_PROTOCOL_WIDTH",
+        "Values": [
+            "EfiPciIoWidthFifoUint16",
+            "EfiPciIoWidthFifoUint32",
+            "EfiPciIoWidthFifoUint64",
+            "EfiPciIoWidthFifoUint8",
+            "EfiPciIoWidthFillUint16",
+            "EfiPciIoWidthFillUint32",
+            "EfiPciIoWidthFillUint64",
+            "EfiPciIoWidthFillUint8",
+            "EfiPciIoWidthMaximum",
+            "EfiPciIoWidthUint16",
+            "EfiPciIoWidthUint32",
+            "EfiPciIoWidthUint64",
+            "EfiPciIoWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciRootBridgeIo.h",
+        "Name": "EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL_OPERATION",
+        "Values": [
+            "EfiPciOperationBusMasterCommonBuffer",
+            "EfiPciOperationBusMasterCommonBuffer64",
+            "EfiPciOperationBusMasterRead",
+            "EfiPciOperationBusMasterRead64",
+            "EfiPciOperationBusMasterWrite",
+            "EfiPciOperationBusMasterWrite64",
+            "EfiPciOperationMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PciRootBridgeIo.h",
+        "Name": "EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL_WIDTH",
+        "Values": [
+            "EfiPciWidthFifoUint16",
+            "EfiPciWidthFifoUint32",
+            "EfiPciWidthFifoUint64",
+            "EfiPciWidthFifoUint8",
+            "EfiPciWidthFillUint16",
+            "EfiPciWidthFillUint32",
+            "EfiPciWidthFillUint64",
+            "EfiPciWidthFillUint8",
+            "EfiPciWidthMaximum",
+            "EfiPciWidthUint16",
+            "EfiPciWidthUint32",
+            "EfiPciWidthUint64",
+            "EfiPciWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Ppi/CpuIo.h",
+        "Name": "EFI_PEI_CPU_IO_PPI_WIDTH",
+        "Values": [
+            "EfiPeiCpuIoWidthFifoUint16",
+            "EfiPeiCpuIoWidthFifoUint32",
+            "EfiPeiCpuIoWidthFifoUint64",
+            "EfiPeiCpuIoWidthFifoUint8",
+            "EfiPeiCpuIoWidthFillUint16",
+            "EfiPeiCpuIoWidthFillUint32",
+            "EfiPeiCpuIoWidthFillUint64",
+            "EfiPeiCpuIoWidthFillUint8",
+            "EfiPeiCpuIoWidthMaximum",
+            "EfiPeiCpuIoWidthUint16",
+            "EfiPeiCpuIoWidthUint32",
+            "EfiPeiCpuIoWidthUint64",
+            "EfiPeiCpuIoWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Ppi/PciCfg2.h",
+        "Name": "EFI_PEI_PCI_CFG_PPI_WIDTH",
+        "Values": [
+            "EfiPeiPciCfgWidthMaximum",
+            "EfiPeiPciCfgWidthUint16",
+            "EfiPeiPciCfgWidthUint32",
+            "EfiPeiPciCfgWidthUint64",
+            "EfiPeiPciCfgWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PlatformToDriverConfiguration.h",
+        "Name": "EFI_PLATFORM_CONFIGURATION_ACTION",
+        "Values": [
+            "EfiPlatformConfigurationActionMaximum",
+            "EfiPlatformConfigurationActionNone",
+            "EfiPlatformConfigurationActionNvramFailed",
+            "EfiPlatformConfigurationActionRestartController",
+            "EfiPlatformConfigurationActionRestartPlatform",
+            "EfiPlatformConfigurationActionStopController",
+            "EfiPlatformConfigurationActionUnsupportedGuid"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmPowerButtonDispatch.h",
+        "Name": "EFI_POWER_BUTTON_PHASE",
+        "Values": [
+            "EfiPowerButtonEntry",
+            "EfiPowerButtonExit",
+            "EfiPowerButtonMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+        "Name": "EFI_PXE_BASE_CODE_CALLBACK_STATUS",
+        "Values": [
+            "EFI_PXE_BASE_CODE_CALLBACK_STATUS_ABORT",
+            "EFI_PXE_BASE_CODE_CALLBACK_STATUS_CONTINUE",
+            "EFI_PXE_BASE_CODE_CALLBACK_STATUS_FIRST",
+            "EFI_PXE_BASE_CODE_CALLBACK_STATUS_LAST"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCodeCallBack.h",
+        "Name": "EFI_PXE_BASE_CODE_FUNCTION",
+        "Values": [
+            "EFI_PXE_BASE_CODE_FUNCTION_ARP",
+            "EFI_PXE_BASE_CODE_FUNCTION_DHCP",
+            "EFI_PXE_BASE_CODE_FUNCTION_DISCOVER",
+            "EFI_PXE_BASE_CODE_FUNCTION_FIRST",
+            "EFI_PXE_BASE_CODE_FUNCTION_IGMP",
+            "EFI_PXE_BASE_CODE_FUNCTION_MTFTP",
+            "EFI_PXE_BASE_CODE_FUNCTION_UDP_READ",
+            "EFI_PXE_BASE_CODE_FUNCTION_UDP_WRITE",
+            "EFI_PXE_BASE_CODE_PXE_FUNCTION_LAST"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/PxeBaseCode.h",
+        "Name": "EFI_PXE_BASE_CODE_TFTP_OPCODE",
+        "Values": [
+            "EFI_PXE_BASE_CODE_MTFTP_GET_FILE_SIZE",
+            "EFI_PXE_BASE_CODE_MTFTP_LAST",
+            "EFI_PXE_BASE_CODE_MTFTP_READ_DIRECTORY",
+            "EFI_PXE_BASE_CODE_MTFTP_READ_FILE",
+            "EFI_PXE_BASE_CODE_TFTP_FIRST",
+            "EFI_PXE_BASE_CODE_TFTP_GET_FILE_SIZE",
+            "EFI_PXE_BASE_CODE_TFTP_READ_DIRECTORY",
+            "EFI_PXE_BASE_CODE_TFTP_READ_FILE",
+            "EFI_PXE_BASE_CODE_TFTP_WRITE_FILE"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+        "Name": "EFI_RESET_TYPE",
+        "Values": [
+            "EfiResetCold",
+            "EfiResetPlatformSpecific",
+            "EfiResetShutdown",
+            "EfiResetWarm"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Protocol/EfiShellInterface.h",
+        "Name": "EFI_SHELL_ARG_INFO_TYPES",
+        "Values": [
+            "ARG_FIRST_CHAR_IS_ESC",
+            "ARG_FIRST_HALF_QUOTED",
+            "ARG_IS_QUOTED",
+            "ARG_NO_ATTRIB",
+            "ARG_PARTIALLY_QUOTED"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleNetwork.h",
+        "Name": "EFI_SIMPLE_NETWORK_STATE",
+        "Values": [
+            "EfiSimpleNetworkInitialized",
+            "EfiSimpleNetworkMaxState",
+            "EfiSimpleNetworkStarted",
+            "EfiSimpleNetworkStopped"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmSxDispatch.h",
+        "Name": "EFI_SLEEP_PHASE",
+        "Values": [
+            "EfiMaximumPhase",
+            "SxEntry",
+            "SxExit"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmSxDispatch.h",
+        "Name": "EFI_SLEEP_TYPE",
+        "Values": [
+            "EfiMaximumSleepType",
+            "SxS0",
+            "SxS1",
+            "SxS2",
+            "SxS3",
+            "SxS4",
+            "SxS5"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmStandbyButtonDispatch.h",
+        "Name": "EFI_STANDBY_BUTTON_PHASE",
+        "Values": [
+            "EfiStandbyButtonEntry",
+            "EfiStandbyButtonExit",
+            "EfiStandbyButtonMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/SerialIo.h",
+        "Name": "EFI_STOP_BITS_TYPE",
+        "Values": [
+            "DefaultStopBits",
+            "OneFiveStopBits",
+            "OneStopBit",
+            "TwoStopBits"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Guid/StatusCodeDataTypeId.h",
+        "Name": "EFI_STRING_TYPE",
+        "Values": [
+            "EfiStringAscii",
+            "EfiStringToken",
+            "EfiStringUnicode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tcp4.h",
+        "Name": "EFI_TCP4_CONNECTION_STATE",
+        "Values": [
+            "Tcp4StateCloseWait",
+            "Tcp4StateClosed",
+            "Tcp4StateClosing",
+            "Tcp4StateEstablished",
+            "Tcp4StateFinWait1",
+            "Tcp4StateFinWait2",
+            "Tcp4StateLastAck",
+            "Tcp4StateListen",
+            "Tcp4StateSynReceived",
+            "Tcp4StateSynSent",
+            "Tcp4StateTimeWait"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tcp6.h",
+        "Name": "EFI_TCP6_CONNECTION_STATE",
+        "Values": [
+            "Tcp6StateCloseWait",
+            "Tcp6StateClosed",
+            "Tcp6StateClosing",
+            "Tcp6StateEstablished",
+            "Tcp6StateFinWait1",
+            "Tcp6StateFinWait2",
+            "Tcp6StateLastAck",
+            "Tcp6StateListen",
+            "Tcp6StateSynReceived",
+            "Tcp6StateSynSent",
+            "Tcp6StateTimeWait"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+        "Name": "EFI_TIMER_DELAY",
+        "Values": [
+            "TimerCancel",
+            "TimerPeriodic",
+            "TimerRelative"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/TlsConfig.h",
+        "Name": "EFI_TLS_CONFIG_DATA_TYPE",
+        "Values": [
+            "EfiTlsConfigDataTypeCACertificate",
+            "EfiTlsConfigDataTypeCertRevocationList",
+            "EfiTlsConfigDataTypeHostPrivateKey",
+            "EfiTlsConfigDataTypeHostPublicCert",
+            "EfiTlsConfigDataTypeMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tls.h",
+        "Name": "EFI_TLS_CONNECTION_END",
+        "Values": [
+            "EfiTlsClient",
+            "EfiTlsServer"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tls.h",
+        "Name": "EFI_TLS_CRYPT_MODE",
+        "Values": [
+            "EfiTlsDecrypt",
+            "EfiTlsEncrypt"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tls.h",
+        "Name": "EFI_TLS_SESSION_DATA_TYPE",
+        "Values": [
+            "EfiTlsCipherList",
+            "EfiTlsClientRandom",
+            "EfiTlsCompressionMethod",
+            "EfiTlsConnectionEnd",
+            "EfiTlsExtensionData",
+            "EfiTlsKeyMaterial",
+            "EfiTlsServerRandom",
+            "EfiTlsSessionDataTypeMaximum",
+            "EfiTlsSessionID",
+            "EfiTlsSessionState",
+            "EfiTlsVerifyHost",
+            "EfiTlsVerifyMethod",
+            "EfiTlsVersion"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tls.h",
+        "Name": "EFI_TLS_SESSION_STATE",
+        "Values": [
+            "EfiTlsSessionClosing",
+            "EfiTlsSessionDataTransferring",
+            "EfiTlsSessionError",
+            "EfiTlsSessionHandShaking",
+            "EfiTlsSessionNotStarted",
+            "EfiTlsSessionStateMaximum"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/UgaDraw.h",
+        "Name": "EFI_UGA_BLT_OPERATION",
+        "Values": [
+            "EfiUgaBltBufferToVideo",
+            "EfiUgaBltMax",
+            "EfiUgaVideoFill",
+            "EfiUgaVideoToBltBuffer",
+            "EfiUgaVideoToVideo"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/UsbIo.h",
+        "Name": "EFI_USB_DATA_DIRECTION",
+        "Values": [
+            "EfiUsbDataIn",
+            "EfiUsbDataOut",
+            "EfiUsbNoData"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Usb2HostController.h",
+        "Name": "EFI_USB_HC_STATE",
+        "Values": [
+            "EfiUsbHcStateHalt",
+            "EfiUsbHcStateMaximum",
+            "EfiUsbHcStateOperational",
+            "EfiUsbHcStateSuspend"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/MmUsbDispatch.h",
+        "Name": "EFI_USB_MMI_TYPE",
+        "Values": [
+            "UsbLegacy",
+            "UsbWake"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Usb2HostController.h",
+        "Name": "EFI_USB_PORT_FEATURE",
+        "Values": [
+            "EfiUsbPortConnectChange",
+            "EfiUsbPortEnable",
+            "EfiUsbPortEnableChange",
+            "EfiUsbPortOverCurrentChange",
+            "EfiUsbPortOwner",
+            "EfiUsbPortPower",
+            "EfiUsbPortReset",
+            "EfiUsbPortResetChange",
+            "EfiUsbPortSuspend",
+            "EfiUsbPortSuspendChange"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/Sdk/C/LzmaDec.c",
+        "Name": "ELzmaDummy",
+        "Values": [
+            "DUMMY_ERROR",
+            "DUMMY_LIT",
+            "DUMMY_MATCH",
+            "DUMMY_REP"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/Sdk/C/LzmaDec.h",
+        "Name": "ELzmaFinishMode",
+        "Values": [
+            "LZMA_FINISH_ANY",
+            "LZMA_FINISH_END"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/Sdk/C/LzmaDec.h",
+        "Name": "ELzmaStatus",
+        "Values": [
+            "LZMA_STATUS_FINISHED_WITH_MARK",
+            "LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK",
+            "LZMA_STATUS_NEEDS_MORE_INPUT",
+            "LZMA_STATUS_NOT_FINISHED",
+            "LZMA_STATUS_NOT_SPECIFIED"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel1CommandsLib/If.c",
+        "Name": "END_TAG_TYPE",
+        "Values": [
+            "EndTagAnd",
+            "EndTagMax",
+            "EndTagOr",
+            "EndTagThen"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/Sdk/C/7zTypes.h",
+        "Name": "ESzSeek",
+        "Values": [
+            "SZ_SEEK_CUR",
+            "SZ_SEEK_END",
+            "SZ_SEEK_SET"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "EVENT_LOG_TYPE_DATA",
+        "Values": [
+            "EventLogTypeAreaResetAndClr",
+            "EventLogTypeAsyncHWTimer",
+            "EventLogTypeAvailForSys",
+            "EventLogTypeBusTimeOut",
+            "EventLogTypeCPUFailure",
+            "EventLogTypeEISATimeOut",
+            "EventLogTypeEndOfLog",
+            "EventLogTypeHDInfo",
+            "EventLogTypeIOChannelCheck",
+            "EventLogTypeLoggingDisabled",
+            "EventLogTypeMemLogDisabled",
+            "EventLogTypeMultiBitECC",
+            "EventLogTypePCIParityErr",
+            "EventLogTypePCISystemErr",
+            "EventLogTypePOSTErr",
+            "EventLogTypePOSTMemResize",
+            "EventLogTypeParityMemErr",
+            "EventLogTypeReserved",
+            "EventLogTypeSingleBitECC",
+            "EventLogTypeSoftwareNMI",
+            "EventLogTypeSysConfigInfo",
+            "EventLogTypeSysLimitExce",
+            "EventLogTypeSysReconfig",
+            "EventLogTypeSystemBoot",
+            "EventLogTypeUncorrectCPUErr",
+            "EventLogTypeUnused"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "EVENT_LOG_VARIABLE_DATA",
+        "Values": [
+            "EventLogVariableHandle",
+            "EventLogVariableMutilEvent",
+            "EventLogVariableMutilEventHandle",
+            "EventLogVariableMutliEventSysManagmentType",
+            "EventLogVariableNone",
+            "EventLogVariableOEMAssigned",
+            "EventLogVariablePOSTResultBitmap",
+            "EventLogVariableSysManagementType",
+            "EventLogVariableUnused"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Name": "EXPRESS_LEVEL",
+        "Values": [
+            "ExpressForm",
+            "ExpressNone",
+            "ExpressOption",
+            "ExpressStatement"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Name": "EXPRESS_RESULT",
+        "Values": [
+            "ExpressDisable",
+            "ExpressFalse",
+            "ExpressGrayOut",
+            "ExpressSuppress"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Protocol/GenericMemoryTest.h",
+        "Name": "EXTENDMEM_COVERAGE_LEVEL",
+        "Values": [
+            "EXTENSIVE",
+            "IGNORE",
+            "MAXLEVEL",
+            "QUICK",
+            "SPARSE"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/FatPkg/EnhancedFatDxe/Fat.h",
+        "Name": "FAT_VOLUME_TYPE",
+        "Values": [
+            "Fat12",
+            "Fat16",
+            "Fat32",
+            "FatUndefined"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/RegisterFilterLib.h",
+        "Name": "FILTER_IO_WIDTH",
+        "Values": [
+            "FilterWidth16",
+            "FilterWidth32",
+            "FilterWidth64",
+            "FilterWidth8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Name": "FIND_OPTYPE",
+        "Values": [
+            "ByBoth",
+            "ByHwAddress",
+            "ByNone",
+            "ByProtoAddress"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "FIRMWARE_INVENTORY_FIRMWARE_ID_FORMAT_TYPE",
+        "Values": [
+            "FirmwareIdFormatTypeFreeForm",
+            "FirmwareIdFormatTypeReserved",
+            "FirmwareIdFormatTypeUuid",
+            "InventoryFirmwareIdFormatTypeOem"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "FIRMWARE_INVENTORY_STATE",
+        "Values": [
+            "FirmwareInventoryStateAbsent",
+            "FirmwareInventoryStateDisabled",
+            "FirmwareInventoryStateEnabled",
+            "FirmwareInventoryStateOther",
+            "FirmwareInventoryStateStandbyOffline",
+            "FirmwareInventoryStateStandbySpare",
+            "FirmwareInventoryStateUnavailableOffline",
+            "FirmwareInventoryStateUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "FIRMWARE_INVENTORY_VERSION_FORMAT_TYPE",
+        "Values": [
+            "VersionFormatType32BitHex",
+            "VersionFormatType64BitHex",
+            "VersionFormatTypeFreeForm",
+            "VersionFormatTypeMajorMinor",
+            "VersionFormatTypeOem",
+            "VersionFormatTypeReserved"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Silicon/Intel/SimicsIch10Pkg/IncludePrivate/Library/PchSpiCommonLib.h",
+        "Name": "FLASH_COMPONENT_NUM",
+        "Values": [
+            "FlashComponent0",
+            "FlashComponent1",
+            "FlashComponentMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Silicon/Intel/SimicsIch10Pkg/IncludePrivate/Library/PchSpiCommonLib.h",
+        "Name": "FLASH_CYCLE_TYPE",
+        "Values": [
+            "FlashCycleErase",
+            "FlashCycleMax",
+            "FlashCycleRead",
+            "FlashCycleReadJedecId",
+            "FlashCycleReadSfdp",
+            "FlashCycleReadStatus",
+            "FlashCycleWrite",
+            "FlashCycleWriteStatus"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Silicon/Intel/SimicsIch10Pkg/LibraryPrivate/BasePchSpiCommonLib/SpiCommon.c",
+        "Name": "FLASH_REGION_TYPE",
+        "Values": [
+            "FlashRegionAll",
+            "FlashRegionBios",
+            "FlashRegionDer",
+            "FlashRegionDescriptor",
+            "FlashRegionGbe",
+            "FlashRegionMax",
+            "FlashRegionMe",
+            "FlashRegionPlatformData"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Name": "GET_SET_QUESTION_VALUE_WITH",
+        "Values": [
+            "GetSetValueWithBothBuffer",
+            "GetSetValueWithBuffer",
+            "GetSetValueWithEditBuffer",
+            "GetSetValueWithHiiDriver",
+            "GetSetValueWithMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Register/Amd/Ghcb.h",
+        "Name": "GHCB_REGISTER",
+        "Values": [
+            "GhcbCpl",
+            "GhcbRax",
+            "GhcbRbx",
+            "GhcbRcx",
+            "GhcbRdx",
+            "GhcbSwExitCode",
+            "GhcbSwExitInfo1",
+            "GhcbSwExitInfo2",
+            "GhcbSwScratch",
+            "GhcbXCr0"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpLib.h",
+        "Name": "HTTP_BODY_PARSE_EVENT",
+        "Values": [
+            "BodyParseEventOnComplete",
+            "BodyParseEventOnData"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Library/DxeHttpLib/DxeHttpLib.c",
+        "Name": "HTTP_BODY_PARSE_STATE",
+        "Values": [
+            "BodyParserBodyIdentity",
+            "BodyParserBodyStart",
+            "BodyParserChunkDataEnd",
+            "BodyParserChunkDataEndCR",
+            "BodyParserChunkDataStart",
+            "BodyParserChunkExtStart",
+            "BodyParserChunkSize",
+            "BodyParserChunkSizeEndCR",
+            "BodyParserChunkSizeStart",
+            "BodyParserComplete",
+            "BodyParserLastCRLF",
+            "BodyParserLastCRLFEnd",
+            "BodyParserStateMax",
+            "BodyParserTrailer"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootDxe.h",
+        "Name": "HTTP_BOOT_IMAGE_TYPE",
+        "Values": [
+            "ImageTypeEfi",
+            "ImageTypeMax",
+            "ImageTypeVirtualCd",
+            "ImageTypeVirtualDisk"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootDhcp4.h",
+        "Name": "HTTP_BOOT_OFFER_TYPE",
+        "Values": [
+            "HttpOfferTypeDhcpDns",
+            "HttpOfferTypeDhcpIpUri",
+            "HttpOfferTypeDhcpIpUriDns",
+            "HttpOfferTypeDhcpNameUri",
+            "HttpOfferTypeDhcpNameUriDns",
+            "HttpOfferTypeDhcpOnly",
+            "HttpOfferTypeMax",
+            "HttpOfferTypeProxyIpUri",
+            "HttpOfferTypeProxyNameUri"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpIoLib.h",
+        "Name": "HTTP_IO_CALLBACK_EVENT",
+        "Values": [
+            "HttpIoRequest",
+            "HttpIoResponse"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpIoLib.h",
+        "Name": "HTTP_IO_SEND_CHUNK_PROCESS",
+        "Values": [
+            "HttpIoSendChunkContent",
+            "HttpIoSendChunkEndChunk",
+            "HttpIoSendChunkFinish",
+            "HttpIoSendChunkHeaderZeroContent",
+            "HttpIoSendChunkNone"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpIoLib.h",
+        "Name": "HTTP_IO_SEND_NON_CHUNK_PROCESS",
+        "Values": [
+            "HttpIoSendNonChunkContent",
+            "HttpIoSendNonChunkFinish",
+            "HttpIoSendNonChunkHeaderZeroContent",
+            "HttpIoSendNonChunkNone"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Library/DxeHttpLib/DxeHttpLib.h",
+        "Name": "HTTP_URL_PARSE_STATE",
+        "Values": [
+            "UrlParserAtInAuthority",
+            "UrlParserAuthority",
+            "UrlParserFragment",
+            "UrlParserFragmentStart",
+            "UrlParserHost",
+            "UrlParserHostIpv6",
+            "UrlParserHostStart",
+            "UrlParserPath",
+            "UrlParserPort",
+            "UrlParserPortStart",
+            "UrlParserQuery",
+            "UrlParserQueryStart",
+            "UrlParserScheme",
+            "UrlParserSchemeColon",
+            "UrlParserSchemeColonSlash",
+            "UrlParserSchemeColonSlashSlash",
+            "UrlParserStateMax",
+            "UrlParserUrlStart",
+            "UrlParserUserInfo"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellNetwork1CommandsLib/Ifconfig.c",
+        "Name": "IFCONFIG_OPCODE",
+        "Values": [
+            "IfConfigOpClear",
+            "IfConfigOpList",
+            "IfConfigOpSet"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/FatPkg/EnhancedFatDxe/Fat.h",
+        "Name": "IO_MODE",
+        "Values": [
+            "ReadData",
+            "ReadDisk",
+            "ReadFat",
+            "WriteData",
+            "WriteDisk",
+            "WriteFat"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6Common.h",
+        "Name": "IP6_ADDRESS_TYPE",
+        "Values": [
+            "Ip6AnyCast",
+            "Ip6Multicast",
+            "Ip6Promiscuous",
+            "Ip6Unicast"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.h",
+        "Name": "IP6_CONFIG_NV_ADDRESS_TYPE",
+        "Values": [
+            "Ip6ConfigNvDnsAddress",
+            "Ip6ConfigNvGatewayAddress",
+            "Ip6ConfigNvHostAddress",
+            "Ip6ConfigNvRouteTable"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.h",
+        "Name": "IP6_INTERFACE_TYPE",
+        "Values": [
+            "Ip6InterfaceTypeEthernet",
+            "Ip6InterfaceTypeExperimentalEthernet"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6Option.h",
+        "Name": "IP6_OPTION_TYPE",
+        "Values": [
+            "Ip6OptionDiscard",
+            "Ip6OptionEtherSource",
+            "Ip6OptionEtherTarget",
+            "Ip6OptionMask",
+            "Ip6OptionMtu",
+            "Ip6OptionPad1",
+            "Ip6OptionPadN",
+            "Ip6OptionParameterProblem",
+            "Ip6OptionPrefixInfo",
+            "Ip6OptionRedirected",
+            "Ip6OptionRouterAlert",
+            "Ip6OptionSkip"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MC_HOST_INTERFACE_PROTOCOL_TYPE",
+        "Values": [
+            "MCHostInterfaceProtocolTypeIPMI",
+            "MCHostInterfaceProtocolTypeMCTP",
+            "MCHostInterfaceProtocolTypeOemDefined",
+            "MCHostInterfaceProtocolTypeRedfishOverIP"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MC_HOST_INTERFACE_TYPE",
+        "Values": [
+            "MCHostInterfaceTypeNetworkHostInterface",
+            "MCHostInterfaceTypeOemDefined"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ARRAY_LOCATION",
+        "Values": [
+            "MemoryArrayLocationCXLAddonCard",
+            "MemoryArrayLocationEisaAddonCard",
+            "MemoryArrayLocationIsaAddonCard",
+            "MemoryArrayLocationMcaAddonCard",
+            "MemoryArrayLocationNuBus",
+            "MemoryArrayLocationOther",
+            "MemoryArrayLocationPc98C20AddonCard",
+            "MemoryArrayLocationPc98C24AddonCard",
+            "MemoryArrayLocationPc98EAddonCard",
+            "MemoryArrayLocationPc98LocalBusAddonCard",
+            "MemoryArrayLocationPciAddonCard",
+            "MemoryArrayLocationPcmciaAddonCard",
+            "MemoryArrayLocationProprietaryAddonCard",
+            "MemoryArrayLocationSystemBoard",
+            "MemoryArrayLocationUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ARRAY_USE",
+        "Values": [
+            "MemoryArrayUseCacheMemory",
+            "MemoryArrayUseFlashMemory",
+            "MemoryArrayUseNonVolatileRam",
+            "MemoryArrayUseOther",
+            "MemoryArrayUseSystemMemory",
+            "MemoryArrayUseUnknown",
+            "MemoryArrayUseVideoMemory"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_CHANNEL_TYPE",
+        "Values": [
+            "MemoryChannelTypeOther",
+            "MemoryChannelTypeRambus",
+            "MemoryChannelTypeSyncLink",
+            "MemoryChannelTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_DEVICE_TECHNOLOGY",
+        "Values": [
+            "MemoryTechnologyDram",
+            "MemoryTechnologyIntelOptanePersistentMemory",
+            "MemoryTechnologyNvdimmF",
+            "MemoryTechnologyNvdimmN",
+            "MemoryTechnologyNvdimmP",
+            "MemoryTechnologyOther",
+            "MemoryTechnologyUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_DEVICE_TYPE",
+        "Values": [
+            "MemoryType3Dram",
+            "MemoryTypeCdram",
+            "MemoryTypeDdr",
+            "MemoryTypeDdr2",
+            "MemoryTypeDdr2FbDimm",
+            "MemoryTypeDdr3",
+            "MemoryTypeDdr4",
+            "MemoryTypeDdr5",
+            "MemoryTypeDram",
+            "MemoryTypeEdram",
+            "MemoryTypeEeprom",
+            "MemoryTypeEprom",
+            "MemoryTypeFbd2",
+            "MemoryTypeFeprom",
+            "MemoryTypeFlash",
+            "MemoryTypeHBM",
+            "MemoryTypeHBM2",
+            "MemoryTypeHBM3",
+            "MemoryTypeLogicalNonVolatileDevice",
+            "MemoryTypeLpddr",
+            "MemoryTypeLpddr2",
+            "MemoryTypeLpddr3",
+            "MemoryTypeLpddr4",
+            "MemoryTypeLpddr5",
+            "MemoryTypeOther",
+            "MemoryTypeRam",
+            "MemoryTypeRdram",
+            "MemoryTypeRom",
+            "MemoryTypeSdram",
+            "MemoryTypeSgram",
+            "MemoryTypeSram",
+            "MemoryTypeUnknown",
+            "MemoryTypeVram"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ERROR_CORRECTION",
+        "Values": [
+            "MemoryErrorCorrectionCrc",
+            "MemoryErrorCorrectionMultiBitEcc",
+            "MemoryErrorCorrectionNone",
+            "MemoryErrorCorrectionOther",
+            "MemoryErrorCorrectionParity",
+            "MemoryErrorCorrectionSingleBitEcc",
+            "MemoryErrorCorrectionUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ERROR_DETECT_METHOD",
+        "Values": [
+            "ErrorDetectingMethod128Ecc",
+            "ErrorDetectingMethod32Ecc",
+            "ErrorDetectingMethod64Ecc",
+            "ErrorDetectingMethodCrc",
+            "ErrorDetectingMethodNone",
+            "ErrorDetectingMethodOther",
+            "ErrorDetectingMethodParity",
+            "ErrorDetectingMethodUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ERROR_GRANULARITY",
+        "Values": [
+            "MemoryGranularityDeviceLevel",
+            "MemoryGranularityMemPartitionLevel",
+            "MemoryGranularityOther",
+            "MemoryGranularityOtherUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ERROR_OPERATION",
+        "Values": [
+            "MemoryErrorOperationOther",
+            "MemoryErrorOperationPartialWrite",
+            "MemoryErrorOperationRead",
+            "MemoryErrorOperationUnknown",
+            "MemoryErrorOperationWrite"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_ERROR_TYPE",
+        "Values": [
+            "MemoryErrorBadRead",
+            "MemoryErrorChecksum",
+            "MemoryErrorCorrectSingleBit",
+            "MemoryErrorCorrected",
+            "MemoryErrorCrc",
+            "MemoryErrorDoubleBit",
+            "MemoryErrorMultiBit",
+            "MemoryErrorNibble",
+            "MemoryErrorOk",
+            "MemoryErrorOther",
+            "MemoryErrorParity",
+            "MemoryErrorSigleBit",
+            "MemoryErrorUnCorrectable",
+            "MemoryErrorUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_FORM_FACTOR",
+        "Values": [
+            "MemoryFormFactorChip",
+            "MemoryFormFactorDie",
+            "MemoryFormFactorDimm",
+            "MemoryFormFactorDip",
+            "MemoryFormFactorFbDimm",
+            "MemoryFormFactorOther",
+            "MemoryFormFactorProprietaryCard",
+            "MemoryFormFactorRimm",
+            "MemoryFormFactorRowOfChips",
+            "MemoryFormFactorSimm",
+            "MemoryFormFactorSip",
+            "MemoryFormFactorSodimm",
+            "MemoryFormFactorSrimm",
+            "MemoryFormFactorTsop",
+            "MemoryFormFactorUnknown",
+            "MemoryFormFactorZip"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Guid/MemoryProfile.h",
+        "Name": "MEMORY_PROFILE_ACTION",
+        "Values": [
+            "MemoryProfileActionAllocatePages",
+            "MemoryProfileActionAllocatePool",
+            "MemoryProfileActionFreePages",
+            "MemoryProfileActionFreePool"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MEMORY_SUPPORT_INTERLEAVE_TYPE",
+        "Values": [
+            "MemoryInterleaveEightWay",
+            "MemoryInterleaveFourWay",
+            "MemoryInterleaveOneWay",
+            "MemoryInterleaveOther",
+            "MemoryInterleaveSixteenWay",
+            "MemoryInterleaveTwoWay",
+            "MemoryInterleaveUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_BOOT_INFORMATION_STATUS_DATA_TYPE",
+        "Values": [
+            "BootInformationStatusFirmwareDetectedFailure",
+            "BootInformationStatusNoBootableMedia",
+            "BootInformationStatusNoError",
+            "BootInformationStatusNormalOSFailedLoading",
+            "BootInformationStatusOSDetectedFailure",
+            "BootInformationStatusPreviousRequestedImage",
+            "BootInformationStatusStartOemSpecific",
+            "BootInformationStatusStartProductSpecific",
+            "BootInformationStatusStartReserved",
+            "BootInformationStatusSystemSecurityViolation",
+            "BootInformationStatusUserRequestedBoot",
+            "BootInformationStatusWatchdogTimerExpired"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_CHASSIS_SECURITY_STATE",
+        "Values": [
+            "ChassisSecurityStatusExternalInterfaceLockedEnabled",
+            "ChassisSecurityStatusExternalInterfaceLockedOut",
+            "ChassisSecurityStatusNone",
+            "ChassisSecurityStatusOther",
+            "ChassisSecurityStatusUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_CHASSIS_STATE",
+        "Values": [
+            "ChassisStateCritical",
+            "ChassisStateNonRecoverable",
+            "ChassisStateOther",
+            "ChassisStateSafe",
+            "ChassisStateUnknown",
+            "ChassisStateWarning"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_CHASSIS_TYPE",
+        "Values": [
+            "MiscChassisAdvancedTCA",
+            "MiscChassisBlade",
+            "MiscChassisBladeEnclosure",
+            "MiscChassisCompactPCI",
+            "MiscChassisConvertible",
+            "MiscChassisDetachable",
+            "MiscChassisEmbeddedPc",
+            "MiscChassisIoTGateway",
+            "MiscChassisMiniPc",
+            "MiscChassisMultiSystemChassis",
+            "MiscChassisStickPc",
+            "MiscChassisTablet",
+            "MiscChassisTypeAllInOne",
+            "MiscChassisTypeBusExpansionChassis",
+            "MiscChassisTypeDeskTop",
+            "MiscChassisTypeDockingStation",
+            "MiscChassisTypeExpansionChassis",
+            "MiscChassisTypeHandHeld",
+            "MiscChassisTypeLapTop",
+            "MiscChassisTypeLowProfileDesktop",
+            "MiscChassisTypeLunchBox",
+            "MiscChassisTypeMainServerChassis",
+            "MiscChassisTypeMiniTower",
+            "MiscChassisTypeNotebook",
+            "MiscChassisTypeOther",
+            "MiscChassisTypePeripheralChassis",
+            "MiscChassisTypePizzaBox",
+            "MiscChassisTypePortable",
+            "MiscChassisTypeRackMountChassis",
+            "MiscChassisTypeRaidChassis",
+            "MiscChassisTypeSealedCasePc",
+            "MiscChassisTypeSpaceSaving",
+            "MiscChassisTypeSubChassis",
+            "MiscChassisTypeSubNotebook",
+            "MiscChassisTypeTower",
+            "MiscChassisTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_MANAGEMENT_DEVICE_ADDRESS_TYPE",
+        "Values": [
+            "ManagementDeviceAddressTypeIOPort",
+            "ManagementDeviceAddressTypeMemory",
+            "ManagementDeviceAddressTypeOther",
+            "ManagementDeviceAddressTypeSmbus",
+            "ManagementDeviceAddressTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_MANAGEMENT_DEVICE_TYPE",
+        "Values": [
+            "ManagementDeviceTypeAdm9240",
+            "ManagementDeviceTypeDs1780",
+            "ManagementDeviceTypeGl518Sm",
+            "ManagementDeviceTypeHt82H791",
+            "ManagementDeviceTypeLm75",
+            "ManagementDeviceTypeLm78",
+            "ManagementDeviceTypeLm79",
+            "ManagementDeviceTypeLm80",
+            "ManagementDeviceTypeLm81",
+            "ManagementDeviceTypeMaxim1617",
+            "ManagementDeviceTypeOther",
+            "ManagementDeviceTypeUnknown",
+            "ManagementDeviceTypeW83781D"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_ONBOARD_DEVICE_TYPE",
+        "Values": [
+            "OnBoardDeviceTypeEthernet",
+            "OnBoardDeviceTypeOther",
+            "OnBoardDeviceTypePATAController",
+            "OnBoardDeviceTypeSASController",
+            "OnBoardDeviceTypeSATAController",
+            "OnBoardDeviceTypeScsiController",
+            "OnBoardDeviceTypeSound",
+            "OnBoardDeviceTypeTokenRing",
+            "OnBoardDeviceTypeUnknown",
+            "OnBoardDeviceTypeVideo"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_PORT_CONNECTOR_TYPE",
+        "Values": [
+            "PortConnectorType1394",
+            "PortConnectorType25PinDualInline",
+            "PortConnectorType50PinDualInline",
+            "PortConnectorType50PinMiniScsi",
+            "PortConnectorType68PinDualInline",
+            "PortConnectorType9PinDualInline",
+            "PortConnectorTypeBNC",
+            "PortConnectorTypeCentronics",
+            "PortConnectorTypeCircularDin8Female",
+            "PortConnectorTypeCircularDin8Male",
+            "PortConnectorTypeDB15Female",
+            "PortConnectorTypeDB15Male",
+            "PortConnectorTypeDB25Female",
+            "PortConnectorTypeDB25Male",
+            "PortConnectorTypeDB9Female",
+            "PortConnectorTypeDB9Male",
+            "PortConnectorTypeHeadPhoneMiniJack",
+            "PortConnectorTypeHpHil",
+            "PortConnectorTypeInfrared",
+            "PortConnectorTypeMicroDin",
+            "PortConnectorTypeMiniCentronics",
+            "PortConnectorTypeMiniCentronicsType14",
+            "PortConnectorTypeMiniCentronicsType26",
+            "PortConnectorTypeMiniDin",
+            "PortConnectorTypeNone",
+            "PortConnectorTypeOnboardFloppy",
+            "PortConnectorTypeOnboardIde",
+            "PortConnectorTypeOnboardSoundInput",
+            "PortConnectorTypeOther",
+            "PortConnectorTypePC98",
+            "PortConnectorTypePC98Full",
+            "PortConnectorTypePC98Hireso",
+            "PortConnectorTypePC98Note",
+            "PortConnectorTypePCH98",
+            "PortConnectorTypePS2",
+            "PortConnectorTypeProprietary",
+            "PortConnectorTypeRJ11",
+            "PortConnectorTypeRJ45",
+            "PortConnectorTypeSasSata",
+            "PortConnectorTypeSsaScsi",
+            "PortConnectorTypeUsb",
+            "PortConnectorTypeUsbTypeC"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_PORT_TYPE",
+        "Values": [
+            "PortType8251Compatible",
+            "PortType8251FifoCompatible",
+            "PortTypeAccessBusPort",
+            "PortTypeAudioPort",
+            "PortTypeCardBus",
+            "PortTypeFireWire",
+            "PortTypeJoyStick",
+            "PortTypeKeyboard",
+            "PortTypeMfdp",
+            "PortTypeMidi",
+            "PortTypeModemPort",
+            "PortTypeMouse",
+            "PortTypeNetworkPort",
+            "PortTypeNone",
+            "PortTypeOther",
+            "PortTypePC98",
+            "PortTypePC98Hireso",
+            "PortTypePCH98",
+            "PortTypeParallelPortEcp",
+            "PortTypeParallelPortEcpEpp",
+            "PortTypeParallelPortEpp",
+            "PortTypeParallelPortPs2",
+            "PortTypeParallelXtAtCompatible",
+            "PortTypePcmciaTypeI",
+            "PortTypePcmciaTypeII",
+            "PortTypePcmciaTypeIII",
+            "PortTypeSas",
+            "PortTypeSata",
+            "PortTypeScsi",
+            "PortTypeScsiII",
+            "PortTypeScsiWide",
+            "PortTypeSerial16450Compatible",
+            "PortTypeSerial16550ACompatible",
+            "PortTypeSerial16550Compatible",
+            "PortTypeSerialXtAtCompatible",
+            "PortTypeSsaScsi",
+            "PortTypeThunderbolt",
+            "PortTypeUsb",
+            "PortTypeVideoPort"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_DATA_BUS_WIDTH",
+        "Values": [
+            "SlotDataBusWidth128Bit",
+            "SlotDataBusWidth12X",
+            "SlotDataBusWidth16Bit",
+            "SlotDataBusWidth16X",
+            "SlotDataBusWidth1X",
+            "SlotDataBusWidth2X",
+            "SlotDataBusWidth32Bit",
+            "SlotDataBusWidth32X",
+            "SlotDataBusWidth4X",
+            "SlotDataBusWidth64Bit",
+            "SlotDataBusWidth8Bit",
+            "SlotDataBusWidth8X",
+            "SlotDataBusWidthOther",
+            "SlotDataBusWidthUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_HEIGHT",
+        "Values": [
+            "SlotHeightFullHeight",
+            "SlotHeightLowProfile",
+            "SlotHeightNone",
+            "SlotHeightOther",
+            "SlotHeightUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_INFORMATION",
+        "Values": [
+            "Gen1",
+            "Gen2",
+            "Gen3",
+            "Gen4",
+            "Gen5",
+            "Gen6",
+            "Others"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_LENGTH",
+        "Values": [
+            "SlotLengthLong",
+            "SlotLengthOther",
+            "SlotLengthShort",
+            "SlotLengthUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_PHYSICAL_WIDTH",
+        "Values": [
+            "SlotPhysicalWidth128Bit",
+            "SlotPhysicalWidth12X",
+            "SlotPhysicalWidth16Bit",
+            "SlotPhysicalWidth16X",
+            "SlotPhysicalWidth1X",
+            "SlotPhysicalWidth2X",
+            "SlotPhysicalWidth32Bit",
+            "SlotPhysicalWidth32X",
+            "SlotPhysicalWidth4X",
+            "SlotPhysicalWidth64Bit",
+            "SlotPhysicalWidth8Bit",
+            "SlotPhysicalWidth8X",
+            "SlotPhysicalWidthOther",
+            "SlotPhysicalWidthUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_TYPE",
+        "Values": [
+            "SlotTypeAgp",
+            "SlotTypeAgp4X",
+            "SlotTypeAgp8X",
+            "SlotTypeApg2X",
+            "SlotTypeCXLFlexbus10",
+            "SlotTypeEisa",
+            "SlotTypeEnterpriseandDatacenter1UE1FormFactorSlot",
+            "SlotTypeEnterpriseandDatacenter3E3FormFactorSlot",
+            "SlotTypeIORiserCardSlot",
+            "SlotTypeIsa",
+            "SlotTypeM2Socket1_DP",
+            "SlotTypeM2Socket1_SD",
+            "SlotTypeM2Socket2",
+            "SlotTypeM2Socket3",
+            "SlotTypeMca",
+            "SlotTypeMxm30TypeA",
+            "SlotTypeMxm30TypeB",
+            "SlotTypeMxmTypeI",
+            "SlotTypeMxmTypeII",
+            "SlotTypeMxmTypeIIIHe",
+            "SlotTypeMxmTypeIIIStandard",
+            "SlotTypeMxmTypeIV",
+            "SlotTypeNuBus",
+            "SlotTypeOCPNIC30LargeFormFactor",
+            "SlotTypeOCPNIC30SmallFormFactor",
+            "SlotTypeOCPNICPriorto30",
+            "SlotTypeOther",
+            "SlotTypePC98C20",
+            "SlotTypePC98C24",
+            "SlotTypePC98Card",
+            "SlotTypePC98E",
+            "SlotTypePC98LocalBus",
+            "SlotTypePCIExpressGen4SFF_8639",
+            "SlotTypePCIExpressGen5",
+            "SlotTypePCIExpressGen5SFF_8639",
+            "SlotTypePCIExpressGen5X1",
+            "SlotTypePCIExpressGen5X16",
+            "SlotTypePCIExpressGen5X2",
+            "SlotTypePCIExpressGen5X4",
+            "SlotTypePCIExpressGen5X8",
+            "SlotTypePCIExpressGen6andBeyond",
+            "SlotTypePci",
+            "SlotTypePci66MhzCapable",
+            "SlotTypePciExpress",
+            "SlotTypePciExpressGen2",
+            "SlotTypePciExpressGen2Sff_8639",
+            "SlotTypePciExpressGen2X1",
+            "SlotTypePciExpressGen2X16",
+            "SlotTypePciExpressGen2X2",
+            "SlotTypePciExpressGen2X4",
+            "SlotTypePciExpressGen2X8",
+            "SlotTypePciExpressGen3",
+            "SlotTypePciExpressGen3Sff_8639",
+            "SlotTypePciExpressGen3X1",
+            "SlotTypePciExpressGen3X16",
+            "SlotTypePciExpressGen3X2",
+            "SlotTypePciExpressGen3X4",
+            "SlotTypePciExpressGen3X8",
+            "SlotTypePciExpressGen4",
+            "SlotTypePciExpressGen4X1",
+            "SlotTypePciExpressGen4X16",
+            "SlotTypePciExpressGen4X2",
+            "SlotTypePciExpressGen4X4",
+            "SlotTypePciExpressGen4X8",
+            "SlotTypePciExpressMini52pinWithBSKO",
+            "SlotTypePciExpressMini52pinWithoutBSKO",
+            "SlotTypePciExpressMini76pin",
+            "SlotTypePciExpressX1",
+            "SlotTypePciExpressX16",
+            "SlotTypePciExpressX2",
+            "SlotTypePciExpressX4",
+            "SlotTypePciExpressX8",
+            "SlotTypePciX",
+            "SlotTypePcmcia",
+            "SlotTypeProcessorCardSlot",
+            "SlotTypeProprietary",
+            "SlotTypeProprietaryMemoryCardSlot",
+            "SlotTypeUnknown",
+            "SlotTypeVlVesa"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SLOT_USAGE",
+        "Values": [
+            "SlotUsageAvailable",
+            "SlotUsageInUse",
+            "SlotUsageOther",
+            "SlotUsageUnavailable",
+            "SlotUsageUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "MISC_SYSTEM_WAKEUP_TYPE",
+        "Values": [
+            "SystemWakeupTypeAcPowerRestored",
+            "SystemWakeupTypeApmTimer",
+            "SystemWakeupTypeLanRemote",
+            "SystemWakeupTypeModemRing",
+            "SystemWakeupTypeOther",
+            "SystemWakeupTypePciPme",
+            "SystemWakeupTypePowerSwitch",
+            "SystemWakeupTypeReserved",
+            "SystemWakeupTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/TcgMorLockSmm.c",
+        "Name": "MOR_LOCK_STATE",
+        "Values": [
+            "MorLockStateLocked",
+            "MorLockStateUnlocked"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellCommandLib/ConsistMapping.c",
+        "Name": "MTD_TYPE",
+        "Values": [
+            "MTDTypeCDRom",
+            "MTDTypeEnd",
+            "MTDTypeFloppy",
+            "MTDTypeHardDisk",
+            "MTDTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Include/Library/MtrrLib.h",
+        "Name": "MTRR_MEMORY_CACHE_TYPE",
+        "Values": [
+            "CacheInvalid",
+            "CacheUncacheable",
+            "CacheWriteBack",
+            "CacheWriteCombining",
+            "CacheWriteProtected",
+            "CacheWriteThrough"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Nvme.h",
+        "Name": "NVME_ADMIN_COMMAND_OPCODE",
+        "Values": [
+            "AbortOpcode",
+            "AsyncEventRequestOpcode",
+            "CreateIOCompletionQueueOpcode",
+            "CreateIOSubmissionQueueOpcode",
+            "DeleteIOCompletionQueueOpcode",
+            "DeleteIOSubmissionQueueOpcode",
+            "FirmwareCommitOpcode",
+            "FirmwareImageDownloadOpcode",
+            "FormatNvmOpcode",
+            "GetFeaturesOpcode",
+            "GetLogPageOpcode",
+            "IdentifyOpcode",
+            "NamespaceAttachmentOpcode",
+            "NamespaceManagementOpcode",
+            "SecurityReceiveOpcode",
+            "SecuritySendOpcode",
+            "SetFeaturesOpcode"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Nvme.h",
+        "Name": "NVME_ADMIN_IDENTIFY_CNS",
+        "Values": [
+            "IdentifyActiveNsListCns",
+            "IdentifyControllerCns",
+            "IdentifyNamespaceCns"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Nvme.h",
+        "Name": "NVME_FW_ACTIVATE_ACTION",
+        "Values": [
+            "ActivateActionActivate",
+            "ActivateActionReplace",
+            "ActivateActionReplaceActivate"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Nvme.h",
+        "Name": "NVME_FW_ACTIVATE_SLOT",
+        "Values": [
+            "FirmwareSlot1",
+            "FirmwareSlot2",
+            "FirmwareSlot3",
+            "FirmwareSlot4",
+            "FirmwareSlot5",
+            "FirmwareSlot6",
+            "FirmwareSlot7",
+            "FirmwareSlotCtrlChooses"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Nvme.h",
+        "Name": "NVME_LOG_ID",
+        "Values": [
+            "ErrorInfoLogID",
+            "FirmwareSlotInfoLogID",
+            "SmartHealthInfoLogID"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "ONBOARD_DEVICE_EXTENDED_INFO_TYPE",
+        "Values": [
+            "OnBoardDeviceExtendedTypeBluetooth",
+            "OnBoardDeviceExtendedTypeEthernet",
+            "OnBoardDeviceExtendedTypeNvme",
+            "OnBoardDeviceExtendedTypeOther",
+            "OnBoardDeviceExtendedTypePATAController",
+            "OnBoardDeviceExtendedTypeSASController",
+            "OnBoardDeviceExtendedTypeSATAController",
+            "OnBoardDeviceExtendedTypeScsiController",
+            "OnBoardDeviceExtendedTypeSound",
+            "OnBoardDeviceExtendedTypeTokenRing",
+            "OnBoardDeviceExtendedTypeUfc",
+            "OnBoardDeviceExtendedTypeUnknown",
+            "OnBoardDeviceExtendedTypeVideo",
+            "OnBoardDeviceExtendedTypeWWAN",
+            "OnBoardDeviceExtendedTypeWirelessLAN",
+            "OnBoardDeviceExtendedTypeeMMC"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciRootBridge.h",
+        "Name": "OPERATION_TYPE",
+        "Values": [
+            "IoOperation",
+            "MemOperation",
+            "PciOperation"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/CpuDxe/CpuPageTable.c",
+        "Name": "PAGE_ACTION",
+        "Values": [
+            "PageActionAssign",
+            "PageActionClear",
+            "PageActionSet"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Name": "PAGE_ATTRIBUTE",
+        "Values": [
+            "Page1G",
+            "Page2M",
+            "Page4K",
+            "PageNone"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PcdLib.h",
+        "Name": "PCD_TYPE",
+        "Values": [
+            "PCD_TYPE_16",
+            "PCD_TYPE_32",
+            "PCD_TYPE_64",
+            "PCD_TYPE_8",
+            "PCD_TYPE_BOOL",
+            "PCD_TYPE_PTR"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Pci.c",
+        "Name": "PCIE_CAPREG_FIELD_WIDTH",
+        "Values": [
+            "FieldWidthUINT16",
+            "FieldWidthUINT32",
+            "FieldWidthUINT8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Pci.c",
+        "Name": "PCIE_EXPLAIN_TYPE",
+        "Values": [
+            "PcieExplainTypeCommon",
+            "PcieExplainTypeDevice",
+            "PcieExplainTypeLink",
+            "PcieExplainTypeMax",
+            "PcieExplainTypeRoot",
+            "PcieExplainTypeSlot"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciBus.h",
+        "Name": "PCI_BAR_TYPE",
+        "Values": [
+            "PciBarTypeIo",
+            "PciBarTypeIo16",
+            "PciBarTypeIo32",
+            "PciBarTypeMaxType",
+            "PciBarTypeMem",
+            "PciBarTypeMem32",
+            "PciBarTypeMem64",
+            "PciBarTypeOpRom",
+            "PciBarTypePMem32",
+            "PciBarTypePMem64",
+            "PciBarTypeUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Pci.h",
+        "Name": "PCI_HEADER_TYPE",
+        "Values": [
+            "PciCardBusBridge",
+            "PciDevice",
+            "PciP2pBridge",
+            "PciUndefined"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciLib.h",
+        "Name": "PCI_RESIZABLE_BAR_OPERATION",
+        "Values": [
+            "PciResizableBarMax",
+            "PciResizableBarMin"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostResource.h",
+        "Name": "PCI_RESOURCE_TYPE",
+        "Values": [
+            "TypeBus",
+            "TypeIo",
+            "TypeMax",
+            "TypeMem32",
+            "TypeMem64",
+            "TypePMem32",
+            "TypePMem64"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.h",
+        "Name": "PCI_RESOURCE_USAGE",
+        "Values": [
+            "PciResUsagePadding",
+            "PciResUsageTypical"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Include/Ppi/BaseMemoryTest.h",
+        "Name": "PEI_MEMORY_TEST_OP",
+        "Values": [
+            "Extensive",
+            "Ignore",
+            "Quick",
+            "Sparse"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PORTABLE_BATTERY_DEVICE_CHEMISTRY",
+        "Values": [
+            "PortableBatteryDeviceChemistryLeadAcid",
+            "PortableBatteryDeviceChemistryLithiumIon",
+            "PortableBatteryDeviceChemistryLithiumPolymer",
+            "PortableBatteryDeviceChemistryNickelCadmium",
+            "PortableBatteryDeviceChemistryNickelMetalHydride",
+            "PortableBatteryDeviceChemistryOther",
+            "PortableBatteryDeviceChemistryUnknown",
+            "PortableBatteryDeviceChemistryZincAir"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PROCESSOR_FAMILY2_DATA",
+        "Values": [
+            "ProcessorFamily6x86",
+            "ProcessorFamilyARM",
+            "ProcessorFamilyARMv7",
+            "ProcessorFamilyARMv8",
+            "ProcessorFamilyARMv9",
+            "ProcessorFamilyDSP",
+            "ProcessorFamilyDualCoreLoongson2K",
+            "ProcessorFamilyLoongArch",
+            "ProcessorFamilyLoongson1",
+            "ProcessorFamilyLoongson2",
+            "ProcessorFamilyLoongson2K",
+            "ProcessorFamilyLoongson3",
+            "ProcessorFamilyLoongson3A",
+            "ProcessorFamilyLoongson3B",
+            "ProcessorFamilyLoongson3C",
+            "ProcessorFamilyLoongson3D",
+            "ProcessorFamilyLoongson3E",
+            "ProcessorFamilyMII",
+            "ProcessorFamilyMediaGX",
+            "ProcessorFamilyMultiCoreLoongson3A",
+            "ProcessorFamilyMultiCoreLoongson3B",
+            "ProcessorFamilyMultiCoreLoongson3C",
+            "ProcessorFamilyMultiCoreLoongson3D",
+            "ProcessorFamilyQuadCoreLoongson3A",
+            "ProcessorFamilyQuadCoreLoongson3B",
+            "ProcessorFamilyRiscVRV128",
+            "ProcessorFamilyRiscVRV64",
+            "ProcessorFamilyRiscvRV32",
+            "ProcessorFamilySH3",
+            "ProcessorFamilySH4",
+            "ProcessorFamilyStrongARM",
+            "ProcessorFamilyVideoProcessor",
+            "ProcessorFamilyWinChip"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PROCESSOR_FAMILY_DATA",
+        "Values": [
+            "ProcessorFamily68000",
+            "ProcessorFamily68010",
+            "ProcessorFamily68020",
+            "ProcessorFamily68030",
+            "ProcessorFamily68040",
+            "ProcessorFamily68xxx",
+            "ProcessorFamily80286",
+            "ProcessorFamily80287",
+            "ProcessorFamily80387",
+            "ProcessorFamily80487",
+            "ProcessorFamily8086",
+            "ProcessorFamily8087",
+            "ProcessorFamilyAMDAthlonMP",
+            "ProcessorFamilyAMDAthlonXP",
+            "ProcessorFamilyAS400",
+            "ProcessorFamilyAlpha",
+            "ProcessorFamilyAlpha21064",
+            "ProcessorFamilyAlpha21066",
+            "ProcessorFamilyAlpha21164",
+            "ProcessorFamilyAlpha21164PC",
+            "ProcessorFamilyAlpha21164a",
+            "ProcessorFamilyAlpha21264",
+            "ProcessorFamilyAlpha21364",
+            "ProcessorFamilyAmd29000",
+            "ProcessorFamilyAmdASeries",
+            "ProcessorFamilyAmdAthlon",
+            "ProcessorFamilyAmdAthlon64",
+            "ProcessorFamilyAmdAthlon64X2DualCore",
+            "ProcessorFamilyAmdAthlonDualCore",
+            "ProcessorFamilyAmdAthlonII",
+            "ProcessorFamilyAmdAthlonIIDualCoreM",
+            "ProcessorFamilyAmdAthlonX2DualCore",
+            "ProcessorFamilyAmdAthlonX4QuadCore",
+            "ProcessorFamilyAmdCSeries",
+            "ProcessorFamilyAmdDuron",
+            "ProcessorFamilyAmdESeries",
+            "ProcessorFamilyAmdFireProSeries",
+            "ProcessorFamilyAmdFxSeries",
+            "ProcessorFamilyAmdGSeries",
+            "ProcessorFamilyAmdOpteron",
+            "ProcessorFamilyAmdOpteron3000Series",
+            "ProcessorFamilyAmdOpteron3300",
+            "ProcessorFamilyAmdOpteron4100Series",
+            "ProcessorFamilyAmdOpteron4200Series",
+            "ProcessorFamilyAmdOpteron4300",
+            "ProcessorFamilyAmdOpteron6100Series",
+            "ProcessorFamilyAmdOpteron6200Series",
+            "ProcessorFamilyAmdOpteron6300",
+            "ProcessorFamilyAmdOpteronASeries",
+            "ProcessorFamilyAmdOpteronX1000Series",
+            "ProcessorFamilyAmdOpteronX2000Series",
+            "ProcessorFamilyAmdOpteronX3000Series",
+            "ProcessorFamilyAmdPhenomFxQuadCore",
+            "ProcessorFamilyAmdPhenomII",
+            "ProcessorFamilyAmdPhenomTripleCore",
+            "ProcessorFamilyAmdPhenomX2DualCore",
+            "ProcessorFamilyAmdPhenomX4QuadCore",
+            "ProcessorFamilyAmdRSeries",
+            "ProcessorFamilyAmdSempron",
+            "ProcessorFamilyAmdSempronII",
+            "ProcessorFamilyAmdSempronM",
+            "ProcessorFamilyAmdSempronSI",
+            "ProcessorFamilyAmdTurion64Mobile",
+            "ProcessorFamilyAmdTurion64X2Mobile",
+            "ProcessorFamilyAmdTurionDualCoreMobile",
+            "ProcessorFamilyAmdTurionIIDualCoreMobileM",
+            "ProcessorFamilyAmdTurionIIUltraDualCoreMobileM",
+            "ProcessorFamilyAmdTurionUltraDualCoreMobile",
+            "ProcessorFamilyAmdZSeries",
+            "ProcessorFamilyAmdZen",
+            "ProcessorFamilyCeleron",
+            "ProcessorFamilyCrusoeTM3000",
+            "ProcessorFamilyCrusoeTM5000",
+            "ProcessorFamilyDualCoreAmdOpteron",
+            "ProcessorFamilyDualCoreIntelCeleron",
+            "ProcessorFamilyDualCoreIntelXeon3000Series",
+            "ProcessorFamilyDualCoreIntelXeon3Series",
+            "ProcessorFamilyDualCoreIntelXeon5000Series",
+            "ProcessorFamilyDualCoreIntelXeon5100Series",
+            "ProcessorFamilyDualCoreIntelXeon5200Series",
+            "ProcessorFamilyDualCoreIntelXeon5Series",
+            "ProcessorFamilyDualCoreIntelXeon7100Series",
+            "ProcessorFamilyDualCoreIntelXeon7200Series",
+            "ProcessorFamilyDualCoreIntelXeon7Series",
+            "ProcessorFamilyDualCoreIntelXeonLV",
+            "ProcessorFamilyDualCoreIntelXeonULV",
+            "ProcessorFamilyEfficeonTM8000",
+            "ProcessorFamilyEmbeddedAmdOpteronQuadCore",
+            "ProcessorFamilyG4",
+            "ProcessorFamilyG5",
+            "ProcessorFamilyG6",
+            "ProcessorFamilyHobbit",
+            "ProcessorFamilyIBM390",
+            "ProcessorFamilyIndicatorFamily2",
+            "ProcessorFamilyIntel386",
+            "ProcessorFamilyIntel486",
+            "ProcessorFamilyIntelAtom",
+            "ProcessorFamilyIntelCeleronD",
+            "ProcessorFamilyIntelCeleronM",
+            "ProcessorFamilyIntelCore2",
+            "ProcessorFamilyIntelCore2DuoMobile",
+            "ProcessorFamilyIntelCore2Extreme",
+            "ProcessorFamilyIntelCore2ExtremeMobile",
+            "ProcessorFamilyIntelCore2Quad",
+            "ProcessorFamilyIntelCore2Solo",
+            "ProcessorFamilyIntelCore2SoloMobile",
+            "ProcessorFamilyIntelCoreDuo",
+            "ProcessorFamilyIntelCoreDuoMobile",
+            "ProcessorFamilyIntelCoreI3",
+            "ProcessorFamilyIntelCoreI5",
+            "ProcessorFamilyIntelCoreI7",
+            "ProcessorFamilyIntelCoreI9",
+            "ProcessorFamilyIntelCoreM",
+            "ProcessorFamilyIntelCoreSolo",
+            "ProcessorFamilyIntelCoreSoloMobile",
+            "ProcessorFamilyIntelCorem3",
+            "ProcessorFamilyIntelCorem5",
+            "ProcessorFamilyIntelCorem7",
+            "ProcessorFamilyIntelItanium2",
+            "ProcessorFamilyIntelPentium4Ht",
+            "ProcessorFamilyIntelPentiumD",
+            "ProcessorFamilyIntelPentiumEx",
+            "ProcessorFamilyIntelPentiumM",
+            "ProcessorFamilyIntelXeon",
+            "ProcessorFamilyIntelXeonMP",
+            "ProcessorFamilyItanium",
+            "ProcessorFamilyK5",
+            "ProcessorFamilyK6",
+            "ProcessorFamilyK6_2",
+            "ProcessorFamilyK6_2Plus",
+            "ProcessorFamilyK6_3",
+            "ProcessorFamilyM1",
+            "ProcessorFamilyM2",
+            "ProcessorFamilyMIPSR10000",
+            "ProcessorFamilyMIPSR4000",
+            "ProcessorFamilyMIPSR4200",
+            "ProcessorFamilyMIPSR4400",
+            "ProcessorFamilyMIPSR4600",
+            "ProcessorFamilyMips",
+            "ProcessorFamilyMultiCoreIntelXeon",
+            "ProcessorFamilyMultiCoreIntelXeon3400Series",
+            "ProcessorFamilyMultiCoreIntelXeon7400Series",
+            "ProcessorFamilyMultiCoreIntelXeon7Series",
+            "ProcessorFamilyOther",
+            "ProcessorFamilyPARISC",
+            "ProcessorFamilyPaRisc7100",
+            "ProcessorFamilyPaRisc7100LC",
+            "ProcessorFamilyPaRisc7200",
+            "ProcessorFamilyPaRisc7300LC",
+            "ProcessorFamilyPaRisc8000",
+            "ProcessorFamilyPaRisc8500",
+            "ProcessorFamilyPentium",
+            "ProcessorFamilyPentium4",
+            "ProcessorFamilyPentiumII",
+            "ProcessorFamilyPentiumIII",
+            "ProcessorFamilyPentiumIIISpeedStep",
+            "ProcessorFamilyPentiumIIIXeon",
+            "ProcessorFamilyPentiumIIXeon",
+            "ProcessorFamilyPentiumMMX",
+            "ProcessorFamilyPentiumPro",
+            "ProcessorFamilyPowerPC",
+            "ProcessorFamilyPowerPC601",
+            "ProcessorFamilyPowerPC603",
+            "ProcessorFamilyPowerPC603Plus",
+            "ProcessorFamilyPowerPC604",
+            "ProcessorFamilyPowerPC620",
+            "ProcessorFamilyPowerPC750",
+            "ProcessorFamilyPowerPCx704",
+            "ProcessorFamilyQuadCoreAmdOpteron",
+            "ProcessorFamilyQuadCoreIntelXeon",
+            "ProcessorFamilyQuadCoreIntelXeon3200Series",
+            "ProcessorFamilyQuadCoreIntelXeon3Series",
+            "ProcessorFamilyQuadCoreIntelXeon5300Series",
+            "ProcessorFamilyQuadCoreIntelXeon5400Series",
+            "ProcessorFamilyQuadCoreIntelXeon5Series",
+            "ProcessorFamilyQuadCoreIntelXeon7300Series",
+            "ProcessorFamilyQuadCoreIntelXeon7400Series",
+            "ProcessorFamilyQuadCoreIntelXeon7Series",
+            "ProcessorFamilyReserved",
+            "ProcessorFamilyReserved1",
+            "ProcessorFamilySixCoreAmdOpteron",
+            "ProcessorFamilySparc",
+            "ProcessorFamilySuperSparc",
+            "ProcessorFamilyThirdGenerationAmdOpteron",
+            "ProcessorFamilyUltraSparc",
+            "ProcessorFamilyUltraSparcII",
+            "ProcessorFamilyUltraSparcIII",
+            "ProcessorFamilyUltraSparcIIIi",
+            "ProcessorFamilyUltraSparcIii",
+            "ProcessorFamilyUnknown",
+            "ProcessorFamilyV30",
+            "ProcessorFamilyViaC7",
+            "ProcessorFamilyViaC7D",
+            "ProcessorFamilyViaC7M",
+            "ProcessorFamilyViaEden",
+            "ProcessorFamilyViaNano",
+            "ProcessorFamilyWeitek",
+            "ProcessorFamilyi860",
+            "ProcessorFamilyi960",
+            "ProcessorFamilymicroSparcII",
+            "ProcessorFamilymicroSparcIIep",
+            "ProcessorFamilyzArchitecture"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PROCESSOR_SPECIFIC_BLOCK_ARCH_TYPE",
+        "Values": [
+            "ProcessorSpecificBlockArchTypeAarch32",
+            "ProcessorSpecificBlockArchTypeAarch64",
+            "ProcessorSpecificBlockArchTypeIa32",
+            "ProcessorSpecificBlockArchTypeItanium",
+            "ProcessorSpecificBlockArchTypeLoongArch32",
+            "ProcessorSpecificBlockArchTypeLoongArch64",
+            "ProcessorSpecificBlockArchTypeReserved",
+            "ProcessorSpecificBlockArchTypeRiscVRV128",
+            "ProcessorSpecificBlockArchTypeRiscVRV32",
+            "ProcessorSpecificBlockArchTypeRiscVRV64",
+            "ProcessorSpecificBlockArchTypeX64"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PROCESSOR_TYPE_DATA",
+        "Values": [
+            "CentralProcessor",
+            "DspProcessor",
+            "MathProcessor",
+            "ProcessorOther",
+            "ProcessorUnknown",
+            "VideoProcessor"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "PROCESSOR_UPGRADE",
+        "Values": [
+            "ProcessorSocketLGA1366",
+            "ProcessorUpgrade370PinSocket",
+            "ProcessorUpgradeAM2",
+            "ProcessorUpgradeDaughterBoard",
+            "ProcessorUpgradeF1207",
+            "ProcessorUpgradeLIFSocket",
+            "ProcessorUpgradeNone",
+            "ProcessorUpgradeOther",
+            "ProcessorUpgradePiggyBack",
+            "ProcessorUpgradeSlot1",
+            "ProcessorUpgradeSlot2",
+            "ProcessorUpgradeSlotA",
+            "ProcessorUpgradeSlotM",
+            "ProcessorUpgradeSocket423",
+            "ProcessorUpgradeSocket478",
+            "ProcessorUpgradeSocket754",
+            "ProcessorUpgradeSocket939",
+            "ProcessorUpgradeSocket940",
+            "ProcessorUpgradeSocketA",
+            "ProcessorUpgradeSocketAM3",
+            "ProcessorUpgradeSocketAM4",
+            "ProcessorUpgradeSocketBGA1023",
+            "ProcessorUpgradeSocketBGA1168",
+            "ProcessorUpgradeSocketBGA1211",
+            "ProcessorUpgradeSocketBGA1224",
+            "ProcessorUpgradeSocketBGA1234",
+            "ProcessorUpgradeSocketBGA1288",
+            "ProcessorUpgradeSocketBGA1356",
+            "ProcessorUpgradeSocketBGA1364",
+            "ProcessorUpgradeSocketBGA1392",
+            "ProcessorUpgradeSocketBGA1440",
+            "ProcessorUpgradeSocketBGA1510",
+            "ProcessorUpgradeSocketBGA1515",
+            "ProcessorUpgradeSocketBGA1528",
+            "ProcessorUpgradeSocketBGA1744",
+            "ProcessorUpgradeSocketBGA1781",
+            "ProcessorUpgradeSocketBGA2422",
+            "ProcessorUpgradeSocketBGA5773",
+            "ProcessorUpgradeSocketC32",
+            "ProcessorUpgradeSocketFM1",
+            "ProcessorUpgradeSocketFM2",
+            "ProcessorUpgradeSocketFS1",
+            "ProcessorUpgradeSocketFS2",
+            "ProcessorUpgradeSocketG34",
+            "ProcessorUpgradeSocketLGA1150",
+            "ProcessorUpgradeSocketLGA1151",
+            "ProcessorUpgradeSocketLGA1155",
+            "ProcessorUpgradeSocketLGA1156",
+            "ProcessorUpgradeSocketLGA1200",
+            "ProcessorUpgradeSocketLGA1211",
+            "ProcessorUpgradeSocketLGA1356",
+            "ProcessorUpgradeSocketLGA1356_3",
+            "ProcessorUpgradeSocketLGA1567",
+            "ProcessorUpgradeSocketLGA1700",
+            "ProcessorUpgradeSocketLGA2011",
+            "ProcessorUpgradeSocketLGA2011_3",
+            "ProcessorUpgradeSocketLGA2066",
+            "ProcessorUpgradeSocketLGA2422",
+            "ProcessorUpgradeSocketLGA3647_1",
+            "ProcessorUpgradeSocketLGA4189",
+            "ProcessorUpgradeSocketLGA4677",
+            "ProcessorUpgradeSocketLGA5773",
+            "ProcessorUpgradeSocketLGA771",
+            "ProcessorUpgradeSocketLGA775",
+            "ProcessorUpgradeSocketPGA988A",
+            "ProcessorUpgradeSocketS1",
+            "ProcessorUpgradeSocketSP3",
+            "ProcessorUpgradeSocketSP3r2",
+            "ProcessorUpgradeSocketmPGA604",
+            "ProcessorUpgradeSocketrPGA988B",
+            "ProcessorUpgradeUnknown",
+            "ProcessorUpgradeZIFSocket"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/BaseLib.h",
+        "Name": "PVALIDATE_PAGE_SIZE",
+        "Values": [
+            "PvalidatePageSize2MB",
+            "PvalidatePageSize4K"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.h",
+        "Name": "PXEBC_OFFER_TYPE",
+        "Values": [
+            "PxeOfferTypeBootp",
+            "PxeOfferTypeDhcpBinl",
+            "PxeOfferTypeDhcpOnly",
+            "PxeOfferTypeDhcpPxe10",
+            "PxeOfferTypeDhcpWfm11a",
+            "PxeOfferTypeMax",
+            "PxeOfferTypeProxyBinl",
+            "PxeOfferTypeProxyPxe10",
+            "PxeOfferTypeProxyWfm11a"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/SimicsVideoDxe/Simics.h",
+        "Name": "QEMU_VIDEO_VARIANT",
+        "Values": [
+            "QEMU_VIDEO_BOCHS",
+            "QEMU_VIDEO_BOCHS_MMIO",
+            "QEMU_VIDEO_CIRRUS_5430",
+            "QEMU_VIDEO_CIRRUS_5446"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Comp.c",
+        "Name": "READ_STATUS",
+        "Values": [
+            "InDiffPoint",
+            "InPrevDiffPoint",
+            "OutOfDiffPoint"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.c",
+        "Name": "RED_BLACK_TREE_COLOR",
+        "Values": [
+            "RedBlackTreeBlack",
+            "RedBlackTreeRed"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Include/AcpiCpuData.h",
+        "Name": "REGISTER_TYPE",
+        "Values": [
+            "CacheControl",
+            "ControlRegister",
+            "InvalidReg",
+            "MemoryMapped",
+            "Msr",
+            "Semaphore"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostResource.h",
+        "Name": "RES_STATUS",
+        "Values": [
+            "ResAllocated",
+            "ResNone",
+            "ResStatusMax",
+            "ResSubmitted"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Register/Intel/ArchitecturalMsr.h",
+        "Name": "RTIT_TOPA_MEMORY_SIZE",
+        "Values": [
+            "RtitTopaMemorySize128K",
+            "RtitTopaMemorySize128M",
+            "RtitTopaMemorySize16K",
+            "RtitTopaMemorySize16M",
+            "RtitTopaMemorySize1M",
+            "RtitTopaMemorySize256K",
+            "RtitTopaMemorySize2M",
+            "RtitTopaMemorySize32K",
+            "RtitTopaMemorySize32M",
+            "RtitTopaMemorySize4K",
+            "RtitTopaMemorySize4M",
+            "RtitTopaMemorySize512K",
+            "RtitTopaMemorySize64K",
+            "RtitTopaMemorySize64M",
+            "RtitTopaMemorySize8K",
+            "RtitTopaMemorySize8M"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/S3BootScriptLib.h",
+        "Name": "S3_BOOT_SCRIPT_LIB_WIDTH",
+        "Values": [
+            "S3BootScriptWidthFifoUint16",
+            "S3BootScriptWidthFifoUint32",
+            "S3BootScriptWidthFifoUint64",
+            "S3BootScriptWidthFifoUint8",
+            "S3BootScriptWidthFillUint16",
+            "S3BootScriptWidthFillUint32",
+            "S3BootScriptWidthFillUint64",
+            "S3BootScriptWidthFillUint8",
+            "S3BootScriptWidthMaximum",
+            "S3BootScriptWidthUint16",
+            "S3BootScriptWidthUint32",
+            "S3BootScriptWidthUint64",
+            "S3BootScriptWidthUint8"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AhciMode.h",
+        "Name": "SATA_FIS_TYPE",
+        "Values": [
+            "SataFisD2H",
+            "SataFisDmaSetup",
+            "SataFisPioSetup"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Library/ShellCommandLib.h",
+        "Name": "SHELL_MAPPING_TYPE",
+        "Values": [
+            "MappingTypeBlockIo",
+            "MappingTypeFileSystem",
+            "MappingTypeMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/Mm.c",
+        "Name": "SHELL_MM_ACCESS_TYPE",
+        "Values": [
+            "ShellMmIo",
+            "ShellMmMemory",
+            "ShellMmMemoryMappedIo",
+            "ShellMmPci",
+            "ShellMmPciExpress"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/ShellParametersProtocol.h",
+        "Name": "SHELL_OPERATION_TYPES",
+        "Values": [
+            "Efi_Application",
+            "File_Sys_Change",
+            "Internal_Command",
+            "Script_File_Name",
+            "Unknown_Invalid"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Library/ShellLib.h",
+        "Name": "SHELL_PARAM_TYPE",
+        "Values": [
+            "TypeDoubleValue",
+            "TypeFlag",
+            "TypeMax",
+            "TypeMaxValue",
+            "TypePosition",
+            "TypeStart",
+            "TypeTimeValue",
+            "TypeValue"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Library/ShellLib.h",
+        "Name": "SHELL_PROMPT_REQUEST_TYPE",
+        "Values": [
+            "ShellPromptResponseTypeAnyKeyContinue",
+            "ShellPromptResponseTypeEnterContinue",
+            "ShellPromptResponseTypeFreeform",
+            "ShellPromptResponseTypeMax",
+            "ShellPromptResponseTypeQuitContinue",
+            "ShellPromptResponseTypeYesNo",
+            "ShellPromptResponseTypeYesNoAllCancel",
+            "ShellPromptResponseTypeYesNoCancel"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Library/ShellLib.h",
+        "Name": "SHELL_PROMPT_RESPONSE",
+        "Values": [
+            "ShellPromptResponseAll",
+            "ShellPromptResponseCancel",
+            "ShellPromptResponseContinue",
+            "ShellPromptResponseMax",
+            "ShellPromptResponseNo",
+            "ShellPromptResponseQuit",
+            "ShellPromptResponseYes"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Include/Library/ShellCommandLib.h",
+        "Name": "SHELL_SORT_FILE_LIST",
+        "Values": [
+            "ShellSortFileListByFileName",
+            "ShellSortFileListByFullName",
+            "ShellSortFileListMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/Shell.h",
+        "Name": "SHELL_STATUS",
+        "Values": [
+            "SHELL_ABORTED",
+            "SHELL_ACCESS_DENIED",
+            "SHELL_ALREADY_STARTED",
+            "SHELL_BAD_BUFFER_SIZE",
+            "SHELL_BUFFER_TOO_SMALL",
+            "SHELL_DEVICE_ERROR",
+            "SHELL_INCOMPATIBLE_VERSION",
+            "SHELL_INVALID_PARAMETER",
+            "SHELL_LOAD_ERROR",
+            "SHELL_MEDIA_CHANGED",
+            "SHELL_NOT_EQUAL",
+            "SHELL_NOT_FOUND",
+            "SHELL_NOT_READY",
+            "SHELL_NOT_STARTED",
+            "SHELL_NO_MEDIA",
+            "SHELL_OUT_OF_RESOURCES",
+            "SHELL_SECURITY_VIOLATION",
+            "SHELL_SUCCESS",
+            "SHELL_TIMEOUT",
+            "SHELL_UNSUPPORTED",
+            "SHELL_VOLUME_CORRUPTED",
+            "SHELL_VOLUME_FULL",
+            "SHELL_WRITE_PROTECTED"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Guid/SmiHandlerProfile.h",
+        "Name": "SMM_CORE_SMI_HANDLER_CATEGORY",
+        "Values": [
+            "SmmCoreSmiHandlerCategoryGuidHandler",
+            "SmmCoreSmiHandlerCategoryHardwareHandler",
+            "SmmCoreSmiHandlerCategoryRootHandler"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/CpuService.h",
+        "Name": "SMM_CPU_OPERATION",
+        "Values": [
+            "SmmCpuAdd",
+            "SmmCpuNone",
+            "SmmCpuRemove",
+            "SmmCpuSwitchBsp"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Name": "SMM_CPU_SYNC_MODE",
+        "Values": [
+            "SmmCpuSyncModeMax",
+            "SmmCpuSyncModeRelaxedAp",
+            "SmmCpuSyncModeTradition"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Include/Library/SmmCpuPlatformHookLib.h",
+        "Name": "SMM_PAGE_SIZE_TYPE",
+        "Values": [
+            "MaxSmmPageSizeType",
+            "SmmPageSize1G",
+            "SmmPageSize2M",
+            "SmmPageSize4K"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Name": "SMM_POOL_TYPE",
+        "Values": [
+            "SmmPoolTypeCode",
+            "SmmPoolTypeData",
+            "SmmPoolTypeMax"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/Include/Library/SmmCpuFeaturesLib.h",
+        "Name": "SMM_REG_NAME",
+        "Values": [
+            "SmmRegFeatureControl",
+            "SmmRegSmmBlocked",
+            "SmmRegSmmDelayed",
+            "SmmRegSmmEnable"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/TcpDxe/Socket.h",
+        "Name": "SOCK_TYPE",
+        "Values": [
+            "SockDgram",
+            "SockStream"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/ShellManParser.c",
+        "Name": "STATEVALUES",
+        "Values": [
+            "CompareCommands",
+            "Final",
+            "GetBriefDescription",
+            "LookForCommandName",
+            "LookForThMacro"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBios.h",
+        "Name": "STRING_PROPERTY_ID",
+        "Values": [
+            "StringPropertyIdBiosVendor",
+            "StringPropertyIdDevicePath",
+            "StringPropertyIdNone",
+            "StringPropertyIdOem",
+            "StringPropertyIdReserved"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Name": "TERMINAL_TYPE",
+        "Values": [
+            "TerminalTypeLinux",
+            "TerminalTypePcAnsi",
+            "TerminalTypeSCO",
+            "TerminalTypeTtyTerm",
+            "TerminalTypeVt100",
+            "TerminalTypeVt100Plus",
+            "TerminalTypeVt400",
+            "TerminalTypeVtUtf8",
+            "TerminalTypeXtermR6"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tls1.h",
+        "Name": "TLS_CONTENT_TYPE",
+        "Values": [
+            "TlsContentTypeAlert",
+            "TlsContentTypeApplicationData",
+            "TlsContentTypeChangeCipherSpec",
+            "TlsContentTypeHandshake"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tls1.h",
+        "Name": "TLS_EC_NAMED_CURVE",
+        "Values": [
+            "TlsEcNamedCurveSecp256r1",
+            "TlsEcNamedCurveSecp384r1",
+            "TlsEcNamedCurveSecp521r1",
+            "TlsEcNamedCurveX25519",
+            "TlsEcNamedCurveX448"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tls1.h",
+        "Name": "TLS_HASH_ALGO",
+        "Values": [
+            "TlsHashAlgoMd5",
+            "TlsHashAlgoNone",
+            "TlsHashAlgoSha1",
+            "TlsHashAlgoSha224",
+            "TlsHashAlgoSha256",
+            "TlsHashAlgoSha384",
+            "TlsHashAlgoSha512"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tls1.h",
+        "Name": "TLS_SIGNATURE_ALGO",
+        "Values": [
+            "TlsSignatureAlgoAnonymous",
+            "TlsSignatureAlgoDsa",
+            "TlsSignatureAlgoEcdsa",
+            "TlsSignatureAlgoRsa"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Udf.h",
+        "Name": "UDF_VOLUME_DESCRIPTOR_ID",
+        "Values": [
+            "UdfAllocationExtentDescriptor",
+            "UdfAnchorVolumeDescriptorPointer",
+            "UdfExtendedFileEntry",
+            "UdfFileEntry",
+            "UdfFileIdentifierDescriptor",
+            "UdfFileSetDescriptor",
+            "UdfImplemenationUseVolumeDescriptor",
+            "UdfLogicalVolumeDescriptor",
+            "UdfLogicalVolumeIntegrityDescriptor",
+            "UdfPartitionDescriptor",
+            "UdfPrimaryVolumeDescriptor",
+            "UdfTerminatingDescriptor",
+            "UdfUnallocatedSpaceDescriptor",
+            "UdfVolumeDescriptorPointer"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/UgaIo.h",
+        "Name": "UGA_DEVICE_TYPE",
+        "Values": [
+            "UgaDtGraphicsController",
+            "UgaDtOther",
+            "UgaDtOutputController",
+            "UgaDtOutputPort",
+            "UgaDtParentBus"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/UgaIo.h",
+        "Name": "UGA_IO_REQUEST_CODE",
+        "Values": [
+            "UgaIoBtPrivateInterface",
+            "UgaIoCopyRectangle",
+            "UgaIoDeviceChannelClose",
+            "UgaIoDeviceChannelOpen",
+            "UgaIoDeviceChannelRead",
+            "UgaIoDeviceChannelWrite",
+            "UgaIoFlushDevice",
+            "UgaIoGetChildDevice",
+            "UgaIoGetDeviceProperty",
+            "UgaIoGetDevicePropertySize",
+            "UgaIoGetDeviceState",
+            "UgaIoGetEdidSegment",
+            "UgaIoGetMemoryConfiguration",
+            "UgaIoGetPersistentData",
+            "UgaIoGetPersistentDataSize",
+            "UgaIoGetVersion",
+            "UgaIoResetDevice",
+            "UgaIoSetDeviceState",
+            "UgaIoSetPersistentData",
+            "UgaIoSetPowerState",
+            "UgaIoSetVideoMode",
+            "UgaIoStartDevice",
+            "UgaIoStopDevice"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/DisplayEngineDxe/FormDisplay.h",
+        "Name": "UI_CONTROL_FLAG",
+        "Values": [
+            "CfCheckSelection",
+            "CfExit",
+            "CfInitialization",
+            "CfMaxControlFlag",
+            "CfPrepareToReadKey",
+            "CfReadKey",
+            "CfRefreshHighLight",
+            "CfRepaint",
+            "CfScreenOperation",
+            "CfUiDown",
+            "CfUiHotKey",
+            "CfUiLeft",
+            "CfUiNoOperation",
+            "CfUiPageDown",
+            "CfUiPageUp",
+            "CfUiReset",
+            "CfUiRight",
+            "CfUiSelect",
+            "CfUiUp",
+            "CfUpdateHelpString"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/DisplayEngineDxe/FormDisplay.h",
+        "Name": "UI_EVENT_TYPE",
+        "Values": [
+            "UIEventDriver",
+            "UIEventKey",
+            "UIEventNone",
+            "UIEventTimeOut"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/DisplayEngineDxe/FormDisplay.h",
+        "Name": "UI_SCREEN_OPERATION",
+        "Values": [
+            "UiDown",
+            "UiHotKey",
+            "UiLeft",
+            "UiMaxOperation",
+            "UiNoOperation",
+            "UiPageDown",
+            "UiPageUp",
+            "UiPrevious",
+            "UiReset",
+            "UiRight",
+            "UiSelect",
+            "UiUp"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Usb.h",
+        "Name": "USB_TYPES_DEFINITION",
+        "Values": [
+            "EFI_USB_INTERRUPT_DELAY",
+            "USB_DESC_TYPE_CONFIG",
+            "USB_DESC_TYPE_DEVICE",
+            "USB_DESC_TYPE_ENDPOINT",
+            "USB_DESC_TYPE_HID",
+            "USB_DESC_TYPE_INTERFACE",
+            "USB_DESC_TYPE_REPORT",
+            "USB_DESC_TYPE_STRING",
+            "USB_ENDPOINT_BULK",
+            "USB_ENDPOINT_CONTROL",
+            "USB_ENDPOINT_DIR_IN",
+            "USB_ENDPOINT_INTERRUPT",
+            "USB_ENDPOINT_ISO",
+            "USB_ENDPOINT_TYPE_MASK",
+            "USB_FEATURE_ENDPOINT_HALT",
+            "USB_REQ_CLEAR_FEATURE",
+            "USB_REQ_GET_CONFIG",
+            "USB_REQ_GET_DESCRIPTOR",
+            "USB_REQ_GET_INTERFACE",
+            "USB_REQ_GET_STATUS",
+            "USB_REQ_SET_ADDRESS",
+            "USB_REQ_SET_CONFIG",
+            "USB_REQ_SET_DESCRIPTOR",
+            "USB_REQ_SET_FEATURE",
+            "USB_REQ_SET_INTERFACE",
+            "USB_REQ_SYNCH_FRAME",
+            "USB_REQ_TYPE_CLASS",
+            "USB_REQ_TYPE_STANDARD",
+            "USB_REQ_TYPE_VENDOR",
+            "USB_TARGET_DEVICE",
+            "USB_TARGET_ENDPOINT",
+            "USB_TARGET_INTERFACE",
+            "USB_TARGET_OTHER"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Guid/VariableFormat.h",
+        "Name": "VARIABLE_STORE_STATUS",
+        "Values": [
+            "EfiInvalid",
+            "EfiRaw",
+            "EfiUnknown",
+            "EfiValid"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h",
+        "Name": "VARIABLE_STORE_TYPE",
+        "Values": [
+            "VariableStoreTypeHob",
+            "VariableStoreTypeMax",
+            "VariableStoreTypeNv",
+            "VariableStoreTypeVolatile"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellNetwork2CommandsLib/Ifconfig6.c",
+        "Name": "VAR_CHECK_CODE",
+        "Values": [
+            "VarCheckConflict",
+            "VarCheckDuplicate",
+            "VarCheckLackValue",
+            "VarCheckOk",
+            "VarCheckOutOfMem",
+            "VarCheckReserved",
+            "VarCheckUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellNetwork2CommandsLib/Ifconfig6.c",
+        "Name": "VAR_CHECK_FLAG_TYPE",
+        "Values": [
+            "FlagTypeNeedSet",
+            "FlagTypeNeedVar",
+            "FlagTypeSingle",
+            "FlagTypeSkipUnknown"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Include/Library/VarCheckLib.h",
+        "Name": "VAR_CHECK_REQUEST_SOURCE",
+        "Values": [
+            "VarCheckFromTrusted",
+            "VarCheckFromUntrusted",
+            "VarCheckRequestReserved0",
+            "VarCheckRequestReserved1"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/XhciReg.h",
+        "Name": "XHC_PORT_FEATURE",
+        "Values": [
+            "Usb3PortBHPortReset",
+            "Usb3PortBHPortResetChange"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+        "Name": "__VERIFY_UINT16_ENUM_SIZE",
+        "Values": [
+            "__VerifyUint16EnumValue"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+        "Name": "__VERIFY_UINT32_ENUM_SIZE",
+        "Values": [
+            "__VerifyUint32EnumValue"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+        "Name": "__VERIFY_UINT8_ENUM_SIZE",
+        "Values": [
+            "__VerifyUint8EnumValue"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Protocol/EapManagement.h",
+        "Name": "enum _EFI_EAPOL_SUPPLICANT_PAE_STATE",
+        "Values": [
+            "Acquired",
+            "Authenticated",
+            "Authenticating",
+            "Connecting",
+            "Disconnected",
+            "Held",
+            "Logoff",
+            "MaxSupplicantPaeState"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/SmBus.h",
+        "Name": "enum _EFI_SMBUS_OPERATION",
+        "Values": [
+            "EfiSmbusBWBRProcessCall",
+            "EfiSmbusProcessCall",
+            "EfiSmbusQuickRead",
+            "EfiSmbusQuickWrite",
+            "EfiSmbusReadBlock",
+            "EfiSmbusReadByte",
+            "EfiSmbusReadWord",
+            "EfiSmbusReceiveByte",
+            "EfiSmbusSendByte",
+            "EfiSmbusWriteBlock",
+            "EfiSmbusWriteByte",
+            "EfiSmbusWriteWord"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/BootMaintenanceManagerUiLib/BootMaintenanceManager.h",
+        "Name": "enum _TYPE_OF_TERMINAL",
+        "Values": [
+            "TerminalTypeLinux",
+            "TerminalTypePcAnsi",
+            "TerminalTypeSCO",
+            "TerminalTypeTtyTerm",
+            "TerminalTypeVt100",
+            "TerminalTypeVt100Plus",
+            "TerminalTypeVt400",
+            "TerminalTypeVtUtf8",
+            "TerminalTypeXtermR6"
+        ]
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tpm12.h",
+        "Name": "enum tdTPM_KEY_FLAGS",
+        "Values": [
+            "isVolatile",
+            "migratable",
+            "migrateAuthority",
+            "pcrIgnoredOnRead",
+            "redirection"
+        ]
+    }
+]

@@ -1,0 +1,298 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "PassThru",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_COMMAND_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "PassThru",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_COMMAND_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "GetNextNamespace",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "GetNextNamespace",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "GetNamespace",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "GetNamespace",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "BuildDevicePath",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h",
+        "Function": "BuildDevicePath",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpress.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_NVM_EXPRESS_PASS_THRU_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NamespaceId"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

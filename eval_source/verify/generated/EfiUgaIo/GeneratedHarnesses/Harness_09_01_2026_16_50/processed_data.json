@@ -1,0 +1,140 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_UGA_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_UGA_IO_PROTOCOL *",
+                    "Usage": "gEfiUgaIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UGA_DEVICE *",
+                    "Assignment": "NULL",
+                    "Data Type": "UGA_DEVICE *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UGA_DEVICE_DATA *",
+                    "Assignment": "NULL",
+                    "Data Type": "UGA_DEVICE_DATA *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UGA_DEVICE * *",
+                    "Assignment": "",
+                    "Data Type": "UGA_DEVICE * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "CreateDevice",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UgaIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_UGA_IO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_UGA_IO_PROTOCOL *",
+                    "Usage": "gEfiUgaIoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UGA_DEVICE *",
+                    "Assignment": "NULL",
+                    "Data Type": "UGA_DEVICE *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "DeleteDevice",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UgaIo.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "PUGA_DEVICE",
+                    "Assignment": "",
+                    "Data Type": "PUGA_DEVICE",
+                    "Usage": "gEfiUgaIoProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "PUGA_IO_REQUEST",
+                    "Assignment": "",
+                    "Data Type": "PUGA_IO_REQUEST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "DispatchService",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UgaIo.h"
+        ],
+        "return_type": "UGA_STATUS"
+    }
+]

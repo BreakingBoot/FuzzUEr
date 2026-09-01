@@ -1,0 +1,574 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpConfigData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpConfigData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "Flush",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "Flush",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Delete",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Delete",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Add",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DenyFlag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetHwAddress"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutValue"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Overwrite"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Add",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DenyFlag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetHwAddress"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutValue"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Overwrite"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Find",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BySwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressBuffer"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryLength"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryCount"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_ARP_FIND_DATA **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Entries"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Refresh"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Find",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BySwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressBuffer"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryLength"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryCount"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_ARP_FIND_DATA **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Entries"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Refresh"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Request",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResolvedEvent"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetHwAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Request",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResolvedEvent"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetHwAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Cancel",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResolvedEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h",
+        "Function": "Cancel",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ARP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TargetSwAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResolvedEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

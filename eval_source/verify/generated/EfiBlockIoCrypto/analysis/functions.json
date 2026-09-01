@@ -1,0 +1,96 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "FlushBlocks",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "FlushBlocks",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

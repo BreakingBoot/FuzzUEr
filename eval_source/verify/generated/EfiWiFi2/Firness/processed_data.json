@@ -1,0 +1,104 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Usage": "gEfiWiFi2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_80211_GET_NETWORKS_TOKEN *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_80211_GET_NETWORKS_TOKEN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetNetworks",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/WiFi2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Usage": "gEfiWiFi2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_80211_CONNECT_NETWORK_TOKEN *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_80211_CONNECT_NETWORK_TOKEN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ConnectNetwork",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/WiFi2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_WIRELESS_MAC_CONNECTION_II_PROTOCOL *",
+                    "Usage": "gEfiWiFi2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_80211_DISCONNECT_NETWORK_TOKEN *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_80211_DISCONNECT_NETWORK_TOKEN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "DisconnectNetwork",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/WiFi2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

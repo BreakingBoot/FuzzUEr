@@ -1,0 +1,48 @@
+protocol,edges,runtime,corpus,objectives,executions,exec_per_sec,solutions,samples,reached_harness
+EdkiiFormBrowserEx,4434,0h-4m-9s,42,0,545,2.224,0,38,True
+EdkiiFormBrowserEx2,8401,0h-9m-51s,63,2,1192,2.033,0,58,True
+EdkiiFormDisplayEngine,5669,0h-9m-54s,60,1,1219,2.068,0,58,True
+EdkiiIoMmu,5399,0h-4m-21s,47,0,513,2.0,0,42,True
+EdkiiPeCoffImageEmulator,3012,0h-0m-42s,10,0,109,2.931,0,8,True
+EdkiiSmmMemoryAttribute,8475,0h-10m-1s,63,3,1163,1.952,0,63,True
+EdkiiUfsHostController,4587,0h-8m-17s,63,0,1018,2.069,0,56,True
+EdkiiVarCheck,5595,0h-8m-29s,55,1,1056,2.093,0,53,True
+EdkiiVariablePolicy,8401,0h-8m-51s,61,1,1049,1.994,0,59,True
+EdkiiWiFiProfileSync,4558,0h-0m-43s,13,0,103,2.723,0,10,True
+EfiAcpiSdt,5179,0h-9m-2s,56,0,1126,2.098,0,52,True
+EfiAdapterInformation,5380,0h-4m-1s,43,0,515,2.174,0,39,True
+EfiArp,4018,0h-1m-41s,28,0,229,2.383,0,23,True
+EfiAtaPassThru,5654,0h-9m-45s,66,2,1253,2.161,0,64,True
+EfiBis,4961,0h-1m-52s,33,0,250,2.316,0,28,True
+EfiBlockIo,5655,0h-8m-28s,59,1,1007,2.002,0,55,True
+EfiBlockIo2,7753,0h-1m-7s,29,1,154,2.488,0,23,True
+EfiBlockIoCrypto,5345,0h-6m-30s,52,0,772,2.0,0,50,True
+EfiBluetoothAttribute,5505,0h-7m-10s,56,0,897,2.105,0,51,True
+EfiBluetoothConfig,5566,0h-9m-25s,60,0,1173,2.093,0,53,True
+EfiBluetoothHc,5323,0h-9m-55s,58,0,1253,2.122,0,51,True
+EfiBluetoothIo,5560,0h-9m-40s,63,0,1191,2.07,0,58,True
+EfiBluetoothLeConfig,8363,0h-5m-57s,57,2,723,2.051,0,54,True
+EfiCcMeasurement,4503,0h-5m-18s,47,0,642,2.05,0,43,True
+EfiCpuArch,5490,0h-8m-28s,46,1,926,1.841,0,46,True
+EfiDebugPort,8400,0h-8m-49s,61,2,920,1.757,0,58,True
+EfiDebugSupport,3668,0h-0m-39s,12,0,82,2.392,0,10,True
+EfiDeviceIo,6089,0h-9m-26s,53,0,964,1.718,0,49,True
+EfiDevicePathUtilities,5606,0h-9m-5s,54,2,918,1.699,0,55,True
+EfiDhcp4,5402,0h-6m-25s,48,0,729,1.921,0,44,True
+EfiDhcp6,8309,0h-8m-9s,58,1,858,1.775,0,58,True
+EfiDiskInfo,4678,0h-8m-25s,57,1,921,1.841,0,57,True
+EfiDiskIo2,8068,0h-8m-10s,43,2,736,1.518,0,43,True
+EfiDns4,5523,0h-9m-57s,52,4,923,1.561,0,54,True
+EfiDns6,5434,0h-8m-56s,55,0,772,1.457,0,51,True
+EfiDriverBinding,5527,0h-9m-48s,55,0,843,1.449,0,52,True
+EfiDriverConfiguration,4587,0h-7m-42s,54,0,680,1.491,0,52,True
+EfiDriverConfiguration2,8284,0h-7m-55s,54,0,718,1.531,0,53,True
+EfiEapManagement,5530,0h-8m-23s,50,2,728,1.465,0,50,True
+EfiEbc,8134,0h-9m-1s,52,1,823,1.541,0,50,True
+EfiEbcSimpleDebugger,,,,,,,,,no run
+EfiEbcVmTest,,,,,,,,,no run
+EfiExtScsiPassThru,,,,,,,,,no run
+EfiFaultTolerantWrite,,,,,,,,,no run
+EfiFirmwareManagement,,,,,,,,,no run
+EfiFirmwareVolume2,,,,,,,,,no run
+EfiFirmwareVolumeBlock,,,,,,,,,no run

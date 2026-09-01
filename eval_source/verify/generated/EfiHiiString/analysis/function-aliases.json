@@ -1,0 +1,26 @@
+[
+    {
+        "Aliases": [
+            "HiiGetLanguages"
+        ],
+        "Function": "GetLanguages"
+    },
+    {
+        "Aliases": [
+            "HiiGetSecondaryLanguages"
+        ],
+        "Function": "GetSecondaryLanguages"
+    },
+    {
+        "Aliases": [
+            "HiiGetString"
+        ],
+        "Function": "GetString"
+    },
+    {
+        "Aliases": [
+            "HiiNewString"
+        ],
+        "Function": "NewString"
+    }
+]

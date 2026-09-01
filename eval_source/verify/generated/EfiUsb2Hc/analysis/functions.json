@@ -1,0 +1,1810 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2Keyboard.h",
+        "Function": "SetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2Keyboard.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_TOGGLE_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyToggleState"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2Keyboard.h",
+        "Function": "SetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2Keyboard.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_TOGGLE_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyToggleState"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_USB_HC_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "State"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_USB_HC_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "State"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetCapability",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxSpeed"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Is64BitCapable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetCapability",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxSpeed"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Is64BitCapable"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetRootHubPortStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_USB_PORT_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "GetRootHubPortStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_USB_PORT_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "SetRootHubPortFeature",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_PORT_FEATURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortFeature"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "SetRootHubPortFeature",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_PORT_FEATURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortFeature"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "ClearRootHubPortFeature",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_PORT_FEATURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortFeature"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "ClearRootHubPortFeature",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_PORT_FEATURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PortFeature"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "ControlTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_DEVICE_REQUEST *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Request"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_DATA_DIRECTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferDirection"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "ControlTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_DEVICE_REQUEST *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Request"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_DATA_DIRECTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferDirection"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "BulkTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_11": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "BulkTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_11": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "AsyncInterruptTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ASYNC_USB_TRANSFER_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CallBackFunction"
+            },
+            "Arg_11": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsNewTransfer"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PollingInterval"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "AsyncInterruptTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ASYNC_USB_TRANSFER_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CallBackFunction"
+            },
+            "Arg_11": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsNewTransfer"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PollingInterval"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "SyncInterruptTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "SyncInterruptTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_7": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataToggle"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeOut"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "IsochronousTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_9": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "IsochronousTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_9": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TransferResult"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "AsyncIsochronousTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ASYNC_USB_TRANSFER_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsochronousCallBack"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c",
+        "Function": "AsyncIsochronousTransfer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/Uhci.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndPointAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceSpeed"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaximumPacketLength"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffersNumber"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataLength"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_TRANSACTION_TRANSLATOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Translator"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_ASYNC_USB_TRANSFER_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsochronousCallBack"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

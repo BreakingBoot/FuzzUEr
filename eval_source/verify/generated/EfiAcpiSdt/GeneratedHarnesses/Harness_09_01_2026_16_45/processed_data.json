@@ -1,0 +1,392 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_SDT_HEADER * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_SDT_HEADER * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_TABLE_VERSION *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_TABLE_VERSION *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetAcpiTable",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_ACPI_NOTIFICATION_FN",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_NOTIFICATION_FN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegisterNotify",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "Open",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "OpenSdt",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ACPI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "Close",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ACPI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_ACPI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetChild",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ACPI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_DATA_TYPE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_DATA_TYPE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "",
+                    "Data Type": "VOID * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetOption",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ACPI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetOption",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_ACPI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE",
+                    "Usage": "gEfiAcpiSdtProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_ACPI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_ACPI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FindPath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/AcpiSystemDescriptionTable.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

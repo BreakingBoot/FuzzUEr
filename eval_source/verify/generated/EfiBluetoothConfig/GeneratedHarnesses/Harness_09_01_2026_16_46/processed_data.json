@@ -1,0 +1,544 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Init",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_SCAN_CALLBACK_FUNCTION",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_SCAN_CALLBACK_FUNCTION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Scan",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BLUETOOTH_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "BLUETOOTH_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Connect",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BLUETOOTH_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "BLUETOOTH_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Disconnect",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetData",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetData",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_DATA_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BLUETOOTH_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "BLUETOOTH_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetRemoteData",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_REGISTER_PIN_CALLBACK_FUNCTION",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_REGISTER_PIN_CALLBACK_FUNCTION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RegisterPinCallback",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_REGISTER_GET_LINK_KEY_CALLBACK_FUNCTION",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_REGISTER_GET_LINK_KEY_CALLBACK_FUNCTION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RegisterGetLinkKeyCallback",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_REGISTER_SET_LINK_KEY_CALLBACK_FUNCTION",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_REGISTER_SET_LINK_KEY_CALLBACK_FUNCTION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RegisterSetLinkKeyCallback",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiBluetoothConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLUETOOTH_CONFIG_REGISTER_CONNECT_COMPLETE_CALLBACK_FUNCTION",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLUETOOTH_CONFIG_REGISTER_CONNECT_COMPLETE_CALLBACK_FUNCTION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RegisterLinkConnectCompleteCallback",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BluetoothConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

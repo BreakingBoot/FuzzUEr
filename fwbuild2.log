@@ -1,0 +1,7 @@
+BIOS_RC=1
+ BINARY_CACHE_CMD_LINE =  None 
+==========================================
+Calling build -n 0 --log=Build.log --report-file=BuildReport.log
+ The EDKII BIOS Build has failed!
+-rw-r--r-- 1 root root 16777216 Aug 27 16:26 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd
+copied to /out

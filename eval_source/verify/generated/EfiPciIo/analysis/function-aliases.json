@@ -1,0 +1,95 @@
+[
+    {
+        "Aliases": [
+            "PciIoAllocateBuffer",
+            "RootBridgeIoAllocateBuffer"
+        ],
+        "Function": "AllocateBuffer"
+    },
+    {
+        "Aliases": [
+            "Attributes",
+            "NewPciRootBridgeAttributes",
+            "PciIoAttributes"
+        ],
+        "Function": "Attributes"
+    },
+    {
+        "Aliases": [
+            "PciIoCopyMem",
+            "PciIoIoRead",
+            "PciIoIoWrite",
+            "PciIoMemRead",
+            "PciIoMemWrite",
+            "RootBridgeIoCopyMem"
+        ],
+        "Function": "CopyMem"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4Poll",
+            "EfiMtftp6Poll",
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "PciIoFlush",
+            "RootBridgeIoFlush",
+            "UsbIoPortReset"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "PciIoFreeBuffer",
+            "RootBridgeIoFreeBuffer"
+        ],
+        "Function": "FreeBuffer"
+    },
+    {
+        "Aliases": [
+            "PciIoGetBarAttributes"
+        ],
+        "Function": "GetBarAttributes"
+    },
+    {
+        "Aliases": [
+            "PciIoGetLocation"
+        ],
+        "Function": "GetLocation"
+    },
+    {
+        "Aliases": [
+            "BufferMap",
+            "Map",
+            "PciIoMap",
+            "RootBridgeIoMap"
+        ],
+        "Function": "Map"
+    },
+    {
+        "Aliases": [
+            "PciIoPollIo",
+            "PciIoPollMem",
+            "RootBridgeIoPollIo"
+        ],
+        "Function": "PollIo"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoPollMem"
+        ],
+        "Function": "PollMem"
+    },
+    {
+        "Aliases": [
+            "PciIoSetBarAttributes"
+        ],
+        "Function": "SetBarAttributes"
+    },
+    {
+        "Aliases": [
+            "PciIoUnmap",
+            "RootBridgeIoUnmap"
+        ],
+        "Function": "Unmap"
+    }
+]

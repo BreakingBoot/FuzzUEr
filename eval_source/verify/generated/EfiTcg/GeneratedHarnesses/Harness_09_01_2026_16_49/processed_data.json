@@ -1,0 +1,461 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_TCG_PROTOCOL *",
+                    "Assignment": "gBS->LocateProtocol (&gEfiTcgProtocolGuid, NULL, (VOID **)&TcgProtocol)",
+                    "Data Type": "EFI_TCG_PROTOCOL *",
+                    "Usage": "gEfiTcgProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS",
+                    "Assignment": "",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS",
+                    "Assignment": "GetVariableFlashNvStorageInfo",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS",
+                    "Assignment": "GetVariableFlashFtwSpareInfo",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS",
+                    "Assignment": "GetVariableFlashFtwWorkingInfo",
+                    "Data Type": "void *",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "TPM_ALGORITHM_ID",
+                    "Assignment": "",
+                    "Data Type": "int",
+                    "Usage": "TPM_ALG_SHA",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "TCG_PCR_EVENT *",
+                    "Assignment": "(TCG_PCR_EVENT *)AllocateZeroPool (sizeof (TCG_PCR_EVENT_HDR) + LogLen)",
+                    "Data Type": "TCG_PCR_EVENT *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "TcgEvent"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "_PCD_VALUE_PcdUsbExtendedDecode",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "EventLogLastEntry"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "HashLogExtendEvent",
+        "includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiBaseType.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiStatusCode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi10.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DevicePath.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi63.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tpm20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiFirmwareFile.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/MemoryAllocationLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiSpec.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDependency.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi65.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/Tcg2Protocol.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DebugLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi40.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi50.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tpm12.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiFirmwareVolume.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiInternalFormRepresentation.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/BaseMemoryLib.h",
+            "/workspace/tmp/edk2/MdeModulePkg/Include/Library/TpmMeasurementLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextInEx.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiPxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi64.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiDxeCis.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi/UefiGpt.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi30.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiHob.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Bluetooth.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiBootMode.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Uefi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/Acpi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextOut.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/PcAnsi.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi20.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/DebugSupport.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/HiiFormMapMethodGuid.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi62.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiMultiPhase.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Guid/WinCertificate.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/UefiTcgPlatform.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi51.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiBootServicesTableLib.h",
+            "/workspace/tmp/edk2/MdePkg/Include/PiDxe.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/CcMeasurement.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/TcgService.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Base.h",
+            "/workspace/tmp/edk2/MdePkg/Include/X64/ProcessorBind.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/PeImage.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi61.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Protocol/SimpleTextIn.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Acpi60.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/AcpiAml.h",
+            "/workspace/tmp/edk2/MdePkg/Include/Pi/PiS3BootScript.h",
+            "/workspace/tmp/edk2/MdePkg/Include/IndustryStandard/Tpm12.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_TCG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_TCG_PROTOCOL *",
+                    "Usage": "gEfiTcgProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "TCG_EFI_BOOT_SERVICE_CAPABILITY *",
+                    "Assignment": "",
+                    "Data Type": "TCG_EFI_BOOT_SERVICE_CAPABILITY *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "StatusCheck",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/TcgService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_TCG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_TCG_PROTOCOL *",
+                    "Usage": "gEfiTcgProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "TCG_ALGORITHM_ID",
+                    "Assignment": "",
+                    "Data Type": "TCG_ALGORITHM_ID",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT8 * *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "HashAll",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/TcgService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_TCG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_TCG_PROTOCOL *",
+                    "Usage": "gEfiTcgProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "TCG_PCR_EVENT *",
+                    "Assignment": "",
+                    "Data Type": "TCG_PCR_EVENT *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "LogEvent",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/TcgService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_TCG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_TCG_PROTOCOL *",
+                    "Usage": "gEfiTcgProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "PassThroughToTpm",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/TcgService.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

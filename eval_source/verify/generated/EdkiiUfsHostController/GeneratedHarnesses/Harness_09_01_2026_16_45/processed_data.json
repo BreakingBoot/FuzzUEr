@@ -1,0 +1,442 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetUfsHcMmioBar",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_ALLOCATE_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_ALLOCATE_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_MEMORY_TYPE",
+                    "Assignment": "",
+                    "Data Type": "EFI_MEMORY_TYPE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "",
+                    "Data Type": "VOID * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AllocateBuffer",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "FreeBuffer",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_OPERATION",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_OPERATION",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_PHYSICAL_ADDRESS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "",
+                    "Data Type": "VOID * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Map",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Unmap",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Flush",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL_WIDTH",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL_WIDTH",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Read",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEdkiiUfsHostControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL_WIDTH",
+                    "Assignment": "",
+                    "Data Type": "EDKII_UFS_HOST_CONTROLLER_PROTOCOL_WIDTH",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Write",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/UfsHostController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

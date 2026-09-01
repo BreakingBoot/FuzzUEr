@@ -1,0 +1,248 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiUfsDeviceConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RwUfsDescriptor",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UfsDeviceConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiUfsDeviceConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RwUfsFlag",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UfsDeviceConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_UFS_DEVICE_CONFIG_PROTOCOL *",
+                    "Usage": "gEfiUfsDeviceConfigProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RwUfsAttribute",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/UfsDeviceConfig.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

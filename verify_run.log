@@ -1,0 +1,15 @@
+== output: /home/gl055/research/tianoshield/FuzzUEr/eval_source/verify
+== 0. docker health
+   ok
+== 1. analysis for protocols missing a call database
+   19 protocol(s) to analyse
+== 2. generation and a real edk2 build
+EfiWiFi2                           GEN_FAIL     ModuleNotFoundError: No module named 'fuzzywuzzy'
+EsrtManagement                     GEN_FAIL     ModuleNotFoundError: No module named 'fuzzywuzzy'
+GetPcdInfo                         GEN_FAIL     ModuleNotFoundError: No module named 'fuzzywuzzy'
+Pcd                                GEN_FAIL     ModuleNotFoundError: No module named 'fuzzywuzzy'
+
+--- summary ---
+  GEN_FAIL       137
+  INCOMPLETE     1
+== 3. fuzzing campaigns (8 at a time, 600s each)

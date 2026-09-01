@@ -1,0 +1,24 @@
+[
+    {
+        "Aliases": [
+            "ConSplitterUgaDrawBlt",
+            "QemuVideoGraphicsOutputBlt"
+        ],
+        "Function": "Blt"
+    },
+    {
+        "Aliases": [
+            "ConSplitterUgaDrawGetMode"
+        ],
+        "Function": "GetMode"
+    },
+    {
+        "Aliases": [
+            "ConSplitterUgaDrawSetMode",
+            "ConsoleLoggerSetMode",
+            "FileBasedSimpleTextOutSetMode",
+            "QemuVideoGraphicsOutputSetMode"
+        ],
+        "Function": "SetMode"
+    }
+]

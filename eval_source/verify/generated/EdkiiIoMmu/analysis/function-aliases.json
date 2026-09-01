@@ -1,0 +1,35 @@
+[
+    {
+        "Aliases": [
+            "RootBridgeIoAllocateBuffer"
+        ],
+        "Function": "AllocateBuffer"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoFreeBuffer"
+        ],
+        "Function": "FreeBuffer"
+    },
+    {
+        "Aliases": [
+            "BufferMap",
+            "Map",
+            "RootBridgeIoMap"
+        ],
+        "Function": "Map"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerSetAttribute",
+            "FileBasedSimpleTextOutSetAttribute"
+        ],
+        "Function": "SetAttribute"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoUnmap"
+        ],
+        "Function": "Unmap"
+    }
+]

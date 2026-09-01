@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "HiiGetFontInfo"
+        ],
+        "Function": "GetFontInfo"
+    },
+    {
+        "Aliases": [
+            "HiiStringIdToImage"
+        ],
+        "Function": "StringIdToImage"
+    },
+    {
+        "Aliases": [
+            "HiiStringToImage"
+        ],
+        "Function": "StringToImage"
+    }
+]

@@ -1,0 +1,338 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Usage": "gEfiDriverConfiguration2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstanceFromBuffer",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_DRIVER_CONFIGURATION_ACTION_REQUIRED *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DRIVER_CONFIGURATION_ACTION_REQUIRED *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetOptions",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Usage": "gEfiDriverConfiguration2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstanceFromBuffer",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "OptionsValid",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DRIVER_CONFIGURATION2_PROTOCOL *",
+                    "Usage": "gEfiDriverConfiguration2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstanceFromBuffer",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_DRIVER_CONFIGURATION_ACTION_REQUIRED *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DRIVER_CONFIGURATION_ACTION_REQUIRED *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ForceDefaults",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/DriverConfiguration2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

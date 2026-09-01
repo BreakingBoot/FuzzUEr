@@ -1,0 +1,2077 @@
+[
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "DisablePageBreak",
+        "includes": [],
+        "return_type": "void"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "GetPageBreak",
+        "includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SHELL_FILE_INFO **",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SHELL_FILE_INFO **",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RemoveDupInFileList",
+        "includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/ShellProtocol.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "ParseHandleDatabaseForChildControllers",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "BmExpandNetworkFileSystem",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 * *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_STATUS *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_STATUS *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "Execute",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetEnv",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetEnv",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "NULL",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetAlias",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetAlias",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR16 * *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetHelpText",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetDevicePathFromMap",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL * *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetMapFromDevicePath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetDevicePathFromFilePath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetFilePathFromDevicePath",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetMap",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetCurDir",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "NULL",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetCurDir",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_SHELL_FILE_INFO * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SHELL_FILE_INFO * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "OpenFileList",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SHELL_FILE_INFO * *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SHELL_FILE_INFO * *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FreeFileList",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "BatchIsActive",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "IsRootShell",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "EnablePageBreak",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "VOID"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "ParseHandleDatabaseByRelationship",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "ParseHandleDatabaseForChildControllers",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "ParseHandleDatabaseByRelationshipWithType",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstanceFromBuffer",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "BmExpandNetworkFileSystem",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SHELL_DEVICE_NAME_FLAGS",
+                    "Assignment": "",
+                    "Data Type": "EFI_SHELL_DEVICE_NAME_FLAGS",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR16 * *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetDeviceName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetFileInfo",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_FILE_INFO *",
+                    "Assignment": "FileHandleFindFirstFile",
+                    "Data Type": "EFI_FILE_INFO *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_FILE_INFO *",
+                    "Assignment": "FileHandleFindNextFile",
+                    "Data Type": "EFI_FILE_INFO *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_FILE_INFO *",
+                    "Assignment": "",
+                    "Data Type": "EFI_FILE_INFO *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetFileInfo",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "SHELL_FILE_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "OpenFileByName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "CloseFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "SHELL_FILE_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "CreateFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "ReadFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "WriteFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "DeleteFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "DeleteFileByName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetFilePosition",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "SetFilePosition",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FlushFile",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_SHELL_FILE_INFO * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SHELL_FILE_INFO * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FindFiles",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_SHELL_FILE_INFO * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SHELL_FILE_INFO * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "FindFilesInDir",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellOpenFileByName",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "EfiOpenFileByDevicePath",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "SHELL_FILE_HANDLE",
+                    "Assignment": "ShellCreateDirectory",
+                    "Data Type": "SHELL_FILE_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetFileSize",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "ChooseFile",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetGopDevicePath",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "GetFileDevicePathFromAnyFv",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_DEVICE_PATH_PROTOCOL *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "SHELL_FILE_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "OpenRoot",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "ParseHandleDatabaseForChildControllers",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "BmExpandNetworkFileSystem",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "SHELL_FILE_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "SHELL_FILE_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "OpenRootByHandle",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "NetLibGetSystemGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "CopyGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "ExtractGuidedSectionGetGuidList",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "StrToGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "GetGuidFromStringName",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "ConvertStrToGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "RegisterGuidName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "NetLibGetSystemGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "CopyGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "ExtractGuidedSectionGetGuidList",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "StrToGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "ConvertStrToGuid",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR16 * *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetGuidName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetGuidFromName",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiShellProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT32 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetEnvEx",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Shell.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

@@ -1,0 +1,368 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/ConsoleLogger.h",
+        "Function": "SetMode",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/ConsoleLogger.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ModeNumber"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/ConsoleLogger.h",
+        "Function": "SetMode",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/ConsoleLogger.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ModeNumber"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h",
+        "Function": "GetMode",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_DRAW_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HorizontalResolution"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VerticalResolution"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ColorDepth"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RefreshRate"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h",
+        "Function": "GetMode",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_DRAW_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HorizontalResolution"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VerticalResolution"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ColorDepth"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RefreshRate"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h",
+        "Function": "Blt",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_DRAW_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_PIXEL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_BLT_OPERATION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltOperation"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SourceX"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SourceY"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestinationX"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestinationY"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Width"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Height"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Delta"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h",
+        "Function": "Blt",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_DRAW_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_PIXEL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_UGA_BLT_OPERATION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltOperation"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SourceX"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SourceY"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestinationX"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestinationY"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Width"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Height"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Delta"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

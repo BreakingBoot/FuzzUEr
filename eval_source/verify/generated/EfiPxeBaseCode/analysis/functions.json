@@ -1,0 +1,1448 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Dhcp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UseIpv6"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Dhcp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UseIpv6"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Discover",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Type"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Layer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UseBis"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_DISCOVER_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Info"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Discover",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Type"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Layer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UseBis"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_DISCOVER_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Info"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Mtftp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_TFTP_OPCODE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Operation"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Overwrite"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BlockSize"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ServerIp"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Filename"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_MTFTP_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Info"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DontUseBuffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Mtftp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_TFTP_OPCODE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Operation"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Overwrite"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BlockSize"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ServerIp"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Filename"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_MTFTP_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Info"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DontUseBuffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "UdpWrite",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpFlags"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestIp"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPort"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "GatewayIp"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcIp"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcPort"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderPtr"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "UdpWrite",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpFlags"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestIp"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPort"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "GatewayIp"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcIp"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcPort"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderPtr"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "UdpRead",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpFlags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestIp"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPort"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcIp"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcPort"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderPtr"
+            },
+            "Arg_8": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "UdpRead",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpFlags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestIp"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPort"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcIp"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_PXE_BASE_CODE_UDP_PORT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcPort"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderPtr"
+            },
+            "Arg_8": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferPtr"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetIpFilter",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_IP_FILTER *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewFilter"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetIpFilter",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_IP_FILTER *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewFilter"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Arp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpAddr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddr"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "Arp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpAddr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddr"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetParameters",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewAutoArp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewSendGUID"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewTTL"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewToS"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewMakeCallback"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetParameters",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewAutoArp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewSendGUID"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewTTL"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewToS"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewMakeCallback"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetStationIp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewStationIp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewSubnetMask"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetStationIp",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewStationIp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewSubnetMask"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetPackets",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpDiscoverValid"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeDiscover"
+            },
+            "Arg_11": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeReply"
+            },
+            "Arg_12": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeBisReply"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpAckReceived"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewProxyOfferReceived"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeDiscoverValid"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeReplyReceived"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeBisReplyReceived"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpDiscover"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpAck"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewProxyOffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c",
+        "Function": "SetPackets",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpDiscoverValid"
+            },
+            "Arg_10": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeDiscover"
+            },
+            "Arg_11": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeReply"
+            },
+            "Arg_12": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeBisReply"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpAckReceived"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewProxyOfferReceived"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeDiscoverValid"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeReplyReceived"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPxeBisReplyReceived"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpDiscover"
+            },
+            "Arg_8": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewDhcpAck"
+            },
+            "Arg_9": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PXE_BASE_CODE_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewProxyOffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

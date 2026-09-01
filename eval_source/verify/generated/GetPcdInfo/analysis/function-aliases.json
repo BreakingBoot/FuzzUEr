@@ -1,0 +1,29 @@
+[
+    {
+        "Aliases": [
+            "DxeGetPcdInfoGetInfo",
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo",
+            "PeiGetPcdInfoGetInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "DxeGetPcdInfoGetInfoEx",
+            "PcdUnRegisterCallBackOnSet",
+            "PeiGetPcdInfoGetInfoEx",
+            "PeiRegisterCallBackOnSet"
+        ],
+        "Function": "GetInfoEx"
+    },
+    {
+        "Aliases": [
+            "ConfirmDataChange",
+            "DxeGetPcdInfoGetSku",
+            "PeiGetPcdInfoGetSku"
+        ],
+        "Function": "GetSku"
+    }
+]

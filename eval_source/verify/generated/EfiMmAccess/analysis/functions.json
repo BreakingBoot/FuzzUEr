@@ -1,0 +1,150 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Open",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FILE_PROTOCOL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileName"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpenMode"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Open",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FILE_PROTOCOL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileName"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpenMode"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Close",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c",
+        "Function": "Close",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Application/Shell/FileHandleWrappers.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FILE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

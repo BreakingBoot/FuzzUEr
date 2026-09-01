@@ -1,0 +1,4818 @@
+[
+    {
+        "File": "",
+        "Function": "InitMmCommonCommBuffer",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "LocatedBuffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "AllocatePool",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AllocationSize"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "",
+        "Function": "SetMem",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.h",
+        "Function": "CopySingleFile",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Source"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dest"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SilentMode"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CmdName"
+            }
+        },
+        "ReturnType": "SHELL_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/SetVar.c",
+        "Function": "ParseParameterData",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/SetVar.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Function": "SmmAllocatePool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MEMORY_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PoolType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "NetMapRemoveHead",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "NET_MAP *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Map"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpLib.h",
+        "Function": "HttpParseUrl",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Url"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsConnectMethod"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UrlParser"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpLib.h",
+        "Function": "HttpInitMsgParser",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Include/Library/HttpLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HTTP_METHOD",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Method"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HTTP_STATUS_CODE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StatusCode"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderCount"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HTTP_HEADER *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Headers"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "HTTP_BODY_PARSER_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Callback"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MsgParser"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+        "Function": "GetEfiGlobalVariable2",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Name"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h",
+        "Function": "ProcessSection",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_PEI_SERVICES **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PeiServices"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_COMMON_SECTION_HEADER *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Section"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionSize"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OutputBuffer"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            },
+            "Arg_7": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IsFfs3Fv"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/FwVol/FwVol.h",
+        "Function": "FindUnknownFormatFvInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/FwVol/FwVol.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "PEI_CORE_INSTANCE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateData"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Format"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FvInfo"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FvInfoSize"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "OrderedCollectionDelete",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "ORDERED_COLLECTION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "ORDERED_COLLECTION_ENTRY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Entry"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UserStruct"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "",
+        "Function": "OrderedCollectionDelete",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "ORDERED_COLLECTION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "ORDERED_COLLECTION_ENTRY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Entry"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "UserStruct"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h",
+        "Function": "GetSectionFromAnyFvByFileType",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_FILETYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileInstance"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h",
+        "Function": "GetSectionFromAnyFvByFileType",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_FILETYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileInstance"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+        "Function": "EfiGetSystemConfigurationTable",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TableGuid"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Table"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+        "Function": "EfiCreateProtocolNotifyEvent",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProtocolGuid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TPL",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyTpl"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT_NOTIFY",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyFunction"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyContext"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Registration"
+            }
+        },
+        "ReturnType": "EFI_EVENT"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h",
+        "Function": "GetFtwProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Variable.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FtwProtocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlParseOptionHandleCommon",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "AML_OP_PARSE_INDEX",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Index"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_ACPI_DATA_TYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlParseOptionHandleCommon",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "AML_OP_PARSE_INDEX",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Index"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_ACPI_DATA_TYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/UhciQueue.h",
+        "Function": "UhciMapUserRequest",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/UhciQueue.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "USB_HC_DEV *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Uhc"
+            },
+            "Arg_1": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Request"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MappedAddr"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Map"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/UhciQueue.h",
+        "Function": "UhciMapUserData",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/UhciDxe/UhciQueue.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "USB_HC_DEV *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Uhc"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB_DATA_DIRECTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Direction"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_3": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Len"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PktId"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MappedAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Map"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmCpuMemoryManagement.c",
+        "Function": "SmmGetSystemConfigurationTable",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmCpuMemoryManagement.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TableGuid"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Table"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "ZeroMem",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h",
+        "Function": "CoreHandleProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h",
+        "Function": "CoreHandleProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "CopyMem",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestinationBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SourceBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Function": "SmmInternalAllocatePool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MEMORY_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PoolType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/SmramProfileRecord.c",
+        "Function": "InternalPeCoffGetEntryPoint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/SmramProfileRecord.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pe32Data"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryPoint"
+            }
+        },
+        "ReturnType": "RETURN_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "SmramProfileCopyData",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProfileBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProfileSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProfileOffset"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/UsbHcMem.h",
+        "Function": "UsbHcAllocateAlignedPages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/UsbHcMem.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pages"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Alignment"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HostAddress"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_PHYSICAL_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mapping"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/UsbHcMem.h",
+        "Function": "UsbHcAllocateAlignedPages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/UsbHcMem.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pages"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Alignment"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HostAddress"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_PHYSICAL_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceAddress"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mapping"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/DxeIplPeim/DxeIpl.h",
+        "Function": "Decompress",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/DxeIplPeim/DxeIpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_PEI_DECOMPRESS_PPI *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "This"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_COMPRESSION_SECTION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CompressionSection"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OutputBuffer"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OutputSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/DxeIplPeim/X64/VirtualMemory.h",
+        "Function": "AsmGetVectorTemplatInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/DxeIplPeim/X64/VirtualMemory.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TemplateBase"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h",
+        "Function": "PeiServicesFfsFindSectionData",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_FILE_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h",
+        "Function": "PeiGetPe32Data",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_FILE_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pe32Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h",
+        "Function": "PeiGetPe32Data",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/PeiMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_FILE_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pe32Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Library/DxeServicesLib/DxeServicesLib.c",
+        "Function": "InternalGetSectionFromFv",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Library/DxeServicesLib/DxeServicesLib.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Library/DxeServicesLib/DxeServicesLib.c",
+        "Function": "InternalGetSectionFromFv",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Library/DxeServicesLib/DxeServicesLib.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c",
+        "Function": "Ip6ConfigNvGetData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP6_CONFIG_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP6_CONFIG_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c",
+        "Function": "Ip6ConfigNvGetData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP6_CONFIG_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP6_CONFIG_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c",
+        "Function": "Ip6CreateOpCode",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartLabelNumber"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOpCodeHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IFR_GUID_LABEL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartLabel"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndOpCodeHandle"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IFR_GUID_LABEL **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EndLabel"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c",
+        "Function": "Ip6BuildNvAddressInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip6Dxe/Ip6ConfigNv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "IP6_CONFIG_INSTANCE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Instance"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "IP6_CONFIG_NV_ADDRESS_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressType"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressInfo"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h",
+        "Function": "CoreLocateProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Registration"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h",
+        "Function": "FtwGetSarProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SarProtocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Function": "SmmLocateProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Registration"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h",
+        "Function": "CoreRegisterProtocolNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Registration"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Function": "SmmHandleProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h",
+        "Function": "SmmHandleProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmCore.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h",
+        "Function": "GetVariable2",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/UefiLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Name"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h",
+        "Function": "PeiServicesGetHobList",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HobList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h",
+        "Function": "PeiServicesCreateHob",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Type"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Hob"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeCoffGetEntryPointLib.h",
+        "Function": "PeCoffLoaderGetEntryPoint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeCoffGetEntryPointLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pe32Data"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryPoint"
+            }
+        },
+        "ReturnType": "RETURN_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/ExtractGuidedSectionLib.h",
+        "Function": "ExtractGuidedSectionDecode",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/ExtractGuidedSectionLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InputSection"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OutputBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ScratchBuffer"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "RETURN_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.c",
+        "Function": "ConSplitterStart",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ConSplitterVirtualHandle"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceGuid"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InterfaceGuid"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.c",
+        "Function": "ConSplitterStart",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitter.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ConSplitterVirtualHandle"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeviceGuid"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InterfaceGuid"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "SetMem64",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "",
+        "Function": "DebugClearMemory",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "EbcCreateThunk",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EBC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EbcEntryPoint"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Thunk"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "EbcCreateThunk",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EBC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EbcEntryPoint"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Thunk"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationServices.h",
+        "Function": "CoreAllocatePool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationServices.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MEMORY_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PoolType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Expression.h",
+        "Function": "PopMapExpressionList",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Expression.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pointer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Expression.h",
+        "Function": "PopCurrentExpression",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Expression.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pointer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "SetMem32",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe.c",
+        "Function": "InitCommunicateBuffer",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataPtr"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Function"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Library/SmmReportStatusCodeLib/ReportStatusCodeLib.h",
+        "Function": "InternalLocateProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Library/SmmReportStatusCodeLib/ReportStatusCodeLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Registration"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "NvmeCreatePrpList",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PhysicalAddr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pages"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrpListHost"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrpListNo"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mapping"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "",
+        "Function": "NvmeCreatePrpList",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PhysicalAddr"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Pages"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrpListHost"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrpListNo"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mapping"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.h",
+        "Function": "ConstructAcpiResourceRequestor",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_IO_DEVICE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Bridge"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_RESOURCE_NODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IoNode"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_RESOURCE_NODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mem32Node"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_RESOURCE_NODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PMem32Node"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_RESOURCE_NODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Mem64Node"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "PCI_RESOURCE_NODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PMem64Node"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Config"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "SmiHandlerProfileCopyData",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataOffset"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h",
+        "Function": "StartBusEnumeration",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RootBridgeHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Configuration"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h",
+        "Function": "StartBusEnumeration",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RootBridgeHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Configuration"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h",
+        "Function": "GetProposedResources",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RootBridgeHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Configuration"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h",
+        "Function": "GetProposedResources",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridge.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RootBridgeHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Configuration"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h",
+        "Function": "PeiServicesAllocatePool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h",
+        "Function": "GetSectionFromAnyFv",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h",
+        "Function": "PeiServicesFfsFindSectionData3",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PeiServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_FILE_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileHandle"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionData"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "MoveBetweenFileSystems",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "MoveBetweenFileSystems",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "MoveWithinFileSystems",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "MoveWithinFileSystems",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "ValidateAndMoveFiles",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestParameter"
+            }
+        },
+        "ReturnType": "SHELL_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c",
+        "Function": "ValidateAndMoveFiles",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/Mv.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SHELL_FILE_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Resp"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestParameter"
+            }
+        },
+        "ReturnType": "SHELL_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "CreateResolutionOptions",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpCodeBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumGopModes"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "GOP_MODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "GopModes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "CreateResolutionOptions",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpCodeBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumGopModes"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "GOP_MODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "GopModes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h",
+        "Function": "FtwGetLastWrite",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FAULT_TOLERANT_WRITE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CallerId"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_LBA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Lba"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateDataSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateData"
+            },
+            "Arg_7": {
+                "arg_dir": "OUT",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Complete"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h",
+        "Function": "FtwGetLastWrite",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FAULT_TOLERANT_WRITE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CallerId"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_LBA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Lba"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateDataSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateData"
+            },
+            "Arg_7": {
+                "arg_dir": "OUT",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Complete"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h",
+        "Function": "GetEBCStack",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StackBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferIndex"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h",
+        "Function": "GetEBCStack",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StackBuffer"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferIndex"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h",
+        "Function": "EbcCreateThunks",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EbcEntryPoint"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Thunk"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h",
+        "Function": "EbcCreateThunks",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EbcEntryPoint"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Thunk"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "UnpackVariableFromBuffer",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxSize"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR16 **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Name"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameSize"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_GUID **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_7": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            },
+            "Arg_8": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SizeUsed"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.h",
+        "Function": "ReadFileIntoBuffer",
+        "Includes": [
+            "/workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileName"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ReadOnly"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h",
+        "Function": "GetSectionFromFfs",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/DxeServicesLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Test/Library/TestPointLib/PeiTestPoint.c",
+        "Function": "InternalTestPointFindAip",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Test/Library/TestPointLib/PeiTestPoint.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Role"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImplementationID"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TestPointData"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TestPointSize"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TestPointMaxSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h",
+        "Function": "CoreInternalAllocatePool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/DxeMain.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MEMORY_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PoolType"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Measurement.c",
+        "Function": "InternalGetVariable",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Variable/RuntimeDxe/Measurement.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Name"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Include/Library/TestPointLib.h",
+        "Function": "TestPointLibGetTable",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Include/Library/TestPointLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Role"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImplementationID"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TestPoint"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TestPointSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.c",
+        "Function": "IpIoCreateIpChildOpenProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ChildHandle"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpVersion"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.c",
+        "Function": "IpIoCreateIpChildOpenProtocol",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ChildHandle"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpVersion"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Interface"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "SetDevicePathEndNode",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Node"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Pei/Service.c",
+        "Function": "GetHiiVariable",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Pei/Service.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VariableGuid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VariableName"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VariableData"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "VariableSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlGetChildFromRoot",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlGetChildFromRoot",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlGetChildFromNonRoot",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlGetChildFromNonRoot",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlFindPath",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FromRoot"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h",
+        "Function": "AmlFindPath",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiSdt.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AML_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AmlPath"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FromRoot"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.c",
+        "Function": "UsbMassInitTransport",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Controller"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "USB_MASS_TRANSPORT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Transport"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxLun"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.c",
+        "Function": "UsbMassInitTransport",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Controller"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "USB_MASS_TRANSPORT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Transport"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxLun"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

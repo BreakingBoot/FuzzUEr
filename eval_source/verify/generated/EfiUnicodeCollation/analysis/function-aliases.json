@@ -1,0 +1,33 @@
+[
+    {
+        "Aliases": [
+            "EngFatToStr"
+        ],
+        "Function": "FatToStr"
+    },
+    {
+        "Aliases": [
+            "EngMetaiMatch"
+        ],
+        "Function": "MetaiMatch"
+    },
+    {
+        "Aliases": [
+            "EngStrToFat"
+        ],
+        "Function": "StrToFat"
+    },
+    {
+        "Aliases": [
+            "EngStrLwr",
+            "EngStrUpr"
+        ],
+        "Function": "StrUpr"
+    },
+    {
+        "Aliases": [
+            "EngStriColl"
+        ],
+        "Function": "StriColl"
+    }
+]

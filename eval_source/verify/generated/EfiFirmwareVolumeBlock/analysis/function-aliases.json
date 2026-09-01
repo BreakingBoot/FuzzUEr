@@ -1,0 +1,46 @@
+[
+    {
+        "Aliases": [
+            "FvbProtocolEraseBlocks",
+            "ScsiDiskEraseBlocks"
+        ],
+        "Function": "EraseBlocks"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoGetAttributes"
+        ],
+        "Function": "GetAttributes"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvRead",
+            "FileInterfaceFileRead",
+            "FileInterfaceMemRead",
+            "RootBridgeIoIoRead",
+            "RootBridgeIoMemRead",
+            "RootBridgeIoPciRead"
+        ],
+        "Function": "Read"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoSetAttributes"
+        ],
+        "Function": "SetAttributes"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

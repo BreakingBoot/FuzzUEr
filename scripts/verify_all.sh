@@ -56,11 +56,20 @@ if [ ${#need[@]} -gt 0 ]; then
 fi
 
 echo "== 2. generation and a real edk2 build"
-python3 "$ROOT/scripts/check_generation.py" -c "$ROOT/eval_source/anacache" \
-  -i "$ROOT/eval_source/evalset" --edk2 "$ROOT/eval_source/edk2" \
-  --platforms "$ROOT/eval_source/edk2-platforms" -o "$OUT/generated" \
-  --generator "$ROOT/firness/harness_generator/main.py" --cc gcc \
-  --helpers "$ROOT/firness/HarnessHelpers" | tail -8
+# in the container: the generator imports fuzzywuzzy, which is installed in the image and
+# not on the host, and clang there matches the toolchain the harness is really built with
+mkdir -p "$OUT/generated"
+docker run --rm \
+  -v "$ROOT/firness/harness_generator:/workspace/harness_generator:ro" \
+  -v "$ROOT/firness/HarnessHelpers:/workspace/HarnessHelpers:ro" \
+  -v "$ROOT/scripts:/w/scripts:ro" \
+  -v "$ROOT/eval_source/anacache:/w/cache:ro" \
+  -v "$ROOT/eval_source/evalset:/w/inputs:ro" \
+  -v "$ROOT/eval_source/edk2:/w/edk2:ro" \
+  -v "$ROOT/eval_source/edk2-platforms:/w/platforms:ro" \
+  -v "$OUT/generated:/w/out" \
+  "$IMAGE" python3 /w/scripts/check_generation.py -c /w/cache -i /w/inputs \
+    --edk2 /w/edk2 --platforms /w/platforms -o /w/out | tail -8
 
 first=$(ls "$OUT/generated" 2>/dev/null | head -1)
 if [ -n "$first" ] && [ -d "$OUT/generated/$first/Firness" ]; then

@@ -1,0 +1,53 @@
+[
+    {
+        "Aliases": [
+            "MnpCancel",
+            "MnpReceive",
+            "MnpTransmit"
+        ],
+        "Function": "Cancel"
+    },
+    {
+        "Aliases": [
+            "MnpConfigure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "MnpGetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "Members",
+            "MnpGroups"
+        ],
+        "Function": "Groups"
+    },
+    {
+        "Aliases": [
+            "MnpMcastIpToMac"
+        ],
+        "Function": "McastIpToMac"
+    },
+    {
+        "Aliases": [
+            "MnpPoll"
+        ],
+        "Function": "Poll"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]

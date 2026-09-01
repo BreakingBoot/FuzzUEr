@@ -1,0 +1,640 @@
+SecMain (Fixed Flash Address, BaseAddress=0x00ffa000c0, EntryPoint=0x00ffa03b80, Type=PE)
+(GUID=E67F156F-54C5-47F3-A35D-07C045881E14 .textbaseaddress=0x00ffa00300 .databaseaddress=0x00ffa04cc0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/SimicsOpenBoardPkg/SecCore/SecMain/DEBUG/SecMain.efi)
+
+
+
+PeiCore (Fixed Flash Address, BaseAddress=0x0000820140, EntryPoint=0x00008275a1, Type=PE)
+(GUID=52C05B14-0B98-496C-BC3B-04B50211D680 .textbaseaddress=0x0000820380 .databaseaddress=0x0000829a00)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Core/Pei/PeiMain/DEBUG/PeiCore.efi)
+
+
+
+CpuMpPei (Fixed Flash Address, BaseAddress=0x000082a3c0, EntryPoint=0x000082dbca, Type=PE)
+(GUID=EDADEB9D-DDBA-48BD-9D22-C1C169C8C5C6 .textbaseaddress=0x000082a600 .databaseaddress=0x00008331c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/UefiCpuPkg/CpuMpPei/CpuMpPei/DEBUG/CpuMpPei.efi)
+
+
+
+PcdPeim (Fixed Flash Address, BaseAddress=0x0000833bc0, EntryPoint=0x00008348cd, Type=PE)
+(GUID=9B3ADA4F-AE56-4C24-8DEA-F03B7558AE50 .textbaseaddress=0x0000833e00 .databaseaddress=0x0000836d40)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/PCD/Pei/Pcd/DEBUG/PcdPeim.efi)
+
+
+
+ReportStatusCodeRouterPei (Fixed Flash Address, BaseAddress=0x0000837340, EntryPoint=0x0000837e08, Type=PE)
+(GUID=A3610442-E69F-4DF3-82CA-2360C4031A23 .textbaseaddress=0x0000837580 .databaseaddress=0x0000838400)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/ReportStatusCodeRouter/Pei/ReportStatusCodeRouterPei/DEBUG/ReportStatusCodeRouterPei.efi)
+
+
+
+StatusCodeHandlerPei (Fixed Flash Address, BaseAddress=0x0000838740, EntryPoint=0x0000839276, Type=PE)
+(GUID=9D225237-FA01-464C-A949-BAABC02D31D0 .textbaseaddress=0x0000838980 .databaseaddress=0x000083ae40)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei/DEBUG/StatusCodeHandlerPei.efi)
+
+
+
+CpuIoPei (Fixed Flash Address, BaseAddress=0x000083b240, EntryPoint=0x000083c11b, Type=PE)
+(GUID=AE265864-CF5D-41A8-913D-71C155E76442 .textbaseaddress=0x000083b480 .databaseaddress=0x000083c980)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/UefiCpuPkg/CpuIoPei/CpuIoPei/DEBUG/CpuIoPei.efi)
+
+
+
+PcatSingleSegmentPciCfg2Pei (Fixed Flash Address, BaseAddress=0x000083ccc0, EntryPoint=0x000083d9d0, Type=PE)
+(GUID=4F1F379F-2A62-48BB-AC34-D3F135C6E2B7 .textbaseaddress=0x000083cf00 .databaseaddress=0x000083e280)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/PcatSingleSegmentPciCfg2Pei/PcatSingleSegmentPciCfg2Pei/DEBUG/PcatSingleSegmentPciCfg2Pei.efi)
+
+
+
+PeiVariable (Fixed Flash Address, BaseAddress=0x000083e5c0, EntryPoint=0x000083fde0, Type=PE)
+(GUID=34C8C28F-B61C-45A2-8F2E-89E46BECC63B .textbaseaddress=0x000083e800 .databaseaddress=0x00008405c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/Variable/Pei/VariablePei/DEBUG/PeiVariable.efi)
+
+
+
+FaultTolerantWritePei (Fixed Flash Address, BaseAddress=0x0000840940, EntryPoint=0x000084130a, Type=PE)
+(GUID=AAC33064-9ED0-4B89-A5AD-3EA767960B22 .textbaseaddress=0x0000840b80 .databaseaddress=0x0000841e40)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/FaultTolerantWritePei/FaultTolerantWritePei/DEBUG/FaultTolerantWritePei.efi)
+
+
+
+DxeIpl (Fixed Flash Address, BaseAddress=0x00008421c0, EntryPoint=0x00008442bc, Type=PE)
+(GUID=86D70125-BAA3-4296-A62F-602BEBBB9081 .textbaseaddress=0x0000842400 .databaseaddress=0x0000846b80)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Core/DxeIplPeim/DxeIpl/DEBUG/DxeIpl.efi)
+
+
+
+ReportFvPei (Fixed Flash Address, BaseAddress=0x00008470c0, EntryPoint=0x000084832f, Type=PE)
+(GUID=3FECFD95-7CB2-4A6E-8FAC-DEFD9947E35E .textbaseaddress=0x0000847300 .databaseaddress=0x00008493c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MinPlatformPkg/PlatformInit/ReportFv/ReportFvPei/DEBUG/ReportFvPei.efi)
+
+
+
+PlatformInitPreMem (Fixed Flash Address, BaseAddress=0x00008499c0, EntryPoint=0x000084f0a7, Type=PE)
+(GUID=EEEE611D-F78F-4FB9-B868-55907F169280 .textbaseaddress=0x0000849c00 .databaseaddress=0x0000851640)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MinPlatformPkg/PlatformInit/PlatformInitPei/PlatformInitPreMem/DEBUG/PlatformInitPreMem.efi)
+
+
+
+SiliconPolicyPeiPreMem (Fixed Flash Address, BaseAddress=0x0000851fc0, EntryPoint=0x0000852200, Type=PE)
+(GUID=3307DD15-23BA-4546-A004-FCBCC47D4A49 .textbaseaddress=0x0000852200 .databaseaddress=0x0000851fc0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MinPlatformPkg/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPreMem/DEBUG/SiliconPolicyPeiPreMem.efi)
+
+
+
+SimicsPei (Fixed Flash Address, BaseAddress=0x00008523c0, EntryPoint=0x000085325f, Type=PE)
+(GUID=05116218-F9F1-41F8-8D17-C2207006FFFF .textbaseaddress=0x0000852600 .databaseaddress=0x00008548c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/SimicsOpenBoardPkg/SimicsPei/SimicsPei/DEBUG/SimicsPei.efi)
+
+
+
+FirmwarePerformancePei (Fixed Flash Address, BaseAddress=0x0000854dc0, EntryPoint=0x0000855c73, Type=PE)
+(GUID=ADF01BF6-47D6-495D-B95B-687777807214 .textbaseaddress=0x0000855000 .databaseaddress=0x0000856a00)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei/DEBUG/FirmwarePerformancePei.efi)
+
+
+
+PlatformInitPostMem (Fixed Flash Address, BaseAddress=0x0000856dc0, EntryPoint=0x000085c5c1, Type=PE)
+(GUID=59ADD62D-A1C0-44C5-A90F-A1168770468C .textbaseaddress=0x0000857000 .databaseaddress=0x000085e9c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MinPlatformPkg/PlatformInit/PlatformInitPei/PlatformInitPostMem/DEBUG/PlatformInitPostMem.efi)
+
+
+
+SiliconPolicyPeiPostMem (Fixed Flash Address, BaseAddress=0x000085f2c0, EntryPoint=0x000085f500, Type=PE)
+(GUID=CE19678F-3F08-4E81-A1F3-1886CA13ADA7 .textbaseaddress=0x000085f500 .databaseaddress=0x000085f2c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/MinPlatformPkg/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPostMem/DEBUG/SiliconPolicyPeiPostMem.efi)
+
+
+
+S3Resume2Pei (Fixed Flash Address, BaseAddress=0x000085f6c0, EntryPoint=0x0000860f0f, Type=PE)
+(GUID=89E549B0-7CFE-449D-9BA3-10D8B2312D71 .textbaseaddress=0x000085f900 .databaseaddress=0x00008624c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei/DEBUG/S3Resume2Pei.efi)
+
+
+
+SmmAccessPei (Fixed Flash Address, BaseAddress=0x00008629c0, EntryPoint=0x00008634f9, Type=PE)
+(GUID=6C0E75B4-B0B9-44D1-8210-3377D7B4E066 .textbaseaddress=0x0000862c00 .databaseaddress=0x0000863e40)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/SimicsX58SktPkg/Smm/Access/SmmAccessPei/DEBUG/SmmAccessPei.efi)
+
+
+
+DxeCore (Fixed Flash Address, BaseAddress=0x0000900094, EntryPoint=0x0000942948, Type=PE)
+(GUID=D6A2CB7F-6A18-4E2F-B43B-9920A733700A .textbaseaddress=0x00009002d4 .databaseaddress=0x000098d8d4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/Dxe/DxeMain/DEBUG/DxeCore.efi)
+
+
+
+PcdDxe (Fixed Flash Address, BaseAddress=0x00009e7518, EntryPoint=0x00009fc25d, Type=PE)
+(GUID=80CF7257-87AB-47F9-A3FE-D50B76D89541 .textbaseaddress=0x00009e7758 .databaseaddress=0x0000a19098)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/PCD/Dxe/Pcd/DEBUG/PcdDxe.efi)
+
+
+
+ReportStatusCodeRouterRuntimeDxe (Fixed Flash Address, BaseAddress=0x0000a372b4, EntryPoint=0x0000a4e639, Type=PE)
+(GUID=D93CE3D8-A7EB-4730-8C8E-CC466A9ECC3C .textbaseaddress=0x0000a374f4 .databaseaddress=0x0000a64db4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe/DEBUG/ReportStatusCodeRouterRuntimeDxe.efi)
+
+
+
+StatusCodeHandlerRuntimeDxe (Fixed Flash Address, BaseAddress=0x0000a81354, EntryPoint=0x0000a96ff9, Type=PE)
+(GUID=6C2004EF-4E0E-4BE4-B14C-340EB4AA5891 .textbaseaddress=0x0000a81594 .databaseaddress=0x0000aad214)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe/DEBUG/StatusCodeHandlerRuntimeDxe.efi)
+
+
+
+CpuIo2Dxe (Fixed Flash Address, BaseAddress=0x0000ac8994, EntryPoint=0x0000add2e9, Type=PE)
+(GUID=A19B1FE7-C1BC-49F8-875F-54A5D542443F .textbaseaddress=0x0000ac8bd4 .databaseaddress=0x0000af2b94)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe/DEBUG/CpuIo2Dxe.efi)
+
+
+
+Metronome (Fixed Flash Address, BaseAddress=0x0000b0d074, EntryPoint=0x0000b219a9, Type=PE)
+(GUID=C8339973-A563-4561-B858-D8476F9DEFC4 .textbaseaddress=0x0000b0d2b4 .databaseaddress=0x0000b37234)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Metronome/Metronome/DEBUG/Metronome.efi)
+
+
+
+WatchdogTimer (Fixed Flash Address, BaseAddress=0x0000b51ae4, EntryPoint=0x0000b65bc9, Type=PE)
+(GUID=F099D67F-71AE-4C36-B2A3-DCEB0EB2B7D8 .textbaseaddress=0x0000b51d24 .databaseaddress=0x0000b79f24)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer/DEBUG/WatchdogTimer.efi)
+
+
+
+PcRtc (Fixed Flash Address, BaseAddress=0x0000b93970, EntryPoint=0x0000bacac5, Type=PE)
+(GUID=378D7B65-8DA9-4773-B6E4-A47826A833E1 .textbaseaddress=0x0000b93bb0 .databaseaddress=0x0000bc38b0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/PcAtChipsetPkg/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe/DEBUG/PcRtc.efi)
+
+
+
+RuntimeDxe (Fixed Flash Address, BaseAddress=0x0000be0d84, EntryPoint=0x0000bf6889, Type=PE)
+(GUID=B601F8C4-43B7-4784-95B1-F4226CB40CEE .textbaseaddress=0x0000be0fc4 .databaseaddress=0x0000c0bfc4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/RuntimeDxe/RuntimeDxe/DEBUG/RuntimeDxe.efi)
+
+
+
+MonotonicCounterRuntimeDxe (Fixed Flash Address, BaseAddress=0x0000c26e08, EntryPoint=0x0000c3ba7d, Type=PE)
+(GUID=AD608272-D07F-4964-801E-7BD3B7888652 .textbaseaddress=0x0000c27048 .databaseaddress=0x0000c50c08)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe/DEBUG/MonotonicCounterRuntimeDxe.efi)
+
+
+
+BdsDxe (Fixed Flash Address, BaseAddress=0x0000c6af54, EntryPoint=0x0000c9d1c9, Type=PE)
+(GUID=6D33944A-EC75-4855-A54D-809C75241F6C .textbaseaddress=0x0000c6b194 .databaseaddress=0x0000cbd354)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/BdsDxe/BdsDxe/DEBUG/BdsDxe.efi)
+
+
+
+DriverHealthManagerDxe (Fixed Flash Address, BaseAddress=0x0000cea600, EntryPoint=0x0000d04af5, Type=PE)
+(GUID=EBF8ED7C-0DD1-4787-84F1-F48D537DCACF .textbaseaddress=0x0000cea840 .databaseaddress=0x0000d235c0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.efi)
+
+
+
+SecurityStubDxe (Fixed Flash Address, BaseAddress=0x0000d481fc, EntryPoint=0x0000d5e7aa, Type=PE)
+(GUID=F80697E9-7FD6-4665-8646-88E33EF71DFC .textbaseaddress=0x0000d4843c .databaseaddress=0x0000d7423c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe/DEBUG/SecurityStubDxe.efi)
+
+
+
+CapsuleRuntimeDxe (Fixed Flash Address, BaseAddress=0x0000d8f634, EntryPoint=0x0000da58f9, Type=PE)
+(GUID=42857F0A-13F2-4B21-8A23-53D3F714B840 .textbaseaddress=0x0000d8f874 .databaseaddress=0x0000dbb5f4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe/DEBUG/CapsuleRuntimeDxe.efi)
+
+
+
+ResetSystemRuntimeDxe (Fixed Flash Address, BaseAddress=0x0000dd65e4, EntryPoint=0x0000ded589, Type=PE)
+(GUID=4B28E4C7-FF36-4E10-93CF-A82159E777C5 .textbaseaddress=0x0000dd6824 .databaseaddress=0x0000e04024)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe/DEBUG/ResetSystemRuntimeDxe.efi)
+
+
+
+HpetTimerDxe (Fixed Flash Address, BaseAddress=0x0000e2056c, EntryPoint=0x0000e37061, Type=PE)
+(GUID=6CE6B0DE-781C-4F6C-B42D-98346C614BEC .textbaseaddress=0x0000e207ac .databaseaddress=0x0000e4dcec)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/PcAtChipsetPkg/HpetTimerDxe/HpetTimerDxe/DEBUG/HpetTimerDxe.efi)
+
+
+
+PciBusDxe (Fixed Flash Address, BaseAddress=0x0000e6a3fc, EntryPoint=0x0000ea4bc1, Type=PE)
+(GUID=93B80004-9FB3-11D4-9A3A-0090273FC14D .textbaseaddress=0x0000e6a63c .databaseaddress=0x0000ebd7fc)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe/DEBUG/PciBusDxe.efi)
+
+
+
+XhciDxe (Fixed Flash Address, BaseAddress=0x0000eeb444, EntryPoint=0x0000f1c5f9, Type=PE)
+(GUID=B7F50E91-A759-412C-ADE4-DCD03E7F7C28 .textbaseaddress=0x0000eeb684 .databaseaddress=0x0000f359c4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/XhciDxe/XhciDxe/DEBUG/XhciDxe.efi)
+
+
+
+EhciDxe (Fixed Flash Address, BaseAddress=0x0000f61e44, EntryPoint=0x0000f84cf9, Type=PE)
+(GUID=BDFE430E-8F2A-4DB0-9991-6F856594777E .textbaseaddress=0x0000f62084 .databaseaddress=0x0000f9c484)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe/DEBUG/EhciDxe.efi)
+
+
+
+UhciDxe (Fixed Flash Address, BaseAddress=0x0000fbf004, EntryPoint=0x0000fded09, Type=PE)
+(GUID=2FB92EFA-2EE0-4BAE-9EB6-7464125E1EF7 .textbaseaddress=0x0000fbf244 .databaseaddress=0x0000ff4f84)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/UhciDxe/UhciDxe/DEBUG/UhciDxe.efi)
+
+
+
+UsbBusDxe (Fixed Flash Address, BaseAddress=0x0001015344, EntryPoint=0x0001039789, Type=PE)
+(GUID=240612B7-A063-11D4-9A3A-0090273FC14D .textbaseaddress=0x0001015584 .databaseaddress=0x0001052004)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe/DEBUG/UsbBusDxe.efi)
+
+
+
+UsbMassStorageDxe (Fixed Flash Address, BaseAddress=0x000107670c, EntryPoint=0x00010927d1, Type=PE)
+(GUID=9FB4B4A7-42C0-4BCD-8540-9BCC6711F83E .textbaseaddress=0x000107694c .databaseaddress=0x00010a8b4c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe/DEBUG/UsbMassStorageDxe.efi)
+
+
+
+UsbKbDxe (Fixed Flash Address, BaseAddress=0x00010c6d24, EntryPoint=0x00010e4bb9, Type=PE)
+(GUID=2D2E62CF-9ECF-43B7-8219-94E7FC713DFE .textbaseaddress=0x00010c6f64 .databaseaddress=0x00010fc724)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe/DEBUG/UsbKbDxe.efi)
+
+
+
+DiskIoDxe (Fixed Flash Address, BaseAddress=0x000111ec6c, EntryPoint=0x0001138ac1, Type=PE)
+(GUID=6B38F7B4-AD98-40E9-9093-ACA2B5A253C4 .textbaseaddress=0x000111eeac .databaseaddress=0x000114daac)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe/DEBUG/DiskIoDxe.efi)
+
+
+
+PartitionDxe (Fixed Flash Address, BaseAddress=0x000116ab74, EntryPoint=0x000118a339, Type=PE)
+(GUID=1FA1F39E-FEFF-4AAE-BD7B-38A070A3B609 .textbaseaddress=0x000116adb4 .databaseaddress=0x00011a0674)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe/DEBUG/PartitionDxe.efi)
+
+
+
+EnglishDxe (Fixed Flash Address, BaseAddress=0x00011c00c4, EntryPoint=0x00011d50b9, Type=PE)
+(GUID=CD3BAFB6-50FB-4FE8-8E4E-AB74D2C1A600 .textbaseaddress=0x00011c0304 .databaseaddress=0x00011e95c4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe/DEBUG/EnglishDxe.efi)
+
+
+
+Fat (Fixed Flash Address, BaseAddress=0x0001203d4c, EntryPoint=0x000122b051, Type=PE)
+(GUID=961578FE-B6B7-44C3-AF35-6BC705CD2B1F .textbaseaddress=0x0001203f8c .databaseaddress=0x000124244c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FatPkg/EnhancedFatDxe/Fat/DEBUG/Fat.efi)
+
+
+
+GraphicsConsoleDxe (Fixed Flash Address, BaseAddress=0x0001266bc4, EntryPoint=0x00012840f9, Type=PE)
+(GUID=CCCB0C28-4B24-11D5-9A5A-0090273FC14D .textbaseaddress=0x0001266e04 .databaseaddress=0x000129acc4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe/DEBUG/GraphicsConsoleDxe.efi)
+
+
+
+ConPlatformDxe (Fixed Flash Address, BaseAddress=0x00012bd2dc, EntryPoint=0x00012d53d1, Type=PE)
+(GUID=51CCF399-4FDF-4E55-A45B-E123F84D456A .textbaseaddress=0x00012bd51c .databaseaddress=0x00012f259c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe/DEBUG/ConPlatformDxe.efi)
+
+
+
+ConSplitterDxe (Fixed Flash Address, BaseAddress=0x00013157ac, EntryPoint=0x000133d151, Type=PE)
+(GUID=408EDCEC-CF6D-477C-A5A8-B4844E3DE281 .textbaseaddress=0x00013159ec .databaseaddress=0x000135312c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe/DEBUG/ConSplitterDxe.efi)
+
+
+
+DevicePathDxe (Fixed Flash Address, BaseAddress=0x0001378454, EntryPoint=0x000138df39, Type=PE)
+(GUID=9B680FCE-AD6B-4F3A-B60B-F59899003443 .textbaseaddress=0x0001378694 .databaseaddress=0x00013a2294)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe/DEBUG/DevicePathDxe.efi)
+
+
+
+NullMemoryTestDxe (Fixed Flash Address, BaseAddress=0x00013bc17c, EntryPoint=0x00013d0981, Type=PE)
+(GUID=96B5C032-DF4C-4B6E-8232-438DCF448D0E .textbaseaddress=0x00013bc3bc .databaseaddress=0x00013e4efc)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe/DEBUG/NullMemoryTestDxe.efi)
+
+
+
+HiiDatabase (Fixed Flash Address, BaseAddress=0x00013fecec, EntryPoint=0x000144d211, Type=PE)
+(GUID=348C4D62-BFBD-4882-9ECE-C80BB1C4783B .textbaseaddress=0x00013fef2c .databaseaddress=0x0001468b2c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe/DEBUG/HiiDatabase.efi)
+
+
+
+SetupBrowser (Fixed Flash Address, BaseAddress=0x000149aec0, EntryPoint=0x00014e35c5, Type=PE)
+(GUID=EBF342FE-B1D3-4EF8-957C-8048606FF671 .textbaseaddress=0x000149b100 .databaseaddress=0x00014ffbc0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe/DEBUG/SetupBrowser.efi)
+
+
+
+DisplayEngine (Fixed Flash Address, BaseAddress=0x0001539c08, EntryPoint=0x000156e0cd, Type=PE)
+(GUID=E660EA85-058E-4B55-A54B-F02F83A24707 .textbaseaddress=0x0001539e48 .databaseaddress=0x000158dc08)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe/DEBUG/DisplayEngine.efi)
+
+
+
+SmmAccess2Dxe (Fixed Flash Address, BaseAddress=0x00016ed894, EntryPoint=0x00017024d2, Type=PE)
+(GUID=AC95AD3D-4366-44BF-9A62-E4B29D7A2206 .textbaseaddress=0x00016edad4 .databaseaddress=0x0001717394)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsX58SktPkg/Smm/Access/SmmAccess2Dxe/DEBUG/SmmAccess2Dxe.efi)
+
+
+
+PciHostBridgeDxe (Fixed Flash Address, BaseAddress=0x00017cd600, EntryPoint=0x00017eede5, Type=PE)
+(GUID=128FB770-5E79-4176-9E51-9BB268A17DD1 .textbaseaddress=0x00017cd840 .databaseaddress=0x0001808380)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe/DEBUG/PciHostBridgeDxe.efi)
+
+
+
+SmmControl2Dxe (Fixed Flash Address, BaseAddress=0x000182b66c, EntryPoint=0x0001840baa, Type=PE)
+(GUID=1206F7CA-A475-4624-A83E-E6FC9BB38E49 .textbaseaddress=0x000182b8ac .databaseaddress=0x0001856bac)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsIch10Pkg/SmmControl/RuntimeDxe/SmmControl2Dxe/DEBUG/SmmControl2Dxe.efi)
+
+
+
+EbcDxe (Fixed Flash Address, BaseAddress=0x00018b8c64, EntryPoint=0x00018d9602, Type=PE)
+(GUID=13AC6DD0-73D0-11D4-B06B-00AA00BD6DE7 .textbaseaddress=0x00018b8ea4 .databaseaddress=0x00018eeaa4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/EbcDxe/EbcDxe/DEBUG/EbcDxe.efi)
+
+
+
+SataController (Fixed Flash Address, BaseAddress=0x000190f864, EntryPoint=0x0001926459, Type=PE)
+(GUID=820C59BB-274C-43B2-83EA-DAC673035A59 .textbaseaddress=0x000190faa4 .databaseaddress=0x000193b324)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe/DEBUG/SataController.efi)
+
+
+
+CpuDxe (Fixed Flash Address, BaseAddress=0x000195670c, EntryPoint=0x0001980d11, Type=PE)
+(GUID=1A1E4886-9517-440E-9FDE-3BE44CEE2136 .textbaseaddress=0x000195694c .databaseaddress=0x00019b068c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuDxe/CpuDxe/DEBUG/CpuDxe.efi)
+
+
+
+VariableSmmRuntimeDxe (Fixed Flash Address, BaseAddress=0x0001a47cbc, EntryPoint=0x0001a634f1, Type=PE)
+(GUID=9F7DCADE-11EA-448A-A46F-76E003657DD1 .textbaseaddress=0x0001a47efc .databaseaddress=0x0001a7ac3c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe/DEBUG/VariableSmmRuntimeDxe.efi)
+
+
+
+PiSmmIpl (Fixed Flash Address, BaseAddress=0x0001b28660, EntryPoint=0x0001b43495, Type=PE)
+(GUID=2FA2A6DA-11D5-4DC3-999A-749648B03C56 .textbaseaddress=0x0001b288a0 .databaseaddress=0x0001b600a0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.efi)
+
+
+
+SmmCommunicationBufferDxe (Fixed Flash Address, BaseAddress=0x0001ce81cc, EntryPoint=0x0001cfc481, Type=PE)
+(GUID=8FAAD0A7-02B4-432F-8F5C-B880965D8B41 .textbaseaddress=0x0001ce840c .databaseaddress=0x0001d10a4c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/SmmCommunicationBufferDxe/SmmCommunicationBufferDxe/DEBUG/SmmCommunicationBufferDxe.efi)
+
+
+
+AcpiTableDxe (Fixed Flash Address, BaseAddress=0x0001d78294, EntryPoint=0x0001d98ab9, Type=PE)
+(GUID=9622E42C-8E38-4A08-9E8F-54F784652F6B .textbaseaddress=0x0001d784d4 .databaseaddress=0x0001daec14)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.efi)
+
+
+
+FirmwarePerformanceDxe (Fixed Flash Address, BaseAddress=0x0001dd20cc, EntryPoint=0x0001de829a, Type=PE)
+(GUID=00160F8D-2B35-4DF2-BBE0-B272A8D631F0 .textbaseaddress=0x0001dd230c .databaseaddress=0x0001e0038c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.efi)
+
+
+
+BootGraphicsResourceTableDxe (Fixed Flash Address, BaseAddress=0x0001e6c0dc, EntryPoint=0x0001e80b51, Type=PE)
+(GUID=B8E62775-BB0A-43F0-A843-5BE8B14F8CCD .textbaseaddress=0x0001e6c31c .databaseaddress=0x0001e9631c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe/DEBUG/BootGraphicsResourceTableDxe.efi)
+
+
+
+DpcDxe (Fixed Flash Address, BaseAddress=0x0001eb0fe4, EntryPoint=0x0001ec5c09, Type=PE)
+(GUID=A210F973-229D-4F4D-AA37-9895E6C9EABA .textbaseaddress=0x0001eb1224 .databaseaddress=0x0001ed9fa4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/DpcDxe/DpcDxe/DEBUG/DpcDxe.efi)
+
+
+
+SnpDxe (Fixed Flash Address, BaseAddress=0x0001ef42e4, EntryPoint=0x0001f161e9, Type=PE)
+(GUID=A2F436EA-A127-4EF8-957C-8048606FF670 .textbaseaddress=0x0001ef4524 .databaseaddress=0x0001f2f2e4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/SnpDxe/SnpDxe/DEBUG/SnpDxe.efi)
+
+
+
+VlanConfigDxe (Fixed Flash Address, BaseAddress=0x0001f54958, EntryPoint=0x0001f6d2dd, Type=PE)
+(GUID=E4F61863-FE2C-4B56-A8F4-08519BC439DF .textbaseaddress=0x0001f54b98 .databaseaddress=0x0001f896d8)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/DEBUG/VlanConfigDxe.efi)
+
+
+
+MnpDxe (Fixed Flash Address, BaseAddress=0x0001faabe4, EntryPoint=0x0001fcddf9, Type=PE)
+(GUID=025BBFC7-E6A9-4B8B-82AD-6815A1AEAF4A .textbaseaddress=0x0001faae24 .databaseaddress=0x0001feba64)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.efi)
+
+
+
+ArpDxe (Fixed Flash Address, BaseAddress=0x00020128a4, EntryPoint=0x000202e929, Type=PE)
+(GUID=529D3F93-E8E9-4E73-B1E1-BDF6A9D50113 .textbaseaddress=0x0002012ae4 .databaseaddress=0x00020474e4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/ArpDxe/ArpDxe/DEBUG/ArpDxe.efi)
+
+
+
+Dhcp4Dxe (Fixed Flash Address, BaseAddress=0x00020682a4, EntryPoint=0x000208b1f9, Type=PE)
+(GUID=94734718-0BBC-47FB-96A5-EE7A5AE6A2AD .textbaseaddress=0x00020684e4 .databaseaddress=0x00020abae4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Dhcp4Dxe/Dhcp4Dxe/DEBUG/Dhcp4Dxe.efi)
+
+
+
+Ip4Dxe (Fixed Flash Address, BaseAddress=0x00020d4ce0, EntryPoint=0x000210b3f5, Type=PE)
+(GUID=9FB1A1F3-3B71-4324-B39A-745CBB015FFF .textbaseaddress=0x00020d4f20 .databaseaddress=0x000212f9e0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Ip4Dxe/Ip4Dxe/DEBUG/Ip4Dxe.efi)
+
+
+
+Udp4Dxe (Fixed Flash Address, BaseAddress=0x0002161864, EntryPoint=0x000217dad9, Type=PE)
+(GUID=6D6963AB-906D-4A65-A7CA-BD40E5D6AF2B .textbaseaddress=0x0002161aa4 .databaseaddress=0x000219f2a4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Udp4Dxe/Udp4Dxe/DEBUG/Udp4Dxe.efi)
+
+
+
+Mtftp4Dxe (Fixed Flash Address, BaseAddress=0x00021c41a4, EntryPoint=0x00021e4789, Type=PE)
+(GUID=DC3641B8-2FA8-4ED3-BC1F-F9962A03454B .textbaseaddress=0x00021c43e4 .databaseaddress=0x0002203a64)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Mtftp4Dxe/Mtftp4Dxe/DEBUG/Mtftp4Dxe.efi)
+
+
+
+Dhcp6Dxe (Fixed Flash Address, BaseAddress=0x0002229aec, EntryPoint=0x0002250ed1, Type=PE)
+(GUID=95E3669D-34BE-4775-A651-7EA41B69D89E .textbaseaddress=0x0002229d2c .databaseaddress=0x000227082c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Dhcp6Dxe/Dhcp6Dxe/DEBUG/Dhcp6Dxe.efi)
+
+
+
+Ip6Dxe (Fixed Flash Address, BaseAddress=0x000229a628, EntryPoint=0x00022de86d, Type=PE)
+(GUID=5BEDB5CC-D830-4EB2-8742-2D4CC9B54F2C .textbaseaddress=0x000229a868 .databaseaddress=0x0002305268)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Ip6Dxe/Ip6Dxe/DEBUG/Ip6Dxe.efi)
+
+
+
+Udp6Dxe (Fixed Flash Address, BaseAddress=0x000233ed2c, EntryPoint=0x000235a761, Type=PE)
+(GUID=D912C7BC-F098-4367-92BA-E911083C7B0E .textbaseaddress=0x000233ef6c .databaseaddress=0x000237c2ec)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Udp6Dxe/Udp6Dxe/DEBUG/Udp6Dxe.efi)
+
+
+
+Mtftp6Dxe (Fixed Flash Address, BaseAddress=0x00023a0fec, EntryPoint=0x00023c2b31, Type=PE)
+(GUID=99F03B99-98D8-49DD-A8D3-3219D0FFE41E .textbaseaddress=0x00023a122c .databaseaddress=0x00023e216c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/Mtftp6Dxe/Mtftp6Dxe/DEBUG/Mtftp6Dxe.efi)
+
+
+
+TcpDxe (Fixed Flash Address, BaseAddress=0x0002408ab4, EntryPoint=0x000243a829, Type=PE)
+(GUID=1A7E4468-2F55-4A56-903C-01265EB7622B .textbaseaddress=0x0002408cf4 .databaseaddress=0x0002462334)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/TcpDxe/TcpDxe/DEBUG/TcpDxe.efi)
+
+
+
+UefiPxeBcDxe (Fixed Flash Address, BaseAddress=0x0002496f74, EntryPoint=0x00024d4cc9, Type=PE)
+(GUID=B95E9FDA-26DE-48D2-8807-1F9107AC5E3A .textbaseaddress=0x00024971b4 .databaseaddress=0x00024f2974)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe/DEBUG/UefiPxeBcDxe.efi)
+
+
+
+DnsDxe (Fixed Flash Address, BaseAddress=0x0002526504, EntryPoint=0x000254f239, Type=PE)
+(GUID=B219E140-DFFC-11E3-B956-0022681E6906 .textbaseaddress=0x0002526744 .databaseaddress=0x000256f9c4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/DnsDxe/DnsDxe/DEBUG/DnsDxe.efi)
+
+
+
+HttpDxe (Fixed Flash Address, BaseAddress=0x0002599d04, EntryPoint=0x00025cb1e9, Type=PE)
+(GUID=2366C20F-E15A-11E3-8BF1-E4115B28BC50 .textbaseaddress=0x0002599f44 .databaseaddress=0x00025e7904)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/HttpDxe/HttpDxe/DEBUG/HttpDxe.efi)
+
+
+
+HttpUtilitiesDxe (Fixed Flash Address, BaseAddress=0x000261435c, EntryPoint=0x00026298a1, Type=PE)
+(GUID=22EA234F-E72A-11E4-91F9-28D2447C4829 .textbaseaddress=0x000261459c .databaseaddress=0x000263fedc)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/HttpUtilitiesDxe/HttpUtilitiesDxe/DEBUG/HttpUtilitiesDxe.efi)
+
+
+
+HttpBootDxe (Fixed Flash Address, BaseAddress=0x000265c5e8, EntryPoint=0x000268e0ad, Type=PE)
+(GUID=ECEBCB00-D9C8-11E4-AF3D-8CDCD426C973 .textbaseaddress=0x000265c828 .databaseaddress=0x00026b7b28)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/HttpBootDxe/HttpBootDxe/DEBUG/HttpBootDxe.efi)
+
+
+
+SmbiosBasic (Fixed Flash Address, BaseAddress=0x00026edb70, EntryPoint=0x0002702e55, Type=PE)
+(GUID=03ADF4A1-A27A-45E3-B211-3177C6C2E7ED .textbaseaddress=0x00026eddb0 .databaseaddress=0x00027180b0)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe/DEBUG/SmbiosBasic.efi)
+
+
+
+S3SaveStateDxe (Fixed Flash Address, BaseAddress=0x0002732794, EntryPoint=0x000274a899, Type=PE)
+(GUID=BDCE85BB-FBAA-4F4E-9264-501A2C249581 .textbaseaddress=0x00027329d4 .databaseaddress=0x00027684d4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe/DEBUG/S3SaveStateDxe.efi)
+
+
+
+BootScriptExecutorDxe (Fixed Flash Address, BaseAddress=0x0002788c8c, EntryPoint=0x00027a3631, Type=PE)
+(GUID=FA20568B-548B-4B2B-81EF-1BA08D4A3CEC .textbaseaddress=0x0002788ecc .databaseaddress=0x00027cf5cc)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe/DEBUG/BootScriptExecutorDxe.efi)
+
+
+
+CpuS3DataDxe (Fixed Flash Address, BaseAddress=0x0002801854, EntryPoint=0x0002816539, Type=PE)
+(GUID=4D2E57EE-0E3F-44DD-93C4-D3B57E96945D .textbaseaddress=0x0002801a94 .databaseaddress=0x000282c454)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuS3DataDxe/CpuS3DataDxe/DEBUG/CpuS3DataDxe.efi)
+
+
+
+TerminalDxe (Fixed Flash Address, BaseAddress=0x0002847ae4, EntryPoint=0x0002869549, Type=PE)
+(GUID=9E863906-A40F-4875-977F-5B93FF237FC6 .textbaseaddress=0x0002847d24 .databaseaddress=0x000287f7a4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe/DEBUG/TerminalDxe.efi)
+
+
+
+PrintDxe (Fixed Flash Address, BaseAddress=0x00028a0bc4, EntryPoint=0x00028b52d9, Type=PE)
+(GUID=79E4A61C-ED73-4312-94FE-E3E7563362A9 .textbaseaddress=0x00028a0e04 .databaseaddress=0x00028c9784)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/PrintDxe/PrintDxe/DEBUG/PrintDxe.efi)
+
+
+
+ScsiBus (Fixed Flash Address, BaseAddress=0x00028e328c, EntryPoint=0x00028fcdc1, Type=PE)
+(GUID=0167CCC4-D0F7-4F21-A3EF-9E64B7CDCE8B .textbaseaddress=0x00028e34cc .databaseaddress=0x000291198c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Scsi/ScsiBusDxe/ScsiBusDxe/DEBUG/ScsiBus.efi)
+
+
+
+ScsiDisk (Fixed Flash Address, BaseAddress=0x000292e18c, EntryPoint=0x00029575a1, Type=PE)
+(GUID=0A66E322-3740-4CCE-AD62-BD172CECCA35 .textbaseaddress=0x000292e3cc .databaseaddress=0x000296da0c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe/DEBUG/ScsiDisk.efi)
+
+
+
+AtaAtapiPassThruDxe (Fixed Flash Address, BaseAddress=0x0002991394, EntryPoint=0x00029b8749, Type=PE)
+(GUID=5E523CB4-D397-4986-87BD-A6DD8B22F455 .textbaseaddress=0x00029915d4 .databaseaddress=0x00029d14d4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AtaAtapiPassThru/DEBUG/AtaAtapiPassThruDxe.efi)
+
+
+
+AtaBusDxe (Fixed Flash Address, BaseAddress=0x00029f5d6c, EntryPoint=0x0002a13a11, Type=PE)
+(GUID=19DF145A-B1D4-453F-8507-38816676D7F6 .textbaseaddress=0x00029f5fac .databaseaddress=0x0002a2aa6c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Ata/AtaBusDxe/AtaBusDxe/DEBUG/AtaBusDxe.efi)
+
+
+
+NvmExpressDxe (Fixed Flash Address, BaseAddress=0x0002a98154, EntryPoint=0x0002abecf9, Type=PE)
+(GUID=5BE3BDF4-53CF-46A3-A6A9-73C34A6E5EE3 .textbaseaddress=0x0002a98394 .databaseaddress=0x0002ad69d4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe/DEBUG/NvmExpressDxe.efi)
+
+
+
+LegacySioDxe (Fixed Flash Address, BaseAddress=0x0002afb224, EntryPoint=0x0002b12db9, Type=PE)
+(GUID=7807E404-8281-4FF1-8457-0B54BABE263F .textbaseaddress=0x0002afb464 .databaseaddress=0x0002b27de4)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/LegacySioDxe/LegacySioDxe/DEBUG/LegacySioDxe.efi)
+
+
+
+BoardBdsHookDxe (Fixed Flash Address, BaseAddress=0x0002b43b14, EntryPoint=0x0002b6bf19, Type=PE)
+(GUID=EEA6491C-0DC5-48AB-B99D-CE77D14D43F2 .textbaseaddress=0x0002b43d54 .databaseaddress=0x0002b8d954)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe/DEBUG/BoardBdsHookDxe.efi)
+
+
+
+Ps2KeyboardDxe (Fixed Flash Address, BaseAddress=0x0002bb9264, EntryPoint=0x0002bd52c9, Type=PE)
+(GUID=C4D1F932-821F-4744-BF06-6D30F7730F8D .textbaseaddress=0x0002bb94a4 .databaseaddress=0x0002beb964)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KeyboardDxe/DEBUG/Ps2KeyboardDxe.efi)
+
+
+
+SmbiosPlatformDxe (Fixed Flash Address, BaseAddress=0x0002c0a5dc, EntryPoint=0x0002c1eb01, Type=PE)
+(GUID=4B18323D-2D42-4AFA-B9E5-91516A6FE505 .textbaseaddress=0x0002c0a81c .databaseaddress=0x0002c33b1c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SmbiosPlatformDxe/SmbiosPlatformDxe/DEBUG/SmbiosPlatformDxe.efi)
+
+
+
+AcpiPlatform (Fixed Flash Address, BaseAddress=0x0002c4dd9c, EntryPoint=0x0002c62281, Type=PE)
+(GUID=CB933912-DF8F-4305-B1F9-7B44FA11395C .textbaseaddress=0x0002c4dfdc .databaseaddress=0x0002c7685c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe/DEBUG/AcpiPlatform.efi)
+
+
+
+AcpiPlatform (Fixed Flash Address, BaseAddress=0x0002c9031c, EntryPoint=0x0002ca9151, Type=PE)
+(GUID=FC90EB7A-3E0A-483C-A26C-484D36593FF4 .textbaseaddress=0x0002c9055c .databaseaddress=0x0002cc0e1c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/AcpiTables/MinPlatformAcpiTables/AcpiPlatform/DEBUG/AcpiPlatform.efi)
+
+
+
+QemuVideoDxe (Fixed Flash Address, BaseAddress=0x0002ced54c, EntryPoint=0x0002d0d201, Type=PE)
+(GUID=E3752948-B9A1-4770-90C4-DF41C38986BE .textbaseaddress=0x0002ced78c .databaseaddress=0x0002d2aa8c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SimicsVideoDxe/SimicsVideoDxe/DEBUG/QemuVideoDxe.efi)
+
+
+
+PlatformInitDxe (Fixed Flash Address, BaseAddress=0x0002d50bf4, EntryPoint=0x0002d65599, Type=PE)
+(GUID=CA84408A-0929-4F11-BFED-18C7D9576C6B .textbaseaddress=0x0002d50e34 .databaseaddress=0x0002d79c74)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitDxe/PlatformInitDxe/DEBUG/PlatformInitDxe.efi)
+
+
+
+SimicsDxe (Fixed Flash Address, BaseAddress=0x0002dd6f78, EntryPoint=0x0002def15d, Type=PE)
+(GUID=74B64DC1-B0B6-4853-A6BD-C6426059AB1E .textbaseaddress=0x0002dd71b8 .databaseaddress=0x0002e05978)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SimicsDxe/SimicsDxe/DEBUG/SimicsDxe.efi)
+
+
+
+UndiDxe (Fixed Flash Address, BaseAddress=0x00030ed90c, EntryPoint=0x00030edb94, Type=PE)
+(GUID=5D695E11-9B3F-4B83-B25F-4A8D5D69BE07 .textbaseaddress=0x00030edb8c .databaseaddress=0x000310e82c)
+(IMAGE=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/IA32/SimicsIch10BinPkg/UndiBinary/UndiDxe/DEBUG/UndiDxe.efi)
+

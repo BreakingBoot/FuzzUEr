@@ -1,0 +1,462 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "GetNumberOfProcessors",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfProcessors"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "GetNumberOfProcessors",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfProcessors"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "DispatchProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE2",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CpuNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutInMicroseconds"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "MM_COMPLETION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CPUStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "DispatchProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE2",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CpuNumber"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutInMicroseconds"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "MM_COMPLETION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            },
+            "Arg_6": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CPUStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "BroadcastProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE2",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutInMicroseconds"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "MM_COMPLETION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CPUStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "BroadcastProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE2",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimeoutInMicroseconds"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "MM_COMPLETION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_STATUS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CPUStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "SetStartupProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "SetStartupProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_AP_PROCEDURE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Procedure"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcedureArguments"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "WaitForProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "MM_COMPLETION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h",
+        "Function": "WaitForProcedure",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/SmmMp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_MM_MP_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "MM_COMPLETION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

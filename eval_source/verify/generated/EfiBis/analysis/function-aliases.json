@@ -1,0 +1,22 @@
+[
+    {
+        "Aliases": [
+            "ExtFree",
+            "NetbufGetFragmentFree",
+            "SzFree"
+        ],
+        "Function": "Free"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Initialize"
+        ],
+        "Function": "Initialize"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Shutdown"
+        ],
+        "Function": "Shutdown"
+    }
+]

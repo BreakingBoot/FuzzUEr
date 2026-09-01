@@ -1,0 +1,21 @@
+[
+    {
+        "Aliases": [
+            "VarCheckRegisterSetVariableCheckHandler"
+        ],
+        "Function": "RegisterSetVariableCheckHandler"
+    },
+    {
+        "Aliases": [
+            "VarCheckVariablePropertyGet",
+            "VarCheckVariablePropertySet"
+        ],
+        "Function": "VariablePropertyGet"
+    },
+    {
+        "Aliases": [
+            "VarCheckVariablePropertySet"
+        ],
+        "Function": "VariablePropertySet"
+    }
+]

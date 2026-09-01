@@ -1,0 +1,49 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvRead",
+            "FileInterfaceFileRead",
+            "FileInterfaceMemRead",
+            "RootBridgeIoIoRead",
+            "RootBridgeIoMemRead",
+            "RootBridgeIoPciRead"
+        ],
+        "Function": "Read"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

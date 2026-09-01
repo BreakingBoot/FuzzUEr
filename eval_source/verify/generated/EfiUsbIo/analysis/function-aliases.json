@@ -1,0 +1,78 @@
+[
+    {
+        "Aliases": [
+            "UsbIoAsyncInterruptTransfer"
+        ],
+        "Function": "UsbAsyncInterruptTransfer"
+    },
+    {
+        "Aliases": [
+            "UsbIoAsyncIsochronousTransfer"
+        ],
+        "Function": "UsbAsyncIsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "UsbIoControlTransfer"
+        ],
+        "Function": "UsbControlTransfer"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetActiveConfigDescriptor"
+        ],
+        "Function": "UsbGetConfigDescriptor"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetDeviceDescriptor"
+        ],
+        "Function": "UsbGetDeviceDescriptor"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetEndpointDescriptor"
+        ],
+        "Function": "UsbGetEndpointDescriptor"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetInterfaceDescriptor"
+        ],
+        "Function": "UsbGetInterfaceDescriptor"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetStringDescriptor"
+        ],
+        "Function": "UsbGetStringDescriptor"
+    },
+    {
+        "Aliases": [
+            "UsbIoGetSupportedLanguages"
+        ],
+        "Function": "UsbGetSupportedLanguages"
+    },
+    {
+        "Aliases": [
+            "UsbIoIsochronousTransfer"
+        ],
+        "Function": "UsbIsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4Poll",
+            "EfiMtftp6Poll",
+            "PciIoFlush",
+            "UsbIoPortReset"
+        ],
+        "Function": "UsbPortReset"
+    },
+    {
+        "Aliases": [
+            "UsbIoBulkTransfer",
+            "UsbIoSyncInterruptTransfer"
+        ],
+        "Function": "UsbSyncInterruptTransfer"
+    }
+]

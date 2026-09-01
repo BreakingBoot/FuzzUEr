@@ -1,0 +1,754 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "SetVolumeAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "SetVolumeAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "GetNextFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Key"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_FV_FILETYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileType"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILE_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "GetNextFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Key"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_FV_FILETYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileType"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILE_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "ReadFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILETYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FoundType"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILE_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileAttributes"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "ReadFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILETYPE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FoundType"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FV_FILE_ATTRIBUTES *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileAttributes"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "ReadSection",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "ReadSection",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NameGuid"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SECTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionType"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SectionInstance"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_5": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AuthenticationStatus"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "WriteFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfFiles"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_WRITE_POLICY",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "WritePolicy"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_WRITE_FILE_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "WriteFile",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfFiles"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_WRITE_POLICY",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "WritePolicy"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FV_WRITE_FILE_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FileData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "GetInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InformationType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "GetInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InformationType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "SetInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InformationType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h",
+        "Function": "SetInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Dxe/FwVol/FwVolDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FIRMWARE_VOLUME2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "InformationType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

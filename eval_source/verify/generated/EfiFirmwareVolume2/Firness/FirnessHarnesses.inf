@@ -1,0 +1,117 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Firness
+  FILE_GUID                      = f919f97d-943b-4cf8-baa4-301376bde40d
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FirnessMain
+
+#
+#  This flag specifies whether HII resource section is generated into PE image.
+#
+  UEFI_HII_RESOURCE_SECTION      = TRUE
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 EBC
+#
+
+[Sources]
+  FirnessMain.c
+  FirnessHarnesses.c
+  FirnessHelpers.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ShellPkg/ShellPkg.dec
+  NetworkPkg/NetworkPkg.dec
+  OvmfPkg/OvmfPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+
+[LibraryClasses]
+  UdpIoLib
+  ShellCommandLib
+  HobLib
+  UefiDecompressLib
+  DevicePathLib
+  S3BootScriptLib
+  ExtractGuidedSectionLib
+  DxeServicesTableLib
+  UefiApplicationEntryPoint
+  UefiRuntimeServicesTableLib
+  HttpIoLib
+  HiiLib
+  UefiBootManagerLib
+  RegisterFilterLib
+  FileHandleLib
+  MemoryAllocationLib
+  PciCapPciIoLib
+  MtrrLib
+  BaseMemoryLib
+  UefiBootServicesTableLib
+  SortLib
+  PciCf8Lib
+  TcpIoLib
+  PrintLib
+  IpIoLib
+  NetLib
+  DebugAgentLib
+  ShellLib
+  TimerLib
+  PciSegmentLib
+  UefiHiiServicesLib
+  ReportStatusCodeLib
+  LockBoxLib
+  HandleParsingLib
+  BaseLib
+  OrderedCollectionLib
+  DpcLib
+  PerformanceLib
+  TimeBaseLib
+  PeCoffGetEntryPointLib
+  UefiLib
+  SynchronizationLib
+  SmbusLib
+  DebugLib
+  DxeServicesLib
+  IoLib
+  SerialPortLib
+  VariablePolicyHelperLib
+  CpuLib
+  PcdLib
+  PciLib
+  PciExpressLib
+
+[Guids]
+  gAprioriGuid
+
+[Protocols]
+  gEfiHobMemoryAllocModuleGuid
+  gEfiAuthenticatedVariableGuid
+  gEfiCallerIdGuid
+  gEfiSasDevicePathGuid
+  gEfiVT100Guid
+  gEfiVirtualCdGuid
+  gEfiFirmwareVolume2ProtocolGuid
+  gEfiSmmVariableProtocolGuid
+  gEfiPersistentVirtualCdGuid
+  gEfiVirtualDiskGuid
+  gEfiVT100PlusGuid
+  gVarCheckPolicyLibMmiHandlerGuid
+  gEfiDiskInfoUfsInterfaceGuid
+  gEfiVTUTF8Guid
+  gEfiDiskInfoAhciInterfaceGuid
+  gEfiDiskInfoIdeInterfaceGuid
+  gEdkiiDeviceIdentifierTypePciGuid
+  gEfiGlobalVariableGuid
+  gEfiPcAnsiGuid
+  gEfiHobMemoryAllocStackGuid
+  gEfiPersistentVirtualDiskGuid
+  gEfiDebugPortProtocolGuid
+  gEfiFirmwareFileSystem2Guid
+  gZeroGuid
+  gEfiHobMemoryAllocBspStoreGuid
+  gEfiVariableGuid
+  gEfiUartDevicePathGuid

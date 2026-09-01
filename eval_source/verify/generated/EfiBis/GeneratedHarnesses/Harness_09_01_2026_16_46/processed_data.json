@@ -1,0 +1,438 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_PROTOCOL *",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "BIS_APPLICATION_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_BIS_VERSION *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_VERSION *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Initialize",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "Shutdown",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "Free",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BIS_DATA * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetBootObjectAuthorizationCertificate",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetBootObjectAuthorizationCheckFlag",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BIS_DATA * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetBootObjectAuthorizationUpdateToken",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BIS_DATA * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "GetSignatureInfo",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BIS_DATA * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UpdateBootObjectAuthorization",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "VerifyBootObject",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BIS_APPLICATION_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "BIS_APPLICATION_HANDLE",
+                    "Usage": "gEfiBisProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BIS_DATA *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BIS_DATA *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "VerifyObjectWithCredential",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Bis.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

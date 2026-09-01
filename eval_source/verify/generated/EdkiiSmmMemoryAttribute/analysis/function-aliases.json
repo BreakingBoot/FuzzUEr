@@ -1,0 +1,15 @@
+[
+    {
+        "Aliases": [
+            "EdkiiSmmClearMemoryAttributes",
+            "EdkiiSmmSetMemoryAttributes"
+        ],
+        "Function": "ClearMemoryAttributes"
+    },
+    {
+        "Aliases": [
+            "EdkiiSmmGetMemoryAttributes"
+        ],
+        "Function": "GetMemoryAttributes"
+    }
+]

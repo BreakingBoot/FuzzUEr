@@ -1,0 +1,684 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "GetModeData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MANAGED_NETWORK_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MnpConfigData"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_SIMPLE_NETWORK_MODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SnpModeData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "GetModeData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MANAGED_NETWORK_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MnpConfigData"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_SIMPLE_NETWORK_MODE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SnpModeData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MnpConfigData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MnpConfigData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "McastIpToMac",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Ipv6Flag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "McastIpToMac",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Ipv6Flag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "IpAddress"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Groups",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "JoinFlag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Groups",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "JoinFlag"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MacAddress"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Cancel",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_COMPLETION_TOKEN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Cancel",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_COMPLETION_TOKEN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Poll",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h",
+        "Function": "Poll",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MANAGED_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Transmit",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Transmit",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Receive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Receive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "HeaderSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SrcAddr"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_MAC_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DestAddr"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Protocol"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

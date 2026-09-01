@@ -1,0 +1,128 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Usage": "gEfiI2cMasterProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetBusFrequency",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/I2cMaster.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Usage": "gEfiI2cMasterProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Reset",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/I2cMaster.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_I2C_MASTER_PROTOCOL *",
+                    "Usage": "gEfiI2cMasterProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_I2C_REQUEST_PACKET *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_I2C_REQUEST_PACKET *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_EVENT",
+                    "Assignment": "",
+                    "Data Type": "EFI_EVENT",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_STATUS *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_STATUS *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "StartRequest",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/I2cMaster.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

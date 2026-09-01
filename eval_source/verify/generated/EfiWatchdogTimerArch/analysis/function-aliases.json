@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "WatchdogTimerDriverGetTimerPeriod"
+        ],
+        "Function": "GetTimerPeriod"
+    },
+    {
+        "Aliases": [
+            "WatchdogTimerDriverRegisterHandler"
+        ],
+        "Function": "RegisterHandler"
+    },
+    {
+        "Aliases": [
+            "WatchdogTimerDriverSetTimerPeriod"
+        ],
+        "Function": "SetTimerPeriod"
+    }
+]

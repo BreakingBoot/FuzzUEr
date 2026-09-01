@@ -1,0 +1,38 @@
+[
+    {
+        "Aliases": [
+            "HiiDrawImageEx"
+        ],
+        "Function": "DrawImageEx"
+    },
+    {
+        "Aliases": [
+            "HiiDrawImageIdEx"
+        ],
+        "Function": "DrawImageIdEx"
+    },
+    {
+        "Aliases": [
+            "HiiGetImageEx"
+        ],
+        "Function": "GetImageEx"
+    },
+    {
+        "Aliases": [
+            "HiiGetImageInfo"
+        ],
+        "Function": "GetImageInfo"
+    },
+    {
+        "Aliases": [
+            "HiiNewImageEx"
+        ],
+        "Function": "NewImageEx"
+    },
+    {
+        "Aliases": [
+            "HiiSetImageEx"
+        ],
+        "Function": "SetImageEx"
+    }
+]

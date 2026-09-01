@@ -1,0 +1,778 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.c",
+        "Function": "Dhcp4Callback",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_STATE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CurrentState"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4Event"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPacket"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.c",
+        "Function": "Dhcp4Callback",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDhcp4.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Context"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_STATE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CurrentState"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4Event"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPacket"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "GetModeData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_MODE_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4ModeData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "GetModeData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_MODE_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4ModeData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4CfgData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Configure",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_CONFIG_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Dhcp4CfgData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CompletionEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CompletionEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "RenewRebind",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RebindRequest"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CompletionEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "RenewRebind",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RebindRequest"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CompletionEvent"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Build",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SeedPacket"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeleteCount"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeleteList"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AppendCount"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET_OPTION **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AppendList"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPacket"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Build",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SeedPacket"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeleteCount"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DeleteList"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AppendCount"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET_OPTION **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AppendList"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NewPacket"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "TransmitReceive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_TRANSMIT_RECEIVE_TOKEN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "TransmitReceive",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_TRANSMIT_RECEIVE_TOKEN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Token"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Parse",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OptionCount"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET_OPTION **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PacketOptionList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c",
+        "Function": "Parse",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp4Dxe/Dhcp4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP4_PACKET *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Packet"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OptionCount"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_DHCP4_PACKET_OPTION **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PacketOptionList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp6Dxe/Dhcp6Impl.h",
+        "Function": "Release",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp6Dxe/Dhcp6Impl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP6_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressCount"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IPv6_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Addresses"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Dhcp6Dxe/Dhcp6Impl.h",
+        "Function": "Release",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Dhcp6Dxe/Dhcp6Impl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DHCP6_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "AddressCount"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IPv6_ADDRESS *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Addresses"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

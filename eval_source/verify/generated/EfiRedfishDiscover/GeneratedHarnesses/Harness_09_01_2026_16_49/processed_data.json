@@ -1,0 +1,218 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Usage": "gEfiRedfishDiscoverProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE * *",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetNetworkInterfaceList",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/RedfishDiscover.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Usage": "gEfiRedfishDiscoverProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_FLAG",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_FLAG",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_REDFISH_DISCOVERED_TOKEN *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_REDFISH_DISCOVERED_TOKEN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AcquireRedfishService",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/RedfishDiscover.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Usage": "gEfiRedfishDiscoverProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_REDFISH_DISCOVER_NETWORK_INTERFACE *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AbortAcquireRedfishService",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/RedfishDiscover.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_REDFISH_DISCOVER_PROTOCOL *",
+                    "Usage": "gEfiRedfishDiscoverProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_REDFISH_DISCOVERED_LIST *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_REDFISH_DISCOVERED_LIST *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ReleaseRedfishService",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/RedfishDiscover.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

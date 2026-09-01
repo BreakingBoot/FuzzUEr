@@ -1,0 +1,61 @@
+[
+    {
+        "Aliases": [
+            "Close",
+            "FileInterfaceEnvClose",
+            "FileInterfaceFileClose",
+            "FileInterfaceMemClose"
+        ],
+        "Function": "Close"
+    },
+    {
+        "Aliases": [
+            "FindPath"
+        ],
+        "Function": "FindPath"
+    },
+    {
+        "Aliases": [
+            "GetAcpiTable2"
+        ],
+        "Function": "GetAcpiTable"
+    },
+    {
+        "Aliases": [
+            "GetChild"
+        ],
+        "Function": "GetChild"
+    },
+    {
+        "Aliases": [
+            "GetOption"
+        ],
+        "Function": "GetOption"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileOpen",
+            "FileInterfaceOpenNotFound",
+            "Open"
+        ],
+        "Function": "Open"
+    },
+    {
+        "Aliases": [
+            "OpenSdt"
+        ],
+        "Function": "OpenSdt"
+    },
+    {
+        "Aliases": [
+            "RegisterNotify"
+        ],
+        "Function": "RegisterNotify"
+    },
+    {
+        "Aliases": [
+            "SetOption"
+        ],
+        "Function": "SetOption"
+    }
+]

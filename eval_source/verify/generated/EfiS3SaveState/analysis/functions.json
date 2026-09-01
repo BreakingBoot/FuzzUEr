@@ -1,0 +1,442 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h",
+        "Function": "Write",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FAULT_TOLERANT_WRITE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_LBA",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Lba"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateData"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FvBlockHandle"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h",
+        "Function": "Write",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWrite.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_FAULT_TOLERANT_WRITE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_LBA",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Lba"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Offset"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrivateData"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FvBlockHandle"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Insert",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BeforeOrAfter"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpCode"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Insert",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BeforeOrAfter"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "OpCode"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Label",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BeforeOrAfter"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CreateIfNotFound"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Label"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Label",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BeforeOrAfter"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "CreateIfNotFound"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Label"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Compare",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position1"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position2"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RelativePosition"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h",
+        "Function": "Compare",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/S3SaveStateDxe/InternalS3SaveState.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_S3_SAVE_STATE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position1"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_S3_BOOT_SCRIPT_POSITION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Position2"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RelativePosition"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

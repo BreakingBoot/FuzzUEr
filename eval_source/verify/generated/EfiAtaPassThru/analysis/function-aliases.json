@@ -1,0 +1,47 @@
+[
+    {
+        "Aliases": [
+            "AtaPassThruBuildDevicePath",
+            "NvmExpressBuildDevicePath"
+        ],
+        "Function": "BuildDevicePath"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruGetDevice"
+        ],
+        "Function": "GetDevice"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruGetNextDevice"
+        ],
+        "Function": "GetNextDevice"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruGetNextPort"
+        ],
+        "Function": "GetNextPort"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruPassThru",
+            "NvmExpressPassThru"
+        ],
+        "Function": "PassThru"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruResetDevice",
+            "ScsiResetDevice"
+        ],
+        "Function": "ResetDevice"
+    },
+    {
+        "Aliases": [
+            "AtaPassThruResetPort"
+        ],
+        "Function": "ResetPort"
+    }
+]

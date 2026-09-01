@@ -1,0 +1,26 @@
+[
+    {
+        "Aliases": [
+            "EbcDebugGetMaximumProcessorIndex"
+        ],
+        "Function": "GetMaximumProcessorIndex"
+    },
+    {
+        "Aliases": [
+            "EbcDebugInvalidateInstructionCache"
+        ],
+        "Function": "InvalidateInstructionCache"
+    },
+    {
+        "Aliases": [
+            "EbcDebugRegisterExceptionCallback"
+        ],
+        "Function": "RegisterExceptionCallback"
+    },
+    {
+        "Aliases": [
+            "EbcDebugRegisterPeriodicCallback"
+        ],
+        "Function": "RegisterPeriodicCallback"
+    }
+]

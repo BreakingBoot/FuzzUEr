@@ -1,0 +1,83 @@
+[
+    {
+        "Aliases": [
+            "Dns4Cancel",
+            "Dns6Cancel",
+            "Tcp4Cancel",
+            "Tcp4Connect",
+            "Tcp6Cancel",
+            "Tcp6Connect",
+            "Udp4Cancel",
+            "Udp4Receive",
+            "Udp4Transmit",
+            "Udp6Cancel",
+            "Udp6Receive",
+            "Udp6Transmit"
+        ],
+        "Function": "Cancel"
+    },
+    {
+        "Aliases": [
+            "Dns4Configure",
+            "Dns6Configure",
+            "EfiHttpConfigure",
+            "EfiHttpGetModeData",
+            "Tcp4Close",
+            "Tcp4Configure",
+            "Tcp6Configure",
+            "Udp4Configure",
+            "Udp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "Udp4GetModeData",
+            "Udp6GetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "Members",
+            "Udp4Groups",
+            "Udp6Groups"
+        ],
+        "Function": "Groups"
+    },
+    {
+        "Aliases": [
+            "Dns4Poll",
+            "Dns6Poll",
+            "EfiHttpPoll",
+            "FatClose",
+            "FatDelete",
+            "FatFlush",
+            "FileInterfaceNopGeneric",
+            "Tcp4Poll",
+            "Tcp6Poll",
+            "Udp4Poll",
+            "Udp6Poll"
+        ],
+        "Function": "Poll"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "Tcp4Routes",
+            "Udp4Routes"
+        ],
+        "Function": "Routes"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]

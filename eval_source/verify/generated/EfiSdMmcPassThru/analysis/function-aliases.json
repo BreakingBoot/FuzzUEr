@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "NvmExpressBuildDevicePath"
+        ],
+        "Function": "BuildDevicePath"
+    },
+    {
+        "Aliases": [
+            "NvmExpressPassThru"
+        ],
+        "Function": "PassThru"
+    },
+    {
+        "Aliases": [
+            "ScsiResetDevice"
+        ],
+        "Function": "ResetDevice"
+    }
+]

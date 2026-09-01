@@ -1,0 +1,5 @@
+  EfiHttp          OK 629312 bytes
+  EfiShell         OK 718720 bytes
+  EfiPciIo         OK 718720 bytes
+  EfiAtaPassThru   OK 718720 bytes
+  EfiIp4           OK 720832 bytes

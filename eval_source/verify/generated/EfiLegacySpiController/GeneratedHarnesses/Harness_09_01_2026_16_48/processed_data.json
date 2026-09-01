@@ -1,0 +1,240 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "EraseBlockOpcode",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8",
+                    "Assignment": "",
+                    "Data Type": "UINT8",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "WriteStatusPrefix",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "BiosBaseAddress",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ClearSpiProtect",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "IsRangeProtected",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ProtectNextRange",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_LEGACY_SPI_CONTROLLER_PROTOCOL *",
+                    "Usage": "gEfiLegacySpiControllerProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "LockController",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/LegacySpiController.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

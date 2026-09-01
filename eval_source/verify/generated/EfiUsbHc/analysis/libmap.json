@@ -1,0 +1,1658 @@
+{
+    "BaseLib": {
+        "path": "MdePkg/Library/BaseLib/BaseLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "BaseMemoryLib",
+            "RegisterFilterLib"
+        ]
+    },
+    "BaseMemoryLib": {
+        "path": "MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "CpuLib": {
+        "path": "MdePkg/Library/BaseCpuLib/BaseCpuLib.inf",
+        "dependencies": []
+    },
+    "DebugLib": {
+        "path": "MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf",
+        "dependencies": []
+    },
+    "DebugPrintErrorLevelLib": {
+        "path": "MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf",
+        "dependencies": [
+            "PcdLib"
+        ]
+    },
+    "DxeServicesLib": {
+        "path": "MdePkg/Library/DxeServicesLib/DxeServicesLib.inf",
+        "dependencies": [
+            "HobLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "UefiLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "MemoryAllocationLib": {
+        "path": "MdeModulePkg/Library/BaseMemoryAllocationLibNull/BaseMemoryAllocationLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "PcdLib": {
+        "path": "MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "PeCoffExtraActionLib": {
+        "path": "MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "PeCoffLib": {
+        "path": "MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "PeCoffExtraActionLib"
+        ]
+    },
+    "PrintLib": {
+        "path": "MdePkg/Library/BasePrintLib/BasePrintLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "BaseLib"
+        ]
+    },
+    "RegisterFilterLib": {
+        "path": "MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf",
+        "dependencies": []
+    },
+    "RngLib": {
+        "path": "MdePkg/Library/BaseRngLib/BaseRngLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "UefiBootServicesTableLib": {
+        "path": "MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "UefiRuntimeServicesTableLib": {
+        "path": "MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "MtrrLib": {
+        "path": "UefiCpuPkg/Library/MtrrLib/MtrrLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "CpuLib",
+            "BaseLib"
+        ]
+    },
+    "NULL": {
+        "path": "MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "DevicePathLib": {
+        "path": "MdePkg/Library/UefiDevicePathLibDevicePathProtocol/UefiDevicePathLibDevicePathProtocol.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "DxeServicesTableLib": {
+        "path": "MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "UefiLib"
+        ]
+    },
+    "HobLib": {
+        "path": "MdePkg/Library/DxeHobLib/DxeHobLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "UefiLib"
+        ]
+    },
+    "UefiLib": {
+        "path": "MdePkg/Library/UefiLib/UefiLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "UefiRuntimeServicesTableLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "FileHandleLib": {
+        "path": "MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "PcdLib"
+        ]
+    },
+    "HiiLib": {
+        "path": "MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "PrintLib",
+            "UefiHiiServicesLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "ShellLib": {
+        "path": "ShellPkg/Library/UefiShellLib/UefiShellLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "SortLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "UefiLib",
+            "FileHandleLib",
+            "UefiBootServicesTableLib",
+            "HiiLib"
+        ]
+    },
+    "SortLib": {
+        "path": "MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "TimerLib": {
+        "path": "MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "UefiApplicationEntryPoint": {
+        "path": "MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "UefiHiiServicesLib": {
+        "path": "MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "PrmContextBufferLib": {
+        "path": "PrmPkg/Library/DxePrmContextBufferLib/DxePrmContextBufferLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "PrmModuleDiscoveryLib": {
+        "path": "PrmPkg/Library/DxePrmModuleDiscoveryLib/DxePrmModuleDiscoveryLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "PrmPeCoffLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "PrmPeCoffLib": {
+        "path": "PrmPkg/Library/DxePrmPeCoffLib/DxePrmPeCoffLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PeCoffLib",
+            "BaseLib"
+        ]
+    },
+    "AndroidBootImgLib": {
+        "path": "EmbeddedPkg/Library/AndroidBootImgLib/AndroidBootImgLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "FdtLib",
+            "UefiLib",
+            "PrintLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "PciLib": {
+        "path": "MdePkg/Library/BasePciLibCf8/BasePciLibCf8.inf",
+        "dependencies": [
+            "PciCf8Lib"
+        ]
+    },
+    "PerformanceLib": {
+        "path": "MdePkg/Library/BasePerformanceLibNull/BasePerformanceLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib"
+        ]
+    },
+    "UefiDecompressLib": {
+        "path": "MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "PeCoffGetEntryPointLib": {
+        "path": "MdePkg/Library/BasePeCoffGetEntryPointLib/BasePeCoffGetEntryPointLib.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "CacheMaintenanceLib": {
+        "path": "MdePkg/Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "PrePiLib": {
+        "path": "EmbeddedPkg/Library/PrePiLib/PrePiLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "HobLib",
+            "ExtractGuidedSectionLib",
+            "DebugLib",
+            "PeCoffLib",
+            "BaseLib",
+            "PerformanceLib",
+            "SerialPortLib",
+            "PrintLib",
+            "CacheMaintenanceLib",
+            "TimerLib",
+            "UefiDecompressLib"
+        ]
+    },
+    "SerialPortLib": {
+        "path": "MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf",
+        "dependencies": []
+    },
+    "RealTimeClockLib": {
+        "path": "EmbeddedPkg/Library/TemplateRealTimeClockLib/TemplateRealTimeClockLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib"
+        ]
+    },
+    "EfiResetSystemLib": {
+        "path": "EmbeddedPkg/Library/TemplateResetSystemLib/TemplateResetSystemLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib"
+        ]
+    },
+    "GdbSerialLib": {
+        "path": "EmbeddedPkg/Library/GdbSerialLib/GdbSerialLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib"
+        ]
+    },
+    "IoLib": {
+        "path": "MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "RegisterFilterLib"
+        ]
+    },
+    "ExtractGuidedSectionLib": {
+        "path": "MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "BaseMemoryLib",
+            "UefiBootServicesTableLib",
+            "DebugLib"
+        ]
+    },
+    "AcpiLib": {
+        "path": "EmbeddedPkg/Library/AcpiLib/AcpiLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "FdtLib": {
+        "path": "EmbeddedPkg/Library/FdtLib/FdtLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "TimeBaseLib": {
+        "path": "EmbeddedPkg/Library/TimeBaseLib/TimeBaseLib.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "ReportStatusCodeLib": {
+        "path": "MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "ArmGicLib": {
+        "path": "ArmPkg/Drivers/ArmGic/ArmGicLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "ArmLib",
+            "IoLib",
+            "ArmGicArchLib"
+        ]
+    },
+    "ArmSmcLib": {
+        "path": "ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf",
+        "dependencies": []
+    },
+    "SemihostLib": {
+        "path": "ArmPkg/Library/SemihostLib/SemihostLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "ArmLib": {
+        "path": "ArmPkg/Library/ArmLib/ArmBaseLib.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "SafeIntLib": {
+        "path": "MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "ArmTrngLib": {
+        "path": "MdePkg/Library/BaseArmTrngLibNull/BaseArmTrngLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "VariablePolicyHelperLib": {
+        "path": "MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "ShellCommandLib": {
+        "path": "ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "OrderedCollectionLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "ShellLib",
+            "PrintLib",
+            "HandleParsingLib",
+            "UefiBootServicesTableLib",
+            "HiiLib"
+        ]
+    },
+    "ShellCEntryLib": {
+        "path": "ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "UefiApplicationEntryPoint"
+        ]
+    },
+    "HandleParsingLib": {
+        "path": "ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "SortLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "UefiLib",
+            "FileHandleLib",
+            "UefiBootServicesTableLib",
+            "HiiLib",
+            "PeCoffGetEntryPointLib"
+        ]
+    },
+    "OrderedCollectionLib": {
+        "path": "MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "BcfgCommandLib": {
+        "path": "ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "SortLib",
+            "UefiBootManagerLib",
+            "MemoryAllocationLib",
+            "ShellCommandLib",
+            "UefiRuntimeServicesTableLib",
+            "DebugLib",
+            "BaseLib",
+            "ShellLib",
+            "UefiLib",
+            "PrintLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "AcpiViewCommandLib": {
+        "path": "ShellPkg/Library/UefiShellAcpiViewCommandLib/UefiShellAcpiViewCommandLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "ShellCommandLib",
+            "UefiRuntimeServicesTableLib",
+            "DebugLib",
+            "BaseLib",
+            "ShellLib",
+            "PrintLib",
+            "PcdLib",
+            "UefiLib",
+            "FileHandleLib",
+            "UefiBootServicesTableLib",
+            "HiiLib"
+        ]
+    },
+    "UefiBootManagerLib": {
+        "path": "MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf",
+        "dependencies": [
+            "DxeServicesLib",
+            "PrintLib",
+            "PcdLib",
+            "SortLib",
+            "ReportStatusCodeLib",
+            "UefiRuntimeServicesTableLib",
+            "HiiLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "VariablePolicyHelperLib",
+            "DevicePathLib",
+            "DebugLib",
+            "DxeServicesTableLib",
+            "HobLib",
+            "BaseLib",
+            "PerformanceLib",
+            "UefiLib",
+            "UefiBootServicesTableLib",
+            "PeCoffGetEntryPointLib"
+        ]
+    },
+    "SynchronizationLib": {
+        "path": "MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "BaseMemoryLib",
+            "TimerLib"
+        ]
+    },
+    "OemHookStatusCodeLib": {
+        "path": "MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf",
+        "dependencies": []
+    },
+    "TpmMeasurementLib": {
+        "path": "SecurityPkg/Library/DxeTpmMeasurementLib/DxeTpmMeasurementLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "Tpm12CommandLib": {
+        "path": "SecurityPkg/Library/Tpm12CommandLib/Tpm12CommandLib.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseMemoryLib",
+            "DebugLib",
+            "BaseLib",
+            "TimerLib",
+            "Tpm12DeviceLib"
+        ]
+    },
+    "Tpm2CommandLib": {
+        "path": "SecurityPkg/Library/Tpm2CommandLib/Tpm2CommandLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "Tpm2DeviceLib"
+        ]
+    },
+    "PciSegmentLib": {
+        "path": "MdePkg/Library/BasePciSegmentLibPci/BasePciSegmentLibPci.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "PciLib"
+        ]
+    },
+    "S3BootScriptLib": {
+        "path": "MdeModulePkg/Library/PiDxeS3BootScriptLib/DxeS3BootScriptLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "IoLib",
+            "LockBoxLib",
+            "DebugLib",
+            "SmbusLib",
+            "PciSegmentLib",
+            "BaseLib",
+            "TimerLib",
+            "UefiLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "SmbusLib": {
+        "path": "MdePkg/Library/BaseSmbusLibNull/BaseSmbusLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "LockBoxLib": {
+        "path": "MdeModulePkg/Library/LockBoxNullLib/LockBoxNullLib.inf",
+        "dependencies": []
+    },
+    "PciExpressLib": {
+        "path": "MdePkg/Library/BasePciExpressLib/BasePciExpressLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib",
+            "PcdLib",
+            "BaseLib"
+        ]
+    },
+    "TcgStorageCoreLib": {
+        "path": "SecurityPkg/Library/TcgStorageCoreLib/TcgStorageCoreLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "TcgStorageOpalLib": {
+        "path": "SecurityPkg/Library/TcgStorageOpalLib/TcgStorageOpalLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "TimerLib",
+            "TcgStorageCoreLib"
+        ]
+    },
+    "ResetSystemLib": {
+        "path": "MdeModulePkg/Library/BaseResetSystemLibNull/BaseResetSystemLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "MmUnblockMemoryLib": {
+        "path": "MdePkg/Library/MmUnblockMemoryLib/MmUnblockMemoryLibNull.inf",
+        "dependencies": []
+    },
+    "SecureBootVariableLib": {
+        "path": "SecurityPkg/Library/SecureBootVariableLib/SecureBootVariableLib.inf",
+        "dependencies": [
+            "PlatformPKProtectionLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "UefiRuntimeServicesTableLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib"
+        ]
+    },
+    "PlatformPKProtectionLib": {
+        "path": "SecurityPkg/Library/PlatformPKProtectionLibVarPolicy/PlatformPKProtectionLibVarPolicy.inf",
+        "dependencies": [
+            "DebugLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "SecureBootVariableProvisionLib": {
+        "path": "SecurityPkg/Library/SecureBootVariableProvisionLib/SecureBootVariableProvisionLib.inf",
+        "dependencies": [
+            "SecureBootVariableLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "DxeServicesLib",
+            "BaseLib",
+            "BaseCryptLib"
+        ]
+    },
+    "TdxLib": {
+        "path": "MdePkg/Library/TdxLib/TdxLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "ArmSoftFloatLib": {
+        "path": "ArmPkg/Library/ArmSoftFloatLib/ArmSoftFloatLib.inf",
+        "dependencies": []
+    },
+    "BaseCryptLib": {
+        "path": "CryptoPkg/Library/BaseCryptLibNull/BaseCryptLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "IntrinsicLib": {
+        "path": "CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "OpensslLib": {
+        "path": "CryptoPkg/Library/OpensslLib/OpensslLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "RngLib",
+            "BaseLib",
+            "ArmSoftFloatLib"
+        ]
+    },
+    "Tpm12DeviceLib": {
+        "path": "SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12DeviceLibDTpm.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseMemoryLib",
+            "DebugLib",
+            "BaseLib",
+            "TimerLib"
+        ]
+    },
+    "Tpm2DeviceLib": {
+        "path": "SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2DeviceLibDTpm.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseMemoryLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib",
+            "TimerLib"
+        ]
+    },
+    "HashLib": {
+        "path": "SecurityPkg/Library/HashLibBaseCryptoRouter/HashLibBaseCryptoRouterDxe.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "Tpm2CommandLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib"
+        ]
+    },
+    "FileExplorerLib": {
+        "path": "MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiHiiServicesLib",
+            "UefiBootServicesTableLib",
+            "HiiLib"
+        ]
+    },
+    "FrameBufferBltLib": {
+        "path": "MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "SmbiosLib": {
+        "path": "EmulatorPkg/Library/SmbiosLib/SmbiosLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "UefiScsiLib": {
+        "path": "MdePkg/Library/UefiScsiLib/UefiScsiLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "BootLogoLib": {
+        "path": "MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "PrintLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "BmpSupportLib": {
+        "path": "MdeModulePkg/Library/BaseBmpSupportLib/BaseBmpSupportLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "SafeIntLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "SecurityManagementLib": {
+        "path": "MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "DxeServicesLib",
+            "DebugLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "CapsuleLib": {
+        "path": "MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf",
+        "dependencies": []
+    },
+    "KeyMapLib": {
+        "path": "EmulatorPkg/Library/KeyMapLibNull/KeyMapLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "HobLib"
+        ]
+    },
+    "RedfishPlatformHostInterfaceLib": {
+        "path": "EmulatorPkg/Library/RedfishPlatformHostInterfaceLib/RedfishPlatformHostInterfaceLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "PcdLib"
+        ]
+    },
+    "RedfishPlatformCredentialLib": {
+        "path": "EmulatorPkg/Library/RedfishPlatformCredentialLib/RedfishPlatformCredentialLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "DebugAgentLib": {
+        "path": "MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf",
+        "dependencies": []
+    },
+    "CpuExceptionHandlerLib": {
+        "path": "MdeModulePkg/Library/CpuExceptionHandlerLibNull/CpuExceptionHandlerLibNull.inf",
+        "dependencies": []
+    },
+    "VariableFlashInfoLib": {
+        "path": "MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "HobLib"
+        ]
+    },
+    "EmuThunkLib": {
+        "path": "EmulatorPkg/Library/DxeEmuLib/DxeEmuLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "HobLib"
+        ]
+    },
+    "DpcLib": {
+        "path": "NetworkPkg/Library/DxeDpcLib/DxeDpcLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "NetLib": {
+        "path": "NetworkPkg/Library/DxeNetLib/DxeNetLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "UefiRuntimeServicesTableLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "PrintLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "IpIoLib": {
+        "path": "NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "DpcLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "UdpIoLib": {
+        "path": "NetworkPkg/Library/DxeUdpIoLib/DxeUdpIoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "DpcLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "TcpIoLib": {
+        "path": "NetworkPkg/Library/DxeTcpIoLib/DxeTcpIoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "HttpLib": {
+        "path": "NetworkPkg/Library/DxeHttpLib/DxeHttpLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "NetLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "HttpIoLib": {
+        "path": "NetworkPkg/Library/DxeHttpIoLib/DxeHttpIoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "DpcLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "TlsLib": {
+        "path": "CryptoPkg/Library/TlsLibNull/TlsLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseCryptLib",
+            "BaseLib"
+        ]
+    },
+    "ArmMmuLib": {
+        "path": "ArmPkg/Library/ArmMmuLib/ArmMmuBaseLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "CacheMaintenanceLib",
+            "ArmLib",
+            "HobLib"
+        ]
+    },
+    "VirtioLib": {
+        "path": "OvmfPkg/Library/VirtioLib/VirtioLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "VirtioMmioDeviceLib": {
+        "path": "OvmfPkg/Library/VirtioMmioDeviceLib/VirtioMmioDeviceLib.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "UefiLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "QemuFwCfgS3Lib": {
+        "path": "OvmfPkg/Library/QemuFwCfgS3Lib/BaseQemuFwCfgS3LibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "QemuFwCfgSimpleParserLib": {
+        "path": "OvmfPkg/Library/QemuFwCfgSimpleParserLib/QemuFwCfgSimpleParserLib.inf",
+        "dependencies": [
+            "QemuFwCfgLib",
+            "BaseLib"
+        ]
+    },
+    "VirtNorFlashPlatformLib": {
+        "path": "ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "PciHostBridgeUtilityLib": {
+        "path": "OvmfPkg/Library/PciHostBridgeUtilityLib/PciHostBridgeUtilityLib.inf",
+        "dependencies": [
+            "DxeHardwareInfoLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DevicePathLib",
+            "PciLib",
+            "DebugLib",
+            "QemuFwCfgLib"
+        ]
+    },
+    "ArmPlatformLib": {
+        "path": "ArmVirtPkg/Library/ArmPlatformLibQemu/ArmPlatformLibQemu.inf",
+        "dependencies": [
+            "DebugLib",
+            "ArmLib"
+        ]
+    },
+    "ArmVirtMemInfoLib": {
+        "path": "ArmVirtPkg/Library/KvmtoolVirtMemInfoLib/KvmtoolVirtMemInfoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "ArmLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib"
+        ]
+    },
+    "PlatformHookLib": {
+        "path": "ArmVirtPkg/Library/Fdt16550SerialPortHookLib/Fdt16550SerialPortHookLib.inf",
+        "dependencies": [
+            "PcdLib",
+            "BaseLib",
+            "HobLib"
+        ]
+    },
+    "HwInfoParserLib": {
+        "path": "DynamicTablesPkg/Library/FdtHwInfoParserLib/FdtHwInfoParserLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "FdtLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "DynamicPlatRepoLib": {
+        "path": "DynamicTablesPkg/Library/Common/DynamicPlatRepoLib/DynamicPlatRepoLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "AcpiHelperLib",
+            "BaseLib"
+        ]
+    },
+    "ArmMonitorLib": {
+        "path": "ArmPkg/Library/ArmMonitorLib/ArmMonitorLib.inf",
+        "dependencies": [
+            "ArmHvcLib",
+            "ArmSmcLib"
+        ]
+    },
+    "XenHypercallLib": {
+        "path": "OvmfPkg/Library/XenHypercallLib/XenHypercallLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "HobLib"
+        ]
+    },
+    "ArmGenericTimerCounterLib": {
+        "path": "ArmVirtPkg/Library/XenArmGenericTimerVirtCounterLib/XenArmGenericTimerVirtCounterLib.inf",
+        "dependencies": [
+            "ArmLib",
+            "BaseLib"
+        ]
+    },
+    "ArmDisassemblerLib": {
+        "path": "ArmPkg/Library/ArmDisassemblerLib/ArmDisassemblerLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "PeCoffGetEntryPointLib",
+            "PrintLib"
+        ]
+    },
+    "ArmGicArchLib": {
+        "path": "ArmVirtPkg/Library/ArmVirtGicArchLib/ArmVirtGicArchLib.inf",
+        "dependencies": [
+            "ArmGicLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "ArmHvcLib": {
+        "path": "ArmPkg/Library/ArmHvcLib/ArmHvcLib.inf",
+        "dependencies": []
+    },
+    "PL011UartLib": {
+        "path": "ArmPlatformPkg/Library/PL011UartLib/PL011UartLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib"
+        ]
+    },
+    "PciCapLib": {
+        "path": "OvmfPkg/Library/BasePciCapLib/BasePciCapLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "OrderedCollectionLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "PciCapPciSegmentLib": {
+        "path": "OvmfPkg/Library/BasePciCapPciSegmentLib/BasePciCapPciSegmentLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PciSegmentLib",
+            "BaseLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "PciCapPciIoLib": {
+        "path": "OvmfPkg/Library/UefiPciCapPciIoLib/UefiPciCapPciIoLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "DxeHardwareInfoLib": {
+        "path": "OvmfPkg/Library/HardwareInfoLib/DxeHardwareInfoLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "UefiUsbLib": {
+        "path": "MdePkg/Library/UefiUsbLib/UefiUsbLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "XenIoMmioLib": {
+        "path": "OvmfPkg/Library/XenIoMmioLib/XenIoMmioLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "UnitTestLib": {
+        "path": "UnitTestFrameworkPkg/Library/UnitTestLib/UnitTestLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "UnitTestResultReportLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UnitTestPersistenceLib",
+            "PcdLib"
+        ]
+    },
+    "UnitTestPersistenceLib": {
+        "path": "UnitTestFrameworkPkg/Library/UnitTestPersistenceLibNull/UnitTestPersistenceLibNull.inf",
+        "dependencies": []
+    },
+    "UnitTestResultReportLib": {
+        "path": "UnitTestFrameworkPkg/Library/UnitTestResultReportLib/UnitTestResultReportLibDebugLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib",
+            "PrintLib"
+        ]
+    },
+    "FmpAuthenticationLib": {
+        "path": "SecurityPkg/Library/FmpAuthenticationLibPkcs7/FmpAuthenticationLibPkcs7.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "BaseCryptLib"
+        ]
+    },
+    "CapsuleUpdatePolicyLib": {
+        "path": "FmpDevicePkg/Library/CapsuleUpdatePolicyLibNull/CapsuleUpdatePolicyLibNull.inf",
+        "dependencies": []
+    },
+    "FmpPayloadHeaderLib": {
+        "path": "FmpDevicePkg/Library/FmpPayloadHeaderLibV1/FmpPayloadHeaderLibV1.inf",
+        "dependencies": []
+    },
+    "FmpDependencyLib": {
+        "path": "FmpDevicePkg/Library/FmpDependencyLib/FmpDependencyLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "FmpDependencyCheckLib": {
+        "path": "FmpDevicePkg/Library/FmpDependencyCheckLibNull/FmpDependencyCheckLibNull.inf",
+        "dependencies": []
+    },
+    "FvLib": {
+        "path": "StandaloneMmPkg/Library/FvLib/FvLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "StandaloneMmMmuLib": {
+        "path": "ArmPkg/Library/StandaloneMmMmuLib/ArmMmuStandaloneMmLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "CacheMaintenanceLib",
+            "ArmLib"
+        ]
+    },
+    "ArmSvcLib": {
+        "path": "ArmPkg/Library/ArmSvcLib/ArmSvcLib.inf",
+        "dependencies": []
+    },
+    "PciCf8Lib": {
+        "path": "MdePkg/Library/BasePciCf8Lib/BasePciCf8Lib.inf",
+        "dependencies": [
+            "DebugLib",
+            "IoLib",
+            "BaseLib"
+        ]
+    },
+    "UefiCpuLib": {
+        "path": "UefiCpuPkg/Library/BaseUefiCpuLib/BaseUefiCpuLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "LocalApicLib": {
+        "path": "UefiCpuPkg/Library/BaseXApicLib/BaseXApicLib.inf",
+        "dependencies": [
+            "IoLib",
+            "UefiCpuLib",
+            "DebugLib",
+            "BaseLib",
+            "CpuLib",
+            "PcdLib",
+            "TimerLib"
+        ]
+    },
+    "FspWrapperApiLib": {
+        "path": "IntelFsp2WrapperPkg/Library/BaseFspWrapperApiLib/BaseFspWrapperApiLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "FspWrapperApiTestLib": {
+        "path": "IntelFsp2WrapperPkg/Library/BaseFspWrapperApiTestLibNull/BaseFspWrapperApiTestLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "FspWrapperPlatformLib": {
+        "path": "IntelFsp2WrapperPkg/Library/BaseFspWrapperPlatformLibSample/BaseFspWrapperPlatformLibSample.inf",
+        "dependencies": []
+    },
+    "PlatformSecLib": {
+        "path": "IntelFsp2WrapperPkg/Library/SecFspWrapperPlatformSecLibSample/SecFspWrapperPlatformSecLibSample.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "LocalApicLib",
+            "SerialPortLib"
+        ]
+    },
+    "NonDiscoverableDeviceRegistrationLib": {
+        "path": "MdeModulePkg/Library/NonDiscoverableDeviceRegistrationLib/NonDiscoverableDeviceRegistrationLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "UefiBootServicesTableLib",
+            "DevicePathLib"
+        ]
+    },
+    "DisplayUpdateProgressLib": {
+        "path": "MdeModulePkg/Library/DisplayUpdateProgressLibGraphics/DisplayUpdateProgressLibGraphics.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "IpmiCommandLib": {
+        "path": "MdeModulePkg/Library/BaseIpmiCommandLibNull/BaseIpmiCommandLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "AsanLib": {
+        "path": "MdeModulePkg/Library/AsanLib/AsanLib.inf",
+        "dependencies": [
+            "HobLib"
+        ]
+    },
+    "AcpiHelperLib": {
+        "path": "DynamicTablesPkg/Library/Common/AcpiHelperLib/AcpiHelperLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "AmlLib": {
+        "path": "DynamicTablesPkg/Library/Common/AmlLib/AmlLib.inf",
+        "dependencies": [
+            "AcpiHelperLib",
+            "BaseLib"
+        ]
+    },
+    "SsdtPcieSupportLib": {
+        "path": "DynamicTablesPkg/Library/Common/SsdtPcieSupportLib/SsdtPcieSupportLib.inf",
+        "dependencies": [
+            "AcpiHelperLib",
+            "BaseLib",
+            "AmlLib"
+        ]
+    },
+    "SsdtSerialPortFixupLib": {
+        "path": "DynamicTablesPkg/Library/Common/SsdtSerialPortFixupLib/SsdtSerialPortFixupLib.inf",
+        "dependencies": [
+            "AcpiHelperLib",
+            "BaseLib",
+            "AmlLib"
+        ]
+    },
+    "TableHelperLib": {
+        "path": "DynamicTablesPkg/Library/Common/TableHelperLib/TableHelperLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "RestExLib": {
+        "path": "RedfishPkg/Library/DxeRestExLib/DxeRestExLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "UefiRuntimeServicesTableLib",
+            "DevicePathLib",
+            "DebugLib",
+            "BaseLib",
+            "PrintLib",
+            "UefiLib",
+            "NetLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "Ucs2Utf8Lib": {
+        "path": "RedfishPkg/Library/BaseUcs2Utf8Lib/BaseUcs2Utf8Lib.inf",
+        "dependencies": []
+    },
+    "RedfishContentCodingLib": {
+        "path": "RedfishPkg/Library/RedfishContentCodingLibNull/RedfishContentCodingLibNull.inf",
+        "dependencies": []
+    },
+    "OpteeLib": {
+        "path": "ArmPkg/Library/OpteeLib/OpteeLib.inf",
+        "dependencies": [
+            "BaseLib",
+            "ArmSmcLib",
+            "ArmMmuLib"
+        ]
+    },
+    "ArmMtlLib": {
+        "path": "ArmPkg/Library/ArmMtlNullLib/ArmMtlNullLib.inf",
+        "dependencies": []
+    },
+    "OemMiscLib": {
+        "path": "ArmPkg/Universal/Smbios/OemMiscLibNull/OemMiscLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "CcProbeLib": {
+        "path": "MdePkg/Library/CcProbeLibNull/CcProbeLibNull.inf",
+        "dependencies": []
+    },
+    "MicrocodeLib": {
+        "path": "UefiCpuPkg/Library/MicrocodeLib/MicrocodeLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "DebugCommunicationLib": {
+        "path": "SourceLevelDebugPkg/Library/DebugCommunicationLibSerialPort/DebugCommunicationLibSerialPort.inf",
+        "dependencies": [
+            "DebugLib",
+            "SerialPortLib"
+        ]
+    },
+    "XenPlatformLib": {
+        "path": "OvmfPkg/Library/XenPlatformLib/XenPlatformLib.inf",
+        "dependencies": [
+            "HobLib"
+        ]
+    },
+    "CcExitLib": {
+        "path": "UefiCpuPkg/Library/CcExitLibNull/CcExitLibNull.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "LoadLinuxLib": {
+        "path": "OvmfPkg/Library/LoadLinuxLib/LoadLinuxLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "TdxMailboxLib": {
+        "path": "OvmfPkg/Library/TdxMailboxLib/TdxMailboxLibNull.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseLib"
+        ]
+    },
+    "RiscVSbiLib": {
+        "path": "MdePkg/Library/BaseRiscVSbiLib/BaseRiscVSbiLib.inf",
+        "dependencies": [
+            "BaseLib"
+        ]
+    },
+    "PrePiHobListPointerLib": {
+        "path": "OvmfPkg/RiscVVirt/Library/PrePiHobListPointerLib/PrePiHobListPointerLib.inf",
+        "dependencies": []
+    },
+    "IoApicLib": {
+        "path": "PcAtChipsetPkg/Library/BaseIoApicLib/BaseIoApicLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "PcdLib",
+            "IoLib",
+            "LocalApicLib"
+        ]
+    },
+    "MpInitLib": {
+        "path": "UefiCpuPkg/Library/MpInitLibUp/MpInitLibUp.inf",
+        "dependencies": [
+            "DebugLib",
+            "LocalApicLib",
+            "HobLib"
+        ]
+    },
+    "BlobVerifierLib": {
+        "path": "OvmfPkg/AmdSev/BlobVerifierLibSevHashes/BlobVerifierLibSevHashes.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseCryptLib",
+            "PcdLib",
+            "BaseMemoryLib"
+        ]
+    },
+    "QemuFwCfgLib": {
+        "path": "OvmfPkg/Library/QemuFwCfgLib/QemuFwCfgLibNull.inf",
+        "dependencies": [
+            "DebugLib"
+        ]
+    },
+    "ArmPlatformStackLib": {
+        "path": "ArmPlatformPkg/Library/ArmPlatformStackLib/ArmPlatformStackLib.inf",
+        "dependencies": [
+            "ArmPlatformLib"
+        ]
+    },
+    "LcdHwLib": {
+        "path": "ArmPlatformPkg/Library/LcdHwNullLib/LcdHwNullLib.inf",
+        "dependencies": []
+    },
+    "LcdPlatformLib": {
+        "path": "ArmPlatformPkg/Library/LcdPlatformNullLib/LcdPlatformNullLib.inf",
+        "dependencies": []
+    },
+    "PL011UartClockLib": {
+        "path": "ArmPlatformPkg/Library/PL011UartClockLib/PL011UartClockLib.inf",
+        "dependencies": []
+    },
+    "EdkiiSystemCapsuleLib": {
+        "path": "SignedCapsulePkg/Library/EdkiiSystemCapsuleLib/EdkiiSystemCapsuleLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib",
+            "FmpAuthenticationLib"
+        ]
+    },
+    "IniParsingLib": {
+        "path": "SignedCapsulePkg/Library/IniParsingLib/IniParsingLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib",
+            "MemoryAllocationLib"
+        ]
+    },
+    "PlatformFlashAccessLib": {
+        "path": "SignedCapsulePkg/Library/PlatformFlashAccessLibNull/PlatformFlashAccessLibNull.inf",
+        "dependencies": [
+            "BaseMemoryLib"
+        ]
+    },
+    "HashApiLib": {
+        "path": "CryptoPkg/Library/BaseHashApiLib/BaseHashApiLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "BaseCryptLib",
+            "PcdLib"
+        ]
+    },
+    "DebugDeviceLib": {
+        "path": "IntelFsp2Pkg/Library/BaseDebugDeviceLibNull/BaseDebugDeviceLibNull.inf",
+        "dependencies": []
+    },
+    "CacheAsRamLib": {
+        "path": "IntelFsp2Pkg/Library/BaseCacheAsRamLibNull/BaseCacheAsRamLibNull.inf",
+        "dependencies": []
+    },
+    "CacheLib": {
+        "path": "IntelFsp2Pkg/Library/BaseCacheLib/BaseCacheLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "CacheAsRamLib"
+        ]
+    },
+    "FspCommonLib": {
+        "path": "IntelFsp2Pkg/Library/BaseFspCommonLib/BaseFspCommonLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "FspSwitchStackLib"
+        ]
+    },
+    "FspPlatformLib": {
+        "path": "IntelFsp2Pkg/Library/BaseFspPlatformLib/BaseFspPlatformLib.inf",
+        "dependencies": [
+            "FspCommonLib",
+            "BaseMemoryLib",
+            "ReportStatusCodeLib",
+            "MemoryAllocationLib",
+            "PerformanceLib"
+        ]
+    },
+    "FspSwitchStackLib": {
+        "path": "IntelFsp2Pkg/Library/BaseFspSwitchStackLib/BaseFspSwitchStackLib.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseLib"
+        ]
+    },
+    "FspSecPlatformLib": {
+        "path": "IntelFsp2Pkg/Library/SecFspSecPlatformLibNull/SecFspSecPlatformLibNull.inf",
+        "dependencies": []
+    },
+    "FspMultiPhaseLib": {
+        "path": "IntelFsp2Pkg/Library/BaseFspMultiPhaseLib/BaseFspMultiPhaseLib.inf",
+        "dependencies": []
+    },
+    "SmmCpuPlatformHookLib": {
+        "path": "UefiCpuPkg/Library/SmmCpuPlatformHookLibNull/SmmCpuPlatformHookLibNull.inf",
+        "dependencies": []
+    },
+    "SmmCpuFeaturesLib": {
+        "path": "UefiCpuPkg/Library/SmmCpuFeaturesLib/SmmCpuFeaturesLib.inf",
+        "dependencies": [
+            "MemoryAllocationLib",
+            "PcdLib",
+            "BaseLib",
+            "DebugLib"
+        ]
+    },
+    "CpuPageTableLib": {
+        "path": "UefiCpuPkg/Library/CpuPageTableLib/CpuPageTableLib.inf",
+        "dependencies": [
+            "DebugLib",
+            "BaseMemoryLib",
+            "BaseLib"
+        ]
+    },
+    "CpuCacheInfoLib": {
+        "path": "UefiCpuPkg/Library/CpuCacheInfoLib/DxeCpuCacheInfoLib.inf",
+        "dependencies": [
+            "BaseMemoryLib",
+            "MemoryAllocationLib",
+            "DebugLib",
+            "BaseLib",
+            "UefiBootServicesTableLib"
+        ]
+    },
+    "DxeHobListLib": {
+        "path": "UefiPayloadPkg/Library/DxeHobListLib/DxeHobListLib.inf",
+        "dependencies": []
+    },
+    "PlatformSupportLib": {
+        "path": "UefiPayloadPkg/Library/PlatformSupportLibNull/PlatformSupportLibNull.inf",
+        "dependencies": []
+    },
+    "BlParseLib": {
+        "path": "UefiPayloadPkg/Library/CbParseLib/CbParseLib.inf",
+        "dependencies": [
+            "IoLib",
+            "BaseMemoryLib",
+            "DebugLib",
+            "BaseLib",
+            "PcdLib"
+        ]
+    },
+    "SpiFlashLib": {
+        "path": "UefiPayloadPkg/Library/SpiFlashLib/SpiFlashLib.inf",
+        "dependencies": [
+            "IoLib",
+            "HobLib",
+            "PciLib",
+            "BaseLib",
+            "PcdLib",
+            "TimerLib"
+        ]
+    }
+}

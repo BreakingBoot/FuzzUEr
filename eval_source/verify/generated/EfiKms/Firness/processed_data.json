@@ -1,0 +1,834 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetServiceStatus",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "RegisterClient",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "CreateKey",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetKey",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AddKey",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "DeleteKey",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetKeyAttributes",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "AddKeyAttributes",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT8 *",
+                    "Assignment": "",
+                    "Data Type": "UINT8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT16 *",
+                    "Assignment": "",
+                    "Data Type": "UINT16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "DeleteKeyAttributes",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_KMS_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_PROTOCOL *",
+                    "Usage": "gEfiKmsProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_KMS_CLIENT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_KMS_CLIENT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_ATTRIBUTE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "",
+                    "Data Type": "UINTN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Assignment": "",
+                    "Data Type": "EFI_KMS_KEY_DESCRIPTOR *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINTN *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINTN *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID * *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID * *",
+                    "Usage": "NULL",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetKeyByAttributes",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/Kms.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

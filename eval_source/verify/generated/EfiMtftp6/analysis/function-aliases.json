@@ -1,0 +1,53 @@
+[
+    {
+        "Aliases": [
+            "EfiMtftp4Configure",
+            "EfiMtftp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4GetInfo",
+            "EfiMtftp6GetInfo",
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4GetModeData",
+            "EfiMtftp6GetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4ParseOptions",
+            "EfiMtftp6ParseOptions"
+        ],
+        "Function": "ParseOptions"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4Poll",
+            "EfiMtftp6Poll",
+            "PciIoFlush",
+            "UsbIoPortReset"
+        ],
+        "Function": "Poll"
+    },
+    {
+        "Aliases": [
+            "EfiMtftp4ReadDirectory",
+            "EfiMtftp4ReadFile",
+            "EfiMtftp4WriteFile",
+            "EfiMtftp6ReadDirectory",
+            "EfiMtftp6ReadFile",
+            "EfiMtftp6WriteFile"
+        ],
+        "Function": "ReadDirectory"
+    }
+]

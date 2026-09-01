@@ -1,0 +1,178 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Usage": "gEfiSmmPeriodicTimerDispatch2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SMM_HANDLER_ENTRY_POINT2",
+                    "Assignment": "",
+                    "Data Type": "EFI_SMM_HANDLER_ENTRY_POINT2",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SMM_PERIODIC_TIMER_REGISTER_CONTEXT *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SMM_PERIODIC_TIMER_REGISTER_CONTEXT *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_HANDLE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Register",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SmmPeriodicTimerDispatch2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Usage": "gEfiSmmPeriodicTimerDispatch2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__HANDLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstanceFromBuffer",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "SerializeVariablesNewInstance",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "LibGetFileHandleFromDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_HANDLE",
+                    "Assignment": "EfiBootManagerConnectDevicePath",
+                    "Data Type": "EFI_HANDLE",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UnRegister",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SmmPeriodicTimerDispatch2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL *",
+                    "Usage": "gEfiSmmPeriodicTimerDispatch2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "UINT64 * *",
+                    "Assignment": "",
+                    "Data Type": "UINT64 * *",
+                    "Usage": "",
+                    "Pointer Count": 2,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetNextShorterInterval",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SmmPeriodicTimerDispatch2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

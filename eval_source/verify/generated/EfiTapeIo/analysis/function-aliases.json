@@ -1,0 +1,8 @@
+[
+    {
+        "Aliases": [
+            "XhcReset"
+        ],
+        "Function": "TapeWriteFM"
+    }
+]

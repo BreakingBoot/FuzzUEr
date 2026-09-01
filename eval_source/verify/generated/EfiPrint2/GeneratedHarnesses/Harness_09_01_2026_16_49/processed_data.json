@@ -1,0 +1,390 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "ReportStatusCodeExtractDebugInfo",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UnicodeBSPrint",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "ReportStatusCodeExtractDebugInfo",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UnicodeBSPrintAsciiFormat",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "INT64",
+                    "Assignment": "",
+                    "Data Type": "INT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "UnicodeValueToString",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "ReportStatusCodeExtractDebugInfo",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "AsciiBSPrint",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "CHAR16 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR16 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                },
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BASE_LIST",
+                    "Assignment": "ReportStatusCodeExtractDebugInfo",
+                    "Data Type": "BASE_LIST",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__GENERATOR_FUNCTION__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "AsciiBSPrintUnicodeFormat",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "CHAR8 *",
+                    "Assignment": "",
+                    "Data Type": "CHAR8 *",
+                    "Usage": "gEfiPrint2ProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "INT64",
+                    "Assignment": "",
+                    "Data Type": "INT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINTN",
+                    "Assignment": "",
+                    "Data Type": "UINTN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "AsciiValueToString",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/Print2.h"
+        ],
+        "return_type": "UINTN"
+    }
+]

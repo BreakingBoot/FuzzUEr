@@ -1,0 +1,444 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Reset",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_CAPABILITIES *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_CAPABILITIES *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetCapabilities",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_CONFIGURATION_TABLE_ENTRY *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_CONFIGURATION_TABLE_ENTRY *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_RESPONSE_CONFIGURATION_ENTRY *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_RESPONSE_CONFIGURATION_ENTRY *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetConfiguration",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_GUID *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_GUID *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_RESPONSE_CONFIGURATION_ENTRY *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_RESPONSE_CONFIGURATION_ENTRY *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetConfiguration",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LBA",
+                    "Assignment": "",
+                    "Data Type": "EFI_LBA",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT64 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ReadExtended",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_LBA",
+                    "Assignment": "",
+                    "Data Type": "EFI_LBA",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_3": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_4": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT64",
+                    "Assignment": "",
+                    "Data Type": "UINT64",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_5": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "VOID *",
+                    "Assignment": "",
+                    "Data Type": "VOID *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_6": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "UINT64 *",
+                    "Assignment": "NULL",
+                    "Data Type": "UINT64 *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_7": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "VOID *",
+                    "Assignment": "NULL",
+                    "Data Type": "VOID *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "WriteExtended",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_PROTOCOL *",
+                    "Usage": "gEfiBlockIoCryptoProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN_OUT",
+                    "Arg Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Assignment": "",
+                    "Data Type": "EFI_BLOCK_IO_CRYPTO_TOKEN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "FlushBlocks",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/BlockIoCrypto.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

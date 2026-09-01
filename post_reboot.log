@@ -1,0 +1,8 @@
+=== Tue Sep  1 01:35:44 PM UTC 2026 post-reboot verification starting ===
+docker healthy after 1 attempt(s)
+--- running verify_all ---
+== output: /home/gl055/research/tianoshield/FuzzUEr/eval_source/verify
+== 0. docker health
+   docker still cannot start a container from fuzzuer-cur:latest -- stopping here.
+   (container creation was wedged at the storage layer; a daemon restart clears it)
+=== Tue Sep  1 01:35:58 PM UTC 2026 done ===

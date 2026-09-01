@@ -1,0 +1,76 @@
+#ifndef __FIRNESS_HARNESSES__
+#define __FIRNESS_HARNESSES__
+
+#include "FirnessIncludes.h"
+#include "FirnessHelpers.h"
+
+#define NULL ((VOID *) 0)
+#define SATA_ENUMER_ALL FALSE
+
+extern EFI_GUID gEfiManagedNetworkProtocolGuid;
+
+EFI_STATUS
+EFIAPI
+FuzzGetModeData(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzConfigure(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzPoll(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzCancel(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzGroups(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzTransmit(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzReceive(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+EFI_STATUS
+EFIAPI
+FuzzMcastIpToMac(
+    IN INPUT_BUFFER *Input,
+    IN EFI_SYSTEM_TABLE *SystemTable,
+    IN EFI_HANDLE *ImageHandle
+);
+
+#endif // __FIRNESS_HARNESSES__

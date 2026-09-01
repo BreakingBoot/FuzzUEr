@@ -1,0 +1,262 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "BOOLEAN *",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_EAPOL_PORT_INFO *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_EAPOL_PORT_INFO *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetSystemConfiguration",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetSystemConfiguration",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "InitializePort",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UserLogon",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "UserLogoff",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_EAPOL_SUPPLICANT_PAE_STATE *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAPOL_SUPPLICANT_PAE_STATE *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_EAPOL_SUPPLICANT_PAE_CONFIGURATION *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_EAPOL_SUPPLICANT_PAE_CONFIGURATION *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetSupplicantStatus",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAPOL_SUPPLICANT_PAE_CONFIGURATION *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAPOL_SUPPLICANT_PAE_CONFIGURATION *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE_ARG_STRUCT__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "SetSupplicantConfiguration",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAP_MANAGEMENT_PROTOCOL *",
+                    "Usage": "gEfiEapManagementProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OUT",
+                    "Arg Type": "EFI_EAPOL_SUPPLICANT_PAE_STATISTICS *",
+                    "Assignment": "",
+                    "Data Type": "EFI_EAPOL_SUPPLICANT_PAE_STATISTICS *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": ""
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "GetSupplicantStatistics",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/EapManagement.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]

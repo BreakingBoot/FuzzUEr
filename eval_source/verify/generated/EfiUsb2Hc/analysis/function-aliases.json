@@ -1,0 +1,123 @@
+[
+    {
+        "Aliases": [
+            "EhcAsyncInterruptTransfer",
+            "Uhci2AsyncInterruptTransfer",
+            "XhcAsyncInterruptTransfer"
+        ],
+        "Function": "AsyncInterruptTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcAsyncIsochronousTransfer",
+            "Uhci2AsyncIsochronousTransfer",
+            "XhcAsyncIsochronousTransfer"
+        ],
+        "Function": "AsyncIsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcBulkTransfer",
+            "Uhci2BulkTransfer",
+            "XhcBulkTransfer"
+        ],
+        "Function": "BulkTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcClearRootHubPortFeature",
+            "Uhci2ClearRootHubPortFeature",
+            "XhcClearRootHubPortFeature",
+            "XhcSetRootHubPortFeature"
+        ],
+        "Function": "ClearRootHubPortFeature"
+    },
+    {
+        "Aliases": [
+            "EhcControlTransfer",
+            "Uhci2ControlTransfer",
+            "XhcControlTransfer"
+        ],
+        "Function": "ControlTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcGetCapability",
+            "Uhci2GetCapability",
+            "XhcGetCapability"
+        ],
+        "Function": "GetCapability"
+    },
+    {
+        "Aliases": [
+            "EhcGetRootHubPortStatus",
+            "Uhci2GetRootHubPortStatus",
+            "XhcGetRootHubPortStatus"
+        ],
+        "Function": "GetRootHubPortStatus"
+    },
+    {
+        "Aliases": [
+            "EhcGetState",
+            "Uhci2GetState",
+            "XhcGetState"
+        ],
+        "Function": "GetState"
+    },
+    {
+        "Aliases": [
+            "EhcIsochronousTransfer",
+            "Uhci2IsochronousTransfer",
+            "XhcIsochronousTransfer"
+        ],
+        "Function": "IsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset",
+            "XhcReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "EhcSetRootHubPortFeature",
+            "Uhci2SetRootHubPortFeature"
+        ],
+        "Function": "SetRootHubPortFeature"
+    },
+    {
+        "Aliases": [
+            "EhcSetState",
+            "KeyboardSetState",
+            "USBKeyboardSetState",
+            "Uhci2SetState",
+            "XhcSetState"
+        ],
+        "Function": "SetState"
+    },
+    {
+        "Aliases": [
+            "EhcSyncInterruptTransfer",
+            "Uhci2SyncInterruptTransfer",
+            "XhcSyncInterruptTransfer"
+        ],
+        "Function": "SyncInterruptTransfer"
+    }
+]

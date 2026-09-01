@@ -1,0 +1,224 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "GetData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "IP4_CONFIG2_INSTANCE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Instance"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "SetData",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "IP4_CONFIG2_INSTANCE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Instance"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Data"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "RegisterDataNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "RegisterDataNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "UnregisterDataNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c",
+        "Function": "UnregisterDataNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Config2Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_CONFIG2_DATA_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DataType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EVENT",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Event"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

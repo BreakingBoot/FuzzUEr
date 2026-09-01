@@ -1,0 +1,17 @@
+Phase,File,Line,Asan Msg,ErrorType,Message,Count
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,144,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',2
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,191,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',2
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,192,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',1
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,205,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',1
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,248,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',1
+fuzz,/workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c,255,__ubsan_handle_type_mismatch_v1,NullPointerUse,member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA',1
+boot,/workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/SimicsVideoDxe/VbeShim.c,97,__ubsan_handle_pointer_overflow,,,1
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3277,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3290,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3303,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3316,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3329,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3342,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3355,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,3368,__ubsan_handle_pointer_overflow,,,51
+boot,/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/Database.c,4177,__ubsan_handle_pointer_overflow,,,220

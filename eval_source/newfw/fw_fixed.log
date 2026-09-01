@@ -1,0 +1,1015 @@
+make: Entering directory '/workspace/tmp/edk2/BaseTools'
+make -C Source/C
+make[1]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C'
+Attempting to detect HOST_ARCH from 'uname -m': x86_64
+Detected HOST_ARCH of X64 using uname.
+mkdir -p .
+make -C Common
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/Common'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/Common'
+make -C BrotliCompress
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/BrotliCompress'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/BrotliCompress'
+make -C VfrCompile
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/VfrCompile'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/VfrCompile'
+make -C EfiRom
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/EfiRom'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/EfiRom'
+make -C GenFfs
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFfs'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFfs'
+make -C GenFv
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFv'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFv'
+make -C GenFw
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFw'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/GenFw'
+make -C GenSec
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/GenSec'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/GenSec'
+make -C GenCrc32
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/GenCrc32'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/GenCrc32'
+make -C LzmaCompress
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/LzmaCompress'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/LzmaCompress'
+make -C TianoCompress
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/TianoCompress'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/TianoCompress'
+make -C VolInfo
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/VolInfo'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/VolInfo'
+make -C DevicePath
+make[2]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/C/DevicePath'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C/DevicePath'
+Finished building BaseTools C Tools with HOST_ARCH=X64
+make[1]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/C'
+make -C Source/Python
+make[1]: Entering directory '/workspace/tmp/edk2/BaseTools/Source/Python'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/tmp/edk2/BaseTools/Source/Python'
+make -C Tests
+make[1]: Entering directory '/workspace/tmp/edk2/BaseTools/Tests'
+testHelp (TianoCompress.Tests) ... ok
+testRandomDataCycles (TianoCompress.Tests) ... ok
+test_AmlToC_AmlToC (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_AutoGen (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_AutoGenWorker (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_BuildEngine (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_DataPipe (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_GenC (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_GenDepex (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_GenMake (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_GenPcdDb (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_GenVar (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_IdfClassObject (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_IncludesAutoGen (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_InfSectionParser (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_ModuleAutoGen (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_ModuleAutoGenHelper (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_PlatformAutoGen (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_StrGather (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_UniClassObject (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_ValidCheckingInfoObject (CheckPythonSyntax.Tests) ... ok
+test_AutoGen_WorkspaceAutoGen (CheckPythonSyntax.Tests) ... ok
+test_AutoGen___init__ (CheckPythonSyntax.Tests) ... ok
+test_BPDG_BPDG (CheckPythonSyntax.Tests) ... ok
+test_BPDG_GenVpd (CheckPythonSyntax.Tests) ... ok
+test_BPDG_StringTable (CheckPythonSyntax.Tests) ... ok
+test_BPDG___init__ (CheckPythonSyntax.Tests) ... ok
+test_Capsule_GenerateCapsule (CheckPythonSyntax.Tests) ... ok
+test_Capsule_GenerateWindowsDriver (CheckPythonSyntax.Tests) ... ok
+test_Capsule_WindowsCapsuleSupportHelper (CheckPythonSyntax.Tests) ... ok
+test_CommonDataClass_CommonClass (CheckPythonSyntax.Tests) ... ok
+test_CommonDataClass_DataClass (CheckPythonSyntax.Tests) ... ok
+test_CommonDataClass_Exceptions (CheckPythonSyntax.Tests) ... ok
+test_CommonDataClass_FdfClass (CheckPythonSyntax.Tests) ... ok
+test_CommonDataClass___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_BuildToolError (CheckPythonSyntax.Tests) ... ok
+test_Common_BuildVersion (CheckPythonSyntax.Tests) ... ok
+test_Common_DataType (CheckPythonSyntax.Tests) ... ok
+test_Common_Edk2_Capsule_FmpPayloadHeader (CheckPythonSyntax.Tests) ... ok
+test_Common_Edk2_Capsule___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_Edk2___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_EdkLogger (CheckPythonSyntax.Tests) ... ok
+test_Common_Expression (CheckPythonSyntax.Tests) ... ok
+test_Common_GlobalData (CheckPythonSyntax.Tests) ... ok
+test_Common_LongFilePathOs (CheckPythonSyntax.Tests) ... ok
+test_Common_LongFilePathOsPath (CheckPythonSyntax.Tests) ... ok
+test_Common_LongFilePathSupport (CheckPythonSyntax.Tests) ... ok
+test_Common_Misc (CheckPythonSyntax.Tests) ... ok
+test_Common_MultipleWorkspace (CheckPythonSyntax.Tests) ... ok
+test_Common_Parsing (CheckPythonSyntax.Tests) ... ok
+test_Common_RangeExpression (CheckPythonSyntax.Tests) ... ok
+test_Common_StringUtils (CheckPythonSyntax.Tests) ... ok
+test_Common_TargetTxtClassObject (CheckPythonSyntax.Tests) ... ok
+test_Common_ToolDefClassObject (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi_Capsule_CapsuleDependency (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi_Capsule_FmpAuthHeader (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi_Capsule_FmpCapsuleHeader (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi_Capsule_UefiCapsuleHeader (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi_Capsule___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_Uefi___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_VariableAttributes (CheckPythonSyntax.Tests) ... ok
+test_Common_VpdInfoFile (CheckPythonSyntax.Tests) ... ok
+test_Common___init__ (CheckPythonSyntax.Tests) ... ok
+test_Common_caching (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser3_CLexer (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser3_CParser (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser3___init__ (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser4_CLexer (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser4_CListener (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser4_CParser (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CParser4___init__ (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Check (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CodeFragment (CheckPythonSyntax.Tests) ... ok
+test_Ecc_CodeFragmentCollector (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Configuration (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Database (CheckPythonSyntax.Tests) ... ok
+test_Ecc_EccGlobalData (CheckPythonSyntax.Tests) ... ok
+test_Ecc_EccMain (CheckPythonSyntax.Tests) ... ok
+test_Ecc_EccToolError (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Exception (CheckPythonSyntax.Tests) ... ok
+test_Ecc_FileProfile (CheckPythonSyntax.Tests) ... ok
+test_Ecc_MetaDataParser (CheckPythonSyntax.Tests) ... ok
+test_Ecc_MetaFileWorkspace_MetaDataTable (CheckPythonSyntax.Tests) ... ok
+test_Ecc_MetaFileWorkspace_MetaFileParser (CheckPythonSyntax.Tests) ... ok
+test_Ecc_MetaFileWorkspace_MetaFileTable (CheckPythonSyntax.Tests) ... ok
+test_Ecc_MetaFileWorkspace___init__ (CheckPythonSyntax.Tests) ... ok
+test_Ecc_ParserWarning (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Xml_XmlRoutines (CheckPythonSyntax.Tests) ... ok
+test_Ecc_Xml___init__ (CheckPythonSyntax.Tests) ... ok
+test_Ecc___init__ (CheckPythonSyntax.Tests) ... ok
+test_Ecc_c (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser3_CLexer (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser3_CParser (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser3___init__ (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser4_CLexer (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser4_CListener (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser4_CParser (CheckPythonSyntax.Tests) ... ok
+test_Eot_CParser4___init__ (CheckPythonSyntax.Tests) ... ok
+test_Eot_CodeFragment (CheckPythonSyntax.Tests) ... ok
+test_Eot_CodeFragmentCollector (CheckPythonSyntax.Tests) ... ok
+test_Eot_Database (CheckPythonSyntax.Tests) ... ok
+test_Eot_EotGlobalData (CheckPythonSyntax.Tests) ... ok
+test_Eot_EotMain (CheckPythonSyntax.Tests) ... ok
+test_Eot_EotToolError (CheckPythonSyntax.Tests) ... ok
+test_Eot_FileProfile (CheckPythonSyntax.Tests) ... ok
+test_Eot_Identification (CheckPythonSyntax.Tests) ... ok
+test_Eot_InfParserLite (CheckPythonSyntax.Tests) ... ok
+test_Eot_Parser (CheckPythonSyntax.Tests) ... ok
+test_Eot_ParserWarning (CheckPythonSyntax.Tests) ... ok
+test_Eot_Report (CheckPythonSyntax.Tests) ... ok
+test_Eot___init__ (CheckPythonSyntax.Tests) ... ok
+test_Eot_c (CheckPythonSyntax.Tests) ... ok
+test_FMMT_FMMT (CheckPythonSyntax.Tests) ... ok
+test_FMMT___init__ (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_BinaryFactoryProduct (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_BiosTree (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_BiosTreeNode (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_FMMTOperation (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_FMMTParser (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_FvHandler (CheckPythonSyntax.Tests) ... ok
+test_FMMT_core_GuidTools (CheckPythonSyntax.Tests) ... ok
+test_FMMT_utils_FmmtLogger (CheckPythonSyntax.Tests) ... ok
+test_FMMT_utils_FvLayoutPrint (CheckPythonSyntax.Tests) ... ok
+test_FirmwareStorageFormat_Common (CheckPythonSyntax.Tests) ... ok
+test_FirmwareStorageFormat_FfsFileHeader (CheckPythonSyntax.Tests) ... ok
+test_FirmwareStorageFormat_FvHeader (CheckPythonSyntax.Tests) ... ok
+test_FirmwareStorageFormat_SectionHeader (CheckPythonSyntax.Tests) ... ok
+test_FirmwareStorageFormat___init__ (CheckPythonSyntax.Tests) ... ok
+test_GenFds_AprioriSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Capsule (CheckPythonSyntax.Tests) ... ok
+test_GenFds_CapsuleData (CheckPythonSyntax.Tests) ... ok
+test_GenFds_CompressSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_DataSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_DepexSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_EfiSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Fd (CheckPythonSyntax.Tests) ... ok
+test_GenFds_FdfParser (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Ffs (CheckPythonSyntax.Tests) ... ok
+test_GenFds_FfsFileStatement (CheckPythonSyntax.Tests) ... ok
+test_GenFds_FfsInfStatement (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Fv (CheckPythonSyntax.Tests) ... ok
+test_GenFds_FvImageSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_GenFds (CheckPythonSyntax.Tests) ... ok
+test_GenFds_GenFdsGlobalVariable (CheckPythonSyntax.Tests) ... ok
+test_GenFds_GuidSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_OptRomFileStatement (CheckPythonSyntax.Tests) ... ok
+test_GenFds_OptRomInfStatement (CheckPythonSyntax.Tests) ... ok
+test_GenFds_OptionRom (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Region (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Rule (CheckPythonSyntax.Tests) ... ok
+test_GenFds_RuleComplexFile (CheckPythonSyntax.Tests) ... ok
+test_GenFds_RuleSimpleFile (CheckPythonSyntax.Tests) ... ok
+test_GenFds_Section (CheckPythonSyntax.Tests) ... ok
+test_GenFds_SubTypeGuidSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_UiSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds_VerSection (CheckPythonSyntax.Tests) ... ok
+test_GenFds___init__ (CheckPythonSyntax.Tests) ... ok
+test_GenPatchPcdTable_GenPatchPcdTable (CheckPythonSyntax.Tests) ... ok
+test_GenPatchPcdTable___init__ (CheckPythonSyntax.Tests) ... ok
+test_PatchPcdValue_PatchPcdValue (CheckPythonSyntax.Tests) ... ok
+test_PatchPcdValue___init__ (CheckPythonSyntax.Tests) ... ok
+test_Pkcs7Sign_Pkcs7Sign (CheckPythonSyntax.Tests) ... ok
+test_Rsa2048Sha256Sign_Rsa2048Sha256GenerateKeys (CheckPythonSyntax.Tests) ... ok
+test_Rsa2048Sha256Sign_Rsa2048Sha256Sign (CheckPythonSyntax.Tests) ... ok
+test_Split_Split (CheckPythonSyntax.Tests) ... ok
+test_Split___init__ (CheckPythonSyntax.Tests) ... ok
+test_Table_Table (CheckPythonSyntax.Tests) ... ok
+test_Table_TableDataModel (CheckPythonSyntax.Tests) ... ok
+test_Table_TableDec (CheckPythonSyntax.Tests) ... ok
+test_Table_TableDsc (CheckPythonSyntax.Tests) ... ok
+test_Table_TableEotReport (CheckPythonSyntax.Tests) ... ok
+test_Table_TableFdf (CheckPythonSyntax.Tests) ... ok
+test_Table_TableFile (CheckPythonSyntax.Tests) ... ok
+test_Table_TableFunction (CheckPythonSyntax.Tests) ... ok
+test_Table_TableIdentifier (CheckPythonSyntax.Tests) ... ok
+test_Table_TableInf (CheckPythonSyntax.Tests) ... ok
+test_Table_TablePcd (CheckPythonSyntax.Tests) ... ok
+test_Table_TableQuery (CheckPythonSyntax.Tests) ... ok
+test_Table_TableReport (CheckPythonSyntax.Tests) ... ok
+test_Table___init__ (CheckPythonSyntax.Tests) ... ok
+test_TargetTool_TargetTool (CheckPythonSyntax.Tests) ... ok
+test_TargetTool___init__ (CheckPythonSyntax.Tests) ... ok
+test_Trim_Trim (CheckPythonSyntax.Tests) ... ok
+test_UPT_BuildVersion (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core_DependencyRules (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core_DistributionPackageClass (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core_FileHook (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core_IpiDb (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core_PackageFile (CheckPythonSyntax.Tests) ... ok
+test_UPT_Core___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_GenMetaFile_GenDecFile (CheckPythonSyntax.Tests) ... ok
+test_UPT_GenMetaFile_GenInfFile (CheckPythonSyntax.Tests) ... ok
+test_UPT_GenMetaFile_GenMetaFileMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_GenMetaFile_GenXmlFile (CheckPythonSyntax.Tests) ... ok
+test_UPT_GenMetaFile___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_InstallPkg (CheckPythonSyntax.Tests) ... ok
+test_UPT_InventoryWs (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_CommentGenerating (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_CommentParsing (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_DataType (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_ExpressionValidate (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_GlobalData (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_Misc (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_ParserValidate (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_Parsing (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_StringUtils (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_UniClassObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_Xml_XmlRoutines (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library_Xml___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_Library___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_Logger_Log (CheckPythonSyntax.Tests) ... ok
+test_UPT_Logger_StringTable (CheckPythonSyntax.Tests) ... ok
+test_UPT_Logger_ToolError (CheckPythonSyntax.Tests) ... ok
+test_UPT_Logger___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_MkPkg (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_POM_CommonObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_POM_ModuleObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_POM_PackageObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_POM___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_DecObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfBinaryObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfBuildOptionObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfCommonObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfDefineCommonObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfDefineObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfDepexObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfGuidObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfHeaderObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfLibraryClassesObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfPackagesObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfPcdObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfPpiObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfProtocolObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfSoucesObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser_InfUserExtensionObject (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object_Parser___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_Object___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_DecParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_DecParserMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfAsBuiltProcess (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfBinarySectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfBuildOptionSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfDefineSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfDepexSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfGuidPpiProtocolSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfLibrarySectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfPackageSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfParserMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfPcdSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser_InfSourceSectionParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Parser___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_PomAdapter_DecPomAlignment (CheckPythonSyntax.Tests) ... ok
+test_UPT_PomAdapter_InfPomAlignment (CheckPythonSyntax.Tests) ... ok
+test_UPT_PomAdapter_InfPomAlignmentMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_PomAdapter___init__ (CheckPythonSyntax.Tests) ... ok
+test_UPT_ReplacePkg (CheckPythonSyntax.Tests) ... ok
+test_UPT_RmPkg (CheckPythonSyntax.Tests) ... ok
+test_UPT_TestInstall (CheckPythonSyntax.Tests) ... ok
+test_UPT_UPT (CheckPythonSyntax.Tests) ... ok
+test_UPT_UnitTest_CommentGeneratingUnitTest (CheckPythonSyntax.Tests) ... ok
+test_UPT_UnitTest_CommentParsingUnitTest (CheckPythonSyntax.Tests) ... ok
+test_UPT_UnitTest_DecParserTest (CheckPythonSyntax.Tests) ... ok
+test_UPT_UnitTest_DecParserUnitTest (CheckPythonSyntax.Tests) ... ok
+test_UPT_UnitTest_InfBinarySectionTest (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_CommonXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_GuidProtocolPpiXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_IniToXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_ModuleSurfaceAreaXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_PackageSurfaceAreaXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_PcdXml (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_XmlParser (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml_XmlParserMisc (CheckPythonSyntax.Tests) ... ok
+test_UPT_Xml___init__ (CheckPythonSyntax.Tests) ... ok
+test_Workspace_BuildClassObject (CheckPythonSyntax.Tests) ... ok
+test_Workspace_DecBuildData (CheckPythonSyntax.Tests) ... ok
+test_Workspace_DscBuildData (CheckPythonSyntax.Tests) ... ok
+test_Workspace_InfBuildData (CheckPythonSyntax.Tests) ... ok
+test_Workspace_MetaDataTable (CheckPythonSyntax.Tests) ... ok
+test_Workspace_MetaFileCommentParser (CheckPythonSyntax.Tests) ... ok
+test_Workspace_MetaFileParser (CheckPythonSyntax.Tests) ... ok
+test_Workspace_MetaFileTable (CheckPythonSyntax.Tests) ... ok
+test_Workspace_WorkspaceCommon (CheckPythonSyntax.Tests) ... ok
+test_Workspace_WorkspaceDatabase (CheckPythonSyntax.Tests) ... ok
+test_Workspace___init__ (CheckPythonSyntax.Tests) ... ok
+test_build_BuildReport (CheckPythonSyntax.Tests) ... ok
+test_build___init__ (CheckPythonSyntax.Tests) ... ok
+test_build_build (CheckPythonSyntax.Tests) ... ok
+test_build_buildoptions (CheckPythonSyntax.Tests) ... ok
+test_sitecustomize (CheckPythonSyntax.Tests) ... ok
+test_tests_Split_test_split (CheckPythonSyntax.Tests) ... ok
+test32bitUnicodeCharInUtf8Comment (CheckUnicodeSourceFiles.Tests) ... ok
+test32bitUnicodeCharInUtf8File (CheckUnicodeSourceFiles.Tests) ... ok
+testSupplementaryPlaneUnicodeCharInUtf16File (CheckUnicodeSourceFiles.Tests) ... ok
+testSurrogatePairUnicodeCharInUtf16File (CheckUnicodeSourceFiles.Tests) ... ok
+testSurrogatePairUnicodeCharInUtf8File (CheckUnicodeSourceFiles.Tests) ... ok
+testSurrogatePairUnicodeCharInUtf8FileWithBom (CheckUnicodeSourceFiles.Tests) ... ok
+testUtf16InUniFile (CheckUnicodeSourceFiles.Tests) ... ok
+testValidUtf8File (CheckUnicodeSourceFiles.Tests) ... ok
+testValidUtf8FileWithBom (CheckUnicodeSourceFiles.Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 302 tests in 1.652s
+
+OK
+make[1]: Leaving directory '/workspace/tmp/edk2/BaseTools/Tests'
+make: Leaving directory '/workspace/tmp/edk2/BaseTools'
+make -C FitGen
+make[1]: Entering directory '/workspace/tmp/edk2-platforms/Silicon/Intel/Tools/FitGen'
+Attempting to detect HOST_ARCH from 'uname -m': x86_64
+Detected HOST_ARCH of X64 using uname.
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/tmp/edk2-platforms/Silicon/Intel/Tools/FitGen'
+Build environment: Linux-5.15.0-190-generic-x86_64-with-glibc2.35
+Build start time: 20:49:26, Sep.01 2026
+
+WORKSPACE        = /workspace/tmp
+PACKAGES_PATH    = /workspace/tmp/edk2-platforms/Platform/Intel:/workspace/tmp/edk2-platforms/Silicon/Intel:/workspace/tmp/edk2-non-osi/Silicon/Intel:/workspace/tmp/edk2-platforms/Features/Intel:/workspace/tmp/edk2-platforms/Features/Intel/PowerManagement:/workspace/tmp/edk2-platforms/Features/Intel/Debugging:/workspace/tmp/edk2-platforms/Features/Intel/SystemInformation:/workspace/tmp/edk2-platforms/Features/Intel/UserInterface:/workspace/tmp/edk2-platforms/Features/Intel/Network:/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement:/workspace/tmp/edk2-platforms/Drivers:/workspace/tmp/FSP:/workspace/tmp/edk2:/workspace/tmp:/workspace/tmp/edk2-non-osi/Platform/Intel
+EDK_TOOLS_PATH   = /workspace/tmp/edk2/BaseTools
+CONF_PATH        = /workspace/tmp/Conf
+PYTHON_COMMAND   = /usr/bin/python3
+
+
+Processing meta-data .
+Architecture(s)  = IA32 X64
+Build target     = DEBUG
+Toolchain        = CLANGSAN
+
+Active Platform          = /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/BoardX58Ich10/OpenBoardPkg.dsc
+....build: : warning: The PCD was not specified by any INF module in the platform for the given architecture.
+	PCD: [gEfiNetworkPkgTokenSpaceGuid.PcdAllowHttpConnections]
+	Platform: [OpenBoardPkg.dsc]
+	Arch: ['IA32']
+.#...... done!
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/AsanLib/AsanLib.inf [X64]
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/AcpiTimerLib/DxeAcpiTimerLib.inf [X64]
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/PciHostBridgeLib/PciHostBridgeLib.inf [X64]
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciSegmentLibPci/BasePciSegmentLibPci.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/Asan.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/cc_resp.txt -fno-sanitize=all -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/./Asan.obj  /workspace/tmp/edk2/MdeModulePkg/Library/AsanLib/Asan.c
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeHobLib/DxeHobLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciLibCf8/BasePciLibCf8.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiLib/UefiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciCf8Lib/BasePciCf8Lib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf [X64]
+Building ... /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseLib/BaseLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/AsanHelper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./AsanHelper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/AsanHelper.c
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxePcdLib/DxePcdLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePrintLib/BasePrintLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/BoardBdsHookLib/BoardBdsHookLib.inf [X64]
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/NvVarsFileLib/NvVarsFileLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/LoadLinuxLib/DxeLoadLinuxLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/DxeLogoLib/DxeLogoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/SerializeVariablesLib/SerializeVariablesLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BootMaintenanceManagerUiLib/BootMaintenanceManagerUiLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/AsanOutput.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./AsanOutput.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/AsanOutput.c
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BootManagerUiLib/BootManagerUiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DeviceManagerUiLib/DeviceManagerUiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/AcpiTables/AcpiTables.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Bds/Library/DxePlatformBootManagerLib/DxePlatformBootManagerLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/BoardBootManagerLib/BoardBootManagerLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/CompareMemWrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./CompareMemWrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/CompareMemWrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellNetwork2CommandsLib/UefiShellNetwork2CommandsLib.inf [X64]
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellInstall1CommandsLib/UefiShellInstall1CommandsLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/CopyMemWrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./CopyMemWrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/CopyMemWrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellDriver1CommandsLib/UefiShellDriver1CommandsLib.inf [X64]
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel3CommandsLib/UefiShellLevel3CommandsLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel1CommandsLib/UefiShellLevel1CommandsLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/IsZeroBufferWrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./IsZeroBufferWrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/IsZeroBufferWrapper.c
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/ShellPkg/Library/UefiShellLib/UefiShellLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/MemLibGuid.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./MemLibGuid.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/MemLibGuid.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxPeiLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf [X64]
+make: Nothing to be done for 'tbuild'.
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/SerialDebug.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/cc_resp.txt -fno-sanitize=all -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/./SerialDebug.obj  /workspace/tmp/edk2/MdeModulePkg/Library/AsanLib/SerialDebug.c
+Building ... /workspace/tmp/edk2-platforms/Silicon/Intel/IntelSiliconPkg/Library/ReportCpuHobLib/ReportCpuHobLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/BoardX58Ich10/Library/BoardInitLib/PeiBoardInitPreMemLib.inf [IA32]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/ScanMem16Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./ScanMem16Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/ScanMem16Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiUsbLib/UefiUsbLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/MmUnblockMemoryLib/MmUnblockMemoryLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/SecurityPkg/Library/DxeTpmMeasurementLib/DxeTpmMeasurementLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/ScanMem32Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./ScanMem32Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/ScanMem32Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+rm -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/AsanLib.lib
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf [X64]
+"/usr/bin/llvm-ar" cr /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/AsanLib.lib  @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Library/AsanLib/AsanLib/OUTPUT/object_files.lst
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/ScanMem64Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./ScanMem64Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/ScanMem64Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VarCheckPolicyLib/VarCheckPolicyLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VarCheckHiiLib/VarCheckHiiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/ScanMem8Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./ScanMem8Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/ScanMem8Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Library/SetCacheMtrrLib/SetCacheMtrrLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/BoardX58Ich10/Library/BoardInitLib/PeiBoardInitPostMemLib.inf [IA32]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/SetMem16Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./SetMem16Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/SetMem16Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PiDxeS3BootScriptLib/DxeS3BootScriptLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseSmbusLibNull/BaseSmbusLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/Library/CmosAccessLib/CmosAccessLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/Library/PlatformCmosAccessLibNull/PlatformCmosAccessLibNull.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/SetMem32Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./SetMem32Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/SetMem32Wrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeHttpIoLib/DxeHttpIoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Acpi/Library/DxeAslUpdateLib/DxeAslUpdateLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Pci/Library/PciSegmentInfoLibSimple/PciSegmentInfoLibSimple.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiScsiLib/UefiScsiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf [X64]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/SetMem64Wrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./SetMem64Wrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/SetMem64Wrapper.c
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf [X64]
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Test/Library/TestPointCheckLib/PeiTestPointCheckLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/PeiReportFvLib/PeiReportFvLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Test/Library/TestPointLib/PeiTestPointLib.inf [IA32]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/SetMemWrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./SetMemWrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/SetMemWrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciSegmentLibPci/BasePciSegmentLibPci.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Pci/Library/PciSegmentInfoLibSimple/PciSegmentInfoLibSimple.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseExtractGuidedSectionLib/BaseExtractGuidedSectionLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/AcpiTimerLib/BaseAcpiTimerLib.inf [IA32]
+"/usr/bin/clang" -MMD -MF /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/ZeroMemWrapper.obj.deps @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/cc_resp.txt -fsanitize=address -fno-sanitize-address-use-after-scope -mllvm -asan-stack-dynamic-alloca=0 -mllvm -asan-instrumentation-with-call-threshold=0 -mllvm -asan-force-dynamic-shadow=true -fsanitize=undefined -fno-sanitize=alignment -Wno-frame-address -mllvm -asan-stack=0 -c -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/./ZeroMemWrapper.obj  /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr/ZeroMemWrapper.c
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Policy/Library/SiliconPolicyUpdateLib/SiliconPolicyUpdateLib.inf [IA32]
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Policy/Library/SiliconPolicyInitLib/SiliconPolicyInitLib.inf [IA32]
+rm -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/AsanMemoryLibRepStr.lib
+make: Nothing to be done for 'tbuild'.
+"/usr/bin/llvm-ar" cr /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/AsanMemoryLibRepStr.lib  @/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdePkg/Library/AsanMemoryLibRepStr/AsanMemoryLibRepStr/OUTPUT/object_files.lst
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Silicon/Intel/SimicsIch10Pkg/Library/ResetSystemLib/ResetSystemLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeUdpIoLib/DxeUdpIoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/Test/Library/TestPointCheckLibNull/TestPointCheckLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/PlatformInit/Library/BoardInitLibNull/BoardInitLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/DxeServicesLib/DxeServicesLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePerformanceLibNull/BasePerformanceLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/SmmCorePlatformHookLibNull/SmmCorePlatformHookLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PiSmmCoreSmmServicesTableLib/PiSmmCoreSmmServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PiSmmCoreMemoryAllocationLib/PiSmmCoreMemoryAllocationLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeDpcLib/DxeDpcLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/BaseIoApicLib/BaseIoApicLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/SmmCpuFeaturesLib/SmmCpuFeaturesLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/CpuExceptionHandlerLib/SmmCpuExceptionHandlerLib.inf [X64]
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/SmmCpuPlatformHookLibNull/SmmCpuPlatformHookLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePerformanceLibNull/BasePerformanceLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiExtractGuidedSectionLib/PeiExtractGuidedSectionLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Silicon/Intel/IntelSiliconPkg/Library/SmmSpiFlashCommonLib/SmmSpiFlashCommonLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MpInitLib/PeiMpInitLib.inf [IA32]
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/CpuExceptionHandlerLib/SecPeiCpuExceptionHandlerLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MicrocodeLib/MicrocodeLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/BaseXApicX2ApicLib/BaseXApicX2ApicLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/CcExitLibNull/CcExitLibNull.inf [IA32]
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffGetEntryPointLib/BasePeCoffGetEntryPointLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/BaseUefiCpuLib/BaseUefiCpuLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/AcpiTimerLib/PeiAcpiTimerLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePrintLib/BasePrintLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/SerialIoLib/SerialIoLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/Library/CmosAccessLib/CmosAccessLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MtrrLib/MtrrLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciLibCf8/BasePciLibCf8.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/Library/PlatformCmosAccessLibNull/PlatformCmosAccessLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseCpuLib/BaseCpuLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePciCf8Lib/BasePciCf8Lib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/ResetVector/Vtf0/Vtf0.inf [IA32]
+Building ... /workspace/tmp/edk2/MdePkg/Library/SmmMemLib/SmmMemLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxSmmLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/MmServicesTableLib/MmServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeimEntryPoint/PeimEntryPoint.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiServicesLib/PeiServicesLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiHobLib/PeiHobLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseMemoryLibRepStr/BaseMemoryLibRepStr.inf [IA32]
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseLib/BaseLib.inf [IA32]
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiPcdLib/PeiPcdLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/PeiReportStatusCodeLib/PeiReportStatusCodeLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiServicesTablePointerLibIdt/PeiServicesTablePointerLibIdt.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/PeiMemoryAllocationLib/PeiMemoryAllocationLib.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MpInitLib/DxeMpInitLib.inf [X64]
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MtrrLib/MtrrLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/MicrocodeLib/MicrocodeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/BaseXApicX2ApicLib/BaseXApicX2ApicLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BasePeCoffGetEntryPointLib/BasePeCoffGetEntryPointLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/CcExitLibNull/CcExitLibNull.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/PcAtChipsetPkg/Library/SerialIoLib/SerialIoLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseCpuLib/BaseCpuLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Library/BaseUefiCpuLib/BaseUefiCpuLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/BaseBmpSupportLib/BaseBmpSupportLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/AsanRuntimeLib/AsanRuntimeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/RuntimeDxeReportStatusCodeLib/RuntimeDxeReportStatusCodeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeHttpLib/DxeHttpLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/Library/DxeNetLib/DxeNetLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2-platforms/Silicon/Intel/SimicsIch10Pkg/LibraryPrivate/BasePchSpiCommonLib/BasePchSpiCommonLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/SmmMemoryAllocationLib/SmmMemoryAllocationLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdePkg/Library/SmmServicesTableLib/SmmServicesTableLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Library/SmmReportStatusCodeLib/SmmReportStatusCodeLib.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe.inf [X64]
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=FirmwarePerformanceDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf [IA32]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=SmmLockBoxStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm.inf [X64]
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/PcatSingleSegmentPciCfg2Pei/PcatSingleSegmentPciCfg2Pei.inf [IA32]
+make: Nothing to be done for 'tbuild'.
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=PlatformInitSmmStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf [X64]
+make: Nothing to be done for 'tbuild'.
+Building ... /workspace/tmp/edk2/NetworkPkg/MnpDxe/MnpDxe.inf [X64]
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=AcpiTableDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=MnpDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmIpl.inf [X64]
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.lib(FirmwarePerformanceDxe.obj): warning: relocation in read-only section `.init_array.1'
+Building ... /workspace/tmp/edk2/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=DriverHealthManagerDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.lib(SmmLockBox.obj): warning: relocation in read-only section `.init_array.1'
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=PiSmmIplStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=CpuIo2SmmStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf [X64]
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.lib(PlatformInitSmm.obj): warning: relocation in read-only section `.init_array.1'
+Building ... /workspace/tmp/edk2/MdeModulePkg/Application/UiApp/UiApp.inf [X64]
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe/DEBUG/BoardBdsHookDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe/DEBUG/BoardBdsHookDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=BoardBdsHookDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe/DEBUG/HiiDatabase.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe/DEBUG/HiiDatabase.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=HiiDatabaseStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf [X64]
+Building ... /workspace/tmp/edk2/NetworkPkg/VlanConfigDxe/VlanConfigDxe.inf [X64]
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.lib(AcpiTableProtocol.obj): warning: relocation in read-only section `.init_array.1'
+Building ... /workspace/tmp/edk2/NetworkPkg/ArpDxe/ArpDxe.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe/DEBUG/UsbBusDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe/DEBUG/UsbBusDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=UsbBusDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.lib(MnpMain.obj): warning: relocation in read-only section `.init_array.1'
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.debug
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Application/UiApp/UiApp/DEBUG/UiApp.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Application/UiApp/UiApp/DEBUG/UiApp.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Application/UiApp/UiApp/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=UiAppStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/DEBUG/VlanConfigDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/DEBUG/VlanConfigDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=VlanConfigDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll
+Building ... /workspace/tmp/edk2-platforms/Features/Intel/SystemInformation/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe.inf [X64]
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.debug
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/ArpDxe/ArpDxe/DEBUG/ArpDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/ArpDxe/ArpDxe/DEBUG/ArpDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/ArpDxe/ArpDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=ArpDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll
+Building ... /workspace/tmp/edk2/FatPkg/EnhancedFatDxe/Fat.inf [X64]
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.debug
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/OUTPUT/DriverHealthManagerDxe.lib(DriverHealthManagerDxe.obj): warning: relocation in read-only section `.init_array.1'
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/OUTPUT/PiSmmIpl.lib(PiSmmIpl.obj): warning: relocation in read-only section `.init_array.1'
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FirmwarePerformanceDxe.debug
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf [X64]
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+"GenFw" -e DXE_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/FirmwarePerformanceDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmmLockBox.debug
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/BdsDxe/BdsDxe.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe/DEBUG/SmbiosBasic.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe/DEBUG/SmbiosBasic.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=SmbiosBasicStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"GenFw" -e DXE_SMM_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/SmmLockBox.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/OUTPUT/CpuIo2Smm.lib(CpuIo2Smm.obj): warning: relocation in read-only section `.init_array.1'
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FirmwarePerformanceDxe.efi
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/PlatformInitSmm.debug
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FatPkg/EnhancedFatDxe/Fat/DEBUG/Fat.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FatPkg/EnhancedFatDxe/Fat/DEBUG/Fat.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FatPkg/EnhancedFatDxe/Fat/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=FatStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+Building ... /workspace/tmp/edk2/MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe.inf [X64]
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG
+"GenFw" -e DXE_SMM_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/PlatformInitSmm.dll
+test -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.map && cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0.map
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmmLockBox.efi
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe/DEBUG/NullMemoryTestDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe/DEBUG/NullMemoryTestDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=NullMemoryTestDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT
+test -e /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.efi && GenSec -s EFI_SECTION_PE32 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0SEC2.1.pe32 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe/OUTPUT/FirmwarePerformanceDxe.efi
+Building ... /workspace/tmp/edk2/ShellPkg/Application/Shell/Shell.inf [X64]
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+test -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.map && cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6.map
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/PlatformInitSmm.efi
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe/OUTPUT/HiiDatabase.lib(HiiDatabaseEntry.obj): warning: relocation in read-only section `.init_array.1'
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/BoardModulePkg/BoardBdsHookDxe/BoardBdsHookDxe/OUTPUT/BoardBdsHookDxe.lib(BoardBdsHookDxe.obj): warning: relocation in read-only section `.init_array.1'
+GenFfs -t EFI_FV_FILETYPE_DRIVER -g 00160F8D-2B35-4df2-BBE0-B272A8D631F0 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0.ffs -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0SEC1.1.dpx -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0SEC2.1.pe32 -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0SEC3.ui -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/00160F8D-2B35-4df2-BBE0-B272A8D631F0FirmwarePerformanceDxe/00160F8D-2B35-4df2-BBE0-B272A8D631F0SEC4.ver
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.debug
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf [X64]
+test -e /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.efi && GenSec -s EFI_SECTION_PE32 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6SEC2.1.pe32 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox/OUTPUT/SmmLockBox.efi
+test -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.map && cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0.map
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe/DEBUG/EhciDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe/DEBUG/EhciDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=EhciDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.debug
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/MinPlatformPkg/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPreMem.inf [IA32]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/BdsDxe/BdsDxe/DEBUG/BdsDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/BdsDxe/BdsDxe/DEBUG/BdsDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/BdsDxe/BdsDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=BdsDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+GenFfs -t EFI_FV_FILETYPE_SMM -g 33FB3535-F15E-4c17-B303-5EB94595ECB6 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6.ffs -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6SEC1.1.dpx -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6SEC2.1.pe32 -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6SEC3.ui -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/33FB3535-F15E-4c17-B303-5EB94595ECB6SmmLockBox/33FB3535-F15E-4c17-B303-5EB94595ECB6SEC4.ver
+test -e /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi && GenSec -s EFI_SECTION_PE32 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0SEC2.1.pe32 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MinPlatformPkg/PlatformInit/PlatformInitSmm/PlatformInitSmm/OUTPUT/PlatformInitSmm.efi
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/OUTPUT/VlanConfigDxe.lib(ComponentName.obj): warning: relocation in read-only section `.init_array.1'
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe/OUTPUT/UsbBusDxe.lib(UsbDesc.obj): warning: relocation in read-only section `.init_array.1'
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll
+GenFfs -t EFI_FV_FILETYPE_SMM -g EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0.ffs -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0SEC1.1.dpx -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0SEC2.1.pe32 -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0SEC3.ui -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0PlatformInitSmm/EE447DFD-7B3A-4F39-80FC-ED02BB20F6A0SEC4.ver
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei.inf [IA32]
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.debug
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/AcpiTableDxe.debug
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.dll
+Building ... /workspace/tmp/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/SimicsVideoDxe/SimicsVideoDxe.inf [X64]
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe/DEBUG/CapsuleRuntimeDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe/DEBUG/CapsuleRuntimeDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=CapsuleRuntimeDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"GenFw" -e DXE_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/AcpiTableDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.debug
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/ArpDxe/ArpDxe/OUTPUT/ArpDxe.lib(ArpMain.obj): warning: relocation in read-only section `.init_array.1'
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+make: Nothing to be done for 'tbuild'.
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Pei/Pcd.inf [IA32]
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/ShellPkg/Application/Shell/Shell/DEBUG/Shell.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/ShellPkg/Application/Shell/Shell/DEBUG/Shell.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/ShellPkg/Application/Shell/Shell/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=ShellStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MnpDxe.debug
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/AcpiTableDxe.efi
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.dll /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.debug
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT
+make: Nothing to be done for 'tbuild'.
+"GenFw" -e UEFI_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/MnpDxe.dll
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll
+test -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.map && cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6B.map
+objcopy --strip-unneeded -R .eh_frame /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.dll
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/StatusCodeHandler/Smm/StatusCodeHandlerSmm.inf [X64]
+test -e /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.efi && GenSec -s EFI_SECTION_PE32 -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6BSEC2.1.pe32 /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe/OUTPUT/AcpiTableDxe.efi
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/PiSmmIpl.debug
+objcopy --add-gnu-debuglink=/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.dll
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/FatPkg/EnhancedFatDxe/Fat/OUTPUT/Fat.lib(DirectoryCache.obj): warning: relocation in read-only section `.init_array.1'
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Application/UiApp/UiApp/OUTPUT/UiApp.lib(FrontPageVfr.obj): warning: relocation in read-only section `.init_array.1'
+Building ... /workspace/tmp/edk2/MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf [X64]
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG
+/usr/bin/ld: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SmbiosFeaturePkg/SmbiosBasicDxe/SmbiosBasicDxe/OUTPUT/SmbiosBasic.lib(SmbiosBasicEntryPoint.obj): warning: relocation in read-only section `.init_array.1'
+"/usr/bin/clang" -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SimicsVideoDxe/SimicsVideoDxe/DEBUG/QemuVideoDxe.dll -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x40 -Wl,--entry,_ModuleEntryPoint -u _ModuleEntryPoint -Wl,-Map,/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SimicsVideoDxe/SimicsVideoDxe/DEBUG/QemuVideoDxe.map,--whole-archive -flto -Wl,-Oz -Wl,-melf_x86_64 -Wl,--oformat=elf64-x86-64 -Wl,-pie -mcmodel=small -Wl,--start-group,@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/SimicsOpenBoardPkg/SimicsVideoDxe/SimicsVideoDxe/OUTPUT/static_library_files.lst,--end-group -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=QemuVideoDxeStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -Wl,--defsym=PECOFF_HEADER_SIZE=0x228 -Wl,--script=/workspace/tmp/edk2/BaseTools/Scripts/GccBase.lds -Wno-error -O3
+"GenFw" -e DXE_RUNTIME_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/OUTPUT/PiSmmIpl.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/DriverHealthManagerDxe.debug
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MnpDxe.efi
+make: Nothing to be done for 'tbuild'.
+GenFfs -t EFI_FV_FILETYPE_DRIVER -g 9622E42C-8E38-4a08-9E8F-54F784652F6B -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6B.ffs -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6BSEC1.1.dpx -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6BSEC2.1.pe32 -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6BSEC3.ui -oi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/9622E42C-8E38-4a08-9E8F-54F784652F6BAcpiTableDxe/9622E42C-8E38-4a08-9E8F-54F784652F6BSEC4.ver
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/DEBUG/*.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT
+Building ... /workspace/tmp/edk2/NetworkPkg/DpcDxe/DpcDxe.inf [X64]
+"GenFw" -e DXE_DRIVER -o /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/OUTPUT/DriverHealthManagerDxe.efi /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe/DEBUG/DriverHealthManagerDxe.dll
+cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/UefiCpuPkg/CpuIo2Smm/CpuIo2Smm/DEBUG/CpuIo2Smm.debug /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/CpuIo2Smm.debug
+GenFw: ERROR 3000: Invalid
+  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG/PiSmmIpl.dll: Bad definition for symbol 'AsanSignalSolution'@0 or unsupported symbol type.  For example, absolute and undefined symbols are not supported.
+"objcopy"  /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/VlanConfigDxe/VlanConfigDxe/DEBUG/VlanConfigDxe.dll
+test -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.map && cp -p -f /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/NetworkPkg/MnpDxe/MnpDxe/OUTPUT/MnpDxe.map /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/Ffs/025BBFC7-E6A9-4b8b-82AD-6815A1AEAF4AMnpDxe/025BBFC7-E6A9-4b8b-82AD-6815A1AEAF4A.map
+make: *** [GNUmakefile:436: /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/OUTPUT/PiSmmIpl.efi] Error 1
+@/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/OUTPUT/cc_resp.txt
+ -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=PiSmmIplStrings -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unused-const-variable -Wno-varargs -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-stack-protector -mms-bitfields -Wno-address -Wno-shift-negative-value -Wno-unknown-pragmas -Wno-incompatible-library-redeclaration -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -msoft-float -mno-implicit-float  -ftrap-function=undefined_behavior_has_been_optimized_away_by_clang -funsigned-char -fno-ms-extensions -Wno-null-dereference -m64 "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -mcmodel=small -fpie -Oz -flto -target x86_64-pc-linux-gnu -g -fno-lto -D SERIAL_DBG_MSG=1 -I/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore -I/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl/DEBUG -I/workspace/tmp/edk2/MdePkg -I/workspace/tmp/edk2/MdePkg/Include -I/workspace/tmp/edk2/MdePkg/Test/UnitTest/Include -I/workspace/tmp/edk2/MdePkg/Include/X64 -I/workspace/tmp/edk2/MdeModulePkg -I/workspace/tmp/edk2/MdeModulePkg/Include -I/workspace/tmp/edk2/MdeModulePkg/Library/BrotliCustomDecompressLib/brotli/c/include -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/AcpiDebugFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/AcpiDebugFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/BeepDebugFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/BeepDebugFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/GenericIpmi/Common -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/GenericIpmi/Dxe -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/GenericIpmi/Pei -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/GenericIpmi/Smm -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/IpmiInit -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/Library -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/IpmiFeaturePkg/OsWdt -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/SpcrFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/SpcrFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/LogoFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/LogoFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/PowerManagement/S3FeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/PowerManagement/S3FeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/PostCodeDebugFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/PostCodeDebugFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/SystemInformation/SmbiosFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/SystemInformation/SmbiosFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/VirtualKeyboardFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/VirtualKeyboardFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/UserAuthFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/UserInterface/UserAuthFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/Usb3DebugFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/Debugging/Usb3DebugFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/Network/NetworkFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/Network/NetworkFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/AsfFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/OutOfBandManagement/AsfFeaturePkg/Include -I/workspace/tmp/edk2-platforms/Features/Intel/PlatformPayloadFeaturePkg -I/workspace/tmp/edk2-platforms/Features/Intel/PlatformPayloadFeaturePkg/Include
+
+
+
+build.py...
+ : error 7000: Failed to execute command
+	make tbuild [/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Core/PiSmmCore/PiSmmIpl]
+
+
+build.py...
+ : error 7000: Failed to execute command
+	make tbuild [/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/X64/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe]
+
+
+build.py...
+ : error F002: Failed to build module
+	/workspace/tmp/edk2/MdeModulePkg/Core/PiSmmCore/PiSmmIpl.inf [X64, CLANGSAN, DEBUG]
+
+- Failed -
+Build end time: 20:49:41, Sep.01 2026
+Build total time: 00:00:15
+
+Set WORKSPACE as: /workspace/tmp
+Calling make -C /workspace/tmp/edk2/BaseTools
+Calling make
+==============================================
+BIOS_SIZE_OPTION     = -DBIOS_SIZE_OPTION=SIZE_70
+EFI_SOURCE           = edk2
+TARGET               = DEBUG
+TARGET_ARCH          = IA32 X64
+TOOL_CHAIN_TAG       = CLANGSAN
+WORKSPACE            = /workspace/tmp
+WORKSPACE_CORE       = edk2
+EXT_BUILD_FLAGS      = 
+==========================================
+ User Selected build options:
+ SILENT_MODE    =  FALSE
+ REBUILD_MODE   =  
+ BUILD_ROM_ONLY =  
+ BINARY_CACHE_CMD_LINE =  None 
+==========================================
+Calling build -n 0 --log=Build.log --report-file=BuildReport.log
+ The EDKII BIOS Build has failed!

@@ -1,0 +1,36 @@
+[
+    {
+        "Aliases": [
+            "RootBridgeIoAllocateBuffer"
+        ],
+        "Function": "AllocateBuffer"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoFreeBuffer"
+        ],
+        "Function": "FreeBuffer"
+    },
+    {
+        "Aliases": [
+            "BufferMap",
+            "Map",
+            "RootBridgeIoMap"
+        ],
+        "Function": "Map"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoUnmap"
+        ],
+        "Function": "Unmap"
+    }
+]

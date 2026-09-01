@@ -1,0 +1,39 @@
+[
+    {
+        "Aliases": [
+            "IdeInitCalculateMode"
+        ],
+        "Function": "CalculateMode"
+    },
+    {
+        "Aliases": [
+            "IdeInitDisqualifyMode"
+        ],
+        "Function": "DisqualifyMode"
+    },
+    {
+        "Aliases": [
+            "IdeInitGetChannelInfo"
+        ],
+        "Function": "GetChannelInfo"
+    },
+    {
+        "Aliases": [
+            "IdeInitNotifyPhase",
+            "NotifyPhase"
+        ],
+        "Function": "NotifyPhase"
+    },
+    {
+        "Aliases": [
+            "IdeInitSetTiming"
+        ],
+        "Function": "SetTiming"
+    },
+    {
+        "Aliases": [
+            "IdeInitSubmitData"
+        ],
+        "Function": "SubmitData"
+    }
+]

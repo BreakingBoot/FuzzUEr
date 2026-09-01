@@ -1,0 +1,54 @@
+[
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "IsBrowserDataModified",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx2.h"
+        ],
+        "return_type": "BOOLEAN"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32",
+                    "Assignment": "",
+                    "Data Type": "UINT32",
+                    "Usage": "gEdkiiFormBrowserEx2ProtocolGuid",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT16",
+                    "Assignment": "",
+                    "Data Type": "UINT16",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "Protocols",
+        "function": "ExecuteAction",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx2.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {},
+        "service": "Protocols",
+        "function": "IsResetRequired",
+        "includes": [
+            "/w/edk2/MdeModulePkg/Include/Protocol/FormBrowserEx2.h"
+        ],
+        "return_type": "BOOLEAN"
+    }
+]

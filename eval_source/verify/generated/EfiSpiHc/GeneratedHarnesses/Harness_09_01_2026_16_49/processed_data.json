@@ -1,0 +1,128 @@
+[
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Usage": "gEfiSpiHcProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SPI_PERIPHERAL *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SPI_PERIPHERAL *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "BOOLEAN",
+                    "Assignment": "",
+                    "Data Type": "BOOLEAN",
+                    "Usage": "",
+                    "Pointer Count": 0,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "ChipSelect",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SpiHc.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Usage": "gEfiSpiHcProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SPI_PERIPHERAL *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SPI_PERIPHERAL *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ],
+            "Arg_2": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "UINT32 *",
+                    "Assignment": "",
+                    "Data Type": "UINT32 *",
+                    "Usage": "",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__FUZZABLE__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Clock",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SpiHc.h"
+        ],
+        "return_type": "EFI_STATUS"
+    },
+    {
+        "arguments": {
+            "Arg_0": [
+                {
+                    "Arg Dir": "IN",
+                    "Arg Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Assignment": "",
+                    "Data Type": "EFI_SPI_HC_PROTOCOL *",
+                    "Usage": "gEfiSpiHcProtocolGuid",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__PROTOCOL__"
+                }
+            ],
+            "Arg_1": [
+                {
+                    "Arg Dir": "OPTIONAL",
+                    "Arg Type": "EFI_SPI_BUS_TRANSACTION *",
+                    "Assignment": "NULL",
+                    "Data Type": "EFI_SPI_BUS_TRANSACTION *",
+                    "Usage": "NULL",
+                    "Pointer Count": 1,
+                    "Potential Values": [],
+                    "Variable": "__OPTIONAL__"
+                }
+            ]
+        },
+        "service": "protocol",
+        "function": "Transaction",
+        "includes": [
+            "/w/edk2/MdePkg/Include/Protocol/SpiHc.h"
+        ],
+        "return_type": "EFI_STATUS"
+    }
+]
