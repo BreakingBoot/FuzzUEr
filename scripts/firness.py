@@ -1072,6 +1072,17 @@ def main():
             return 1
         log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend)
         log += compile_harness(tmp_dir)
+        # compile_harness only prints when the build fails, and the fuzz stage would then
+        # happily run the Firness.efi left over from whatever protocol was built last and
+        # report its coverage under this one. Stop instead.
+        harness_source = os.path.join(tmp_dir, 'edk2', 'Firness', 'FirnessHarnesses.c')
+        if not os.path.isfile(HARNESS_IMAGE) or (
+                os.path.isfile(harness_source)
+                and os.path.getmtime(HARNESS_IMAGE) < os.path.getmtime(harness_source)):
+            print(f'Error: the harness did not compile -- {HARNESS_IMAGE} is missing or older '
+                  f'than the harness just generated. Not fuzzing, because that would run the '
+                  f'previously built harness and report its coverage under this protocol.')
+            return 1
 
     if args.fuzz or complete_analysis:
         if not os.path.isfile(FIRMWARE_IMAGE):
