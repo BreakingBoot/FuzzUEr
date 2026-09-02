@@ -10,3 +10,8 @@ COPY ./fwstage/AsanLib /workspace/tmp/edk2/MdeModulePkg/Library/AsanLib
 COPY ./fwstage/AsanMemoryLib /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLib
 COPY ./fwstage/AsanMemoryLibRepStr /workspace/tmp/edk2/MdePkg/Library/AsanMemoryLibRepStr
 COPY ./fwstage/BOARDX58ICH10.repo2.fd /workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd
+# reproduce.simics never made it into the base image, so --reproduce could not run and
+# a saved solution could not be replayed. fuzz.simics ships here too so a change to it
+# does not need the base rebuilt.
+COPY ./Harness/fuzz.simics /workspace/projects/example/
+COPY ./Harness/reproduce.simics /workspace/projects/example/
