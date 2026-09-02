@@ -1,6 +1,7 @@
 import shutil
 import sys
 import subprocess
+import csv
 import os
 import json
 import time
@@ -748,9 +749,13 @@ def save_crashes_to_file(crashes, output_dir=None):
         crash_list.append([crash.phase, crash.file, f'{crash.line}', crash.asan_msg,
                            crash.error_type, crash.message, f'{crash.count}'])
     path = os.path.join(output_dir, 'crashes.csv') if output_dir else 'crashes.csv'
-    with open(path, 'w') as out:
+    # csv.writer, not ",".join: a sanitizer message contains commas of its own, and joining
+    # raw shifted every later column. One site then read back as several different rows,
+    # so AtaBus.c:1380 counted seven times instead of once.
+    with open(path, 'w', newline='') as out:
+        writer = csv.writer(out)
         for row in crash_list:
-            out.write(f'{",".join(str(c) for c in row)}\n')
+            writer.writerow([str(c) for c in row])
 
     return crash_list
 
