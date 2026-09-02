@@ -4,11 +4,15 @@ eval_source/_*/
 eval_source/anacache/
 eval_source/atacheck/
 eval_source/bcheck/
+eval_source/bischeck/
+eval_source/consttest/
 eval_source/evalset/
 eval_source/firness_output/
 eval_source/gcheck/
 eval_source/newfw/
+eval_source/pcdcheck/
 eval_source/protocols/
+eval_source/scsicheck/
 eval_source/sweep/
 eval_source/verify/
 fixedruns.log
