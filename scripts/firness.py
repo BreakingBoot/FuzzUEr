@@ -1109,6 +1109,16 @@ def main():
             return 1
 
     if args.fuzz or complete_analysis:
+        # --backend only selects which magic instructions the harness compiles against.
+        # run_fuzzer always launches fuzz.simics, so fuzzing a non-tsffs harness would boot
+        # it under tsffs, whose harness instructions it no longer contains: the run would
+        # sit through the whole boot and never start fuzzing, with nothing saying why.
+        if args.backend != 'tsffs':
+            print(f'Error: --backend {args.backend} builds the harness for that fuzzer, but '
+                  f'only the tsffs/simics runner is implemented here. Generate with '
+                  f'--backend {args.backend} (-g) and run the harness under that fuzzer '
+                  f'yourself, or drop --backend to fuzz with tsffs.')
+            return 1
         if not os.path.isfile(FIRMWARE_IMAGE):
             print(f'Error: {FIRMWARE_IMAGE} is missing -- run the analysis stage '
                   f'first so the instrumented firmware is built.')
