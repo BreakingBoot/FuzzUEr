@@ -619,8 +619,29 @@ def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
     return False
 
 
-def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700):
+# tsffs.timeout is simulated seconds per iteration. Under emulation a timed-out iteration
+# costs far more wall clock than a completed one, and some protocols time out on most of
+# their inputs -- EfiShell spent 41 of 62 iterations timing out -- so this is worth tuning
+# per campaign rather than leaving at the value baked into fuzz.simics.
+def set_iteration_timeout(simics_dir, seconds):
+    if not seconds:
+        return
+    script = os.path.join(simics_dir, 'fuzz.simics')
+    if not os.path.isfile(script):
+        return
+    with open(script) as handle:
+        text = handle.read()
+    updated = re.sub(r'@tsffs\.timeout\s*=\s*[0-9.]+',
+                     f'@tsffs.timeout = {seconds}', text)
+    if updated != text:
+        with open(script, 'w') as handle:
+            handle.write(updated)
+        print(f'Set the per-iteration timeout to {seconds}s of simulated time')
+
+
+def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_timeout=None):
     global fuzzer_process
+    set_iteration_timeout(simics_dir, iteration_timeout)
     log_path = os.path.join(simics_dir, 'log.json')
     corpus_dir = os.path.join(simics_dir, 'corpus')
     solutions_dir = os.path.join(simics_dir, 'solutions')
@@ -998,6 +1019,9 @@ def main():
     parser.add_argument('-t', '--timeout', type=int,
                         help='Fuzzing budget in seconds, counted from the moment the harness '
                              'is reached (not from simics startup)')
+    parser.add_argument('--iteration-timeout', type=float, default=None,
+                        help='Simulated seconds allowed per fuzzing iteration before it '
+                             'counts as a timeout (default: whatever fuzz.simics sets)')
     parser.add_argument('--boot-timeout', type=int, default=2700,
                         help='Seconds to wait for the instrumented firmware to boot and reach '
                              'HARNESS_START before giving up (default: 2700)')
@@ -1097,7 +1121,8 @@ def main():
 
         # run the fuzzer
         fuzzing_dir = simics_dir
-        fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout)
+        fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout,
+                                  args.iteration_timeout)
         generate_report(simics_dir, output)
         if not fuzz_started:
             print('Warning: ZERO fuzzing iterations ran, so coverage.csv is empty and every '

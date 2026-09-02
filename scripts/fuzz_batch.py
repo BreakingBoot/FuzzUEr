@@ -46,6 +46,12 @@ def launch(protocol, args):
     )
     if args.backend != 'tsffs':
         command += f' --backend {args.backend}'
+    if args.iteration_timeout:
+        command += f' --iteration-timeout {args.iteration_timeout}'
+    # keep firness.py's own output: it is where "Fuzzer exited after Ns of its 900s
+    # budget" and "Harness reached after Ns of boot" are printed, and without it a run
+    # that lost 90% of its budget looks identical to one that used all of it
+    command = f'({command}) 2>&1 | tee /output/run.log'
     # copy out even when the run failed, so a boot that never reached the harness still
     # leaves the serial capture behind to explain why
     command += ' ; cp -r /workspace/firness_output/. /output/ 2>/dev/null'
@@ -84,6 +90,8 @@ def main():
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
                         help='Fuzzing seconds per protocol, counted from the harness being hit')
+    parser.add_argument('--iteration-timeout', type=float, default=0,
+                        help='Simulated seconds per fuzzing iteration before it times out')
     parser.add_argument('--boot-timeout', type=int, default=2700,
                         help='Seconds to allow for the boot before giving up on a protocol')
     parser.add_argument('--image', type=str, default=DEFAULT_IMAGE)
