@@ -7,6 +7,7 @@ eval_source/bcheck/
 eval_source/biotest/
 eval_source/bischeck/
 eval_source/consttest/
+eval_source/dhcptest/
 eval_source/evalset/
 eval_source/firness_output/
 eval_source/gatetest/
