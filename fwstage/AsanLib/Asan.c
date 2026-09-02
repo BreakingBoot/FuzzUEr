@@ -325,15 +325,9 @@ void __asan_report_store_n_noabort(UINTN addr, UINTN size)
 // fuzzing also ends the iteration as a solution
 void AsanSignalSolution (VOID);
 
-// Nothing is reported before the harness starts. A detection during boot turns
-// gSerialOutputSwitch on, and from then on every check writes to the serial port,
-// which under emulation is slow enough that the boot never finishes.
 #define SANITIZER_CALLSTACK_DUMP(fun_name)                                \
 {                                                                         \
   CHAR8 NumStr[19];                                                       \
-  if (!mAsanFuzzingActive) {                                              \
-    return ;                                                              \
-  }                                                                       \
   SerialOutput2 ("ASAN MEMORY ACCESS check fail! ");                      \
   gSerialOutputSwitch = 1;                                                \
   SerialOutput2 (fun_name);                                               \
@@ -382,7 +376,6 @@ void __asan_load##size(UINTN addr)          \
                      ((INT8)((addr & (SHADOW_GRANULARITY - 1)) + size - 1)) >=      \
                          (INT8)s)) {                                                \
               SerialOutput2 ("ASAN MEMORY ACCESS check fail! ");                    \
-              if (!mAsanFuzzingActive) { return ; }              \
               gSerialOutputSwitch = 1;                                              \
               Num2Str8bit ( size , NumStr);                                         \
               SerialOutput ("__asan_load");                                         \
@@ -451,7 +444,6 @@ void __asan_store##size(UINTN addr)         \
                      ((INT8)((addr & (SHADOW_GRANULARITY - 1)) + size - 1)) >=      \
                          (INT8)s)) {                                                \
               SerialOutput2 ("ASAN MEMORY ACCESS check fail! ");                    \
-              if (!mAsanFuzzingActive) { return ; }              \
               gSerialOutputSwitch = 1;                                              \
               Num2Str8bit ( size , NumStr);                                         \
               SerialOutput ("__asan_store");                                        \
@@ -518,7 +510,6 @@ void __asan_load##size##_noabort(UINTN addr)  \
                      ((INT8)((addr & (SHADOW_GRANULARITY - 1)) + size - 1)) >=      \
                          (INT8)s)) {                                                \
               SerialOutput2 ("ASAN MEMORY ACCESS check fail! ");                    \
-              if (!mAsanFuzzingActive) { return ; }              \
               gSerialOutputSwitch = 1;                                              \
               Num2Str8bit ( size , NumStr);                                         \
               SerialOutput ("__asan_load");                                         \
@@ -584,7 +575,6 @@ void __asan_store##size##_noabort(UINTN addr)   \
                      ((INT8)((addr & (SHADOW_GRANULARITY - 1)) + size - 1)) >=      \
                          (INT8)s)) {                                                \
               SerialOutput2 ("ASAN MEMORY ACCESS check fail! ");                    \
-              if (!mAsanFuzzingActive) { return ; }              \
               gSerialOutputSwitch = 1;                                              \
               Num2Str8bit ( size , NumStr);                                         \
               SerialOutput ("__asan_store");                                        \
@@ -741,9 +731,6 @@ void __asan_loadN_noabort(UINTN addr, UINTN size)
   if (__asan_region_is_poisoned(addr, size)) {
     SerialOutput2 ("__asan_loadN_noabort ASAN MEMORY ACCESS check fail! ");
     AsanSignalSolution ();
-    if (!mAsanFuzzingActive) {
-      return ;
-    }
     gSerialOutputSwitch = 1;
     UINTN sp = MEM_TO_SHADOW(addr);
     if(sp < mAsanShadowMemoryStart || mAsanShadowMemoryEnd < sp) {
@@ -795,9 +782,6 @@ void __asan_storeN_noabort(UINTN addr, UINTN size)
   if (__asan_region_is_poisoned(addr, size)) {
     SerialOutput2 ("__asan_storeN_noabort ASAN MEMORY ACCESS check fail! ");
     AsanSignalSolution ();
-    if (!mAsanFuzzingActive) {
-      return ;
-    }
     gSerialOutputSwitch = 1;
     UINTN sp = MEM_TO_SHADOW(addr);
     if(sp < mAsanShadowMemoryStart || mAsanShadowMemoryEnd < sp) {
@@ -849,9 +833,6 @@ void __asan_loadN(UINTN addr, UINTN size)
   if (__asan_region_is_poisoned(addr, size)) {
     SerialOutput2 ("__asan_loadN ASAN MEMORY ACCESS check fail! ");
     AsanSignalSolution ();
-    if (!mAsanFuzzingActive) {
-      return ;
-    }
     gSerialOutputSwitch = 1;
     UINTN sp = MEM_TO_SHADOW(addr);
     if(sp < mAsanShadowMemoryStart || mAsanShadowMemoryEnd < sp) {
@@ -903,9 +884,6 @@ void __asan_storeN(UINTN addr, UINTN size)
   if (__asan_region_is_poisoned(addr, size)) {
     SerialOutput2 ("__asan_storeN ASAN MEMORY ACCESS check fail! ");
     AsanSignalSolution ();
-    if (!mAsanFuzzingActive) {
-      return ;
-    }
     gSerialOutputSwitch = 1;
     UINTN sp = MEM_TO_SHADOW(addr);
     if(sp < mAsanShadowMemoryStart || mAsanShadowMemoryEnd < sp) {

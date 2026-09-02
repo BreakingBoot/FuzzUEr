@@ -540,6 +540,23 @@ def compile_firmware(src):
     return log
 
 
+# Fuzzing without generating first reuses whatever Firness.efi is in the build tree. That
+# harness targets whichever protocol was generated last, so a campaign can run to completion
+# and report coverage for a protocol it never actually fuzzed. Compare the built harness
+# against the request file that is supposed to have produced it.
+def warn_if_harness_is_stale(input_file):
+    harness = HARNESS_IMAGE
+    if not os.path.isfile(harness) or not os.path.isfile(input_file):
+        return False
+    if os.path.getmtime(harness) >= os.path.getmtime(input_file):
+        return False
+    print(f'Warning: {harness} is older than {input_file}. It was built for a different '
+          f'protocol, and -f on its own does not rebuild it -- pass -g as well, seeding '
+          f'firness_output/ with that protocol\'s analysis, or the coverage below belongs '
+          f'to the previously generated harness.')
+    return True
+
+
 # The fuzzing path reuses whatever BOARDX58ICH10.fd is already in the build tree. That is
 # usually what you want -- the firmware build takes the better part of an hour -- but it
 # silently fuzzes a binary older than the sanitizer sources, which is how a whole campaign
@@ -1064,6 +1081,8 @@ def main():
         if not os.path.isfile(HARNESS_IMAGE):
             print(f'Error: {HARNESS_IMAGE} is missing -- run the generate stage first.')
             return 1
+        if not (args.generate or complete_analysis):
+            warn_if_harness_is_stale(input_file)
 
         # run the fuzzer
         fuzzing_dir = simics_dir

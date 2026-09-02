@@ -1,0 +1,9 @@
+These 129 campaigns are not per-protocol results.
+
+fuzz_batch.py ran firness.py with -f only, which skips harness generation, so every
+campaign fuzzed the one Firness.efi baked into the image (a UDP/IP harness built
+2026-08-27). The per-protocol edge counts are that single harness measured 129 times,
+and the spread between them is run-to-run variance, not protocol coverage.
+
+Fixed 2026-09-02: campaigns now seed firness_output from the cached analysis and run
+-g -f, so each builds its own harness.
