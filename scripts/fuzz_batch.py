@@ -48,6 +48,8 @@ def launch(protocol, args):
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
         command += f' --iteration-timeout {args.iteration_timeout}'
+    if args.max_steps:
+        command += f' --max-steps {args.max_steps}'
     if args.seed_from and os.path.isdir(
             os.path.join(os.path.abspath(args.seed_from), protocol, 'corpus')):
         command += ' --seed-corpus /seed'
@@ -99,6 +101,8 @@ def main():
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
                         help='Fuzzing seconds per protocol, counted from the harness being hit')
+    parser.add_argument('--max-steps', type=int, default=0,
+                        help='Calls chained per fuzzing iteration (generator default 8)')
     parser.add_argument('--seed-from', type=str, default='',
                         help='A previous run directory: each protocol starts from the '
                              'corpus its campaign there produced')

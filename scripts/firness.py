@@ -487,7 +487,7 @@ def combine_cfgs(src):
 
 # generate the harness for fuzzing with the results from the static analysis tool
 def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False,
-                     backend: str = 'tsffs'):
+                     backend: str = 'tsffs', max_steps: int = 0):
     dst = output_dir
     edk2_dir = os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
@@ -500,6 +500,8 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     # the harness compiles against whichever fuzzer it will run under
     if backend and backend != 'tsffs':
         generate_cmd += f' --backend {backend}'
+    if max_steps:
+        generate_cmd += f' --max-steps {max_steps}'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
@@ -1050,6 +1052,9 @@ def main():
     parser.add_argument('-t', '--timeout', type=int,
                         help='Fuzzing budget in seconds, counted from the moment the harness '
                              'is reached (not from simics startup)')
+    parser.add_argument('--max-steps', type=int, default=0,
+                        help='Calls chained per fuzzing iteration; lower it for protocols '
+                             'whose calls are slow enough to starve the fuzzer')
     parser.add_argument('--seed-corpus', type=str, default='',
                         help='Directory of inputs to start the corpus from, usually the '
                              'corpus a previous campaign for this protocol produced')
@@ -1128,7 +1133,8 @@ def main():
             print(f'Error: {output}/call-database.json is missing -- run the analysis '
                   f'stage first (-a, or no stage flags at all).')
             return 1
-        log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend)
+        log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend,
+                                args.max_steps)
         log += compile_harness(tmp_dir)
         # compile_harness only prints when the build fails, and the fuzz stage would then
         # happily run the Firness.efi left over from whatever protocol was built last and
