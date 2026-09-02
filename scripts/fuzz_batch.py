@@ -15,6 +15,20 @@ import subprocess
 DEFAULT_IMAGE = 'fuzzuer-cur:latest'
 
 
+# Launching against an image built before a flag existed wastes a whole batch: every
+# container exits instantly with "unrecognized arguments" and the run looks like a fuzzing
+# failure. Ask the image what it supports before starting anything.
+def image_supports(image, flags):
+    if not flags:
+        return []
+    result = subprocess.run(
+        ['docker', 'run', '--rm', '--entrypoint', 'bash', image, '-c',
+         'python3 /workspace/firness.py --help 2>&1'],
+        capture_output=True, text=True)
+    help_text = result.stdout + result.stderr
+    return [flag for flag in flags if flag not in help_text]
+
+
 def running(names):
     if not names:
         return []
@@ -126,6 +140,20 @@ def main():
     else:
         requests = os.path.join(args.repo, 'eval_source', 'evalset')
         todo = sorted(f[:-4] for f in os.listdir(requests) if f.endswith('.txt'))
+
+    wanted = []
+    if args.iteration_timeout:
+        wanted.append('--iteration-timeout')
+    if args.max_steps:
+        wanted.append('--max-steps')
+    if args.seed_from:
+        wanted.append('--seed-corpus')
+    missing = image_supports(args.image, wanted)
+    if missing:
+        print(f'Error: {args.image} does not accept {", ".join(missing)}. It was built '
+              f'before those existed -- rebuild it (docker build -f run.Dockerfile -t '
+              f'{args.image} .) or drop the flag.')
+        return 2
 
     os.makedirs(args.output, exist_ok=True)
     todo = [p for p in todo if not already_done(args.output, p)]
