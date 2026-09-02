@@ -1,8 +1,8 @@
-4 protocol(s) to fuzz, 4 at a time, 2400s each
-  started EfiBlockIo2 (1 launched, 3 queued)
-  started EdkiiFormBrowserEx2 (2 launched, 2 queued)
-  started EfiEbc (3 launched, 1 queued)
-  started EfiDiskIo2 (4 launched, 0 queued)
-
-launched 4, failed to launch 0
-summarise with: python3 /home/gl055/research/tianoshield/FuzzUEr/scripts/coverage_matrix.py -r eval_source/verify/long
+6 protocol(s) to fuzz, 6 at a time, 7200s each
+  started EfiHiiFont (1 launched, 5 queued)
+  started EfiFirmwareVolumeBlock (2 launched, 4 queued)
+  started EfiTcp4 (3 launched, 3 queued)
+  EfiShell: starved last run, chaining 2 calls instead of 8
+  started EfiShell (4 launched, 2 queued)
+  started EfiVlanConfig (5 launched, 1 queued)
+  started EfiUdp4 (6 launched, 0 queued)

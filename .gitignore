@@ -20,6 +20,7 @@ eval_source/protocols/
 eval_source/ptrtest/
 eval_source/qemutest/
 eval_source/scsicheck/
+eval_source/seqtest/
 eval_source/shellcheck/
 eval_source/sweep/
 eval_source/uctest/
