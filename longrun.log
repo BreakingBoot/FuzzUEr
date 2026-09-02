@@ -6,3 +6,6 @@
   started EfiShell (4 launched, 2 queued)
   started EfiVlanConfig (5 launched, 1 queued)
   started EfiUdp4 (6 launched, 0 queued)
+
+launched 6, failed to launch 0
+summarise with: python3 /home/gl055/research/tianoshield/FuzzUEr/scripts/coverage_matrix.py -r eval_source/verify/longrun
