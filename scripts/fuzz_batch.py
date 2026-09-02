@@ -31,10 +31,17 @@ def launch(protocol, args):
     subprocess.run(['docker', 'rm', '-f', name],
                    capture_output=True, text=True)
     # firness.py works out of its own cwd: it expects -s to point at a tree holding edk2
-    # and writes everything, log.json included, into <cwd>/firness_output
+    # and writes everything, log.json included, into <cwd>/firness_output.
+    #
+    # -g as well as -f, and seed firness_output from the cached analysis first. With -f
+    # alone firness.py skips generation entirely and fuzzes whatever Firness.efi is already
+    # baked into the image -- one harness, the same one for every protocol -- so a whole
+    # matrix of "per-protocol" coverage was really one harness measured over and over.
     command = (
-        f'cd /workspace && python3 /workspace/firness.py -s /workspace/tmp '
-        f'-i /input/evalset/{protocol}.txt -f '
+        f'cd /workspace && rm -rf firness_output && mkdir -p firness_output && '
+        f'cp /input/anacache/{protocol}/*.json firness_output/ && '
+        f'python3 /workspace/firness.py -s /workspace/tmp '
+        f'-i /input/evalset/{protocol}.txt -g -f '
         f'-t {args.budget} --boot-timeout {args.boot_timeout}'
     )
     if args.backend != 'tsffs':
