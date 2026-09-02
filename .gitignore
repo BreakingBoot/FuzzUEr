@@ -4,6 +4,7 @@ eval_source/_*/
 eval_source/anacache/
 eval_source/atacheck/
 eval_source/bcheck/
+eval_source/biotest/
 eval_source/bischeck/
 eval_source/consttest/
 eval_source/evalset/
@@ -18,6 +19,8 @@ eval_source/qemutest/
 eval_source/scsicheck/
 eval_source/shellcheck/
 eval_source/sweep/
+eval_source/uctest/
+eval_source/vctest/
 eval_source/verify/
 eval_source/wifitest/
 fixedruns.log
