@@ -59,6 +59,10 @@ do {                            \
 // so define a no-op here and let AsanLib's strong definition take precedence.
 __attribute__((weak)) void AsanSignalSolution (VOID) { }
 
+// Same weak-definition trick: AsanLib owns the real flag, and this library is
+// linked into modules that do not carry AsanLib.
+__attribute__((weak)) BOOLEAN mAsanFuzzingActive = FALSE;
+
 UINT64 mAsanShadowMemoryStart_mem = 0x5000000;
 UINT64 mAsanShadowMemorySize_mem  = 0x1C000000;
 UINT64 mAsanShadowMemoryEnd_mem   = 0x21000000;
@@ -416,6 +420,12 @@ static inline int asan_check_memory(UINTN addr, UINTN size,
   int buggy_shadow_address;
   UINTN shadow_beg, shadow_end;
   if (size == 0) return 1;
+
+  // Nothing is checked before the harness starts. Every CopyMem, SetMem and
+  // ZeroMem in the firmware reaches this, and boot moves megabytes; scanning the
+  // shadow for each of them is slow enough that the boot never completes. Errors
+  // that matter are the ones the fuzzer provokes.
+  if (!mAsanFuzzingActive) return 1;
 
   // mAsanShadowMemory*_mem bound the SHADOW region (0x5000000..0x21000000),
   // not the addresses being checked, so the guard has to be applied to the

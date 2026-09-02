@@ -539,6 +539,37 @@ def compile_firmware(src):
     print('++++ Compiled Firmware ++++')
     return log
 
+
+# The fuzzing path reuses whatever BOARDX58ICH10.fd is already in the build tree. That is
+# usually what you want -- the firmware build takes the better part of an hour -- but it
+# silently fuzzes a binary older than the sanitizer sources, which is how a whole campaign
+# can run without the ASan changes it was meant to exercise.
+def warn_if_firmware_is_stale(src):
+    firmware = FIRMWARE_IMAGE
+    if not os.path.isfile(firmware):
+        return False
+    built = os.path.getmtime(firmware)
+    newer = []
+    for library in ('MdeModulePkg/Library/AsanLib',
+                    'MdePkg/Library/AsanMemoryLib',
+                    'MdePkg/Library/AsanMemoryLibRepStr'):
+        directory = os.path.join(src, 'edk2', library)
+        if not os.path.isdir(directory):
+            continue
+        for name in os.listdir(directory):
+            path = os.path.join(directory, name)
+            if os.path.isfile(path) and os.path.getmtime(path) > built:
+                newer.append(f'{library}/{name}')
+    if newer:
+        print(f'WARNING: {firmware} predates {len(newer)} sanitizer source file(s); '
+              f'the run will not exercise them.')
+        for name in sorted(newer)[:5]:
+            print(f'         {name}')
+        print('         Rebuild the firmware first (build_bios.py -p BoardX58Ich10 '
+              '-t CLANGSAN) to pick them up.')
+    return bool(newer)
+
+
 # block until tsffs has actually reached HARNESS_START. the magic start instruction
 # kicks off the fuzzer thread, which creates corpus/ and solutions/ and makes
 # save_initial_snapshot() append the first record to log.json. all three default to
@@ -582,6 +613,7 @@ def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700):
     stale_dirs = {d for d in (corpus_dir, solutions_dir) if os.path.isdir(d)}
 
     signal.signal(signal.SIGINT, generate_report2)
+    warn_if_firmware_is_stale(os.path.join(os.getcwd(), 'tmp'))
     # spawn the fuzzer in a subprocess
     cmd = f"./simics -no-win -no-gui fuzz.simics"
     fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, shell=True, executable='/bin/bash')
@@ -596,13 +628,25 @@ def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700):
     if timeout is None:
         timeout = 86400
     execution_time = 0
+    exited_early = False
     while started and execution_time < timeout:
+        # simics exiting means the budget cannot be spent, and sleeping out the rest only
+        # holds the slot: a run that fuzzed for seconds was still occupying a worker for
+        # the full budget
+        if fuzzer_process.poll() is not None:
+            exited_early = True
+            print(f'\nFuzzer exited after {execution_time}s of its {timeout}s budget '
+                  f'(rc={fuzzer_process.returncode}); see {simics_dir}/fuzz.txt')
+            break
         hours, rem = divmod(execution_time, 3600)
         minutes, seconds = divmod(rem, 60)
         formatted_time = f'{int(hours)}hrs {int(minutes)}mins {int(seconds)}secs'
         print(f'Fuzzing time: {formatted_time}', end="\r")
         time.sleep(1)
         execution_time += 1
+
+    if started and not exited_early:
+        print(f'\nFuzzed for the full {timeout}s budget')
 
     fuzzer_process.kill()
     fuzzer_process.wait()

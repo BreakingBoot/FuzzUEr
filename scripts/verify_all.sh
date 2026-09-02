@@ -71,8 +71,12 @@ docker run --rm \
   "$IMAGE" python3 /w/scripts/check_generation.py -c /w/cache -i /w/inputs \
     --edk2 /w/edk2 --platforms /w/platforms -o /w/out | tail -8
 
-first=$(ls "$OUT/generated" 2>/dev/null | head -1)
-if [ -n "$first" ] && [ -d "$OUT/generated/$first/Firness" ]; then
+# the build stage no longer depends on the check above having succeeded: a failure
+# there used to skip the production build entirely and hide whether it works
+first=$(ls "$OUT/generated" 2>/dev/null | while read d; do
+          [ -f "$OUT/generated/$d/Firness/FirnessHarnesses.c" ] && echo "$d" && break
+        done)
+if [ -n "$first" ]; then
   echo "   building $first with the production CLANGSAN toolchain"
   docker run --rm -v "$OUT/generated/$first/Firness:/hin:ro" "$IMAGE" bash -c '
     rm -rf /workspace/tmp/edk2/Firness && mkdir -p /workspace/tmp/edk2/Firness
