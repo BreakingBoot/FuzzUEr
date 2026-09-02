@@ -10,11 +10,16 @@ eval_source/evalset/
 eval_source/firness_output/
 eval_source/gcheck/
 eval_source/newfw/
+eval_source/nocov/
 eval_source/pcdcheck/
 eval_source/protocols/
+eval_source/ptrtest/
+eval_source/qemutest/
 eval_source/scsicheck/
+eval_source/shellcheck/
 eval_source/sweep/
 eval_source/verify/
+eval_source/wifitest/
 fixedruns.log
 fw*.log
 fwstage/
