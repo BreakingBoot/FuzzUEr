@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import shutil
 import argparse
@@ -18,6 +19,30 @@ DEFAULT_IMAGE = 'fuzzuer-cur:latest'
 # Launching against an image built before a flag existed wastes a whole batch: every
 # container exits instantly with "unrecognized arguments" and the run looks like a fuzzing
 # failure. Ask the image what it supports before starting anything.
+# A protocol whose calls are slow spends the whole budget inside one chain of 8: EfiShell
+# completed zero iterations that way, and at 2 it covered 23,621 edges. Shortening the
+# chain everywhere is wrong -- EfiDevicePathUtilities lost 1,461 edges at 2, because a
+# shorter sequence reaches less state -- so it is applied only where the last run shows
+# the protocol was starved.
+def starved_in(previous, protocol, threshold):
+    log = os.path.join(previous, protocol, 'log.json')
+    if not os.path.isfile(log):
+        return False
+    iterations = 0
+    try:
+        with open(log, 'r', encoding='utf-8', errors='ignore') as handle:
+            for line in handle:
+                if '"Heartbeat"' in line:
+                    try:
+                        iterations = int((json.loads(line).get('Heartbeat') or {})
+                                         .get('iterations') or 0)
+                    except ValueError:
+                        continue
+    except OSError:
+        return False
+    return iterations < threshold
+
+
 def image_supports(image, flags):
     if not flags:
         return []
@@ -62,8 +87,13 @@ def launch(protocol, args):
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
         command += f' --iteration-timeout {args.iteration_timeout}'
-    if args.max_steps:
-        command += f' --max-steps {args.max_steps}'
+    steps = args.max_steps
+    if args.tune_from and starved_in(os.path.abspath(args.tune_from), protocol,
+                                     args.starved_under):
+        steps = args.starved_steps
+        print(f'  {protocol}: starved last run, chaining {steps} calls instead of 8')
+    if steps:
+        command += f' --max-steps {steps}'
     if args.seed_from and os.path.isdir(
             os.path.join(os.path.abspath(args.seed_from), protocol, 'corpus')):
         command += ' --seed-corpus /seed'
@@ -115,6 +145,13 @@ def main():
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
                         help='Fuzzing seconds per protocol, counted from the harness being hit')
+    parser.add_argument('--tune-from', type=str, default='',
+                        help='A previous run directory: protocols that were starved there '
+                             'get a shorter call chain this time')
+    parser.add_argument('--starved-under', type=int, default=50,
+                        help='Iterations below which a protocol counts as starved (default 50)')
+    parser.add_argument('--starved-steps', type=int, default=2,
+                        help='Calls chained for a starved protocol (default 2)')
     parser.add_argument('--max-steps', type=int, default=0,
                         help='Calls chained per fuzzing iteration (generator default 8)')
     parser.add_argument('--seed-from', type=str, default='',
@@ -144,7 +181,7 @@ def main():
     wanted = []
     if args.iteration_timeout:
         wanted.append('--iteration-timeout')
-    if args.max_steps:
+    if args.max_steps or args.tune_from:
         wanted.append('--max-steps')
     if args.seed_from:
         wanted.append('--seed-corpus')
