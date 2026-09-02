@@ -48,6 +48,9 @@ def launch(protocol, args):
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
         command += f' --iteration-timeout {args.iteration_timeout}'
+    if args.seed_from and os.path.isdir(
+            os.path.join(os.path.abspath(args.seed_from), protocol, 'corpus')):
+        command += ' --seed-corpus /seed'
     # keep firness.py's own output: it is where "Fuzzer exited after Ns of its 900s
     # budget" and "Harness reached after Ns of boot" are printed, and without it a run
     # that lost 90% of its budget looks identical to one that used all of it
@@ -59,6 +62,12 @@ def launch(protocol, args):
     argv = ['docker', 'run', '--name', name, '-d',
             '-v', f'{args.repo}/eval_source:/input:ro',
             '-v', f'{os.path.abspath(out)}:/output']
+    # start from the corpus a previous run of this protocol produced, so coverage
+    # compounds across campaigns instead of every run beginning from random inputs
+    if args.seed_from:
+        seed = os.path.join(os.path.abspath(args.seed_from), protocol, 'corpus')
+        if os.path.isdir(seed):
+            argv += ['-v', f'{seed}:/seed:ro']
     if args.cpus:
         argv += ['--cpus', str(args.cpus)]
     argv += [args.image, 'bash', '-c', command]
@@ -90,6 +99,9 @@ def main():
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
                         help='Fuzzing seconds per protocol, counted from the harness being hit')
+    parser.add_argument('--seed-from', type=str, default='',
+                        help='A previous run directory: each protocol starts from the '
+                             'corpus its campaign there produced')
     parser.add_argument('--iteration-timeout', type=float, default=0,
                         help='Simulated seconds per fuzzing iteration before it times out')
     parser.add_argument('--boot-timeout', type=int, default=2700,

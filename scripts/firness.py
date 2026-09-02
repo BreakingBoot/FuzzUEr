@@ -624,6 +624,30 @@ def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
 # costs far more wall clock than a completed one, and some protocols time out on most of
 # their inputs -- EfiShell spent 41 of 62 iterations timing out -- so this is worth tuning
 # per campaign rather than leaving at the value baked into fuzz.simics.
+# Every campaign started from random inputs and threw away the corpus the previous run had
+# evolved -- about 144 inputs per protocol, 20,000 across the matrix. Seeding from the last
+# run lets coverage compound across campaigns instead of restarting from nothing each time.
+def seed_corpus(simics_dir, seed_dir):
+    if not seed_dir or not os.path.isdir(seed_dir):
+        return 0
+    target = os.path.join(simics_dir, 'corpus')
+    os.makedirs(target, exist_ok=True)
+    copied = 0
+    for name in sorted(os.listdir(seed_dir)):
+        if name.startswith('.'):
+            continue
+        source = os.path.join(seed_dir, name)
+        if os.path.isfile(source):
+            try:
+                shutil.copy2(source, os.path.join(target, name))
+                copied += 1
+            except OSError:
+                continue
+    if copied:
+        print(f'Seeded the corpus with {copied} input(s) from {seed_dir}')
+    return copied
+
+
 def set_iteration_timeout(simics_dir, seconds):
     if not seconds:
         return
@@ -640,9 +664,11 @@ def set_iteration_timeout(simics_dir, seconds):
         print(f'Set the per-iteration timeout to {seconds}s of simulated time')
 
 
-def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_timeout=None):
+def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_timeout=None,
+               seed_dir=None):
     global fuzzer_process
     set_iteration_timeout(simics_dir, iteration_timeout)
+    seed_corpus(simics_dir, seed_dir)
     log_path = os.path.join(simics_dir, 'log.json')
     corpus_dir = os.path.join(simics_dir, 'corpus')
     solutions_dir = os.path.join(simics_dir, 'solutions')
@@ -1024,6 +1050,9 @@ def main():
     parser.add_argument('-t', '--timeout', type=int,
                         help='Fuzzing budget in seconds, counted from the moment the harness '
                              'is reached (not from simics startup)')
+    parser.add_argument('--seed-corpus', type=str, default='',
+                        help='Directory of inputs to start the corpus from, usually the '
+                             'corpus a previous campaign for this protocol produced')
     parser.add_argument('--iteration-timeout', type=float, default=None,
                         help='Simulated seconds allowed per fuzzing iteration before it '
                              'counts as a timeout (default: whatever fuzz.simics sets)')
@@ -1137,7 +1166,7 @@ def main():
         # run the fuzzer
         fuzzing_dir = simics_dir
         fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout,
-                                  args.iteration_timeout)
+                                  args.iteration_timeout, args.seed_corpus)
         generate_report(simics_dir, output)
         if not fuzz_started:
             print('Warning: ZERO fuzzing iterations ran, so coverage.csv is empty and every '
