@@ -131,11 +131,16 @@ def syntax_check(harness_dir, edk2_dir):
     # once the type is laid out, such as sizeof on an incomplete type
     if HELPERS:
         includes += ['-I', HELPERS]
+    # -Wno-everything silences the diagnostics that actually predict a real build failure.
+    # The edk2 build turns these into errors, so a harness calling an undeclared function
+    # (CreateBdsEvent) or assigning an enum to a pointer used to pass here and fail there.
+    fatal = ['-Werror=implicit-function-declaration', '-Werror=int-conversion',
+             '-Werror=incompatible-pointer-types', '-Werror=return-type']
     if COMPILER.startswith('clang'):
-        dialect = ['-target', 'x86_64-pc-linux-gnu', '-Wno-everything']
+        dialect = ['-target', 'x86_64-pc-linux-gnu', '-Wno-everything'] + fatal
     else:
         # gcc has no -Wno-everything and no -target; it is x86_64 already
-        dialect = ['-w']
+        dialect = ['-w'] + fatal
     cmd = [COMPILER, '-c', '-o', '/dev/null', '-fshort-wchar',
            '-fno-builtin', '-mno-red-zone'] + dialect + [
            '-DEFIAPI=__attribute__((ms_abi))', '-include', 'Uefi.h'] + includes
