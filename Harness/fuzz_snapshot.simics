@@ -1,0 +1,38 @@
+# Fuzz starting from the booted checkpoint instead of booting again.
+#
+# booted.ckpt holds the machine at the shell with FS0: selected, which is the same state
+# every campaign spends ~516s reaching. Restoring it and then downloading this protocol's
+# Firness.efi skips the boot entirely. tsffs is loaded after the restore so the fuzzer owns
+# its own state rather than inheriting whatever a checkpoint captured.
+read-configuration booted.ckpt
+
+load-module tsffs
+init-tsffs
+@tsffs.log_level = 2
+@tsffs.start_on_harness = True
+@tsffs.stop_on_harness = True
+@tsffs.timeout = 3.0
+@tsffs.exceptions = [6, 12, 13, 14]
+@tsffs.generate_random_corpus = True
+@tsffs.cmplog = True
+
+qsp.serconsole.con.capture-start -overwrite filename = fuzz.txt
+
+script-branch {
+    local $con = qsp.console.con
+    try {
+        bp.time.wait-for seconds = 1
+        local $manager = (start-agent-manager)
+        $con.input ("SimicsAgent.efi --download " + (lookup-file "/workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi") + "\n")
+        bp.console_string.wait-for qsp.serconsole.con "Created new directory entry 'Firness.efi'" timeout-rt = 1800
+        bp.time.wait-for seconds = 2
+        $con.input "Firness.efi\n"
+        bp.console_string.wait-for qsp.serconsole.con -regexp "EntryPoint=.*Firness.efi" timeout-rt = 900
+        echo "FUZZUER: harness launched from the checkpoint"
+    } except {
+        echo "FUZZUER: ERROR - could not launch the harness from the checkpoint"
+        quit 1
+    }
+}
+
+run

@@ -87,6 +87,8 @@ def launch(protocol, args):
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
         command += f' --iteration-timeout {args.iteration_timeout}'
+    if args.snapshot:
+        command += ' --snapshot'
     steps = args.max_steps
     if args.tune_from and starved_in(os.path.abspath(args.tune_from), protocol,
                                      args.starved_under):
@@ -145,6 +147,8 @@ def main():
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
                         help='Fuzzing seconds per protocol, counted from the harness being hit')
+    parser.add_argument('--snapshot', action='store_true',
+                        help='Restore the booted checkpoint instead of booting each campaign')
     parser.add_argument('--tune-from', type=str, default='',
                         help='A previous run directory: protocols that were starved there '
                              'get a shorter call chain this time')
@@ -185,6 +189,8 @@ def main():
         wanted.append('--max-steps')
     if args.seed_from:
         wanted.append('--seed-corpus')
+    if args.snapshot:
+        wanted.append('--snapshot')
     missing = image_supports(args.image, wanted)
     if missing:
         print(f'Error: {args.image} does not accept {", ".join(missing)}. It was built '

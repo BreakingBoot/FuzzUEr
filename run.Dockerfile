@@ -15,3 +15,5 @@ COPY ./fwstage/BOARDX58ICH10.repo2.fd /workspace/tmp/Build/SimicsOpenBoardPkg/Bo
 # does not need the base rebuilt.
 COPY ./Harness/fuzz.simics /workspace/projects/example/
 COPY ./Harness/reproduce.simics /workspace/projects/example/
+COPY ./Harness/snapshot.simics /workspace/projects/example/
+COPY ./Harness/fuzz_snapshot.simics /workspace/projects/example/

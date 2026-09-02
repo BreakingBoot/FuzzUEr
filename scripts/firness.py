@@ -629,6 +629,39 @@ def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
 # Every campaign started from random inputs and threw away the corpus the previous run had
 # evolved -- about 144 inputs per protocol, 20,000 across the matrix. Seeding from the last
 # run lets coverage compound across campaigns instead of restarting from nothing each time.
+# Booting is the same ~500s for every campaign: firmware up, Shell running, FS0: selected.
+# snapshot.simics saves the machine at exactly that point, before the harness is downloaded,
+# so one checkpoint serves every protocol. When it is present the fuzzing session restores
+# it instead of booting.
+def fuzzing_script(simics_dir, use_snapshot):
+    checkpoint = os.path.join(simics_dir, 'booted.ckpt')
+    script = os.path.join(simics_dir, 'fuzz_snapshot.simics')
+    if use_snapshot and os.path.isdir(checkpoint) and os.path.isfile(script):
+        print(f'Restoring {checkpoint} instead of booting')
+        return 'fuzz_snapshot.simics'
+    if use_snapshot:
+        print(f'No usable checkpoint at {checkpoint}; booting instead. Create one with '
+              f'./simics -no-win -no-gui snapshot.simics')
+    return 'fuzz.simics'
+
+
+def make_snapshot(simics_dir):
+    """Boot once and save the machine at the shell, for later campaigns to restore."""
+    script = os.path.join(simics_dir, 'snapshot.simics')
+    if not os.path.isfile(script):
+        print(f'Error: {script} is missing; rebuild the image.')
+        return 1
+    print('++++ Booting once to write the checkpoint ++++')
+    process = subprocess.run('./simics -no-win -no-gui snapshot.simics', cwd=simics_dir,
+                             shell=True, executable='/bin/bash')
+    checkpoint = os.path.join(simics_dir, 'booted.ckpt')
+    if process.returncode == 0 and os.path.isdir(checkpoint):
+        print(f'++++ Checkpoint written to {checkpoint} ++++')
+        return 0
+    print('Error: the checkpoint was not written; see snapshot.txt')
+    return 1
+
+
 def seed_corpus(simics_dir, seed_dir):
     if not seed_dir or not os.path.isdir(seed_dir):
         return 0
@@ -667,7 +700,7 @@ def set_iteration_timeout(simics_dir, seconds):
 
 
 def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_timeout=None,
-               seed_dir=None):
+               seed_dir=None, use_snapshot=False):
     global fuzzer_process
     set_iteration_timeout(simics_dir, iteration_timeout)
     seed_corpus(simics_dir, seed_dir)
@@ -682,7 +715,7 @@ def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_tim
     signal.signal(signal.SIGINT, generate_report2)
     warn_if_firmware_is_stale(os.path.join(os.getcwd(), 'tmp'))
     # spawn the fuzzer in a subprocess
-    cmd = f"./simics -no-win -no-gui fuzz.simics"
+    cmd = f'./simics -no-win -no-gui {fuzzing_script(simics_dir, use_snapshot)}'
     fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, shell=True, executable='/bin/bash')
 
     # -t is a fuzzing budget, not a budget for the whole simics run. the instrumented
@@ -1052,6 +1085,10 @@ def main():
     parser.add_argument('-t', '--timeout', type=int,
                         help='Fuzzing budget in seconds, counted from the moment the harness '
                              'is reached (not from simics startup)')
+    parser.add_argument('--snapshot', action='store_true',
+                        help='Restore projects/example/booted.ckpt instead of booting')
+    parser.add_argument('--make-snapshot', action='store_true',
+                        help='Boot once and write booted.ckpt, then stop')
     parser.add_argument('--max-steps', type=int, default=0,
                         help='Calls chained per fuzzing iteration; lower it for protocols '
                              'whose calls are slow enough to starve the fuzzer')
@@ -1081,6 +1118,9 @@ def main():
         return 0
 
     # replaying a saved test case needs neither the target list nor the source tree
+    if args.make_snapshot:
+        return make_snapshot(os.path.join(os.getcwd(), 'projects', 'example'))
+
     if args.reproduce:
         simics_dir = os.path.join(os.getcwd(), 'projects', 'example')
         fuzzing_dir = simics_dir
@@ -1172,7 +1212,8 @@ def main():
         # run the fuzzer
         fuzzing_dir = simics_dir
         fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout,
-                                  args.iteration_timeout, args.seed_corpus)
+                                  args.iteration_timeout, args.seed_corpus,
+                                  args.snapshot)
         generate_report(simics_dir, output)
         if not fuzz_started:
             print('Warning: ZERO fuzzing iterations ran, so coverage.csv is empty and every '

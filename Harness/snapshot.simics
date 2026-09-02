@@ -1,0 +1,34 @@
+# Boot once, stop at the shell, and save the machine.
+#
+# Every campaign pays the same ~516s boot to reach the same place: firmware up, Shell
+# running, FS0: selected. Only what happens after that differs per protocol, because
+# Firness.efi is built for one protocol at a time. So the checkpoint is taken before the
+# agent downloads the harness, which makes a single snapshot reusable by all 138.
+#
+# tsffs is deliberately NOT loaded here. It is a Simics module with its own state, and the
+# fuzzing session should own that rather than inherit whatever was captured.
+load-target "qsp-x86/qsp-uefi-custom" namespace = qsp machine:hardware:firmware:bios = "/workspace/tmp/Build/SimicsOpenBoardPkg/BoardX58Ich10/DEBUG_CLANGSAN/FV/BOARDX58ICH10.fd" machine:hardware:storage:disk0:image = "minimal_boot_disk.craff"
+
+qsp.serconsole.con.capture-start -overwrite filename = snapshot.txt
+
+script-branch {
+    local $con = qsp.console.con
+    try {
+        bp.console_string.wait-for qsp.serconsole.con "End Load Options Dumping" timeout-rt = 3600
+        bp.console_string.wait-for qsp.serconsole.con "Shell.efi" timeout-rt = 3600
+        bp.time.wait-for seconds = 2
+        $con.input "FS0:\n"
+        bp.time.wait-for seconds = 2
+        echo "FUZZUER: reached the shell, writing the checkpoint"
+        # a checkpoint can only be written with the simulation stopped
+        stop
+        write-configuration booted.ckpt
+        echo "FUZZUER: checkpoint written"
+        quit 0
+    } except {
+        echo "FUZZUER: ERROR - could not reach the shell or write the checkpoint"
+        quit 1
+    }
+}
+
+run
