@@ -2,6 +2,7 @@ import shutil
 import sys
 import subprocess
 import csv
+import hashlib
 import os
 import json
 import time
@@ -633,10 +634,39 @@ def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
 # snapshot.simics saves the machine at exactly that point, before the harness is downloaded,
 # so one checkpoint serves every protocol. When it is present the fuzzing session restores
 # it instead of booting.
+# A checkpoint captures one firmware image. Rebuild the firmware and the checkpoint is of
+# the old one -- it will still restore and still fuzz, silently exercising a binary that no
+# longer matches the sources. That is the same stale-artifact trap as fuzzing a harness that
+# was built for another protocol, so the checkpoint records what it was booted from.
+def firmware_fingerprint():
+    if not os.path.isfile(FIRMWARE_IMAGE):
+        return ''
+    digest = hashlib.md5()
+    with open(FIRMWARE_IMAGE, 'rb') as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def checkpoint_matches_firmware(simics_dir):
+    stamp = os.path.join(simics_dir, 'booted.ckpt.firmware')
+    if not os.path.isfile(stamp):
+        return None
+    with open(stamp) as handle:
+        return handle.read().strip()
+
+
 def fuzzing_script(simics_dir, use_snapshot):
     checkpoint = os.path.join(simics_dir, 'booted.ckpt')
     script = os.path.join(simics_dir, 'fuzz_snapshot.simics')
     if use_snapshot and os.path.isdir(checkpoint) and os.path.isfile(script):
+        recorded = checkpoint_matches_firmware(simics_dir)
+        current = firmware_fingerprint()
+        if recorded and current and recorded != current:
+            print(f'Warning: {checkpoint} was booted from a different firmware '
+                  f'({recorded[:8]} vs {current[:8]}); booting instead so the run matches '
+                  f'the current build. Recreate it with --make-snapshot.')
+            return 'fuzz.simics'
         print(f'Restoring {checkpoint} instead of booting')
         return 'fuzz_snapshot.simics'
     if use_snapshot:
@@ -656,7 +686,11 @@ def make_snapshot(simics_dir):
                              shell=True, executable='/bin/bash')
     checkpoint = os.path.join(simics_dir, 'booted.ckpt')
     if process.returncode == 0 and os.path.isdir(checkpoint):
-        print(f'++++ Checkpoint written to {checkpoint} ++++')
+        fingerprint = firmware_fingerprint()
+        if fingerprint:
+            with open(os.path.join(simics_dir, 'booted.ckpt.firmware'), 'w') as handle:
+                handle.write(fingerprint)
+        print(f'++++ Checkpoint written to {checkpoint} (firmware {fingerprint[:8]}) ++++')
         return 0
     print('Error: the checkpoint was not written; see snapshot.txt')
     return 1
