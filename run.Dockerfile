@@ -17,3 +17,8 @@ COPY ./Harness/fuzz.simics /workspace/projects/example/
 COPY ./Harness/reproduce.simics /workspace/projects/example/
 COPY ./Harness/snapshot.simics /workspace/projects/example/
 COPY ./Harness/fuzz_snapshot.simics /workspace/projects/example/
+# The booted checkpoint, so a campaign restores the machine at the shell (12s) instead of
+# booting to it (516s). It is stamped with the firmware it was captured from; firness.py
+# falls back to a normal boot if that no longer matches.
+COPY ./ckptstage/booted.ckpt /workspace/projects/example/booted.ckpt
+COPY ./ckptstage/booted.ckpt.firmware /workspace/projects/example/booted.ckpt.firmware
