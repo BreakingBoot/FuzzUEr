@@ -88,6 +88,24 @@ def text_vaddr(debug_file):
     return 0
 
 
+# An address that shows up under many unrelated protocols is firmware the fuzzer did not
+# provoke -- the boot baseline keeps running after the harness loads. Without this filter
+# the busiest address in a capture is usually background: HiiDatabase.efi+0x22A57 appears
+# under EdkiiVariablePolicy, EfiShell and EfiHiiString alike, and reading it as that
+# protocol's finding attributes a fault to a function the harness never calls.
+def common_addresses(root, threshold):
+    seen = {}
+    if not os.path.isdir(root):
+        return set()
+    for name in sorted(os.listdir(root)):
+        capture = os.path.join(root, name, 'fuzz.txt')
+        if not os.path.isfile(capture):
+            continue
+        for address in collect_addresses(capture):
+            seen.setdefault(address, set()).add(name)
+    return {a for a, who in seen.items() if len(who) >= threshold}
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Attribute the addresses in a serial capture to the modules that own them')
@@ -96,6 +114,11 @@ def main():
                         help='How many addresses to show (default 15)')
     parser.add_argument('--module', type=str, default='',
                         help='Only show addresses inside this module')
+    parser.add_argument('--baseline', type=str, default='',
+                        help='Run directory of other protocols: addresses common to several '
+                             'of them are firmware background, not this run\'s finding')
+    parser.add_argument('--shared-at', type=int, default=3,
+                        help='Protocols an address must appear under to count as background')
     parser.add_argument('--debug-dir', type=str, default='',
                         help='Directory of <Module>.debug files, to name the functions')
     args = parser.parse_args()
@@ -111,8 +134,13 @@ def main():
         return 1
     print(f'  {len(modules)} module load(s), {len(addresses)} distinct address(es)')
 
+    background = common_addresses(args.baseline, args.shared_at) if args.baseline else set()
+    if background:
+        print(f'  {len(background)} background address(es) excluded')
     rows = []
     for address, count in addresses.items():
+        if address in background:
+            continue
         name, offset = attribute(modules, address)
         if not name or (args.module and args.module.lower() not in name.lower()):
             continue
