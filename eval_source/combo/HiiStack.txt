@@ -1,0 +1,21 @@
+[Protocols]
+  gEfiHiiDatabaseProtocolGuid:NewPackageList
+  gEfiHiiDatabaseProtocolGuid:RemovePackageList
+  gEfiHiiDatabaseProtocolGuid:UpdatePackageList
+  gEfiHiiDatabaseProtocolGuid:ListPackageLists
+  gEfiHiiDatabaseProtocolGuid:ExportPackageLists
+  gEfiHiiDatabaseProtocolGuid:RegisterPackageNotify
+  gEfiHiiDatabaseProtocolGuid:UnregisterPackageNotify
+  gEfiHiiDatabaseProtocolGuid:FindKeyboardLayouts
+  gEfiHiiDatabaseProtocolGuid:GetKeyboardLayout
+  gEfiHiiDatabaseProtocolGuid:SetKeyboardLayout
+  gEfiHiiDatabaseProtocolGuid:GetPackageListHandle
+  gEfiHiiStringProtocolGuid:NewString
+  gEfiHiiStringProtocolGuid:GetString
+  gEfiHiiStringProtocolGuid:SetString
+  gEfiHiiStringProtocolGuid:GetLanguages
+  gEfiHiiStringProtocolGuid:GetSecondaryLanguages
+  gEfiHiiFontProtocolGuid:StringToImage
+  gEfiHiiFontProtocolGuid:StringIdToImage
+  gEfiHiiFontProtocolGuid:GetGlyph
+  gEfiHiiFontProtocolGuid:GetFontInfo
