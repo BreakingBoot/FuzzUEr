@@ -1,0 +1,166 @@
+[
+    {
+        "File": "",
+        "Function": "Free",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "const ISzAlloc *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Address"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "",
+        "Function": "Free",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "const ISzAlloc *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Address"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Initialize",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraRxBufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraTxBufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Initialize",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraRxBufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtraTxBufferSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Shutdown",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h",
+        "Function": "Shutdown",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/SnpDxe/Snp.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_NETWORK_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

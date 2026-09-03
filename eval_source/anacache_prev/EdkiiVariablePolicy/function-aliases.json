@@ -1,0 +1,32 @@
+[
+    {
+        "Aliases": [
+            "ProtocolDisableVariablePolicy"
+        ],
+        "Function": "DisableVariablePolicy"
+    },
+    {
+        "Aliases": [
+            "ProtocolDumpVariablePolicy"
+        ],
+        "Function": "DumpVariablePolicy"
+    },
+    {
+        "Aliases": [
+            "ProtocolIsVariablePolicyEnabled"
+        ],
+        "Function": "IsVariablePolicyEnabled"
+    },
+    {
+        "Aliases": [
+            "ProtocolLockVariablePolicy"
+        ],
+        "Function": "LockVariablePolicy"
+    },
+    {
+        "Aliases": [
+            "ProtocolRegisterVariablePolicy"
+        ],
+        "Function": "RegisterVariablePolicy"
+    }
+]

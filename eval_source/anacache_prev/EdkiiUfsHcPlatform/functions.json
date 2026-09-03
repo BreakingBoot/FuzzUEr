@@ -1,0 +1,130 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootConfig.c",
+        "Function": "Callback",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootConfig.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_CONFIG_ACCESS_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BROWSER_ACTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Action"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_QUESTION_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "QuestionId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Type"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IFR_TYPE_VALUE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_BROWSER_ACTION_REQUEST *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ActionRequest"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootConfig.c",
+        "Function": "Callback",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/HttpBootDxe/HttpBootConfig.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_CONFIG_ACCESS_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BROWSER_ACTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Action"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_QUESTION_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "QuestionId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Type"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IFR_TYPE_VALUE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_5": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_BROWSER_ACTION_REQUEST *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ActionRequest"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

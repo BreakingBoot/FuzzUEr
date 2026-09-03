@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "EbcIsImageSupported"
+        ],
+        "Function": "IsImageSupported"
+    },
+    {
+        "Aliases": [
+            "EbcRegisterImage"
+        ],
+        "Function": "RegisterImage"
+    },
+    {
+        "Aliases": [
+            "EbcUnregisterImage"
+        ],
+        "Function": "UnregisterImage"
+    }
+]

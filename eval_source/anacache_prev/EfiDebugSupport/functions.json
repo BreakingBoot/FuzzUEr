@@ -1,0 +1,316 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "GetMaximumProcessorIndex",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxProcessorIndex"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "GetMaximumProcessorIndex",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "MaxProcessorIndex"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterPeriodicCallback",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PERIODIC_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PeriodicCallback"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterPeriodicCallback",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PERIODIC_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PeriodicCallback"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterExceptionCallback",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EXCEPTION_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExceptionCallback"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EXCEPTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExceptionType"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterExceptionCallback",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EXCEPTION_CALLBACK",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExceptionCallback"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_EXCEPTION_TYPE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExceptionType"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "InvalidateInstructionCache",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Start"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "InvalidateInstructionCache",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEBUG_SUPPORT_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ProcessorIndex"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Start"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

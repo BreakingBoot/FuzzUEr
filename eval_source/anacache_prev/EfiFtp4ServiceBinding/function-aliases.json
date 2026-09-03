@@ -1,0 +1,10 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvClose",
+            "FileInterfaceFileClose",
+            "FileInterfaceMemClose"
+        ],
+        "Function": "Close"
+    }
+]

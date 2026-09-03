@@ -1,0 +1,496 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "NewString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_STRING_ID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Language"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "LanguageName"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "String"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FONT_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringFontInfo"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "NewString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_STRING_ID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Language"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "LanguageName"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "String"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_FONT_INFO *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringFontInfo"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Language"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_STRING_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringId"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "String"
+            },
+            "Arg_5": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FONT_INFO **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringFontInfo"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Language"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_STRING_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringId"
+            },
+            "Arg_4": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "String"
+            },
+            "Arg_5": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringSize"
+            },
+            "Arg_6": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_FONT_INFO **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StringFontInfo"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetLanguages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Languages"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "LanguagesSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetLanguages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Languages"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "LanguagesSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetSecondaryLanguages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrimaryLanguage"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SecondaryLanguages"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SecondaryLanguagesSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetSecondaryLanguages",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_STRING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PrimaryLanguage"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SecondaryLanguages"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SecondaryLanguagesSize"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

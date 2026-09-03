@@ -1,0 +1,114 @@
+[
+    {
+        "Aliases": [
+            "DxePcdGet16Ex",
+            "PeiPcdGet16Ex"
+        ],
+        "Function": "Get16"
+    },
+    {
+        "Aliases": [
+            "DxePcdGet32Ex",
+            "PeiPcdGet32Ex"
+        ],
+        "Function": "Get32"
+    },
+    {
+        "Aliases": [
+            "DxePcdGet64Ex",
+            "PeiPcdGet64Ex"
+        ],
+        "Function": "Get64"
+    },
+    {
+        "Aliases": [
+            "DxePcdGet8Ex",
+            "PeiPcdGet8Ex"
+        ],
+        "Function": "Get8"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetBoolEx",
+            "PeiPcdGetBoolEx"
+        ],
+        "Function": "GetBool"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetNextToken",
+            "PeiPcdGetNextToken"
+        ],
+        "Function": "GetNextToken"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetNextTokenSpace",
+            "PeiPcdGetNextTokenSpace"
+        ],
+        "Function": "GetNextTokenSpace"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetPtrEx",
+            "PeiPcdGetPtrEx"
+        ],
+        "Function": "GetPtr"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetSizeEx",
+            "PeiPcdGetSizeEx"
+        ],
+        "Function": "GetSize"
+    },
+    {
+        "Aliases": [
+            "DxePcdSet16Ex",
+            "PeiPcdSet16Ex"
+        ],
+        "Function": "Set16"
+    },
+    {
+        "Aliases": [
+            "DxePcdSet32Ex",
+            "PeiPcdSet32Ex"
+        ],
+        "Function": "Set32"
+    },
+    {
+        "Aliases": [
+            "DxePcdSet64Ex",
+            "PeiPcdSet64Ex"
+        ],
+        "Function": "Set64"
+    },
+    {
+        "Aliases": [
+            "DxePcdSet8Ex",
+            "PeiPcdSet8Ex"
+        ],
+        "Function": "Set8"
+    },
+    {
+        "Aliases": [
+            "DxePcdSetBoolEx",
+            "PeiPcdSetBoolEx"
+        ],
+        "Function": "SetBool"
+    },
+    {
+        "Aliases": [
+            "DxePcdSetPtrEx",
+            "PeiPcdSetPtrEx"
+        ],
+        "Function": "SetPtr"
+    },
+    {
+        "Aliases": [
+            "DxePcdSetSku",
+            "PeiPcdSetSku"
+        ],
+        "Function": "SetSku"
+    }
+]

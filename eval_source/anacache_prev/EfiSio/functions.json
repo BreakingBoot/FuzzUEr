@@ -1,0 +1,298 @@
+[
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "PossibleResources",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "ACPI_RESOURCE_HEADER_PTR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResourceList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "PossibleResources",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "ACPI_RESOURCE_HEADER_PTR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResourceList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "SetResources",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "ACPI_RESOURCE_HEADER_PTR",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResourceList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "SetResources",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "ACPI_RESOURCE_HEADER_PTR",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ResourceList"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "RegisterAccess",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Write"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExitCfgMode"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Register"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "RegisterAccess",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Write"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExitCfgMode"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Register"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "Modify",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_REGISTER_MODIFY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Command"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfCommands"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h",
+        "Function": "Modify",
+        "Includes": [
+            "/workspace/tmp/edk2-platforms/Platform/Intel/BoardModulePkg/LegacySioDxe/SioService.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_SIO_REGISTER_MODIFY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Command"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfCommands"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

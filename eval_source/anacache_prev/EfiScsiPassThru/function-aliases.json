@@ -1,0 +1,14 @@
+[
+    {
+        "Aliases": [
+            "NvmExpressBuildDevicePath"
+        ],
+        "Function": "BuildDevicePath"
+    },
+    {
+        "Aliases": [
+            "NvmExpressPassThru"
+        ],
+        "Function": "PassThru"
+    }
+]

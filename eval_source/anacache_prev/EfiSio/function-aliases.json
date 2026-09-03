@@ -1,0 +1,27 @@
+[
+    {
+        "Aliases": [
+            "SioModify"
+        ],
+        "Function": "Modify"
+    },
+    {
+        "Aliases": [
+            "SioGetResources",
+            "SioPossibleResources"
+        ],
+        "Function": "PossibleResources"
+    },
+    {
+        "Aliases": [
+            "SioRegisterAccess"
+        ],
+        "Function": "RegisterAccess"
+    },
+    {
+        "Aliases": [
+            "SioSetResources"
+        ],
+        "Function": "SetResources"
+    }
+]

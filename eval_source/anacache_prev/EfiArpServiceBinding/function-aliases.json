@@ -1,0 +1,33 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvDelete",
+            "FileInterfaceFileDelete",
+            "FileInterfaceNopGeneric"
+        ],
+        "Function": "Delete"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "Request",
+            "USB_REQ_CLEAR_FEATURE",
+            "USB_REQ_GET_CONFIG",
+            "USB_REQ_GET_DESCRIPTOR",
+            "USB_REQ_GET_INTERFACE",
+            "USB_REQ_GET_STATUS",
+            "USB_REQ_SET_CONFIG",
+            "USB_REQ_SET_DESCRIPTOR",
+            "USB_REQ_SET_FEATURE",
+            "USB_REQ_SET_INTERFACE"
+        ],
+        "Function": "Request"
+    }
+]

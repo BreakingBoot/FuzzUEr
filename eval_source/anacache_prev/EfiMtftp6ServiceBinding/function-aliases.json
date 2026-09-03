@@ -1,0 +1,19 @@
+[
+    {
+        "Aliases": [
+            "Mtftp4GetInfoCheckPacket",
+            "Mtftp6CheckPacket",
+            "PxeBcMtftp4CheckPacket",
+            "PxeBcMtftp6CheckPacket"
+        ],
+        "Function": "CheckPacket"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    }
+]

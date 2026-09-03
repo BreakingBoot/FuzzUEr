@@ -1,0 +1,224 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "IsImageSupported",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            }
+        },
+        "ReturnType": "BOOLEAN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "IsImageSupported",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageType"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "DevicePath"
+            }
+        },
+        "ReturnType": "BOOLEAN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterImage",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageBase"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageSize"
+            },
+            "Arg_3": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "EFI_IMAGE_ENTRY_POINT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryPoint"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "RegisterImage",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageBase"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageSize"
+            },
+            "Arg_3": {
+                "arg_dir": "UNKNOWN",
+                "arg_type": "EFI_IMAGE_ENTRY_POINT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "EntryPoint"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "UnregisterImage",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageBase"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c",
+        "Function": "UnregisterImage",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/EbcDxe/EbcInt.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_PECOFF_IMAGE_EMULATOR_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageBase"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

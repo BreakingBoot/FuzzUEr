@@ -1,0 +1,69 @@
+[
+    {
+        "Aliases": [
+            "EfiDhcp4Configure",
+            "EfiDhcp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "HttpBootDhcp6CallBack",
+            "PxeBcDhcp6CallBack"
+        ],
+        "Function": "Dhcp6Callback"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4GetModeData",
+            "EfiDhcp6GetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp6InfoRequest"
+        ],
+        "Function": "InfoRequest"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Parse",
+            "EfiDhcp6Parse"
+        ],
+        "Function": "Parse"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp6Decline",
+            "EfiDhcp6Release"
+        ],
+        "Function": "Release"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4RenewRebind",
+            "EfiDhcp6RenewRebind"
+        ],
+        "Function": "RenewRebind"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Start",
+            "FragmentOffset",
+            "SnpUndi32Start",
+            "Start"
+        ],
+        "Function": "Start"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Release",
+            "EfiDhcp4Stop",
+            "EfiDhcp6Start",
+            "EfiDhcp6Stop",
+            "SnpUndi32Stop"
+        ],
+        "Function": "Stop"
+    }
+]

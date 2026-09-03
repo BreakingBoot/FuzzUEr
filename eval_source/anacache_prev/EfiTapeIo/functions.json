@@ -1,0 +1,58 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/Xhci.h",
+        "Function": "TapeWriteFM",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/Xhci.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/Xhci.h",
+        "Function": "TapeWriteFM",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Pci/XhciDxe/Xhci.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_USB2_HC_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

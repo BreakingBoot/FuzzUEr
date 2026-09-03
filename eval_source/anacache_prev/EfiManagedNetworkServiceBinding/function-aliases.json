@@ -1,0 +1,20 @@
+[
+    {
+        "Aliases": [
+            "Members"
+        ],
+        "Function": "Groups"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]

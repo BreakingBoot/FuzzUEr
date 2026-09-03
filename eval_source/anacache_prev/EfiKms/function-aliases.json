@@ -1,0 +1,11 @@
+[
+    {
+        "Aliases": [
+            "ArpFlush",
+            "DpcDispatchDpc",
+            "EfiIp4Poll",
+            "EfiIp6Poll"
+        ],
+        "Function": "GetServiceStatus"
+    }
+]

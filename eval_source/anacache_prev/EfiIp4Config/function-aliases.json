@@ -1,0 +1,26 @@
+[
+    {
+        "Aliases": [
+            "EfiIp4Config2GetData",
+            "EfiIp6ConfigGetData",
+            "Ip4Config2GetIfInfo",
+            "Ip6ConfigGetIfInfo"
+        ],
+        "Function": "GetData"
+    },
+    {
+        "Aliases": [
+            "FragmentOffset",
+            "SnpUndi32Start",
+            "Start"
+        ],
+        "Function": "Start"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Stop",
+            "TimerDriverGenerateSoftInterrupt"
+        ],
+        "Function": "Stop"
+    }
+]

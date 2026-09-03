@@ -1,0 +1,76 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Function": "PasswordCheck",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "FORM_DISPLAY_ENGINE_FORM *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "FORM_DISPLAY_ENGINE_STATEMENT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Statement"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PasswordString"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h",
+        "Function": "PasswordCheck",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/SetupBrowserDxe/Setup.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "FORM_DISPLAY_ENGINE_FORM *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "FORM_DISPLAY_ENGINE_STATEMENT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Statement"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_STRING",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PasswordString"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

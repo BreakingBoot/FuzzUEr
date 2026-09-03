@@ -1,0 +1,426 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "UnicodeBSPrint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BASE_LIST",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Marker"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "UnicodeSPrint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "UnicodeBSPrintAsciiFormat",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BASE_LIST",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Marker"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "UnicodeSPrintAsciiFormat",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "AsciiBSPrint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BASE_LIST",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Marker"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "AsciiSPrint",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "AsciiBSPrintUnicodeFormat",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "BASE_LIST",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Marker"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h",
+        "Function": "AsciiSPrintUnicodeFormat",
+        "Includes": [
+            "/workspace/tmp/edk2/MdePkg/Include/Library/PrintLib.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "StartOfBuffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BufferSize"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "FormatString"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PrintDxe/Print.c",
+        "Function": "UnicodeValueToString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PrintDxe/Print.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "CHAR16 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "INT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Width"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PrintDxe/Print.c",
+        "Function": "AsciiValueToString",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PrintDxe/Print.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "CHAR8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "INT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Width"
+            }
+        },
+        "ReturnType": "UINTN"
+    }
+]

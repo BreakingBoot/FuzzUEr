@@ -1,0 +1,491 @@
+[
+    {
+        "File": "",
+        "Function": "SetSku",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SkuId"
+            }
+        },
+        "ReturnType": "void"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Get8",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "UINT8"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Get16",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "UINT16"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Get32",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "UINT32"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Get64",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "UINT64"
+    },
+    {
+        "File": "",
+        "Function": "GetPtr",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "void *"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "GetBool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "BOOLEAN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "GetSize",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "UINTN"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Set8",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT8",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Set16",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT16",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Set32",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT32",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "Set64",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "SetPtr",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "SizeOfBuffer"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Buffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "SetBool",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Value"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "GetNextToken",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_GUID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINTN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TokenNumber"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h",
+        "Function": "GetNextTokenSpace",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/PCD/Dxe/Service.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "const EFI_GUID **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Guid"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

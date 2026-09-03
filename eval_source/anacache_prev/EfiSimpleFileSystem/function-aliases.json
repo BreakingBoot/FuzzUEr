@@ -1,0 +1,95 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvClose",
+            "FileInterfaceFileClose",
+            "FileInterfaceMemClose"
+        ],
+        "Function": "Close"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvDelete",
+            "FileInterfaceFileDelete",
+            "FileInterfaceNopGeneric"
+        ],
+        "Function": "Delete"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileGetPosition",
+            "FileInterfaceMemGetPosition",
+            "FileInterfaceNopGetPosition"
+        ],
+        "Function": "GetPosition"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileOpen",
+            "FileInterfaceOpenNotFound"
+        ],
+        "Function": "Open"
+    },
+    {
+        "Aliases": [
+            "FatOpenVolume"
+        ],
+        "Function": "OpenVolume"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvRead",
+            "FileInterfaceFileRead",
+            "FileInterfaceMemRead",
+            "RootBridgeIoIoRead",
+            "RootBridgeIoMemRead",
+            "RootBridgeIoPciRead"
+        ],
+        "Function": "Read"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileSetInfo",
+            "FileInterfaceNopSetInfo"
+        ],
+        "Function": "SetInfo"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileSetPosition",
+            "FileInterfaceMemSetPosition",
+            "FileInterfaceNopSetPosition"
+        ],
+        "Function": "SetPosition"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

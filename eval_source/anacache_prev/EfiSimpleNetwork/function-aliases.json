@@ -1,0 +1,100 @@
+[
+    {
+        "Aliases": [
+            "SnpUndi32GetStatus"
+        ],
+        "Function": "GetStatus"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Initialize"
+        ],
+        "Function": "Initialize"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32McastIpToMac"
+        ],
+        "Function": "MCastIpToMac"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32NvData"
+        ],
+        "Function": "NvData"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32ReceiveFilters"
+        ],
+        "Function": "ReceiveFilters"
+    },
+    {
+        "Aliases": [
+            "ConSplitterSimplePointerReset",
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Shutdown"
+        ],
+        "Function": "Shutdown"
+    },
+    {
+        "Aliases": [
+            "FragmentOffset",
+            "SnpUndi32Start",
+            "Start"
+        ],
+        "Function": "Start"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32StationAddress",
+            "StationIp"
+        ],
+        "Function": "StationAddress"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Statistics"
+        ],
+        "Function": "Statistics"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Stop"
+        ],
+        "Function": "Stop"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]

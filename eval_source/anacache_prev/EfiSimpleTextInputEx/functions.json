@@ -1,0 +1,318 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h",
+        "Function": "Reset",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassImpl.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_BLOCK_IO_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "BOOLEAN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ExtendedVerification"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "ReadKeyStrokeEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_KEY_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "ReadKeyStrokeEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_KEY_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyData"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "SetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_TOGGLE_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyToggleState"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "SetState",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_TOGGLE_STATE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyToggleState"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "RegisterKeyNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyData"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_NOTIFY_FUNCTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyNotificationFunction"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyHandle"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "RegisterKeyNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_DATA *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyData"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_KEY_NOTIFY_FUNCTION",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "KeyNotificationFunction"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "void **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyHandle"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "UnregisterKeyNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotificationHandle"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h",
+        "Function": "UnregisterKeyNotify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/Console/TerminalDxe/Terminal.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotificationHandle"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

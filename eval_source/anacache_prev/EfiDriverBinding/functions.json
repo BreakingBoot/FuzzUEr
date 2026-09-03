@@ -1,0 +1,168 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RemainingDevicePath"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+        "Function": "Start",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DEVICE_PATH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "RemainingDevicePath"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfChildren"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ChildHandleBuffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h",
+        "Function": "Stop",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/UefiPxeBcDxe/PxeBcDriver.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_DRIVER_BINDING_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ControllerHandle"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NumberOfChildren"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HANDLE *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ChildHandleBuffer"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

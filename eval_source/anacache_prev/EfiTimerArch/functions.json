@@ -1,0 +1,208 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "RegisterHandler",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_NOTIFY",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyFunction"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "RegisterHandler",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_NOTIFY",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyFunction"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "SetTimerPeriod",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimerPeriod"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "SetTimerPeriod",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimerPeriod"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "GetTimerPeriod",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimerPeriod"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "GetTimerPeriod",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "TimerPeriod"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "GenerateSoftInterrupt",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c",
+        "Function": "GenerateSoftInterrupt",
+        "Includes": [
+            "/workspace/tmp/edk2/PcAtChipsetPkg/HpetTimerDxe/HpetTimer.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_TIMER_ARCH_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

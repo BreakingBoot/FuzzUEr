@@ -1,0 +1,186 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Function": "ClearMemoryAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_SMM_MEMORY_ATTRIBUTE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BaseAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Function": "ClearMemoryAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_SMM_MEMORY_ATTRIBUTE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BaseAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Function": "GetMemoryAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_SMM_MEMORY_ATTRIBUTE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BaseAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h",
+        "Function": "GetMemoryAttributes",
+        "Includes": [
+            "/workspace/tmp/edk2/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EDKII_SMM_MEMORY_ATTRIBUTE_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PHYSICAL_ADDRESS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BaseAddress"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Length"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "UINT64 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Attributes"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

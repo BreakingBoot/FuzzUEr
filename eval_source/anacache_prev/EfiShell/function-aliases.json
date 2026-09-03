@@ -1,0 +1,193 @@
+[
+    {
+        "Aliases": [
+            "EfiShellCreateFile"
+        ],
+        "Function": "CreateFile"
+    },
+    {
+        "Aliases": [
+            "EfiShellDeleteFileByName"
+        ],
+        "Function": "DeleteFileByName"
+    },
+    {
+        "Aliases": [
+            "DriverClearDisplayPage",
+            "EfiShellDisablePageBreak",
+            "EfiShellEnablePageBreak"
+        ],
+        "Function": "DisablePageBreak"
+    },
+    {
+        "Aliases": [
+            "EfiShellExecute"
+        ],
+        "Function": "Execute"
+    },
+    {
+        "Aliases": [
+            "EfiShellFindFiles"
+        ],
+        "Function": "FindFiles"
+    },
+    {
+        "Aliases": [
+            "EfiShellFindFilesInDir"
+        ],
+        "Function": "FindFilesInDir"
+    },
+    {
+        "Aliases": [
+            "EfiShellClose"
+        ],
+        "Function": "FlushFile"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetAlias"
+        ],
+        "Function": "GetAlias"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetCurDir",
+            "EfiShellGetEnv"
+        ],
+        "Function": "GetCurDir"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetDeviceName"
+        ],
+        "Function": "GetDeviceName"
+    },
+    {
+        "Aliases": [
+            "ConvertTextToDeviceNode",
+            "ConvertTextToDevicePath",
+            "EfiShellGetDevicePathFromFilePath"
+        ],
+        "Function": "GetDevicePathFromFilePath"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetDevicePathFromMap"
+        ],
+        "Function": "GetDevicePathFromMap"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetEnvEx"
+        ],
+        "Function": "GetEnvEx"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetFilePathFromDevicePath",
+            "IsDevicePathMultiInstance"
+        ],
+        "Function": "GetFilePathFromDevicePath"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetGuidFromName"
+        ],
+        "Function": "GetGuidFromName"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetGuidName"
+        ],
+        "Function": "GetGuidName"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetHelpText"
+        ],
+        "Function": "GetHelpText"
+    },
+    {
+        "Aliases": [
+            "EfiShellGetMapFromDevicePath"
+        ],
+        "Function": "GetMapFromDevicePath"
+    },
+    {
+        "Aliases": [
+            "EfiShellBatchIsActive",
+            "EfiShellGetPageBreak",
+            "EfiShellIsRootShell",
+            "IsBrowserDataModified",
+            "IsResetRequired",
+            "VariableExLibAtRuntime"
+        ],
+        "Function": "GetPageBreak"
+    },
+    {
+        "Aliases": [
+            "EfiShellOpenFileByName"
+        ],
+        "Function": "OpenFileByName"
+    },
+    {
+        "Aliases": [
+            "EfiShellOpenFileList"
+        ],
+        "Function": "OpenFileList"
+    },
+    {
+        "Aliases": [
+            "EfiShellOpenRoot"
+        ],
+        "Function": "OpenRoot"
+    },
+    {
+        "Aliases": [
+            "EfiShellOpenRootByHandle"
+        ],
+        "Function": "OpenRootByHandle"
+    },
+    {
+        "Aliases": [
+            "DxePcdGetNextToken",
+            "DxePcdSet64Ex",
+            "EfiShellRegisterGuidName",
+            "PeiPcdGetNextToken",
+            "PeiPcdSet64Ex",
+            "PeiPcdSetBoolEx"
+        ],
+        "Function": "RegisterGuidName"
+    },
+    {
+        "Aliases": [
+            "EfiShellFreeFileList",
+            "EfiShellRemoveDupInFileList"
+        ],
+        "Function": "RemoveDupInFileList"
+    },
+    {
+        "Aliases": [
+            "EfiShellSetAlias"
+        ],
+        "Function": "SetAlias"
+    },
+    {
+        "Aliases": [
+            "EfiShellSetCurDir"
+        ],
+        "Function": "SetCurDir"
+    },
+    {
+        "Aliases": [
+            "EfiShellSetEnv"
+        ],
+        "Function": "SetEnv"
+    },
+    {
+        "Aliases": [
+            "EfiShellSetMap"
+        ],
+        "Function": "SetMap"
+    }
+]

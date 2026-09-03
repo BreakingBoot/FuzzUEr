@@ -1,0 +1,48 @@
+[
+    {
+        "Aliases": [
+            "BootMaintCallback",
+            "BootManagerCallback",
+            "Callback",
+            "DeviceManagerCallback",
+            "DriverHealthManagerCallback",
+            "FrontPageCallback",
+            "HttpBootFormCallback",
+            "Ip4FormCallback",
+            "Ip6FormCallback",
+            "LibCallback",
+            "VlanCallback"
+        ],
+        "Function": "Callback"
+    },
+    {
+        "Aliases": [
+            "BootMaintExtractConfig",
+            "BootManagerExtractConfig",
+            "DeviceManagerExtractConfig",
+            "DriverHealthManagerFakeExtractConfig",
+            "FakeExtractConfig",
+            "HttpBootFormExtractConfig",
+            "Ip4FormExtractConfig",
+            "Ip6FormExtractConfig",
+            "LibExtractConfig",
+            "VlanExtractConfig"
+        ],
+        "Function": "ExtractConfig"
+    },
+    {
+        "Aliases": [
+            "BootMaintRouteConfig",
+            "BootManagerRouteConfig",
+            "DeviceManagerRouteConfig",
+            "DriverHealthManagerFakeRouteConfig",
+            "FakeRouteConfig",
+            "HttpBootFormRouteConfig",
+            "Ip4FormRouteConfig",
+            "Ip6FormRouteConfig",
+            "LibRouteConfig",
+            "VlanRouteConfig"
+        ],
+        "Function": "RouteConfig"
+    }
+]

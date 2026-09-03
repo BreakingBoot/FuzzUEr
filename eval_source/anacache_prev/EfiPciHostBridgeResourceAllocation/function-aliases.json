@@ -1,0 +1,51 @@
+[
+    {
+        "Aliases": [
+            "GetAttributes"
+        ],
+        "Function": "GetAllocAttributes"
+    },
+    {
+        "Aliases": [
+            "GetNextRootBridge"
+        ],
+        "Function": "GetNextRootBridge"
+    },
+    {
+        "Aliases": [
+            "GetProposedResources"
+        ],
+        "Function": "GetProposedResources"
+    },
+    {
+        "Aliases": [
+            "IdeInitNotifyPhase",
+            "NotifyPhase"
+        ],
+        "Function": "NotifyPhase"
+    },
+    {
+        "Aliases": [
+            "PreprocessController"
+        ],
+        "Function": "PreprocessController"
+    },
+    {
+        "Aliases": [
+            "SetBusNumbers"
+        ],
+        "Function": "SetBusNumbers"
+    },
+    {
+        "Aliases": [
+            "StartBusEnumeration"
+        ],
+        "Function": "StartBusEnumeration"
+    },
+    {
+        "Aliases": [
+            "SubmitResources"
+        ],
+        "Function": "SubmitResources"
+    }
+]

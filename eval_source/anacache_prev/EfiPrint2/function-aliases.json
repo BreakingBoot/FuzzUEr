@@ -1,0 +1,62 @@
+[
+    {
+        "Aliases": [
+            "AsciiBSPrint"
+        ],
+        "Function": "AsciiBSPrint"
+    },
+    {
+        "Aliases": [
+            "AsciiBSPrintUnicodeFormat"
+        ],
+        "Function": "AsciiBSPrintUnicodeFormat"
+    },
+    {
+        "Aliases": [
+            "AsciiSPrint"
+        ],
+        "Function": "AsciiSPrint"
+    },
+    {
+        "Aliases": [
+            "AsciiSPrintUnicodeFormat"
+        ],
+        "Function": "AsciiSPrintUnicodeFormat"
+    },
+    {
+        "Aliases": [
+            "PrintDxeAsciiValueToString"
+        ],
+        "Function": "AsciiValueToString"
+    },
+    {
+        "Aliases": [
+            "UnicodeBSPrint"
+        ],
+        "Function": "UnicodeBSPrint"
+    },
+    {
+        "Aliases": [
+            "UnicodeBSPrintAsciiFormat"
+        ],
+        "Function": "UnicodeBSPrintAsciiFormat"
+    },
+    {
+        "Aliases": [
+            "UnicodeSPrint"
+        ],
+        "Function": "UnicodeSPrint"
+    },
+    {
+        "Aliases": [
+            "UnicodeSPrintAsciiFormat"
+        ],
+        "Function": "UnicodeSPrintAsciiFormat"
+    },
+    {
+        "Aliases": [
+            "PrintDxeUnicodeValueToString"
+        ],
+        "Function": "UnicodeValueToString"
+    }
+]

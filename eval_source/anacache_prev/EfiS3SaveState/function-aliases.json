@@ -1,0 +1,35 @@
+[
+    {
+        "Aliases": [
+            "BootScriptCompare"
+        ],
+        "Function": "Compare"
+    },
+    {
+        "Aliases": [
+            "BootScriptInsert"
+        ],
+        "Function": "Insert"
+    },
+    {
+        "Aliases": [
+            "BootScriptLabel"
+        ],
+        "Function": "Label"
+    },
+    {
+        "Aliases": [
+            "BootScriptWrite",
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

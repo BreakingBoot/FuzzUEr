@@ -1,0 +1,44 @@
+[
+    {
+        "Aliases": [
+            "HiiBlockToConfig"
+        ],
+        "Function": "BlockToConfig"
+    },
+    {
+        "Aliases": [
+            "HiiConfigToBlock"
+        ],
+        "Function": "ConfigToBlock"
+    },
+    {
+        "Aliases": [
+            "HiiConfigRoutingExportConfig"
+        ],
+        "Function": "ExportConfig"
+    },
+    {
+        "Aliases": [
+            "HiiConfigRoutingExtractConfig",
+            "HttpBootFormExtractConfig",
+            "Ip4FormExtractConfig",
+            "Ip6FormExtractConfig"
+        ],
+        "Function": "ExtractConfig"
+    },
+    {
+        "Aliases": [
+            "HiiGetAltCfg"
+        ],
+        "Function": "GetAltConfig"
+    },
+    {
+        "Aliases": [
+            "HiiConfigRoutingRouteConfig",
+            "HttpBootFormRouteConfig",
+            "Ip4FormRouteConfig",
+            "Ip6FormRouteConfig"
+        ],
+        "Function": "RouteConfig"
+    }
+]

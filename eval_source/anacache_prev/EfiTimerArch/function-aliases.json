@@ -1,0 +1,26 @@
+[
+    {
+        "Aliases": [
+            "TimerDriverGenerateSoftInterrupt"
+        ],
+        "Function": "GenerateSoftInterrupt"
+    },
+    {
+        "Aliases": [
+            "TimerDriverGetTimerPeriod"
+        ],
+        "Function": "GetTimerPeriod"
+    },
+    {
+        "Aliases": [
+            "TimerDriverRegisterHandler"
+        ],
+        "Function": "RegisterHandler"
+    },
+    {
+        "Aliases": [
+            "TimerDriverSetTimerPeriod"
+        ],
+        "Function": "SetTimerPeriod"
+    }
+]

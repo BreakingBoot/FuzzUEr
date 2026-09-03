@@ -1,0 +1,78 @@
+[
+    {
+        "Aliases": [
+            "EfiPxeBcArp"
+        ],
+        "Function": "Arp"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcDhcp",
+            "EfiPxeBcStart"
+        ],
+        "Function": "Dhcp"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcDiscover"
+        ],
+        "Function": "Discover"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcMtftp"
+        ],
+        "Function": "Mtftp"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcSetIpFilter"
+        ],
+        "Function": "SetIpFilter"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcSetPackets"
+        ],
+        "Function": "SetPackets"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcSetParameters"
+        ],
+        "Function": "SetParameters"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcSetStationIP"
+        ],
+        "Function": "SetStationIp"
+    },
+    {
+        "Aliases": [
+            "FragmentOffset",
+            "SnpUndi32Start",
+            "Start"
+        ],
+        "Function": "Start"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcStop",
+            "SnpUndi32Stop"
+        ],
+        "Function": "Stop"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcUdpRead"
+        ],
+        "Function": "UdpRead"
+    },
+    {
+        "Aliases": [
+            "EfiPxeBcUdpWrite"
+        ],
+        "Function": "UdpWrite"
+    }
+]

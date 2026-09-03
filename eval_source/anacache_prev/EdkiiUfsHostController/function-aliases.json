@@ -1,0 +1,61 @@
+[
+    {
+        "Aliases": [
+            "RootBridgeIoAllocateBuffer"
+        ],
+        "Function": "AllocateBuffer"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoFreeBuffer"
+        ],
+        "Function": "FreeBuffer"
+    },
+    {
+        "Aliases": [
+            "BufferMap",
+            "Map",
+            "RootBridgeIoMap"
+        ],
+        "Function": "Map"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvRead",
+            "FileInterfaceFileRead",
+            "FileInterfaceMemRead",
+            "RootBridgeIoIoRead",
+            "RootBridgeIoMemRead",
+            "RootBridgeIoPciRead"
+        ],
+        "Function": "Read"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoUnmap"
+        ],
+        "Function": "Unmap"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

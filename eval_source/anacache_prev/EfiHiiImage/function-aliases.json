@@ -1,0 +1,32 @@
+[
+    {
+        "Aliases": [
+            "HiiDrawImage"
+        ],
+        "Function": "DrawImage"
+    },
+    {
+        "Aliases": [
+            "HiiDrawImageId"
+        ],
+        "Function": "DrawImageId"
+    },
+    {
+        "Aliases": [
+            "HiiGetImage"
+        ],
+        "Function": "GetImage"
+    },
+    {
+        "Aliases": [
+            "HiiNewImage"
+        ],
+        "Function": "NewImage"
+    },
+    {
+        "Aliases": [
+            "HiiSetImage"
+        ],
+        "Function": "SetImage"
+    }
+]

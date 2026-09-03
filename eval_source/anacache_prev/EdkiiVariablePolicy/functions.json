@@ -1,0 +1,110 @@
+[
+    {
+        "File": "",
+        "Function": "DisableVariablePolicy",
+        "Includes": [],
+        "Parameters": null,
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "IsVariablePolicyEnabled",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "IsVariablePolicyEnabled",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "BOOLEAN *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "RegisterVariablePolicy",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const VARIABLE_POLICY_ENTRY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "RegisterVariablePolicy",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const VARIABLE_POLICY_ENTRY *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "DumpVariablePolicy",
+        "Includes": [],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "OUT",
+                "arg_type": "UINT8 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Policy"
+            },
+            "Arg_1": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "UINT32 *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Size"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "",
+        "Function": "LockVariablePolicy",
+        "Includes": [],
+        "Parameters": null,
+        "ReturnType": "EFI_STATUS"
+    }
+]

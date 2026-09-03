@@ -1,0 +1,17 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "EfiLockAcquired",
+            "EfiLockReleased"
+        ],
+        "Function": "Lock"
+    }
+]

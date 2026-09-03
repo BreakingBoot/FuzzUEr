@@ -1,0 +1,82 @@
+[
+    {
+        "Aliases": [
+            "ConsoleLoggerClearScreen",
+            "FileBasedSimpleTextOutClearScreen"
+        ],
+        "Function": "ClearScreen"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerEnableCursor",
+            "FileBasedSimpleTextOutEnableCursor"
+        ],
+        "Function": "EnableCursor"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerOutputString",
+            "FileBasedSimpleTextOutOutputString"
+        ],
+        "Function": "OutputString"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerQueryMode",
+            "FileBasedSimpleTextOutQueryMode",
+            "QemuVideoGraphicsOutputQueryMode"
+        ],
+        "Function": "QueryMode"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerSetAttribute",
+            "FileBasedSimpleTextOutSetAttribute"
+        ],
+        "Function": "SetAttribute"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerSetCursorPosition",
+            "FileBasedSimpleTextOutSetCursorPosition"
+        ],
+        "Function": "SetCursorPosition"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerSetMode",
+            "FileBasedSimpleTextOutSetMode",
+            "QemuVideoGraphicsOutputSetMode"
+        ],
+        "Function": "SetMode"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerTestString",
+            "FileBasedSimpleTextOutTestString"
+        ],
+        "Function": "TestString"
+    }
+]

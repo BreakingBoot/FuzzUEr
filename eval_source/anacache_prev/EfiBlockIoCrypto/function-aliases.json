@@ -1,0 +1,33 @@
+[
+    {
+        "Aliases": [
+            "NvmeBlockIoFlushBlocks",
+            "PartitionFlushBlocks",
+            "ScsiDiskFlushBlocks",
+            "UsbMassFlushBlocks"
+        ],
+        "Function": "FlushBlocks"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    }
+]

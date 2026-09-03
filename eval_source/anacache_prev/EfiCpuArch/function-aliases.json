@@ -1,0 +1,48 @@
+[
+    {
+        "Aliases": [
+            "AtaBlockIoFlushBlocks",
+            "CpuDisableInterrupt",
+            "CpuEnableInterrupt",
+            "DiskIo2Cancel"
+        ],
+        "Function": "DisableInterrupt"
+    },
+    {
+        "Aliases": [
+            "CpuFlushCpuDataCache"
+        ],
+        "Function": "FlushDataCache"
+    },
+    {
+        "Aliases": [
+            "AtaBlockIoReset",
+            "CpuGetInterruptState"
+        ],
+        "Function": "GetInterruptState"
+    },
+    {
+        "Aliases": [
+            "CpuGetTimerValue"
+        ],
+        "Function": "GetTimerValue"
+    },
+    {
+        "Aliases": [
+            "CpuInit"
+        ],
+        "Function": "Init"
+    },
+    {
+        "Aliases": [
+            "CpuRegisterInterruptHandler"
+        ],
+        "Function": "RegisterInterruptHandler"
+    },
+    {
+        "Aliases": [
+            "CpuSetMemoryAttributes"
+        ],
+        "Function": "SetMemoryAttributes"
+    }
+]

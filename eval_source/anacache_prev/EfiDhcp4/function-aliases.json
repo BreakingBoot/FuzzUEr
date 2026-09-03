@@ -1,0 +1,75 @@
+[
+    {
+        "Aliases": [
+            "EfiDhcp4Build"
+        ],
+        "Function": "Build"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Configure",
+            "EfiDhcp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "HttpBootDhcp4CallBack",
+            "PxeBcDhcp4CallBack"
+        ],
+        "Function": "Dhcp4Callback"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4GetModeData",
+            "EfiDhcp6GetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Parse",
+            "EfiDhcp6Parse"
+        ],
+        "Function": "Parse"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp6Decline",
+            "EfiDhcp6Release"
+        ],
+        "Function": "Release"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4RenewRebind",
+            "EfiDhcp6RenewRebind"
+        ],
+        "Function": "RenewRebind"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Start",
+            "FragmentOffset",
+            "SnpUndi32Start",
+            "Start"
+        ],
+        "Function": "Start"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4Release",
+            "EfiDhcp4Stop",
+            "EfiDhcp6Start",
+            "EfiDhcp6Stop",
+            "SnpUndi32Stop"
+        ],
+        "Function": "Stop"
+    },
+    {
+        "Aliases": [
+            "EfiDhcp4TransmitReceive"
+        ],
+        "Function": "TransmitReceive"
+    }
+]

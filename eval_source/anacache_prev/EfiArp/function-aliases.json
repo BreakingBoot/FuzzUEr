@@ -1,0 +1,65 @@
+[
+    {
+        "Aliases": [
+            "ArpAdd"
+        ],
+        "Function": "Add"
+    },
+    {
+        "Aliases": [
+            "ArpCancel"
+        ],
+        "Function": "Cancel"
+    },
+    {
+        "Aliases": [
+            "ArpConfigure",
+            "EfiIp4Configure",
+            "EfiIp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "ArpDelete",
+            "FileInterfaceEnvDelete",
+            "FileInterfaceFileDelete",
+            "FileInterfaceNopGeneric"
+        ],
+        "Function": "Delete"
+    },
+    {
+        "Aliases": [
+            "ArpFind"
+        ],
+        "Function": "Find"
+    },
+    {
+        "Aliases": [
+            "ArpFlush",
+            "DpcDispatchDpc",
+            "EfiIp4Poll",
+            "EfiIp6Poll",
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "ArpRequest",
+            "Request",
+            "USB_REQ_CLEAR_FEATURE",
+            "USB_REQ_GET_CONFIG",
+            "USB_REQ_GET_DESCRIPTOR",
+            "USB_REQ_GET_INTERFACE",
+            "USB_REQ_GET_STATUS",
+            "USB_REQ_SET_CONFIG",
+            "USB_REQ_SET_DESCRIPTOR",
+            "USB_REQ_SET_FEATURE",
+            "USB_REQ_SET_INTERFACE"
+        ],
+        "Function": "Request"
+    }
+]

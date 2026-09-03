@@ -1,0 +1,50 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo",
+            "FvGetVolumeInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "FvGetNextFile"
+        ],
+        "Function": "GetNextFile"
+    },
+    {
+        "Aliases": [
+            "FvReadFile"
+        ],
+        "Function": "ReadFile"
+    },
+    {
+        "Aliases": [
+            "FvReadFileSection"
+        ],
+        "Function": "ReadSection"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileSetInfo",
+            "FileInterfaceNopSetInfo",
+            "FvSetVolumeInfo"
+        ],
+        "Function": "SetInfo"
+    },
+    {
+        "Aliases": [
+            "FvGetVolumeAttributes",
+            "FvSetVolumeAttributes"
+        ],
+        "Function": "SetVolumeAttributes"
+    },
+    {
+        "Aliases": [
+            "FvWriteFile"
+        ],
+        "Function": "WriteFile"
+    }
+]

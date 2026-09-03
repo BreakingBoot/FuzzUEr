@@ -1,0 +1,68 @@
+[
+    {
+        "Aliases": [
+            "EfiIp4Cancel",
+            "EfiIp4Receive",
+            "EfiIp4Transmit",
+            "EfiIp6Cancel",
+            "EfiIp6Receive",
+            "EfiIp6Transmit"
+        ],
+        "Function": "Cancel"
+    },
+    {
+        "Aliases": [
+            "ArpConfigure",
+            "EfiIp4Configure",
+            "EfiIp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "EfiIp6GetModeData"
+        ],
+        "Function": "GetModeData"
+    },
+    {
+        "Aliases": [
+            "EfiIp4Groups",
+            "EfiIp6Groups",
+            "Members"
+        ],
+        "Function": "Groups"
+    },
+    {
+        "Aliases": [
+            "EfiIp6Neighbors"
+        ],
+        "Function": "Neighbors"
+    },
+    {
+        "Aliases": [
+            "ArpFlush",
+            "DpcDispatchDpc",
+            "EfiIp4Poll",
+            "EfiIp6Poll"
+        ],
+        "Function": "Poll"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "EfiIp6Routes"
+        ],
+        "Function": "Routes"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]

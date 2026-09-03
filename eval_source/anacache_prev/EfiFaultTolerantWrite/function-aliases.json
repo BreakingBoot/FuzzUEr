@@ -1,0 +1,46 @@
+[
+    {
+        "Aliases": [
+            "FtwAbort"
+        ],
+        "Function": "Abort"
+    },
+    {
+        "Aliases": [
+            "FtwAllocate"
+        ],
+        "Function": "Allocate"
+    },
+    {
+        "Aliases": [
+            "FtwGetLastWrite"
+        ],
+        "Function": "GetLastWrite"
+    },
+    {
+        "Aliases": [
+            "FtwGetMaxBlockSize"
+        ],
+        "Function": "GetMaxBlockSize"
+    },
+    {
+        "Aliases": [
+            "FtwRestart"
+        ],
+        "Function": "Restart"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

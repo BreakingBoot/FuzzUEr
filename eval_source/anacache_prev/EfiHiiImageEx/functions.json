@@ -1,0 +1,644 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "NewImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_ID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "NewImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_ID *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "SetImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "SetImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "DrawImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_DRAW_FLAGS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Blt"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltX"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltY"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "DrawImageEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_DRAW_FLAGS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_IMAGE_INPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            },
+            "Arg_3": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Blt"
+            },
+            "Arg_4": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltX"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltY"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "DrawImageIdEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_DRAW_FLAGS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Blt"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltX"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltY"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "DrawImageIdEx",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_DRAW_FLAGS",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Flags"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_3": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_4": {
+                "arg_dir": "IN_OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Blt"
+            },
+            "Arg_5": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltX"
+            },
+            "Arg_6": {
+                "arg_dir": "IN",
+                "arg_type": "UINTN",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "BltY"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetImageInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h",
+        "Function": "GetImageInfo",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabase.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "const EFI_HII_IMAGE_EX_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_HII_HANDLE",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PackageList"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IMAGE_ID",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "ImageId"
+            },
+            "Arg_3": {
+                "arg_dir": "OUT",
+                "arg_type": "EFI_IMAGE_OUTPUT *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Image"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

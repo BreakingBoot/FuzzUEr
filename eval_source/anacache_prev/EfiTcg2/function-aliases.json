@@ -1,0 +1,9 @@
+[
+    {
+        "Aliases": [
+            "EhcGetCapability",
+            "Uhci2GetCapability"
+        ],
+        "Function": "GetCapability"
+    }
+]

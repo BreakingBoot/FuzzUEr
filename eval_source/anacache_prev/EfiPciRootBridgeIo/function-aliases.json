@@ -1,0 +1,97 @@
+[
+    {
+        "Aliases": [
+            "RootBridgeIoAllocateBuffer"
+        ],
+        "Function": "AllocateBuffer"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoConfiguration"
+        ],
+        "Function": "Configuration"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoCopyMem"
+        ],
+        "Function": "CopyMem"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileFlush",
+            "FileInterfaceNopGeneric",
+            "RootBridgeIoFlush"
+        ],
+        "Function": "Flush"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoFreeBuffer"
+        ],
+        "Function": "FreeBuffer"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoGetAttributes"
+        ],
+        "Function": "GetAttributes"
+    },
+    {
+        "Aliases": [
+            "BufferMap",
+            "Map",
+            "RootBridgeIoMap"
+        ],
+        "Function": "Map"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoPollIo"
+        ],
+        "Function": "PollIo"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoPollMem"
+        ],
+        "Function": "PollMem"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvRead",
+            "FileInterfaceFileRead",
+            "FileInterfaceMemRead",
+            "RootBridgeIoIoRead",
+            "RootBridgeIoMemRead",
+            "RootBridgeIoPciRead"
+        ],
+        "Function": "Read"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoSetAttributes"
+        ],
+        "Function": "SetAttributes"
+    },
+    {
+        "Aliases": [
+            "RootBridgeIoUnmap"
+        ],
+        "Function": "Unmap"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceEnvNonVolWrite",
+            "FileInterfaceEnvVolWrite",
+            "FileInterfaceFileWrite",
+            "FileInterfaceMemWrite",
+            "FtwWrite",
+            "RootBridgeIoIoWrite",
+            "RootBridgeIoMemWrite",
+            "RootBridgeIoPciWrite",
+            "Write"
+        ],
+        "Function": "Write"
+    }
+]

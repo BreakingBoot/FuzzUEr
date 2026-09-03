@@ -1,0 +1,33 @@
+[
+    {
+        "Aliases": [
+            "ScsiExecuteSCSICommand"
+        ],
+        "Function": "ExecuteScsiCommand"
+    },
+    {
+        "Aliases": [
+            "ScsiGetDeviceLocation"
+        ],
+        "Function": "GetDeviceLocation"
+    },
+    {
+        "Aliases": [
+            "ScsiGetDeviceType",
+            "XhcReset"
+        ],
+        "Function": "GetDeviceType"
+    },
+    {
+        "Aliases": [
+            "ScsiResetBus"
+        ],
+        "Function": "ResetBus"
+    },
+    {
+        "Aliases": [
+            "ScsiResetDevice"
+        ],
+        "Function": "ResetDevice"
+    }
+]

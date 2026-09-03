@@ -1,0 +1,39 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/FwVol/FwVol.h",
+        "Function": "Notify",
+        "Includes": [
+            "/workspace/tmp/edk2/MdeModulePkg/Core/Pei/FwVol/FwVol.h"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_SERVICES **",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "PeiServices"
+            },
+            "Arg_1": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_PEI_NOTIFY_DESCRIPTOR *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "NotifyDescriptor"
+            },
+            "Arg_2": {
+                "arg_dir": "IN",
+                "arg_type": "void *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "Ppi"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

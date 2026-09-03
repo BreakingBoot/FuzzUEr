@@ -1,0 +1,54 @@
+[
+    {
+        "Aliases": [
+            "Dns4Configure",
+            "Dns6Configure",
+            "EfiHttpConfigure",
+            "EfiHttpGetModeData",
+            "Tcp4Configure",
+            "Tcp6Configure",
+            "Udp4Configure",
+            "Udp6Configure"
+        ],
+        "Function": "Configure"
+    },
+    {
+        "Aliases": [
+            "Dns4Poll",
+            "Dns6Poll",
+            "EfiHttpPoll",
+            "FatClose",
+            "FatDelete",
+            "FatFlush",
+            "FileInterfaceNopGeneric",
+            "Tcp4Poll",
+            "Tcp6Poll",
+            "Udp4Poll",
+            "Udp6Poll"
+        ],
+        "Function": "Poll"
+    },
+    {
+        "Aliases": [
+            "Request",
+            "USB_REQ_CLEAR_FEATURE",
+            "USB_REQ_GET_CONFIG",
+            "USB_REQ_GET_DESCRIPTOR",
+            "USB_REQ_GET_INTERFACE",
+            "USB_REQ_GET_STATUS",
+            "USB_REQ_SET_CONFIG",
+            "USB_REQ_SET_DESCRIPTOR",
+            "USB_REQ_SET_FEATURE",
+            "USB_REQ_SET_INTERFACE"
+        ],
+        "Function": "Request"
+    },
+    {
+        "Aliases": [
+            "EfiHttpCancel",
+            "EfiHttpRequest",
+            "EfiHttpResponse"
+        ],
+        "Function": "Response"
+    }
+]

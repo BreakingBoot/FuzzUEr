@@ -1,0 +1,33 @@
+[
+    {
+        "Aliases": [
+            "SmmMpBroadcastProcedure"
+        ],
+        "Function": "BroadcastProcedure"
+    },
+    {
+        "Aliases": [
+            "SmmMpDispatchProcedure"
+        ],
+        "Function": "DispatchProcedure"
+    },
+    {
+        "Aliases": [
+            "SmmMpGetNumberOfProcessors"
+        ],
+        "Function": "GetNumberOfProcessors"
+    },
+    {
+        "Aliases": [
+            "SmmMpSetStartupProcedure"
+        ],
+        "Function": "SetStartupProcedure"
+    },
+    {
+        "Aliases": [
+            "SmmMpCheckForProcedure",
+            "SmmMpWaitForProcedure"
+        ],
+        "Function": "WaitForProcedure"
+    }
+]

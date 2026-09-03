@@ -1,0 +1,24 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvClose",
+            "FileInterfaceFileClose",
+            "FileInterfaceMemClose"
+        ],
+        "Function": "Close"
+    },
+    {
+        "Aliases": [
+            "EfiLockAcquired",
+            "EfiLockReleased"
+        ],
+        "Function": "Lock"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileOpen",
+            "FileInterfaceOpenNotFound"
+        ],
+        "Function": "Open"
+    }
+]

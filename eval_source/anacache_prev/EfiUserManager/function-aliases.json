@@ -1,0 +1,32 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvDelete",
+            "FileInterfaceFileDelete",
+            "FileInterfaceNopGeneric"
+        ],
+        "Function": "Delete"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileGetInfo",
+            "FileInterfaceMemGetInfo",
+            "FileInterfaceNopGetInfo"
+        ],
+        "Function": "GetInfo"
+    },
+    {
+        "Aliases": [
+            "HiiUnregisterPackageNotify",
+            "ThirdPartyFvPpiNotifyCallback"
+        ],
+        "Function": "Notify"
+    },
+    {
+        "Aliases": [
+            "FileInterfaceFileSetInfo",
+            "FileInterfaceNopSetInfo"
+        ],
+        "Function": "SetInfo"
+    }
+]

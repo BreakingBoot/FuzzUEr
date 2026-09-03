@@ -1,0 +1,105 @@
+[
+    {
+        "Aliases": [
+            "EhcAsyncInterruptTransfer",
+            "Uhci2AsyncInterruptTransfer"
+        ],
+        "Function": "AsyncInterruptTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcAsyncIsochronousTransfer",
+            "Uhci2AsyncIsochronousTransfer"
+        ],
+        "Function": "AsyncIsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcBulkTransfer",
+            "Uhci2BulkTransfer"
+        ],
+        "Function": "BulkTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcClearRootHubPortFeature",
+            "Uhci2ClearRootHubPortFeature"
+        ],
+        "Function": "ClearRootHubPortFeature"
+    },
+    {
+        "Aliases": [
+            "EhcControlTransfer",
+            "Uhci2ControlTransfer"
+        ],
+        "Function": "ControlTransfer"
+    },
+    {
+        "Aliases": [
+            "EhcGetRootHubPortStatus",
+            "Uhci2GetRootHubPortStatus"
+        ],
+        "Function": "GetRootHubPortStatus"
+    },
+    {
+        "Aliases": [
+            "EhcGetState",
+            "Uhci2GetState"
+        ],
+        "Function": "GetState"
+    },
+    {
+        "Aliases": [
+            "EhcIsochronousTransfer",
+            "Uhci2IsochronousTransfer"
+        ],
+        "Function": "IsochronousTransfer"
+    },
+    {
+        "Aliases": [
+            "ConsoleLoggerReset",
+            "EhcReset",
+            "FileBasedSimpleTextInReset",
+            "FileBasedSimpleTextOutReset",
+            "KeyboardEfiReset",
+            "KeyboardEfiResetEx",
+            "NvmeBlockIoReset",
+            "NvmeBlockIoResetEx",
+            "PartitionReset",
+            "PartitionResetEx",
+            "PciIoUnmap",
+            "ScsiDiskReset",
+            "ScsiDiskResetEx",
+            "SnpUndi32Reset",
+            "USBKeyboardReset",
+            "USBKeyboardResetEx",
+            "Uhci2Reset",
+            "UsbIoPortReset",
+            "UsbMassReset"
+        ],
+        "Function": "Reset"
+    },
+    {
+        "Aliases": [
+            "EhcSetRootHubPortFeature",
+            "Uhci2SetRootHubPortFeature"
+        ],
+        "Function": "SetRootHubPortFeature"
+    },
+    {
+        "Aliases": [
+            "EhcSetState",
+            "KeyboardSetState",
+            "USBKeyboardSetState",
+            "Uhci2SetState"
+        ],
+        "Function": "SetState"
+    },
+    {
+        "Aliases": [
+            "EhcSyncInterruptTransfer",
+            "Uhci2SyncInterruptTransfer"
+        ],
+        "Function": "SyncInterruptTransfer"
+    }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "Aliases": [
+            "EbcCreateThunk"
+        ],
+        "Function": "CreateThunk"
+    },
+    {
+        "Aliases": [
+            "DpcDispatchDpc",
+            "EbcGetVersion"
+        ],
+        "Function": "GetVersion"
+    },
+    {
+        "Aliases": [
+            "EbcRegisterICacheFlush"
+        ],
+        "Function": "RegisterICacheFlush"
+    },
+    {
+        "Aliases": [
+            "EbcUnloadImage"
+        ],
+        "Function": "UnloadImage"
+    }
+]

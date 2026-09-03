@@ -1,0 +1,40 @@
+[
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "GetServiceStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    },
+    {
+        "File": "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c",
+        "Function": "GetServiceStatus",
+        "Includes": [
+            "/workspace/tmp/edk2/NetworkPkg/Ip4Dxe/Ip4Impl.c"
+        ],
+        "Parameters": {
+            "Arg_0": {
+                "arg_dir": "IN",
+                "arg_type": "EFI_IP4_PROTOCOL *",
+                "assignment": "",
+                "data_type": "",
+                "potential_outputs": [],
+                "usage": "",
+                "variable": "__PROTOCOL__"
+            }
+        },
+        "ReturnType": "EFI_STATUS"
+    }
+]

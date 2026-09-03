@@ -1,0 +1,22 @@
+[
+    {
+        "Aliases": [
+            "FileInterfaceEnvClose",
+            "FileInterfaceFileClose",
+            "FileInterfaceMemClose"
+        ],
+        "Function": "Close"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Receive"
+        ],
+        "Function": "Receive"
+    },
+    {
+        "Aliases": [
+            "SnpUndi32Transmit"
+        ],
+        "Function": "Transmit"
+    }
+]
