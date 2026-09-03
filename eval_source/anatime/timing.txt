@@ -1,0 +1,3 @@
+EfiTcp4 rc=0 seconds=618 records=42
+EfiShell rc=132 seconds=432 records=0
+OLD analyzer: rc=0 seconds=489 records=0
