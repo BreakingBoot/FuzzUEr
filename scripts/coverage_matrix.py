@@ -106,9 +106,10 @@ def report(rows):
     print(f'\n  protocols with a run: {len(ran)}')
     print(f'  protocols with no run: {len(missing)}')
     if ran:
-        # a sum, not a union: tsffs reports an edge count per run and the indices are not
-        # comparable across runs, so this says how much each harness reached, not how much
-        # of the firmware the campaign covered in total
+        # a sum, not a union: this says how much each harness reached rather than how much
+        # of the firmware the campaign covered together. The indices themselves ARE stable
+        # for a given firmware -- two runs of one protocol overlap ~68% -- so scripts/
+        # edge_diff.py can union or subtract them when that is the question
         print(f'  best single protocol: {max(s["edges"] for s in ran.values())} edges')
         print(f'  median: {sorted(s["edges"] for s in ran.values())[len(ran) // 2]} edges')
         print(f'  protocols that never reached the harness: '
