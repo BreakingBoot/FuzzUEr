@@ -1,0 +1,24 @@
+[
+    {
+        "Aliases": [
+            "AtaBlockIoFlushBlocks",
+            "CpuDisableInterrupt",
+            "CpuEnableInterrupt",
+            "DiskIo2Cancel"
+        ],
+        "Function": "Cancel"
+    },
+    {
+        "Aliases": [
+            "DiskIo2FlushDiskEx"
+        ],
+        "Function": "FlushDiskEx"
+    },
+    {
+        "Aliases": [
+            "DiskIo2ReadDiskEx",
+            "DiskIo2WriteDiskEx"
+        ],
+        "Function": "WriteDiskEx"
+    }
+]
