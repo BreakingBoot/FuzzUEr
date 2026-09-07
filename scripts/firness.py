@@ -951,12 +951,17 @@ def reproduce_crash(simics_dir, testcase=None):
 
 
 def save_crashes_to_file(crashes, output_dir=None):
-    crash_list = [['Phase', 'Module', 'File', 'Line', 'Asan Msg', 'ErrorType', 'Message',
-                   'Count']]
+    crash_list = [['Phase', 'AtBoot', 'Module', 'File', 'Line', 'Asan Msg', 'ErrorType',
+                   'Message', 'Count']]
+    # a site that also reported during boot is firmware doing what it does anyway; the
+    # harness starting does not make it a finding
+    at_boot = {(c.file, c.line) for c in crashes.values() if c.phase == 'boot'}
     # fuzzing findings first, boot reports are a fixed baseline
     ordered = sorted(crashes.values(), key=lambda c: (c.phase != 'fuzz', c.file, c.line))
     for crash in ordered:
-        crash_list.append([crash.phase, getattr(crash, 'module', ''), crash.file,
+        repeat = 'yes' if (crash.phase == 'fuzz'
+                           and (crash.file, crash.line) in at_boot) else ''
+        crash_list.append([crash.phase, repeat, getattr(crash, 'module', ''), crash.file,
                            f'{crash.line}', crash.asan_msg,
                            crash.error_type, crash.message, f'{crash.count}'])
     path = os.path.join(output_dir, 'crashes.csv') if output_dir else 'crashes.csv'
@@ -1102,6 +1107,16 @@ def collect_unique_crashes(log_file, output_dir=None):
         print(f'    of which {sum(c.count for c in harness)} report(s) at '
               f'{len(harness)} site(s) were raised inside {HARNESS_IMAGE} itself '
               f'-- harness, not firmware')
+    at_boot = {(c.file, c.line) for c in crashes.values() if c.phase == 'boot'}
+    repeats = [c for c in crashes.values()
+               if c.phase == 'fuzz' and (c.file, c.line) in at_boot]
+    if repeats:
+        print(f'    of which {sum(c.count for c in repeats)} report(s) at {len(repeats)} '
+              f'site(s) also reported during boot -- firmware doing what it does anyway')
+    real = [c for c in crashes.values()
+            if c.phase == 'fuzz' and (c.file, c.line) not in at_boot
+            and getattr(c, 'module', '') != HARNESS_IMAGE]
+    print(f'    leaving {len(real)} site(s) attributable to an input')
     unattributed = sum(1 for c in crashes.values()
                        if c.phase == 'fuzz' and not getattr(c, 'module', ''))
     if unattributed and not modules:
