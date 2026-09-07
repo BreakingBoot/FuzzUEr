@@ -207,6 +207,12 @@ COPY ./Harness/hardware.yml /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-
 COPY ./Harness/qsp-uefi-custom.target.yml /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-x86/
 COPY ./Harness/qsp-uefi-custom.target.yml.include /workspace/simics/simics-qsp-x86-6.0.73/targets/qsp-x86/
 COPY ./Harness/fuzz.simics /workspace/projects/example/
+# absorb_unmapped.py is loaded by both fuzzing scripts. snapshot.simics and
+# fuzz_snapshot.simics were only ever added to the image by hand, so a rebuild produced an
+# image that could not use --snapshot; install them here too.
+COPY ./Harness/absorb_unmapped.py /workspace/projects/example/
+COPY ./Harness/snapshot.simics /workspace/projects/example/
+COPY ./Harness/fuzz_snapshot.simics /workspace/projects/example/
 # reproduce.simics and the seed corpus were never installed, so --reproduce died
 # file-not-found and TSFFS always started from randomly generated seeds.
 COPY ./Harness/reproduce.simics /workspace/projects/example/
