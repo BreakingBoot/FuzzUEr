@@ -64,3 +64,5 @@ gen*.log
 post_reboot.log
 __pycache__/
 # scratch output from local sweeps
+eval_source/verify/matrix_v8/
+eval_source/dimtest/
