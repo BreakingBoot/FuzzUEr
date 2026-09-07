@@ -6,6 +6,8 @@
 # its own state rather than inheriting whatever a checkpoint captured.
 read-configuration booted.ckpt
 
+run-python-file "/workspace/Harness/absorb_unmapped.py"
+
 load-module tsffs
 init-tsffs
 @tsffs.log_level = 2
