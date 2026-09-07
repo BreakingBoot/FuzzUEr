@@ -997,7 +997,9 @@ def save_crashes_to_file(crashes, output_dir=None):
 LOAD_LINE = re.compile(
     r'Loading (?:driver|PEIM) at (0x[0-9A-Fa-f]+) EntryPoint=0x[0-9A-Fa-f]+\s+(\S+\.efi)')
 REPORT_IP = re.compile(r'(?:Return IP address is|\bip) (0x[0-9A-Fa-f]+)')
-HARNESS_IMAGE = 'Firness.efi'
+# the module name DXE reports for the harness image. Distinct from
+# HARNESS_IMAGE above, which is the path the build writes it to.
+HARNESS_MODULE = 'Firness.efi'
 
 
 def module_for(modules, ip):
@@ -1102,10 +1104,10 @@ def collect_unique_crashes(log_file, output_dir=None):
     # path it names, so keep it out of the firmware total rather than leaving it to be
     # counted as a finding
     harness = [c for c in crashes.values()
-               if c.phase == 'fuzz' and getattr(c, 'module', '') == HARNESS_IMAGE]
+               if c.phase == 'fuzz' and getattr(c, 'module', '') == HARNESS_MODULE]
     if harness:
         print(f'    of which {sum(c.count for c in harness)} report(s) at '
-              f'{len(harness)} site(s) were raised inside {HARNESS_IMAGE} itself '
+              f'{len(harness)} site(s) were raised inside {HARNESS_MODULE} itself '
               f'-- harness, not firmware')
     at_boot = {(c.file, c.line) for c in crashes.values() if c.phase == 'boot'}
     repeats = [c for c in crashes.values()
@@ -1115,7 +1117,7 @@ def collect_unique_crashes(log_file, output_dir=None):
               f'site(s) also reported during boot -- firmware doing what it does anyway')
     real = [c for c in crashes.values()
             if c.phase == 'fuzz' and (c.file, c.line) not in at_boot
-            and getattr(c, 'module', '') != HARNESS_IMAGE]
+            and getattr(c, 'module', '') != HARNESS_MODULE]
     print(f'    leaving {len(real)} site(s) attributable to an input')
     unattributed = sum(1 for c in crashes.values()
                        if c.phase == 'fuzz' and not getattr(c, 'module', ''))
