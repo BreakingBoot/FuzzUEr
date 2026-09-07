@@ -31,7 +31,7 @@ FIRMWARE_MAP = f'{FIRMWARE_BUILD_DIR}/SimicsX58.map'
 HARNESS_IMAGE = f'/workspace/tmp/edk2/Build/Firness/{BUILD_TARGET}/X64/Firness.efi'
 
 class AsanError:
-    def __init__(self, file, line, error_type = "", message = "", asan_msg = "", count = 1, phase = "boot"):
+    def __init__(self, file, line, error_type = "", message = "", asan_msg = "", count = 1, phase = "boot", module = ""):
         self.file = file
         self.line = line
         self.error_type = error_type
@@ -40,6 +40,9 @@ class AsanError:
         self.asan_msg = asan_msg
         # "boot" before the harness ran, "fuzz" after -- boot reports repeat every campaign
         self.phase = phase
+        # the loaded image the faulting address falls in; distinguishes a report raised
+        # inside the harness from one raised in the firmware under test
+        self.module = module
 
 
 def generate_includes(src):
@@ -948,11 +951,13 @@ def reproduce_crash(simics_dir, testcase=None):
 
 
 def save_crashes_to_file(crashes, output_dir=None):
-    crash_list = [['Phase', 'File', 'Line', 'Asan Msg', 'ErrorType', 'Message', 'Count']]
+    crash_list = [['Phase', 'Module', 'File', 'Line', 'Asan Msg', 'ErrorType', 'Message',
+                   'Count']]
     # fuzzing findings first, boot reports are a fixed baseline
     ordered = sorted(crashes.values(), key=lambda c: (c.phase != 'fuzz', c.file, c.line))
     for crash in ordered:
-        crash_list.append([crash.phase, crash.file, f'{crash.line}', crash.asan_msg,
+        crash_list.append([crash.phase, getattr(crash, 'module', ''), crash.file,
+                           f'{crash.line}', crash.asan_msg,
                            crash.error_type, crash.message, f'{crash.count}'])
     path = os.path.join(output_dir, 'crashes.csv') if output_dir else 'crashes.csv'
     # csv.writer, not ",".join: a sanitizer message contains commas of its own, and joining
@@ -977,11 +982,37 @@ def save_crashes_to_file(crashes, output_dir=None):
 # and
 #   [ASan] ERROR: Invalid memory access: address 0x..., size 0x60, is_write 0x1, ip 0x...
 #   bug_descr=unknown-crash in file: <path> at line: 0x3B
+# DXE announces every image it loads, so an address in a report can be attributed to the
+# module whose image contains it. That distinction matters more than it looks: the harness
+# links MdeModulePkg libraries of its own, and reports raised inside those name edk2 source
+# paths exactly like firmware ones do. PiDxeS3BootScriptLib was the whole of it -- 6 sites
+# reported by 84 of 142 protocols in matrix v7, dominating every solution count -- and the
+# faulting addresses all land inside Firness.efi, which links the library through its
+# generated dsc and never calls it. Nothing about the protocol under test.
+LOAD_LINE = re.compile(
+    r'Loading (?:driver|PEIM) at (0x[0-9A-Fa-f]+) EntryPoint=0x[0-9A-Fa-f]+\s+(\S+\.efi)')
+REPORT_IP = re.compile(r'(?:Return IP address is|\bip) (0x[0-9A-Fa-f]+)')
+HARNESS_IMAGE = 'Firness.efi'
+
+
+def module_for(modules, ip):
+    """The loaded image containing ip, or '' when the capture never showed a load."""
+    if not modules or ip is None:
+        return ''
+    found = ''
+    for base, name in modules:
+        if base <= ip:
+            found = name
+        else:
+            break
+    return found
+
+
 def collect_unique_crashes(log_file, output_dir=None):
     crashes = dict()
     phase = 'boot'
 
-    def record(path, line_text, asan_msg, error_type='', message=''):
+    def record(path, line_text, asan_msg, error_type='', message='', module=''):
         path = path.strip()
         if not path:
             return
@@ -995,16 +1026,35 @@ def collect_unique_crashes(log_file, output_dir=None):
         key = f'{phase}:{path}:{line_no}'
         existing = crashes.get(key)
         if existing is None:
-            crashes[key] = AsanError(path, line_no, error_type, message, asan_msg, 1, phase)
+            existing = AsanError(path, line_no, error_type, message, asan_msg, 1, phase)
+            crashes[key] = existing
         else:
             existing.count += 1
+        # uefi_asan prints the faulting address *after* the file and line, so the module
+        # cannot be resolved yet -- hold the entry until that line arrives. Reading the
+        # most recent address instead attributed every report to the previous one's module
+        pending.append(existing)
 
+    modules = []
+    pending = []
     with open(log_file, 'r', encoding='utf-8', errors='ignore') as handle:
         prev_line = ''
         for line in handle:
             # anything after DXE dispatches Firness.efi is attributable to an input
             if phase == 'boot' and 'EntryPoint=' in line and 'Firness.efi' in line:
                 phase = 'fuzz'
+
+            loaded = LOAD_LINE.search(line)
+            if loaded:
+                modules.append((int(loaded.group(1), 16), loaded.group(2)))
+                modules.sort()
+            seen_ip = REPORT_IP.search(line)
+            if seen_ip and pending:
+                owner = module_for(modules, int(seen_ip.group(1), 16))
+                for entry in pending:
+                    if owner and not entry.module:
+                        entry.module = owner
+                pending = []
 
             if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev_line:
                 parts = prev_line.split(',')
@@ -1043,6 +1093,20 @@ def collect_unique_crashes(log_file, output_dir=None):
     print(f'  boot baseline: {boot} report(s) at '
           f'{sum(1 for c in crashes.values() if c.phase == "boot")} site(s) -- not fuzzing findings')
     print(f'  fuzzing:       {fuzz} report(s) at {n_fuzz} site(s)')
+    # a report raised inside the harness image is about the harness, whatever edk2 source
+    # path it names, so keep it out of the firmware total rather than leaving it to be
+    # counted as a finding
+    harness = [c for c in crashes.values()
+               if c.phase == 'fuzz' and getattr(c, 'module', '') == HARNESS_IMAGE]
+    if harness:
+        print(f'    of which {sum(c.count for c in harness)} report(s) at '
+              f'{len(harness)} site(s) were raised inside {HARNESS_IMAGE} itself '
+              f'-- harness, not firmware')
+    unattributed = sum(1 for c in crashes.values()
+                       if c.phase == 'fuzz' and not getattr(c, 'module', ''))
+    if unattributed and not modules:
+        print(f'    ({unattributed} site(s) unattributed: the capture has no image loads, '
+              f'which is normal when restoring a checkpoint)')
     if len(crash_list) > 1:
         print(tabulate(crash_list, headers='firstrow', tablefmt='grid'))
     else:
