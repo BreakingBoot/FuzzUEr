@@ -66,3 +66,4 @@ __pycache__/
 # scratch output from local sweeps
 eval_source/verify/matrix_v8/
 eval_source/dimtest/
+eval_source/retriage_v7/
