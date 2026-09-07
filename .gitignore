@@ -2,11 +2,15 @@ asanbase/
 asanvariant/
 ckptstage/
 eval_source/_*/
+eval_source/absorbtest/
+eval_source/absorbtest2/
 eval_source/anacache/
 eval_source/anacache_new/
 eval_source/anafix/
 eval_source/anatime/
 eval_source/arpcheck/
+eval_source/asantest/
+eval_source/asantest2/
 eval_source/atacheck/
 eval_source/bcheck/
 eval_source/biotest/
@@ -32,8 +36,11 @@ eval_source/nocov/
 eval_source/pcdcheck/
 eval_source/prectest/
 eval_source/protocols/
+eval_source/prunecheck/
 eval_source/ptrtest/
 eval_source/qemutest/
+eval_source/restarttest/
+eval_source/restarttest_snap/
 eval_source/scsicheck/
 eval_source/seqtest/
 eval_source/shellcheck/

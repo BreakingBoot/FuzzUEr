@@ -8,6 +8,7 @@ import json
 import time
 import random
 import signal
+import glob
 import re
 import argparse
 from collections import defaultdict
@@ -596,18 +597,23 @@ def warn_if_firmware_is_stale(src):
 # save_initial_snapshot() append the first record to log.json. all three default to
 # "%simics%/..." which resolves to simics_dir, so their appearance means the harness
 # was reached. returns False on timeout or if simics exits early
-def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
+def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs,
+                           baseline_log_size=0):
     log_path = os.path.join(simics_dir, 'log.json')
     corpus_dir = os.path.join(simics_dir, 'corpus')
     solutions_dir = os.path.join(simics_dir, 'solutions')
     start = time.time()
     while time.time() - start < deadline_s:
-        if process.poll() is not None:
-            print(f'\nError: simics exited (status {process.returncode}) before the harness '
-                  f'was reached. See {simics_dir}/fuzz.txt for how far the boot got.')
-            return False
+        # read the exit status first, then the evidence: a segment can reach the harness
+        # and die again inside one poll interval -- restoring a checkpoint puts the
+        # harness within 8s, and a run that stops on an unmapped address can be over in
+        # under a second. Checking poll() first reported those as never having started
+        # and threw the segment away.
+        exited = process.poll() is not None
         try:
-            log_started = os.path.getsize(log_path) > 0
+            # on a restart log.json already holds the previous segment's records, so
+            # "not empty" would report the harness reached before the boot even began
+            log_started = os.path.getsize(log_path) > baseline_log_size
         except OSError:
             log_started = False
         fresh_dir = any(os.path.isdir(d) and d not in stale_dirs
@@ -615,6 +621,10 @@ def wait_for_fuzzing_start(simics_dir, process, deadline_s, stale_dirs):
         if log_started or fresh_dir:
             print(f'\n++++ Harness reached after {int(time.time() - start)}s of boot ++++')
             return True
+        if exited:
+            print(f'\nError: simics exited (status {process.returncode}) before the harness '
+                  f'was reached. See {simics_dir}/fuzz.txt for how far the boot got.')
+            return False
         print(f'Booting to the harness: {int(time.time() - start)}s ', end='\r')
         time.sleep(2)
     print(f'\nError: the harness was never reached within {deadline_s}s, so ZERO fuzzing '
@@ -733,8 +743,56 @@ def set_iteration_timeout(simics_dir, seconds):
         print(f'Set the per-iteration timeout to {seconds}s of simulated time')
 
 
+# Simics halts the whole run on conditions TSFFS cannot score. The common one is a wild
+# pointer read of an address that is not mapped in the physical memory space:
+#
+#   [qsp.mb.cpu0.mem[0][0] error] Access (read of 8 bytes) at 0x7910000000 where nothing
+#   is mapped.
+#   [tsffs info] Simulation stopped without reason, not resuming.
+#
+# TSFFS scores CPU exceptions 6/12/13/14; an unmapped *physical* access is a simulator
+# error, not an exception, so the simulation stops and the script is interrupted -- with
+# status 0, which is why this looked like a clean finish. The budget is then forfeit, and
+# it is forfeit precisely on the campaigns that are finding things: across matrix v7 the
+# protocols that produced solutions averaged 540 iterations while those that produced none
+# averaged 3373. Relaunching spends the rest of the budget; corpus/ persists, so the
+# restarted segment resumes from the coverage the previous one had evolved rather than
+# from random inputs.
+MIN_SEGMENT_TO_RESTART = 30
+
+
+# one campaign can span several simics runs; keep each run's log.json and serial capture
+# under a .segN suffix so nothing is overwritten by the next launch
+def rotate_segment(simics_dir, index):
+    for name in ('log.json', 'fuzz.txt'):
+        path = os.path.join(simics_dir, name)
+        if os.path.isfile(path):
+            os.replace(path, f'{path}.seg{index}')
+    open(os.path.join(simics_dir, 'log.json'), 'w').close()
+
+
+# log.json is JSONL and fuzz.txt is plain text, so both concatenate in segment order
+def join_segments(simics_dir):
+    for name in ('log.json', 'fuzz.txt'):
+        path = os.path.join(simics_dir, name)
+        parts = sorted(glob.glob(f'{path}.seg*'),
+                       key=lambda p: int(p.rsplit('seg', 1)[1]))
+        if not parts:
+            continue
+        tail = b''
+        if os.path.isfile(path):
+            with open(path, 'rb') as handle:
+                tail = handle.read()
+        with open(path, 'wb') as out:
+            for part in parts:
+                with open(part, 'rb') as handle:
+                    out.write(handle.read())
+                os.remove(part)
+            out.write(tail)
+
+
 def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_timeout=None,
-               seed_dir=None, use_snapshot=False):
+               seed_dir=None, use_snapshot=False, max_restarts=None):
     global fuzzer_process
     set_iteration_timeout(simics_dir, iteration_timeout)
     seed_corpus(simics_dir, seed_dir)
@@ -748,40 +806,93 @@ def run_fuzzer(simics_dir, timeout, output_dir, boot_timeout=2700, iteration_tim
 
     signal.signal(signal.SIGINT, generate_report2)
     warn_if_firmware_is_stale(os.path.join(os.getcwd(), 'tmp'))
-    # spawn the fuzzer in a subprocess
-    cmd = f'./simics -no-win -no-gui {fuzzing_script(simics_dir, use_snapshot)}'
-    fuzzer_process  = subprocess.Popen(cmd, cwd=simics_dir, shell=True, executable='/bin/bash')
+
+    if timeout is None:
+        timeout = 86400
 
     # -t is a fuzzing budget, not a budget for the whole simics run. the instrumented
     # firmware has to boot, walk the boot menu, start the shell and pull Firness.efi
     # over the agent first; charging that to -t is why short runs reported no iterations
     print(f'Waiting up to {boot_timeout}s for the boot to reach the harness; the '
-          f'{timeout if timeout is not None else 86400}s fuzzing budget starts after that.')
-    started = wait_for_fuzzing_start(simics_dir, fuzzer_process, boot_timeout, stale_dirs)
+          f'{timeout}s fuzzing budget starts after that.')
 
-    if timeout is None:
-        timeout = 86400
-    execution_time = 0
-    exited_early = False
-    while started and execution_time < timeout:
-        # simics exiting means the budget cannot be spent, and sleeping out the rest only
-        # holds the slot: a run that fuzzed for seconds was still occupying a worker for
-        # the full budget
-        if fuzzer_process.poll() is not None:
-            exited_early = True
-            print(f'\nFuzzer exited after {execution_time}s of its {timeout}s budget '
-                  f'(rc={fuzzer_process.returncode}); see {simics_dir}/fuzz.txt')
+    fuzzed = 0
+    attempt = 0
+    started_ever = False
+    while True:
+        baseline_log_size = os.path.getsize(log_path) if os.path.isfile(log_path) else 0
+        # corpus/ and solutions/ survive a restart, so only a growing log.json can mark
+        # the second and later segments as having reached the harness
+        stale = stale_dirs if attempt == 0 else {corpus_dir, solutions_dir}
+
+        script = fuzzing_script(simics_dir, use_snapshot)
+        # restoring the checkpoint takes ~12s where booting takes ~490s, which is what
+        # decides whether relaunching after a short segment is worth it at all
+        cheap_restart = script == 'fuzz_snapshot.simics'
+        if max_restarts is None:
+            max_restarts = 20 if cheap_restart else 3
+        cmd = f'./simics -no-win -no-gui {script}'
+        fuzzer_process = subprocess.Popen(cmd, cwd=simics_dir, shell=True,
+                                          executable='/bin/bash')
+        started = wait_for_fuzzing_start(simics_dir, fuzzer_process, boot_timeout, stale,
+                                         baseline_log_size)
+        if not started:
             break
-        hours, rem = divmod(execution_time, 3600)
-        minutes, seconds = divmod(rem, 60)
-        formatted_time = f'{int(hours)}hrs {int(minutes)}mins {int(seconds)}secs'
-        print(f'Fuzzing time: {formatted_time}', end="\r")
-        time.sleep(1)
-        execution_time += 1
+        started_ever = True
 
-    if started and not exited_early:
-        print(f'\nFuzzed for the full {timeout}s budget')
+        segment = 0
+        exited_early = False
+        while fuzzed < timeout:
+            if fuzzer_process.poll() is not None:
+                exited_early = True
+                print(f'\nFuzzer exited after {fuzzed}s of its {timeout}s budget '
+                      f'(rc={fuzzer_process.returncode}); see {simics_dir}/fuzz.txt')
+                break
+            hours, rem = divmod(fuzzed, 3600)
+            minutes, seconds = divmod(rem, 60)
+            formatted_time = f'{int(hours)}hrs {int(minutes)}mins {int(seconds)}secs'
+            print(f'Fuzzing time: {formatted_time}', end="\r")
+            time.sleep(1)
+            fuzzed += 1
+            segment += 1
 
+        if not exited_early:
+            print(f'\nFuzzed for the full {timeout}s budget')
+            break
+
+        fuzzer_process.kill()
+        fuzzer_process.wait()
+
+        remaining = timeout - fuzzed
+        if attempt >= max_restarts:
+            print(f'   not restarting: already restarted {attempt} time(s); '
+                  f'{remaining}s of budget unspent')
+            break
+        if remaining < MIN_SEGMENT_TO_RESTART:
+            print(f'   not restarting: only {remaining}s of budget left')
+            break
+        if segment < MIN_SEGMENT_TO_RESTART and not cheap_restart:
+            # a segment that died almost immediately will most likely die again the same
+            # way, and without a checkpoint each restart costs a ~490s boot -- do not
+            # spend that on a segment that lasted seconds. With --snapshot the restart is
+            # ~12s, so it is worth taking even then: EfiHiiString dies after 12-24s every
+            # time and would otherwise forfeit its whole budget while producing more
+            # solutions per iteration than almost any other protocol.
+            print(f'   not restarting: the segment only lasted {segment}s and a restart '
+                  f'would cost a full boot; use --snapshot to make restarts cheap')
+            break
+        # fuzz.simics starts the serial capture with -overwrite and tsffs reopens
+        # log.json, so a relaunch would drop everything the previous segment recorded --
+        # including its asan reports, which is what the crash triage reads. Rotate both
+        # aside and stitch them back together once the budget is spent.
+        rotate_segment(simics_dir, attempt)
+        attempt += 1
+        print(f'   restarting to spend the remaining {remaining}s '
+              f'(restart {attempt} of {max_restarts}); the corpus so far is kept')
+
+    if attempt:
+        join_segments(simics_dir)
+    started = started_ever
     fuzzer_process.kill()
     fuzzer_process.wait()
     os.system(f'cp {simics_dir}/log.json {output_dir}')
@@ -1132,6 +1243,12 @@ def main():
     parser.add_argument('--iteration-timeout', type=float, default=None,
                         help='Simulated seconds allowed per fuzzing iteration before it '
                              'counts as a timeout (default: whatever fuzz.simics sets)')
+    parser.add_argument('--max-restarts', type=int, default=None,
+                        help='How many times to relaunch simics when it stops before the '
+                             'fuzzing budget is spent -- an unmapped-address access halts '
+                             'the simulation with status 0 and forfeits the rest of the '
+                             'budget. The corpus is kept across restarts. 0 disables '
+                             '(default: 20 when restoring a checkpoint, else 3)')
     parser.add_argument('--boot-timeout', type=int, default=2700,
                         help='Seconds to wait for the instrumented firmware to boot and reach '
                              'HARNESS_START before giving up (default: 2700)')
@@ -1247,7 +1364,7 @@ def main():
         fuzzing_dir = simics_dir
         fuzz_started = run_fuzzer(simics_dir, args.timeout, output, args.boot_timeout,
                                   args.iteration_timeout, args.seed_corpus,
-                                  args.snapshot)
+                                  args.snapshot, args.max_restarts)
         generate_report(simics_dir, output)
         if not fuzz_started:
             print('Warning: ZERO fuzzing iterations ran, so coverage.csv is empty and every '
