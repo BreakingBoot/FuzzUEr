@@ -713,6 +713,22 @@ def make_snapshot(simics_dir):
         if fingerprint:
             with open(os.path.join(simics_dir, 'booted.ckpt.firmware'), 'w') as handle:
                 handle.write(fingerprint)
+        # Restoring the checkpoint skips the boot, so a campaign started from it captures
+        # no boot phase at all -- and collect_unique_crashes subtracts boot repeats by
+        # comparing a run's fuzz reports against its OWN boot reports. Under --snapshot that
+        # set is empty, so firmware doing what it always does gets counted as a finding:
+        # matrix v11 reported 135 HiiDatabaseDxe/Database.c pointer-overflows that matrix v8
+        # correctly discounted. The boot that writes the checkpoint is the one boot this
+        # firmware will ever do here, so record its report sites alongside it.
+        capture = os.path.join(simics_dir, 'snapshot.txt')
+        sites = boot_report_sites(capture)
+        if sites:
+            with open(os.path.join(simics_dir, 'booted.ckpt.baseline'), 'w') as handle:
+                handle.write('\n'.join(f'{f}:{l}' for f, l in sorted(sites)))
+            print(f'  recorded {len(sites)} boot report site(s) as the baseline')
+        else:
+            print('  warning: no boot reports found in the capture, so snapshot-restored '
+                  'campaigns will have no boot baseline to subtract')
         print(f'++++ Checkpoint written to {checkpoint} (firmware {fingerprint[:8]}) ++++')
         return 0
     print('Error: the checkpoint was not written; see snapshot.txt')
@@ -1025,6 +1041,35 @@ def module_for(modules, ip):
     return found
 
 
+def boot_report_sites(capture):
+    """The (file, line) pairs a boot of this firmware reports on its own.
+
+    Same two report shapes collect_unique_crashes parses, but phase-blind: everything in a
+    boot capture is by definition boot behaviour.
+    """
+    sites = set()
+    if not os.path.isfile(capture):
+        return sites
+    with open(capture, 'r', encoding='utf-8', errors='ignore') as handle:
+        prev = ''
+        for line in handle:
+            if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev:
+                parts = prev.split(',')
+                if len(parts) > 1 and ':' in parts[1]:
+                    try:
+                        sites.add((parts[0].strip(), int(parts[1].split(':', 1)[1].strip(), 16)))
+                    except ValueError:
+                        pass
+            elif line.startswith('bug_descr=') and ' in file: ' in line and ' at line: ' in line:
+                path, _, num = line.split(' in file: ', 1)[1].partition(' at line: ')
+                try:
+                    sites.add((path.strip(), int(num.strip(), 16)))
+                except ValueError:
+                    pass
+            prev = line
+    return sites
+
+
 def collect_unique_crashes(log_file, output_dir=None):
     crashes = dict()
     phase = 'boot'
@@ -1120,6 +1165,19 @@ def collect_unique_crashes(log_file, output_dir=None):
               f'{len(harness)} site(s) were raised inside {HARNESS_MODULE} itself '
               f'-- harness, not firmware')
     at_boot = {(c.file, c.line) for c in crashes.values() if c.phase == 'boot'}
+    # a snapshot-restored run skips the boot, so it has no boot phase of its own to compare
+    # against; fall back to the baseline recorded when the checkpoint was written
+    if not at_boot:
+        recorded = os.path.join(os.path.dirname(os.path.abspath(log_file)),
+                                'booted.ckpt.baseline')
+        if os.path.isfile(recorded):
+            for entry in open(recorded):
+                path, _, num = entry.strip().rpartition(':')
+                if path and num.isdigit():
+                    at_boot.add((path, int(num)))
+            if at_boot:
+                print(f'  (no boot in this run; using the {len(at_boot)} site baseline '
+                      f'recorded with the checkpoint)')
     repeats = [c for c in crashes.values()
                if c.phase == 'fuzz' and (c.file, c.line) in at_boot]
     if repeats:
