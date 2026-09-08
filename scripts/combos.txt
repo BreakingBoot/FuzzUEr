@@ -1,0 +1,14 @@
+# Multi-protocol fuzzing targets, as arguments to scripts/make_combo.py.
+#
+# eval_source is generated, so the request files and merged caches these produce are not
+# in the tree; this is the record of what to rebuild. A combination earns its place by
+# carrying an object across the seam: one protocol produces something another needs and
+# cannot make for itself, which is what scripts/suggest_combos.py looks for.
+#
+# name          protocols
+HiiStack        EfiHiiDatabase EfiHiiString EfiHiiFont
+HiiConfig       EfiHiiConfigRouting EfiHiiConfigAccess EfiHiiDatabase
+TcpStack        EfiTcp4 EfiTcp6
+ShellPaths      EfiShell EfiDevicePathUtilities
+NetBoot         EfiPxeBaseCode EfiSimpleNetwork EfiManagedNetwork
+PciBinding      EfiDriverBinding EfiPciHostBridgeResourceAllocation
