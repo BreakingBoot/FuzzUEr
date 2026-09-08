@@ -612,7 +612,9 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
             process.wait()
     # LibAFL forks a broker and clients; killing the parent leaves them holding the
     # snapshot, and the next run then fails to bind the broker port
-    subprocess.run(['pkill', '-f', os.path.basename(QEMU_FUZZER)],
+    # -x, not -f: -f matches whole command lines, and any wrapper script that mentions
+    # the fuzzer's path -- including the one that launched this -- is then a match
+    subprocess.run(['pkill', '-x', os.path.basename(QEMU_FUZZER)],
                    capture_output=True, text=True)
     # and they still hold the log's file descriptor at their own offset, so anything
     # written here before they die is overwritten by their parting message rather than
