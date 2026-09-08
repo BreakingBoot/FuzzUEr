@@ -1521,10 +1521,14 @@ def main():
         # it under tsffs, whose harness instructions it no longer contains: the run would
         # sit through the whole boot and never start fuzzing, with nothing saying why.
         if args.backend != 'tsffs':
+            runner = ('scripts/qemu_fuzz.sh' if args.backend == 'qemu' else None)
             print(f'Error: --backend {args.backend} builds the harness for that fuzzer, but '
-                  f'only the tsffs/simics runner is implemented here. Generate with '
-                  f'--backend {args.backend} (-g) and run the harness under that fuzzer '
-                  f'yourself, or drop --backend to fuzz with tsffs.')
+                  f'run_fuzzer here always launches fuzz.simics. Generate with '
+                  f'--backend {args.backend} (-g) and run the harness under that fuzzer.'
+                  + (f'\n  For qemu that is {runner} {HARNESS_IMAGE} -- it boots OVMF, '
+                     f'serves the harness as BOOTX64.EFI and drives the LibAFL-QEMU host '
+                     f'in Harness/qemu_fuzzer. scripts/qemu_smoke.sh is the quick check '
+                     f'that the harness reaches HARNESS_START.' if runner else ''))
             return 1
         if not os.path.isfile(FIRMWARE_IMAGE):
             print(f'Error: {FIRMWARE_IMAGE} is missing -- run the analysis stage '
