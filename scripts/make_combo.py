@@ -17,10 +17,11 @@ def main():
     parser.add_argument('protocols', nargs='+', help='Protocols to combine')
     parser.add_argument('-r', '--repo', default=os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))))
+    parser.add_argument('-c', '--cache', help='Analysis cache to merge from and write to')
     args = parser.parse_args()
 
     evalset = os.path.join(args.repo, 'eval_source', 'evalset')
-    anacache = os.path.join(args.repo, 'eval_source', 'anacache')
+    anacache = args.cache or os.path.join(args.repo, 'eval_source', 'anacache')
 
     missing = [p for p in args.protocols
                if not os.path.isfile(os.path.join(evalset, f'{p}.txt'))

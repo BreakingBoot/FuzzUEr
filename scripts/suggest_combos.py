@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import argparse
+import csv
 import itertools
 
 
@@ -16,31 +17,79 @@ GENERIC = {'UINT8', 'UINT16', 'UINT32', 'UINT64', 'UINTN', 'INT8', 'INT16', 'INT
            'INT64', 'INTN', 'BOOLEAN', 'CHAR8', 'CHAR16', 'VOID', 'EFI_STATUS'}
 
 
-def io_types(cache, protocol):
-    produced, consumed = set(), set()
-    path = os.path.join(cache, protocol, 'call-database.json')
+def load_json(cache, protocol, name):
     try:
-        with open(path) as handle:
-            data = json.load(handle) or []
+        with open(os.path.join(cache, protocol, name)) as handle:
+            return json.load(handle) or {}
     except (OSError, ValueError):
-        return produced, consumed
-    for record in data:
-        if not isinstance(record, dict):
-            continue
-        for argument in (record.get('Arguments') or {}).values():
+        return {}
+
+
+def is_handle_typedef(arg_type, aliases):
+    """An opaque handle: a typedef to a pointer, spelled without a star.
+
+    Mirrors the generator. EFI_HII_HANDLE is "void *" underneath and carries an object;
+    TPM_HANDLE resolves to UINT32 and is a value, so the alias chain is what tells them
+    apart. Threading these is what lets a sequence cross from one protocol to another.
+    """
+    name = arg_type.replace('*', '').strip()
+    if '*' in arg_type or not name:
+        return False
+    for _ in range(8):
+        resolved = aliases.get(name)
+        if resolved is None:
+            return False
+        if '*' in resolved:
+            return True
+        name = resolved.replace('*', '').strip()
+    return False
+
+
+def io_types(cache, protocol):
+    """Types this protocol hands out and types it takes in, as the generator sees them.
+
+    The generator threads a value when one call declares it OUT and another declares it
+    IN under the same declared type, so predicting a useful combination means applying the
+    same rule: a two pointer argument is declared one level shallower, and an OUT handle
+    arrives through a one element buffer whose contents are the object.
+    """
+    produced, consumed = set(), set()
+    aliases = load_json(cache, protocol, 'aliases.json')
+    # declarations as well as call sites: firness records a call site only where the tree
+    # calls the member, but the generator harnesses every declared member, so a protocol
+    # judged on call sites alone looks emptier than the harness it produces. EfiHiiFont
+    # has one called member and six declared ones, and the handle flow is in the other five
+    records = []
+    for source, key in (('call-database.json', 'Arguments'),
+                        ('functions.json', 'Parameters')):
+        block = load_json(cache, protocol, source)
+        if isinstance(block, list):
+            records.extend((record, key) for record in block if isinstance(record, dict))
+    for record, key in records:
+        for argument in (record.get(key) or {}).values():
             if not isinstance(argument, dict):
                 continue
             arg_type = (argument.get('arg_type') or '').replace('const ', '').strip()
             base = arg_type.replace('*', '').strip().upper()
-            if '*' not in arg_type or base in GENERIC:
+            if base in GENERIC:
                 continue
             if (argument.get('variable') or '') in ('__PROTOCOL__', '__HANDLE__'):
                 continue
             direction = argument.get('arg_dir') or ''
-            if 'OUT' in direction:
-                produced.add(arg_type)
-            if 'IN' in direction:
-                consumed.add(arg_type)
+            stars = arg_type.count('*')
+            if stars:
+                declared = arg_type[:arg_type.rfind('*')].strip() if stars == 2 else arg_type
+                if 'OUT' in direction:
+                    produced.add(declared)
+                if 'IN' in direction:
+                    consumed.add(declared)
+            handle = arg_type[:arg_type.rfind('*')].strip() if stars == 1 else arg_type
+            if not is_handle_typedef(handle, aliases):
+                continue
+            if 'OUT' in direction and stars == 1:
+                produced.add(handle)
+            if 'IN' in direction and stars == 0:
+                consumed.add(handle)
     return produced, consumed
 
 
@@ -51,11 +100,22 @@ def main():
     parser.add_argument('-n', '--top', type=int, default=10)
     parser.add_argument('--skip', nargs='*', default=[],
                         help='Targets to leave out, such as combinations already built')
+    parser.add_argument('--presence', help='presence csv, to only suggest protocols the '
+                                           'firmware actually installs')
     args = parser.parse_args()
 
     protocols = [p for p in sorted(os.listdir(args.cache))
                  if p not in args.skip
                  and os.path.isfile(os.path.join(args.cache, p, 'call-database.json'))]
+    # a combination of protocols the firmware never installs is a harness that only ever
+    # reports "not found": 65 of the 142 are in that state, and pairing two of them is
+    # two startup traces, not a sequence
+    if args.presence:
+        with open(args.presence) as handle:
+            installed = {row['protocol'] for row in csv.DictReader(handle)
+                         if row.get('status') == 'present'}
+        protocols = [p for p in protocols if p in installed]
+        print(f'{len(protocols)} installed protocol(s) from {args.presence}')
     io = {p: io_types(args.cache, p) for p in protocols}
     io = {p: v for p, v in io.items() if v[0] or v[1]}
     print(f'{len(io)} protocol(s) with domain-specific pointer arguments')
