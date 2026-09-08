@@ -98,3 +98,7 @@ eval_source/verify/matrix_v12/
 eval_source/retriage_v12/
 eval_source/dfcheck/
 eval_source/dfcheck2/
+eval_source/smicache/
+eval_source/smigen/
+eval_source/smigen2/
+eval_source/smigen3/

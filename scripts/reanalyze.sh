@@ -12,6 +12,10 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 JOBS=${1:-16}
 IMAGE=${2:-fuzzuer-analyzer:latest}
 OUT=${3:-$ROOT/eval_source/anacache_new}
+# The smi pass is opt-in: FCPConsumer only runs SmiFunctionVisitor when -smi is given, so
+# without it smi-function-guid-map.json comes out as {} and no smi harness can be built.
+# It costs nothing when there is nothing to find.
+SMI=${4:--smi}
 rm -rf "$OUT"; mkdir -p "$OUT"
 
 mapfile -t ALL < <(ls "$ROOT/eval_source/evalset"/*.txt | xargs -n1 basename | sed 's/\.txt$//')
@@ -25,7 +29,7 @@ for ((i = 0; i < JOBS; i++)); do
     -v "$ROOT/eval_source:/input:ro" -v "$OUT:/out" "$IMAGE" bash -c "
     for p in $slice; do
       cd /workspace && rm -rf firness_output && mkdir -p firness_output
-      timeout 3000 firness -p /workspace/tmp -o /workspace/firness_output \
+      timeout 3000 firness -p /workspace/tmp -o /workspace/firness_output $SMI \
         -i /input/evalset/\$p.txt dummyfile > /tmp/\$p.log 2>&1
       rc=\$?
       mkdir -p /out/\$p
