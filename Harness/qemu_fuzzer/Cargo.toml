@@ -1,0 +1,32 @@
+[package]
+name = "firness_qemu"
+version = "0.1.0"
+edition = "2021"
+description = "LibAFL-QEMU host for a generated Firness UEFI harness"
+
+# The guest half of this is FirnessBackend.h's FIRNESS_BACKEND_LIBAFL_QEMU arm, which
+# emits the four bytes 0f 3a f2 66 for HARNESS_START and HARNESS_STOP. libafl_qemu's
+# command system decodes exactly that instruction, so the "custom_insn" style of the
+# upstream qemu_baremetal example is the one that matches, with no breakpoints to place.
+#
+# The version is pinned deliberately: libafl_qemu_build clones qemu-libafl-bridge at a
+# revision written into the crate, and the Rust bindings are generated from that tree's
+# headers. A different bridge checkout compiles and then disagrees about struct layout.
+[dependencies]
+libafl = "=0.16.1"
+libafl_bolts = "=0.16.1"
+libafl_targets = "=0.16.1"
+libafl_qemu = { version = "=0.16.1", default-features = false, features = [
+  "systemmode",
+  "x86_64",
+] }
+env_logger = "0.11"
+
+[build-dependencies]
+libafl_qemu_build = "=0.16.1"
+
+[profile.release]
+incremental = true
+debug = true
+lto = "fat"
+codegen-units = 1
