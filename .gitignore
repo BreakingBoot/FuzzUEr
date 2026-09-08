@@ -85,3 +85,7 @@ eval_source/memcheck/
 eval_source/memcheck2/
 eval_source/quarcheck/
 eval_source/quarcheck2/
+eval_source/optcheck2/
+eval_source/retriage_opt/
+eval_source/nulltest/
+eval_source/nullcheck/

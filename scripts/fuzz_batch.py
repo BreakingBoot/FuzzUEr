@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 import json
@@ -143,6 +144,10 @@ def main():
                         help='Directory to hold one subdirectory per protocol')
     parser.add_argument('-p', '--protocols', type=str, nargs='*',
                         help='Protocols to run (default: every request file that has a harness)')
+    parser.add_argument('--presence', type=str, default=None,
+                        help='A csv from scripts/protocol_presence.py. Protocols this '
+                             'firmware does not install are skipped, with the reason '
+                             'recorded in <output>/skipped.csv')
     parser.add_argument('-j', '--jobs', type=int, default=6,
                         help='How many protocols to fuzz at once')
     parser.add_argument('-t', '--budget', type=int, default=600,
@@ -181,6 +186,37 @@ def main():
     else:
         requests = os.path.join(args.repo, 'eval_source', 'evalset')
         todo = sorted(f[:-4] for f in os.listdir(requests) if f.endswith('.txt'))
+
+    # A protocol the firmware never installs cannot be fuzzed: the harness's opening
+    # LocateProtocol fails and every Fuzz* function returns at once, but the campaign still
+    # pays a full boot and its whole budget. On matrix v8 that was 65 of 142 protocols --
+    # 46% of the run producing nothing but harness startup coverage. Skip them by name and
+    # record why, rather than silently dropping them.
+    if args.presence:
+        status = {}
+        try:
+            with open(args.presence, newline='') as handle:
+                for row in csv.DictReader(handle):
+                    status[row['protocol']] = row['status']
+        except OSError as exc:
+            print(f'Error: cannot read {args.presence}: {exc}')
+            return 1
+        stale = [p for p in todo if p not in status]
+        absent = [p for p in todo if status.get(p) == 'absent']
+        todo = [p for p in todo if status.get(p) != 'absent']
+        if absent:
+            print(f'Skipping {len(absent)} protocol(s) this firmware does not install: '
+                  f'{", ".join(absent[:6])}{"..." if len(absent) > 6 else ""}')
+            os.makedirs(args.output, exist_ok=True)
+            with open(os.path.join(args.output, 'skipped.csv'), 'w', newline='') as handle:
+                writer = csv.writer(handle)
+                writer.writerow(['protocol', 'reason'])
+                for name in absent:
+                    writer.writerow([name, 'protocol not installed by this firmware'])
+        if stale:
+            # a census taken against different firmware would silently mis-skip
+            print(f'Warning: {len(stale)} protocol(s) are absent from the census '
+                  f'({", ".join(stale[:4])}...); running them rather than guessing')
 
     wanted = []
     if args.iteration_timeout:
