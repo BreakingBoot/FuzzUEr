@@ -63,6 +63,13 @@ def build(name, protocols, evalset, anacache, repo):
     print(f'  {request}: {len(lines) - 1} member(s)')
 
     destination = os.path.join(anacache, name)
+    # A cache written by a container is owned by root, so rebuilding a combination that
+    # already exists fails inside merge_cache.py with a bare PermissionError traceback.
+    # Say which directory and why, and leave the existing cache alone: it is still valid,
+    # because the merge is deterministic from the same component caches.
+    if os.path.isdir(destination) and not os.access(destination, os.W_OK):
+        print(f'  {destination}: not writable, keeping the cache already there')
+        return 0
     merge = os.path.join(repo, 'scripts', 'merge_cache.py')
     result = subprocess.run([sys.executable, merge, '-c', anacache, '-o', destination]
                             + protocols, capture_output=True, text=True)

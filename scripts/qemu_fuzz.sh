@@ -42,5 +42,20 @@ timeout "$SECONDS_TO_RUN" "$FUZZER" 2>&1 | tee "$WORK/run.txt" | grep -aE 'Heart
 
 echo
 echo "--- result ---"
-grep -a 'CLIENT' "$WORK/run.txt" | tail -1 || echo "no heartbeat: the harness never reached HARNESS_START"
-echo "solutions: $(ls -1 "$WORK/crashes" 2>/dev/null | wc -l)"
+last=$(grep -a 'CLIENT' "$WORK/run.txt" | tail -1)
+if [ -z "$last" ]; then
+    echo "no heartbeat: the harness never reached HARNESS_START"
+    echo "  serial log: $FIRNESS_SERIAL"
+    exit 1
+fi
+echo "$last"
+
+# The fuzzer's own objectives counter, not a file count: LibAFL's OnDiskCorpus writes a
+# lock file and a .metadata file beside each solution, and flushes the corpus into this
+# directory at shutdown, so "how many files are here" reports solutions that did not
+# happen. Take the number from the last heartbeat instead.
+objectives=$(printf '%s' "$last" | sed -n 's/.*objectives: \([0-9]*\).*/\1/p')
+echo "objectives: ${objectives:-unknown}"
+if [ "${objectives:-0}" -gt 0 ] 2>/dev/null; then
+    echo "  inputs in $WORK/crashes (ignore the dot files, they are LibAFL's own)"
+fi
