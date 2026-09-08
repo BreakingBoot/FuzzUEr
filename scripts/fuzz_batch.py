@@ -84,6 +84,8 @@ def launch(protocol, args):
         f'-i /input/evalset/{protocol}.txt -g -f '
         f'-t {args.budget} --boot-timeout {args.boot_timeout}'
     )
+    if args.smi:
+        command += ' --smi'
     if args.backend != 'tsffs':
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
@@ -175,6 +177,11 @@ def main():
                         help='Per-container cpu limit, e.g. 2 -- leaves the box usable by others')
     parser.add_argument('--backend', type=str, default='tsffs',
                         choices=['tsffs', 'qemu', 'nyx', 'none'])
+    parser.add_argument('--smi', action='store_true',
+                        help='Fuzz SMI handlers rather than protocols. The request file '
+                             'lists handler names and the cache must hold a '
+                             'smi-function-guid-map.json, so these are separate targets '
+                             'from the protocol ones, not a mode on top of them.')
     parser.add_argument('--max-load', type=float, default=0.0,
                         help='Wait rather than launch while the 1 minute load is above this')
     parser.add_argument('--dry-run', action='store_true',

@@ -190,6 +190,8 @@ def main():
     parser.add_argument('--backend', type=str, default='tsffs',
                         choices=['tsffs', 'qemu', 'nyx', 'none'],
                         help='Fuzzer the harness is built against')
+    parser.add_argument('--smi', action='store_true',
+                        help='Generate SMI handler harnesses rather than protocol ones')
     args = parser.parse_args()
     global GENERATOR, COMPILER, HELPERS
     if args.generator:
@@ -215,7 +217,7 @@ def main():
         shutil.rmtree(out_dir, ignore_errors=True)
         os.makedirs(out_dir, exist_ok=True)
         rc, log = run_generator(cache_dir, input_file, args.edk2, out_dir,
-                                backend=args.backend)
+                                smi=args.smi, backend=args.backend)
         harness = os.path.join(out_dir, 'Firness')
         # the generator reporting that nothing matched the request is a clean outcome, not
         # a failure: the protocol is simply not exercised anywhere in this firmware image
