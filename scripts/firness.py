@@ -548,6 +548,109 @@ def compile_firmware(src):
     return log
 
 
+# Fuzz the built harness under LibAFL-QEMU instead of Simics.
+#
+# The two backends share everything downstream of this function: LibAFL's heartbeat line
+# has the same "run time: .., corpus: .., objectives: .., executions: .., exec/sec: .."
+# shape that tsffs writes, so coverage_matrix.py parses either without knowing which ran.
+# What it cannot get from that line is the absolute edge count -- LibAFL prints the
+# percentage in the GLOBAL line and the count only in the CLIENT one -- so the count is
+# lifted out here and written as the Heartbeat record the reporting already understands.
+QEMU_FUZZER = os.environ.get(
+    'FIRNESS_QEMU_FUZZER',
+    '/workspace/qemu_fuzzer/target/release/firness_qemu')
+QEMU_ESP_TOOL = os.environ.get('FIRNESS_MAKE_ESP', '/workspace/scripts/make_esp.sh')
+
+
+def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
+    if not os.path.isfile(QEMU_FUZZER) or not os.access(QEMU_FUZZER, os.X_OK):
+        print(f'Error: no LibAFL-QEMU fuzzer at {QEMU_FUZZER}. Build it with '
+              f'"cargo build --release" in Harness/qemu_fuzzer, or point '
+              f'FIRNESS_QEMU_FUZZER at it.')
+        return False
+    if not os.path.isfile(QEMU_ESP_TOOL):
+        print(f'Error: no {QEMU_ESP_TOOL} to build the ESP with.')
+        return False
+
+    work = os.path.join(output, 'qemu')
+    corpus = seed_corpus or os.path.join(work, 'corpus')
+    os.makedirs(corpus, exist_ok=True)
+    os.makedirs(os.path.join(work, 'crashes'), exist_ok=True)
+    esp = os.path.join(work, 'esp.qcow2')
+    build = subprocess.run(['bash', QEMU_ESP_TOOL, harness, esp, '64'],
+                           capture_output=True, text=True)
+    if build.returncode != 0:
+        print(f'Error: could not build the ESP: {build.stdout}{build.stderr}')
+        return False
+    # an empty corpus makes LibAFL exit with "No entries in corpus", which reads as a
+    # broken target rather than a missing seed
+    if not os.listdir(corpus):
+        with open(os.path.join(corpus, 'seed'), 'wb') as handle:
+            handle.write(os.urandom(64))
+
+    environment = dict(os.environ)
+    environment.update({
+        'FIRNESS_ESP': esp,
+        'FIRNESS_CORPUS': corpus,
+        'FIRNESS_CRASHES': os.path.join(work, 'crashes'),
+        'FIRNESS_SERIAL': os.path.join(output, 'fuzz.txt'),
+    })
+    log_path = os.path.join(output, 'log.json')
+    # the fuzzer gets a file of its own rather than log.json. LibAFL forks a broker and
+    # clients that inherit the descriptor, and they keep writing at their own offsets
+    # while they are being killed, so anything composed into a shared log.json is
+    # overwritten by their parting messages
+    raw_path = os.path.join(work, 'run.txt')
+    print(f'++++ Fuzzing under LibAFL-QEMU for {timeout}s ++++')
+    with open(raw_path, 'w') as log:
+        process = subprocess.Popen([QEMU_FUZZER], stdout=log, stderr=subprocess.STDOUT,
+                                   env=environment, cwd=work)
+        try:
+            process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+    # LibAFL forks a broker and clients; killing the parent leaves them holding the
+    # snapshot, and the next run then fails to bind the broker port
+    subprocess.run(['pkill', '-f', os.path.basename(QEMU_FUZZER)],
+                   capture_output=True, text=True)
+    # and they still hold the log's file descriptor at their own offset, so anything
+    # written here before they die is overwritten by their parting message rather than
+    # appended after it
+    time.sleep(2)
+
+    iterations, solutions, edges = 0, 0, 0
+    with open(raw_path, 'r', errors='ignore') as handle:
+        lines = handle.readlines()
+    # the CLIENT line, not the GLOBAL one: the absolute edge count is only in the
+    # per-client tally, the global line carries the percentage
+    for line in lines:
+        if 'CLIENT' not in line:
+            continue
+        for pattern, name in ((r'executions:\s*(\d+)', 'iterations'),
+                              (r'objectives:\s*(\d+)', 'solutions'),
+                              (r'edges:\s*(\d+)/', 'edges')):
+            match = re.search(pattern, line)
+            if not match:
+                continue
+            if name == 'iterations':
+                iterations = max(iterations, int(match.group(1)))
+            elif name == 'solutions':
+                solutions = max(solutions, int(match.group(1)))
+            else:
+                edges = max(edges, int(match.group(1)))
+    # coverage_matrix.py reads the Heartbeat record for the edge count, which LibAFL
+    # prints only as a percentage in the line its regex matches
+    heartbeat = json.dumps({'Heartbeat': {'iterations': iterations,
+                                          'solutions': solutions,
+                                          'edges': edges}})
+    with open(log_path, 'w') as handle:
+        handle.writelines(lines)
+        handle.write(heartbeat + '\n')
+    print(f'Fuzzed {iterations} iteration(s), {edges} edge(s), {solutions} solution(s)')
+    return iterations > 0
+
+
 # Fuzzing without generating first reuses whatever Firness.efi is in the build tree. That
 # harness targets whichever protocol was generated last, so a campaign can run to completion
 # and report coverage for a protocol it never actually fuzzed. Compare the built harness
@@ -1520,15 +1623,18 @@ def main():
         # run_fuzzer always launches fuzz.simics, so fuzzing a non-tsffs harness would boot
         # it under tsffs, whose harness instructions it no longer contains: the run would
         # sit through the whole boot and never start fuzzing, with nothing saying why.
+        if args.backend == 'qemu':
+            if not os.path.isfile(HARNESS_IMAGE):
+                print(f'Error: {HARNESS_IMAGE} is missing -- run the generate stage first.')
+                return 1
+            fuzz_started = run_qemu_fuzzer(HARNESS_IMAGE, output, args.timeout,
+                                           args.seed_corpus)
+            write_log(output, log.split('\n'))
+            cleanup(args.src, tmp_dir, output)
+            return 0 if fuzz_started else 1
         if args.backend != 'tsffs':
-            runner = ('scripts/qemu_fuzz.sh' if args.backend == 'qemu' else None)
             print(f'Error: --backend {args.backend} builds the harness for that fuzzer, but '
-                  f'run_fuzzer here always launches fuzz.simics. Generate with '
-                  f'--backend {args.backend} (-g) and run the harness under that fuzzer.'
-                  + (f'\n  For qemu that is {runner} {HARNESS_IMAGE} -- it boots OVMF, '
-                     f'serves the harness as BOOTX64.EFI and drives the LibAFL-QEMU host '
-                     f'in Harness/qemu_fuzzer. scripts/qemu_smoke.sh is the quick check '
-                     f'that the harness reaches HARNESS_START.' if runner else ''))
+                  f'only tsffs and qemu have a runner here.')
             return 1
         if not os.path.isfile(FIRMWARE_IMAGE):
             print(f'Error: {FIRMWARE_IMAGE} is missing -- run the analysis stage '
