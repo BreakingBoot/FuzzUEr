@@ -721,6 +721,20 @@ def make_snapshot(simics_dir):
         # correctly discounted. The boot that writes the checkpoint is the one boot this
         # firmware will ever do here, so record its report sites alongside it.
         capture = os.path.join(simics_dir, 'snapshot.txt')
+        # The same boot carries every "Loading driver at" line, which is what attributes a
+        # report to the image it came from. A restored run sees only the images loaded
+        # after the checkpoint, so every firmware finding was landing on SimicsAgent.efi.
+        loads = []
+        if os.path.isfile(capture):
+            with open(capture, 'r', encoding='utf-8', errors='ignore') as handle:
+                for line in handle:
+                    found = LOAD_LINE.search(line)
+                    if found:
+                        loads.append(f'{found.group(1)} {found.group(2)}')
+        if loads:
+            with open(os.path.join(simics_dir, 'booted.ckpt.modules'), 'w') as handle:
+                handle.write('\n'.join(sorted(set(loads))))
+            print(f'  recorded {len(set(loads))} image load(s) for module attribution')
         sites = boot_report_sites(capture)
         if sites:
             with open(os.path.join(simics_dir, 'booted.ckpt.baseline'), 'w') as handle:
@@ -1099,6 +1113,19 @@ def collect_unique_crashes(log_file, output_dir=None):
 
     modules = []
     pending = []
+    # a checkpoint-restored run has no boot, so seed the map with what the boot that wrote
+    # the checkpoint saw; loads from this run are appended as they appear
+    recorded_modules = os.path.join(os.path.dirname(os.path.abspath(log_file)),
+                                    'booted.ckpt.modules')
+    if os.path.isfile(recorded_modules):
+        for entry in open(recorded_modules):
+            base, _, name = entry.strip().partition(' ')
+            if name:
+                try:
+                    modules.append((int(base, 16), name))
+                except ValueError:
+                    pass
+        modules.sort()
     with open(log_file, 'r', encoding='utf-8', errors='ignore') as handle:
         prev_line = ''
         for line in handle:
