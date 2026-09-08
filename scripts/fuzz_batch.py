@@ -68,6 +68,17 @@ def launch(protocol, args):
     out = os.path.join(args.output, protocol)
     os.makedirs(out, exist_ok=True)
     name = f'fuzz-{protocol.lower()}'
+    # The name comes from the protocol alone, so two campaigns over the same target -- a
+    # rerun started before the first finished, two output directories -- collide on it.
+    # The rm -f below is what makes that silent: each launch destroys the other's
+    # container, both keep restarting, and neither ever reaches the harness while the
+    # logs look merely slow. Refuse instead of fighting.
+    running = subprocess.run(['docker', 'ps', '--filter', f'name=^{name}$',
+                              '--format', '{{.Names}}'], capture_output=True, text=True)
+    if name in running.stdout.split():
+        print(f'  {protocol}: {name} is already running -- another campaign has this '
+              f'target. Stop it first, or run this one from a different protocol.')
+        return None
     subprocess.run(['docker', 'rm', '-f', name],
                    capture_output=True, text=True)
     # firness.py works out of its own cwd: it expects -s to point at a tree holding edk2
