@@ -694,10 +694,20 @@ def make_snapshot(simics_dir):
     if not os.path.isfile(script):
         print(f'Error: {script} is missing; rebuild the image.')
         return 1
+    checkpoint = os.path.join(simics_dir, 'booted.ckpt')
+    # write-configuration refuses to write over an existing checkpoint, and the image
+    # ships one from whatever firmware it was built with. Without clearing it the boot
+    # runs to the shell and only then fails, which reads like a boot problem rather than
+    # a stale file
+    stamp = os.path.join(simics_dir, 'booted.ckpt.firmware')
+    if os.path.isdir(checkpoint):
+        print(f'Replacing the existing checkpoint at {checkpoint}')
+        shutil.rmtree(checkpoint, ignore_errors=True)
+    if os.path.isfile(stamp):
+        os.remove(stamp)
     print('++++ Booting once to write the checkpoint ++++')
     process = subprocess.run('./simics -no-win -no-gui snapshot.simics', cwd=simics_dir,
                              shell=True, executable='/bin/bash')
-    checkpoint = os.path.join(simics_dir, 'booted.ckpt')
     if process.returncode == 0 and os.path.isdir(checkpoint):
         fingerprint = firmware_fingerprint()
         if fingerprint:
