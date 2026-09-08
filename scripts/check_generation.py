@@ -17,6 +17,8 @@ GENERATOR = '/workspace/harness_generator/main.py'
 # clang and the copied helpers; run natively they have to be pointed at the repo
 COMPILER = 'clang'
 HELPERS = ''
+# must match harness_generator/main.py's BACKENDS and FirnessBackend.h
+BACKEND_IDS = {'tsffs': 1, 'qemu': 2, 'nyx': 3, 'none': 4}
 
 
 # a missing file means the analysis has not been cached yet, which is not a result and
@@ -73,7 +75,7 @@ def library_gaps(harness_dir, roots):
     return unmapped, absent
 
 
-def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False):
+def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False, backend='tsffs'):
     # the generator writes libmap.json back next to the databases, so it needs its own
     # copy of the analysis rather than the shared cache
     work = os.path.join(out_dir, 'analysis')
@@ -97,13 +99,15 @@ def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False):
     ]
     if smi:
         cmd += ['--smi', '-sm', os.path.join(cache_dir, 'smi-function-guid-map.json')]
+    if backend != 'tsffs':
+        cmd += ['--backend', backend]
     p = subprocess.run(cmd, capture_output=True, text=True)
     return p.returncode, p.stdout + p.stderr
 
 
 # a syntax-only check on the generated C. this catches the "expected expression" and
 # "unknown type name" classes without paying for a full edk2 build
-def syntax_check(harness_dir, edk2_dir):
+def syntax_check(harness_dir, edk2_dir, backend='tsffs'):
     # all three sources, not just the generated harness: FirnessMain.c is what includes
     # the backend header, so compiling only FirnessHarnesses.c hides a missing helper
     sources = [os.path.join(harness_dir, name) for name
@@ -141,8 +145,12 @@ def syntax_check(harness_dir, edk2_dir):
     else:
         # gcc has no -Wno-everything and no -target; it is x86_64 already
         dialect = ['-w'] + fatal
+    # the backend arm is chosen by a -D the generated Firness.dsc carries, so without
+    # restating it here every backend compiles the tsffs arm and a break in the
+    # libafl-qemu asm passes the check
+    define = ['-DFIRNESS_BACKEND=%d' % BACKEND_IDS[backend]] if backend != 'tsffs' else []
     cmd = [COMPILER, '-c', '-o', '/dev/null', '-fshort-wchar',
-           '-fno-builtin', '-mno-red-zone'] + dialect + [
+           '-fno-builtin', '-mno-red-zone'] + dialect + define + [
            '-DEFIAPI=__attribute__((ms_abi))', '-include', 'Uefi.h'] + includes
     for source in sources:
         p = subprocess.run(cmd + [source], capture_output=True, text=True)
@@ -179,6 +187,9 @@ def main():
     parser.add_argument('--generator', type=str, help='Path to harness_generator/main.py')
     parser.add_argument('--cc', type=str, default='clang', help='Compiler to check the generated C with')
     parser.add_argument('--helpers', type=str, help='Directory holding FirnessHelpers.h')
+    parser.add_argument('--backend', type=str, default='tsffs',
+                        choices=['tsffs', 'qemu', 'nyx', 'none'],
+                        help='Fuzzer the harness is built against')
     args = parser.parse_args()
     global GENERATOR, COMPILER, HELPERS
     if args.generator:
@@ -203,7 +214,8 @@ def main():
         out_dir = os.path.join(args.output, name)
         shutil.rmtree(out_dir, ignore_errors=True)
         os.makedirs(out_dir, exist_ok=True)
-        rc, log = run_generator(cache_dir, input_file, args.edk2, out_dir)
+        rc, log = run_generator(cache_dir, input_file, args.edk2, out_dir,
+                                backend=args.backend)
         harness = os.path.join(out_dir, 'Firness')
         # the generator reporting that nothing matched the request is a clean outcome, not
         # a failure: the protocol is simply not exercised anywhere in this firmware image
@@ -225,7 +237,7 @@ def main():
         if gaps and (gaps[0] or gaps[1]):
             tally.setdefault('LIB_GAP', []).append((name, gaps))
 
-        checked = syntax_check(harness, args.edk2)
+        checked = syntax_check(harness, args.edk2, args.backend)
         if checked is None:
             tally.setdefault('NO_OUTPUT', []).append(name)
             print(f'{name:34} NO_OUTPUT')
