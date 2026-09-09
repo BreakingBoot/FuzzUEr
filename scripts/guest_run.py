@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--boot-timeout', type=int, default=420)
     parser.add_argument('--run-timeout', type=int, default=600)
     parser.add_argument('--log', default='guest.log')
+    parser.add_argument('--fw-log', help='capture the firmware debug console here')
     parser.add_argument('--network', action='store_true',
                         help='give the guest user-mode networking')
     args = parser.parse_args()
@@ -64,6 +65,11 @@ def main():
         '-drive', f'file={args.disk},format=qcow2,if=virtio',
         '-display', 'none', '-serial', 'mon:stdio',
     ]
+    if args.fw_log:
+        # OVMF writes DEBUG to the ISA debug port, not to serial, so this is the only
+        # place firmware side evidence of an SMI shows up
+        command += ['-debugcon', f'file:{args.fw_log}',
+                    '-global', 'isa-debugcon.iobase=0x402']
     if args.extra_disk:
         command += ['-drive', f'file={args.extra_disk},format=raw,if=virtio']
     command += ['-nic', 'user'] if args.network else ['-nic', 'none']
