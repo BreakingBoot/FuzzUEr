@@ -13,6 +13,10 @@ COPY ./fwstage/BOARDX58ICH10.repo2.fd /workspace/tmp/Build/SimicsOpenBoardPkg/Bo
 # reproduce.simics never made it into the base image, so --reproduce could not run and
 # a saved solution could not be replayed. fuzz.simics ships here too so a change to it
 # does not need the base rebuilt.
+# fuzz.simics does run-python-file "absorb_unmapped.py" at line 17. Without it every
+# campaign dies before the harness with "not found in the Simics search path", which
+# reads as a firmware that will not boot.
+COPY ./Harness/absorb_unmapped.py /workspace/projects/example/
 COPY ./Harness/fuzz.simics /workspace/projects/example/
 COPY ./Harness/reproduce.simics /workspace/projects/example/
 COPY ./Harness/snapshot.simics /workspace/projects/example/

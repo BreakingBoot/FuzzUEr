@@ -21,6 +21,23 @@ WORK=${FIRNESS_WORK:-/work/firness_qemu}
 ESP=${FIRNESS_ESP:-$WORK/esp.qcow2}
 MAKE_ESP=${MAKE_ESP:-$(dirname "$0")/make_esp.sh}
 
+# The emulator is linked into the fuzzer, so it has no data directory and resolves its
+# rom path relative to the working directory. Run this script from anywhere else and it
+# dies with "no QEMU rom directory holds kvmvapic.bin". Find the bridge checkout's
+# pc-bios rather than making the caller know where cargo put it.
+if [ -z "${FIRNESS_QEMU_BIOS_DIR:-}" ]; then
+    for d in "$(dirname "$FUZZER")/qemu-libafl-bridge/pc-bios" \
+             /work/qemu-libafl-bridge/pc-bios \
+             "$(dirname "$FUZZER")/pc-bios"; do
+        [ -f "$d/kvmvapic.bin" ] && { export FIRNESS_QEMU_BIOS_DIR="$d"; break; }
+    done
+fi
+[ -n "${FIRNESS_QEMU_BIOS_DIR:-}" ] || echo "warning: no pc-bios found; set FIRNESS_QEMU_BIOS_DIR"
+
+# The firmware has to be the instrumented build, or ASan never runs and the campaign
+# reports crashes and timeouts only. The fuzzer defaults to the distribution OVMF.
+[ -n "${FIRNESS_OVMF_CODE:-}" ] || echo "warning: FIRNESS_OVMF_CODE unset -- using the distribution OVMF, which has no ASan"
+
 [ -x "$FUZZER" ] || { echo "no fuzzer at $FUZZER -- cargo build --release in Harness/qemu_fuzzer"; exit 2; }
 
 "$MAKE_ESP" "$EFI" "$ESP" 64

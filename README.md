@@ -131,6 +131,69 @@ opposite, unambiguous answers: a `--backend none` build runs to completion, whil
 decode. Either answer appearing for the wrong build means the backend never reached
 the compiler.
 
+## Running it under QEMU, end to end
+
+Simics is what the paper used; QEMU is roughly forty times faster per execution and needs
+no licence. The whole path, from nothing to a campaign:
+
+**1. Build the firmware with ASan and the QEMU backend.** `ASAN_FUZZER=qemu` is what makes
+a finding reach the fuzzer rather than only the log.
+
+```
+export WORKSPACE=$PWD/eval_source/edk2 EDK_TOOLS_PATH=$WORKSPACE/BaseTools
+export CONF_PATH=$WORKSPACE/Conf CLANGSAN_BIN=/path/to/llvm/bin/
+cd $WORKSPACE && make -C BaseTools && source edksetup.sh
+build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \
+      -D ASAN_SCOPE=per-module -D ASAN_FUZZER=qemu
+```
+
+**2. Build the fuzzer.** It compiles its own QEMU, so the first build is long.
+
+```
+cd Harness/qemu_fuzzer && cargo build --release
+```
+
+**3. Generate a harness for the QEMU backend.** The backend is compiled in, so it has to
+be chosen at generation time.
+
+```
+python scripts/firness.py -i /input/input.txt -s /input -a -g --backend qemu
+```
+
+**4. Check it loads before spending a campaign on it.**
+
+```
+OVMF_CODE=.../OVMF_CODE.fd ./scripts/qemu_smoke.sh .../Firness.efi
+```
+
+**5. Fuzz it.**
+
+```
+export FIRNESS_OVMF_CODE=$WORKSPACE/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_CODE.fd
+export FIRNESS_OVMF_VARS=$WORKSPACE/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_VARS.fd
+export FIRNESS_TIMEOUT=60
+./scripts/qemu_fuzz.sh .../Firness.efi 600
+```
+
+Three of these are easy to get wrong, and each fails quietly:
+
+- **`FIRNESS_OVMF_CODE` is not optional.** Left unset the fuzzer runs the distribution
+  OVMF, which has no ASan in it at all. The campaign then reports crashes and timeouts
+  only and looks like a clean target; that is what "objectives: 0" meant here for a whole
+  afternoon. The script warns about it now.
+- **`FIRNESS_TIMEOUT` defaults to 10 seconds**, which an instrumented boot can exceed. Every
+  iteration then ends as a timeout, and a real crash is indistinguishable from one. If
+  every input is an objective and the corpus stays empty, raise it before believing
+  anything.
+- **The emulator is linked into the fuzzer**, so it has no data directory and looks for its
+  roms relative to the working directory. `qemu_fuzz.sh` now finds the bridge checkout's
+  `pc-bios` itself; if it cannot, set `FIRNESS_QEMU_BIOS_DIR`.
+
+To confirm the reporting path end to end rather than trusting it, fuzz `AsanSelfTest.efi`
+instead of a harness. Seeded with a first byte of 0 it commits a heap overflow and the
+fuzzer records an objective about a second after the boot; seeded with 4 it does the same
+allocation correctly and produces nothing but a timeout.
+
 ## AddressSanitizer
 
 ### Adding it to a platform
@@ -157,6 +220,51 @@ The platform still has to reserve the shadow region and publish `gAsanInfoGuid` 
 PEI. Without that HOB AsanLib deactivates itself, and every instrumented access
 becomes a no-op that looks exactly like a clean run. `OvmfPkg/PlatformPei/MemDetect.c`
 is the worked example.
+
+### Porting to a fresh EDK2 tree
+
+The sanitizer is five libraries, two headers and a patch. Against a clean upstream
+checkout:
+
+```
+# 1. the libraries and headers, copied in
+cp -r uefi_asan/AsanLib          <edk2>/MdeModulePkg/Library/
+cp -r uefi_asan/AsanLibNull      <edk2>/MdeModulePkg/Library/
+cp -r uefi_asan/AsanRuntimeLib   <edk2>/MdeModulePkg/Library/
+cp -r uefi_asan/AsanMemoryLib        <edk2>/MdePkg/Library/
+cp -r uefi_asan/AsanMemoryLibRepStr  <edk2>/MdePkg/Library/
+cp uefi_asan/Asan.h     <edk2>/MdeModulePkg/Include/Library/
+cp uefi_asan/AsanInfo.h <edk2>/MdeModulePkg/Include/Guid/
+
+# 2. the patch, which is the part that touches upstream files
+patch -p1 --forward --batch --binary -d <edk2> < uefi_asan/asan.patch
+```
+
+`scripts/firness.py` does both of these itself; the manual form is for a tree it does not
+manage. The patch touches the toolchain definition (`BaseTools/Conf/tools_def.template`
+adds the `CLANGSAN` toolchain, `build_rule.template` adds the `SANITIZER` build rule and
+its nasm command), the DXE and SMM cores so the allocator can poison and quarantine
+(`Core/Dxe/Mem/Page.c`, `Mem/Pool.c`, `Core/PiSmmCore`), and a few call sites.
+
+Then, per platform:
+
+- **Declare the HOB guid.** `gAsanInfoGuid` has to be in `MdeModulePkg.dec` under
+  `[Guids]`. The patch adds it; check it survived a merge.
+- **Include the DSC fragment** and set the two defines, as above.
+- **Reserve the shadow and publish the HOB from PEI.** This is the one part that is
+  genuinely platform specific, and the one whose absence is silent: without the HOB
+  AsanLib deactivates itself and every instrumented access becomes a no-op.
+  `OvmfPkg/PlatformPei/MemDetect.c` (`AsanInitializeShadowMemory`) is 20 lines and is the
+  model -- reserve `LowMemory >> 3` bytes at `0x5000000`, zero it, and
+  `BuildGuidDataHob (&gAsanInfoGuid, ...)`.
+- **Resolve `AsanLib` for every module type the platform builds.** A core INF that calls
+  into the runtime -- `DxeMain`, `PiSmmCore`, `BootScriptExecutorDxe` -- consumes the class
+  by name, so a platform that resolves it for only some phases stops with "Instance of
+  library class [AsanLib] is not found".
+- **Build with `-t CLANGSAN`**, and point `CLANGSAN_BIN` at a clang whose ASan pass matches
+  the runtime's expectations. Clang 15 is what this tree is built and tested with.
+
+Then run `AsanSelfTest` before trusting a single result.
 
 ### Scope
 
@@ -235,6 +343,24 @@ insmod firness_smi.ko comm_phys=$COMM comm_size=$COMMSZ \
 the module unloads itself. `target=<n>` picks one handler; without a fuzzer attached the
 input is all zeroes, so the choice byte is always 0 and only the first handler is ever
 reached.
+
+**Cross handler state.** `chain=<n>` calls n handlers before the iteration ends, so one
+runs against whatever the previous one left behind. That is the only way to reach a bug
+where a handler stores something -- a length, an NVRAM variable -- that a different handler
+later trusts; with one call per iteration the second handler never sees the first one's
+state. `target` then steps rather than pins, so `chain=4 target=0` dispatches handlers
+0, 1, 2, 3 in order, which is deterministic without a fuzzer attached.
+
+Two limits worth knowing before reading anything into a chained run:
+
+- With `--backend none` every generated length field reads zero, so the handlers reject
+  the buffer and no state actually crosses. A chain only carries data with a fuzzer
+  supplying non-empty messages.
+- **SMM code is not instrumented.** `Asan.dsc.inc` excludes `SMM_CORE` and
+  `DXE_SMM_DRIVER`, because SMM needs its own shadow and its own runtime and that is not
+  wired up. A memory error inside a handler is therefore not an ASan finding here; what
+  surfaces is an ASSERT, a crash or a timeout, which is how the VarCheckPolicy defect was
+  found.
 
 Three things that are not obvious:
 
