@@ -37,13 +37,18 @@ mkdir -p "$WORK/esp/EFI/BOOT"
 cp "$EFI" "$WORK/esp/EFI/BOOT/BOOTX64.EFI"
 cp "$OVMF_VARS" "$WORK/vars.fd"
 
-timeout "$TIMEOUT" qemu-system-x86_64 -machine q35 -m 2048 -no-reboot \
+# -smp 1 and the override OVMF names itself: against QEMU 6.2 its PlatformCpuCountBugCheck
+# asserts in Platform.c(520) before any driver runs. -debugcon because OVMF writes DEBUG
+# there, not to serial.
+timeout "$TIMEOUT" qemu-system-x86_64 -machine q35 -m 2048 -no-reboot -smp 1 \
+    -fw_cfg name=opt/org.tianocore/X-Cpuhp-Bugcheck-Override,string=yes \
+    -debugcon file:"$WORK/debug.log" -global isa-debugcon.iobase=0x402 \
     -drive if=pflash,format=raw,unit=0,readonly=on,file="$OVMF_CODE" \
     -drive if=pflash,format=raw,unit=1,file="$WORK/vars.fd" \
     -drive file=fat:rw:"$WORK/esp",format=raw,if=ide \
     -serial file:"$WORK/serial.log" -display none >/dev/null 2>&1
 
-tr -d '\r' < "$WORK/serial.log" > "$WORK/serial.txt"
+cat "$WORK/serial.log" "$WORK/debug.log" 2>/dev/null | tr -d '\r' > "$WORK/serial.txt"
 started=$(grep -c 'BdsDxe: starting Boot' "$WORK/serial.txt")
 ud=$(grep -c 'Exception Type - 06(#UD' "$WORK/serial.txt")
 in_harness=$(grep -c 'Firness.dll' "$WORK/serial.txt")

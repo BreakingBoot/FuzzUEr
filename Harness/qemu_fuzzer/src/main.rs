@@ -104,6 +104,14 @@ fn qemu_args() -> Vec<String> {
         "q35",
         "-m",
         &memory,
+        // One CPU, and the override OVMF asks for by name. Against QEMU 6.2 OVMF's
+        // PlatformCpuCountBugCheck decides the CPU hotplug register block is buggy and
+        // stops with "ASSERT Platform.c(520)" before any driver runs -- the firmware
+        // never reaches the harness and the run looks like a target that does not boot.
+        "-smp",
+        "1",
+        "-fw_cfg",
+        "name=opt/org.tianocore/X-Cpuhp-Bugcheck-Override,string=yes",
         "-drive",
         &format!("if=pflash,format=raw,unit=0,readonly=on,file={ovmf_code}"),
         "-drive",
@@ -112,6 +120,10 @@ fn qemu_args() -> Vec<String> {
         &format!("file={esp},format=qcow2,if=ide"),
         "-L",
         &bios_dir,
+        "-debugcon",
+        &format!("file:{}", env_or("FIRNESS_DEBUGCON", "/tmp/firness_debugcon.log")),
+        "-global",
+        "isa-debugcon.iobase=0x402",
         "-serial",
         &format!("file:{}", env_or("FIRNESS_SERIAL", "/tmp/firness_serial.log")),
         // no display and no display adapter: the harness reports over serial, and the
