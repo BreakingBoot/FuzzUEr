@@ -389,6 +389,66 @@ executed; `Not Found` means none was:
 SmmCore: dispatch 2A3CFEBD-27E8-4D0A-8B79-D688C2A3E1C0 len 0 -> Success
 ```
 
+## Network and network boot fuzzing
+
+A protocol harness calls a protocol member with fuzzed arguments. That reaches the API
+surface of the network stack and almost none of its parsing: what `Dhcp4Dxe`, `Mtftp4Dxe`
+and `UefiPxeBcDxe` spend their code on is bytes that arrived from somewhere else, and
+nothing was ever on the other end of the wire.
+
+`scripts/net_peer.py` is that other end -- a server whose every reply is built from an
+input file. QEMU's socket netdev hands the guest's NIC straight to a process, so this
+needs no tap device, no root and no host networking:
+
+```
+-netdev socket,id=n0,connect=127.0.0.1:5555 -device virtio-net-pci,netdev=n0
+```
+
+It speaks ARP, ICMP, DHCP and TFTP -- enough to PXE boot a UEFI guest. Run it by hand to
+watch an exchange:
+
+```
+python3 scripts/net_peer.py --port 5555 --serve-file some.efi
+```
+
+A healthy run prints the whole boot: `DHCP DISCOVER -> OFFER`, `DHCP REQUEST -> ACK`,
+`ARP who-has`, `TFTP RRQ`, then `TFTP transfer complete, 29 block(s)`. The guest then
+executes what it was handed, so a real application in `--serve-file` puts the PE loader
+and everything that application touches in range as well.
+
+`scripts/net_fuzz.py` is the loop around it:
+
+```
+python3 scripts/net_fuzz.py --code OVMF_CODE.fd --vars OVMF_VARS.fd \
+    --serve-file some.efi --iterations 20 --mutate 8 --mutate-labels DATA
+```
+
+`--mutate-labels` picks which replies to corrupt -- `OFFER`, `ACK`, `OACK`, `DATA` -- and
+choosing it is most of the skill:
+
+| target | reaches | what a run looks like |
+|---|---|---|
+| `DATA` | TFTP block handling, then the PE loader | 232 mutations into a 40KB image, `start failed: Unsupported` |
+| `OFFER,ACK` | the DHCP option parser | exchange completes, PXE gives up expanding the boot path |
+| `OACK` | option negotiation | the transfer aborts before a block is sent |
+
+Three things that took a measurement each to get right:
+
+- **The BOOTP header is 236 bytes, not 240.** Four bytes of padding in front of the magic
+  cookie is enough for the client to reject the offer and go back to DISCOVER, which looks
+  exactly like a guest that cannot see the server.
+- **TFTP needs a fresh server port per transfer.** RFC 1350 gives each transfer its own
+  TID and the client sends its ACKs there; answering from port 69 got one DATA out and
+  never an ACK back. PXE also asks for `blksize`/`tsize`, which want an OACK first.
+- **Corrupt the payload, not the framing.** Mutations in the BOOTP header or in an OACK
+  end the exchange before the parser under test runs, so the DHCP replies protect their
+  first 236 bytes and `--mutate-labels DATA` is the default.
+
+`net_fuzz.py` takes a baseline with no mutations before it starts and counts only
+reporting sites beyond it. An instrumented boot raises the same 23 every time, so a run
+that counted reports would call every iteration a finding -- the same trap as
+[Triage](#triage) below.
+
 ## Triage
 
 A campaign's solution count is not a bug count. Most reports are the harness, not the
