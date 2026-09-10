@@ -35,6 +35,7 @@ SELFTEST_EXPECT = [
     ('heap-buffer-underflow', 'expect heap-buffer-underflow'),
     ('use-after-free', 'expect use-after-free'),
     ('double-free', 'expect double-free'),
+    ('length-driven-overflow', 'expect length-driven-overflow'),
 ]
 
 
@@ -110,6 +111,12 @@ def check_selftest(args, work):
     found.append(f'{stores} store reports')
     if 'double-free' not in found:
         return False, 'the double free was not reported'
+    # The length driven case is caught by the instrumented CopyMem, not by a load/store
+    # check, so it is the one class that also covers a module that is not itself
+    # instrumented -- which is how the DevicePathDxe finding surfaced.
+    if 'is_write 0x0000000000000000' not in serial or 'CopyMemWrapper' not in serial:
+        return False, 'the length-driven overread was not reported by the interceptor'
+    found.append('length-driven overread')
     return True, ' + '.join(found)
 
 
