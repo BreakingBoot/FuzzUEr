@@ -132,6 +132,13 @@ def launch(protocol, args):
             argv += ['-v', f'{seed}:/seed:ro']
     if args.cpus:
         argv += ['--cpus', str(args.cpus)]
+    # Forward the FIRNESS_* settings. Without this a value set on the host -- the QEMU
+    # backend's per-iteration timeout in particular -- silently does not reach the
+    # campaign, and the run looks like a target that always times out rather than one
+    # that was never given long enough.
+    for name_, value in sorted(os.environ.items()):
+        if name_.startswith('FIRNESS_'):
+            argv += ['-e', f'{name_}={value}']
     argv += [args.image, 'bash', '-c', command]
     if args.dry_run:
         print('  would run:', ' '.join(argv[:8]), '...', command)

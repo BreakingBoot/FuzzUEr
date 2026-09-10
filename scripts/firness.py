@@ -560,6 +560,33 @@ QEMU_FUZZER = os.environ.get(
     'FIRNESS_QEMU_FUZZER',
     '/workspace/qemu_fuzzer/target/release/firness_qemu')
 QEMU_ESP_TOOL = os.environ.get('FIRNESS_MAKE_ESP', '/workspace/scripts/make_esp.sh')
+# The instrumented firmware, not the distribution one. Left unset, the fuzzer defaults to
+# /usr/share/OVMF/OVMF_CODE.fd, which has no sanitizer in it at all -- the campaign then
+# reports crashes and timeouts only, finds nothing, and looks exactly like a clean target.
+QEMU_OVMF_CODE = os.environ.get('FIRNESS_OVMF_CODE',
+                                '/workspace/qemu_fw/OVMF_CODE.fd')
+QEMU_OVMF_VARS = os.environ.get('FIRNESS_OVMF_VARS',
+                                '/workspace/qemu_fw/OVMF_VARS.fd')
+
+
+def qemu_bios_dir():
+    """Where the emulator's roms live.
+
+    The emulator is linked into the fuzzer, so it has no data directory and resolves the
+    rom path relative to the working directory -- which is not where cargo put it. Without
+    this the run dies with "no QEMU rom directory holds kvmvapic.bin", which reads as a
+    broken target.
+    """
+    configured = os.environ.get('FIRNESS_QEMU_BIOS_DIR', '')
+    if configured:
+        return configured
+    for candidate in (os.path.join(os.path.dirname(QEMU_FUZZER),
+                                   'qemu-libafl-bridge', 'pc-bios'),
+                      '/work/qemu-libafl-bridge/pc-bios',
+                      os.path.join(os.path.dirname(QEMU_FUZZER), 'pc-bios')):
+        if os.path.isfile(os.path.join(candidate, 'kvmvapic.bin')):
+            return candidate
+    return ''
 
 
 def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
@@ -594,7 +621,23 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
         'FIRNESS_CORPUS': corpus,
         'FIRNESS_CRASHES': os.path.join(work, 'crashes'),
         'FIRNESS_SERIAL': os.path.join(output, 'fuzz.txt'),
+        # OVMF writes DEBUG to the ISA debug port, not to serial, so without this there
+        # is no record of how far the boot got when an iteration does not complete
+        'FIRNESS_DEBUGCON': os.path.join(work, 'debugcon.log'),
+        'FIRNESS_OVMF_CODE': QEMU_OVMF_CODE,
+        'FIRNESS_OVMF_VARS': QEMU_OVMF_VARS,
+        # 10s is the fuzzer's default and an instrumented boot exceeds it, so every
+        # input becomes a timeout objective and the corpus never grows
+        'FIRNESS_TIMEOUT': os.environ.get('FIRNESS_TIMEOUT', '60'),
     })
+    bios = qemu_bios_dir()
+    if bios:
+        environment['FIRNESS_QEMU_BIOS_DIR'] = bios
+    for label, path in (('OVMF_CODE', QEMU_OVMF_CODE), ('OVMF_VARS', QEMU_OVMF_VARS)):
+        if not os.path.isfile(path):
+            print(f'Error: no {label} at {path}. The QEMU backend needs the instrumented '
+                  f'firmware; point FIRNESS_{label} at it.')
+            return False
     log_path = os.path.join(output, 'log.json')
     # the fuzzer gets a file of its own rather than log.json. LibAFL forks a broker and
     # clients that inherit the descriptor, and they keep writing at their own offsets
@@ -1409,7 +1452,10 @@ def generate_report(simics_dir, output_dir):
     # analyze the results from the coverage log 
     # and from the cmd line output that contains the crash results
     fuzz_log = os.path.join(simics_dir, 'fuzz.txt')
-    os.system(f'cp {fuzz_log} {output_dir}')
+    # the QEMU runner writes the serial capture straight into output_dir, so the copy
+    # would be a file onto itself
+    if os.path.abspath(simics_dir) != os.path.abspath(output_dir):
+        os.system(f'cp {fuzz_log} {output_dir}')
     log_file = os.path.join(simics_dir, 'log.json')
     output_csv = os.path.join(output_dir, 'coverage.csv')
     output_plot = os.path.join(output_dir, 'coverage.png')
@@ -1634,6 +1680,10 @@ def main():
                 return 1
             fuzz_started = run_qemu_fuzzer(HARNESS_IMAGE, output, args.timeout,
                                            args.seed_corpus)
+            # the same report the tsffs path produces, from the same serial capture, so a
+            # QEMU campaign is directly comparable to a Simics one rather than reporting
+            # only the fuzzer's own objective count
+            generate_report(output, output)
             write_log(output, log.split('\n'))
             cleanup(args.src, tmp_dir, output)
             return 0 if fuzz_started else 1
