@@ -1,14 +1,16 @@
 # Bugs found under Simics
 
-145 protocols, 600s each, on BoardX58Ich10 firmware built from this tree with per-module ASan. Regenerate with
+145 protocols, 600s each, on BoardX58Ich10 firmware built from this tree. 233 of 235 modules instrumented. Regenerate with
 
     python3 scripts/bug_report.py -r <campaign dir> --markdown results/bugs-simics.md
 
-**Reading a row.** Severity ranks by what an attacker gets: a write past an allocation above a read, both above arithmetic on a pointer that is never dereferenced. Where `source` is one of the `AsanMemoryLibRepStr` wrappers, that is the interceptor reporting at its own line -- the bug is in the caller, and `module` is the attribution you have, because the report carries no caller address. `(unattributed)` means the faulting address fell outside every image the boot announced. `(undetailed)` marks a capture from before the firmware recorded that detail.
+**Reading a row.** Severity ranks by what an attacker gets: a write past an allocation above a read, both above arithmetic on a pointer that is never dereferenced. Where `source` is one of the `AsanMemoryLibRepStr` wrappers, that is the interceptor reporting at its own line -- the bug is in the caller, and `module` is the attribution you have, because the report carries no caller address. `(unattributed)` means the faulting address fell outside every image the boot announced.
 
-**Two classes that look like firmware defects and are not.** A size-driven finding should be checked against the generated harness first: `call-database.json` carries no parameter names for some calls, so their size arguments fall back to a blanket 4096 bound against a much smaller buffer, which manufactures severity 5 reports -- the two SnpDxe rows below are that, from `Statistics (This, Reset, StatisticsSize, StatisticsTable)`. And an opaque handle fuzzed as a raw value is a wild pointer the firmware can only NULL-check before dereferencing, so a fault through one is the harness.
+**Two classes that look like firmware defects and are not.** A size-driven finding should be checked against the generated harness first: `call-database.json` carries no parameter names for some calls, so their size arguments fall back to a blanket 4096 bound against a much smaller buffer -- the two SnpDxe rows are that, from `Statistics (This, Reset, StatisticsSize, StatisticsTable)`. And an opaque handle fuzzed as a raw value is a wild pointer the firmware can only NULL-check before dereferencing, so a fault through one is the harness.
 
 2300 report rows from the campaigns, clustered into 38 distinct sites.
+
+11 further cluster(s) were the harness itself, a library linked into it that the firmware never calls, or code whose reports are inherent to what it does. Run `bug_report.py --show-filtered` to see them with the reason for each.
 
 ## Firmware, provoked by an input
 
@@ -16,11 +18,6 @@ Reached because a testcase drove it there. Ordered by severity.
 
 | module | source | location | bug type | hits | reached by | detail |
 |---|---|---|---|---|---|---|
-| SnpDxe.efi | `MdePkg/Library/AsanMemoryLibRepStr/SetMemWrapper.c` | SetMemWrapper.c:63 | heap-buffer-overflow (write) | 10 | EfiSimpleNetwork | write of 8 bytes at 0x00000000D9A242F8 input driven, in firmware code |
-| DxeCore.efi | `MdePkg/Library/AsanMemoryLibRepStr/CopyMemWrapper.c` | CopyMemWrapper.c:72 | heap-buffer-overflow (write) | 6 | EfiFirmwareVolumeBlock | write of 62728 bytes at 0x00000000D9A220A8 input driven, in firmware code |
-| SnpDxe.efi | `MdePkg/Library/AsanMemoryLibRepStr/ZeroMemWrapper.c` | ZeroMemWrapper.c:62 | heap-buffer-overflow (write) | 1 | EfiSimpleNetwork | write of 2845 bytes at 0x00000000D9A24228 input driven, in firmware code |
-| (unattributed) | `MdePkg/Library/AsanMemoryLibRepStr/CopyMemWrapper.c` | CopyMemWrapper.c:72 | heap-buffer-overflow (read) | 2 | EfiHiiDatabase, HiiStack | read of 4 bytes at 0x00000000D9AA34BC input driven, in firmware code |
-| DevicePathDxe.efi | `MdePkg/Library/AsanMemoryLibRepStr/CopyMemWrapper.c` | CopyMemWrapper.c:72 | heap-buffer-overflow (read) | 1 | EfiDevicePathUtilities | read of 24171 bytes at 0x00000000D9A970A8 input driven, in firmware code |
 | DxeCore.efi | `MdeModulePkg/Core/Dxe/FwVolBlock/FwVolBlock.c` | FwVolBlock.c:217 | null-pointer-write | 10 | EfiFirmwareVolumeBlock | store to null pointer of type 'UINTN' (aka 'unsigned long long') input driven, in firmware code |
 | QemuVideoDxe.efi | `MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.c` | FrameBufferBltLib.c:526 | null-pointer-arithmetic | 5632 | EfiGraphicsOutput, EfiUgaDraw | offset applied to a null pointer base 0x0000000000000000 result 0x0000000000000100 input driven, in firmware code |
 | DxeCore.efi | `MdeModulePkg/Core/Dxe/FwVol/FwVolRead.c` | FwVolRead.c:146-155 (2 sites) | null-pointer-read | 3678 | EfiFirmwareVolume2 | load of null pointer of type 'EFI_FV_FILETYPE' (aka 'unsigned char') across 2 types input driven, in firmware code |
@@ -55,24 +52,4 @@ In firmware code but not provoked by any input -- they fire on a plain boot. A r
 |---|---|---|---|---|---|---|
 | HiiDatabase.efi | `MdeModulePkg/Universal/HiiDatabaseDxe/Database.c` | Database.c:3277-3368 (8 sites) | null-pointer-arithmetic | 60744 | EdkiiFormBrowserEx, EdkiiFormBrowserEx2, EdkiiFormDisplayEngine, EdkiiIoMmu +141 | offset applied to a null pointer base 0x0000000000000000 result 0x0000000000000014 seen under 145 unrelated protocols, so it is not input driven -- review, do not dismiss |
 | HiiDatabase.efi | `MdeModulePkg/Universal/HiiDatabaseDxe/Database.c` | Database.c:4177 | null-pointer-arithmetic | 37132 | EdkiiFormBrowserEx, EdkiiFormBrowserEx2, EdkiiFormDisplayEngine, EdkiiIoMmu +141 | offset applied to a null pointer base 0x0000000000000000 result 0x0000000000000000 seen under 145 unrelated protocols, so it is not input driven -- review, do not dismiss |
-
-## Not firmware: the harness
-
-Raised inside the harness image, or by a library linked into it that the firmware never calls. Listed so they are accounted for, not hidden.
-
-| module | source | location | bug type | hits | reached by | detail |
-|---|---|---|---|---|---|---|
-| Firness.efi | `ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.c` | UefiHandleParsingLib.c:3359 | null-pointer-write | 7 | EfiDriverConfiguration | store to null pointer of type 'UINTN' (aka 'unsigned long long') raised inside the harness image itself |
-| Firness.efi | `MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c` | BootScriptSave.c:191-205 (3 sites) | null-pointer-member-access | 348 | EdkiiFormDisplayEngine, EdkiiIoMmu, EdkiiSmmMemoryAttribute, EdkiiUfsHostController +83 | member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA' raised inside the harness image itself |
-| Firness.efi | `MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c` | BootScriptSave.c:144 | null-pointer-member-access | 174 | EdkiiFormDisplayEngine, EdkiiIoMmu, EdkiiSmmMemoryAttribute, EdkiiUfsHostController +83 | member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA' raised inside the harness image itself |
-| Firness.efi | `MdeModulePkg/Library/PiDxeS3BootScriptLib/BootScriptSave.c` | BootScriptSave.c:248-255 (2 sites) | null-pointer-member-access | 174 | EdkiiFormDisplayEngine, EdkiiIoMmu, EdkiiSmmMemoryAttribute, EdkiiUfsHostController +83 | member access within null pointer of type 'SCRIPT_TABLE_PRIVATE_DATA' raised inside the harness image itself |
-| Firness.efi | `MdePkg/Library/BaseLib/Unaligned.c` | Unaligned.c:186 | null-pointer-read | 21 | EdkiiIoMmu, EfiAtaPassThru, EfiDevicePathUtilities, EfiDriverConfiguration +17 | load of null pointer of type 'const UINT64' (aka 'const unsigned long long') raised inside the harness image itself |
-
-## Not firmware: how that code works
-
-Firmware code whose reports are inherent to what it does.
-
-| module | source | location | bug type | hits | reached by | detail |
-|---|---|---|---|---|---|---|
-| QemuVideoDxe.efi | `Platform/Intel/SimicsOpenBoardPkg/SimicsVideoDxe/VbeShim.c` | VbeShim.c:97 | null-pointer-arithmetic | 145 | EdkiiFormBrowserEx, EdkiiFormBrowserEx2, EdkiiFormDisplayEngine, EdkiiIoMmu +141 | offset applied to a null pointer base 0x0000000000000000 result 0x0000000000000040 QemuVideoDxe writes its int10h shim into reserved low memory on purpose |
 

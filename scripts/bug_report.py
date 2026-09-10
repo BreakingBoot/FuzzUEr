@@ -364,9 +364,28 @@ def load(root):
     return clusters, rows
 
 
+# The 32-bit PCI hole. A BAR mapped here is device memory, and the shadow only covers
+# RAM, so a write to a framebuffer reads a shadow byte that describes nothing. QEMU's VGA
+# aperture sits at 0xC0000000 and produced thousands of "unknown-crash" reports that are
+# a graphics driver doing its job.
+MMIO_LOW, MMIO_HIGH = 0xC0000000, 0x100000000
+
+
+def in_mmio(cluster):
+    for report in cluster.reports:
+        found = ADDR_RE.search(report.message)
+        if found and MMIO_LOW <= int(found.group(1), 16) < MMIO_HIGH:
+            return int(found.group(1), 16)
+    return 0
+
+
 def verdict(cluster, boot_keys, ubiquity):
     """Why a cluster is or is not a candidate firmware bug."""
     sample = cluster.reports[0]
+    address = in_mmio(cluster)
+    if address:
+        return 'artefact', (f'the access is at {address:#x}, inside the PCI hole -- device '
+                            f'memory, which the shadow does not describe')
     reason = match_reason(sample.module, HARNESS_SOURCES) or \
         match_reason(sample.path, HARNESS_SOURCES)
     if 'Firness' in sample.module:

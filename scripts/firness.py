@@ -1292,8 +1292,14 @@ def collect_unique_crashes(log_file, output_dir=None):
     with open(log_file, 'r', encoding='utf-8', errors='ignore') as handle:
         prev_line = ''
         for line in handle:
-            # anything after DXE dispatches Firness.efi is attributable to an input
-            if phase == 'boot' and 'EntryPoint=' in line and 'Firness.efi' in line:
+            # Anything after the harness starts fuzzing is attributable to an input.
+            #
+            # Two markers because only one of them reaches this capture on each backend:
+            # Simics puts the DXE dispatch line on the same serial stream, while OVMF
+            # writes DEBUG to the ISA debug port and only AsanLib's own output lands here.
+            # Keying on the dispatch line alone filed every QEMU report as boot noise.
+            if phase == 'boot' and ('FIRNESS: fuzzing starts' in line
+                                    or ('EntryPoint=' in line and 'Firness.efi' in line)):
                 phase = 'fuzz'
 
             loaded = LOAD_LINE.search(line)
