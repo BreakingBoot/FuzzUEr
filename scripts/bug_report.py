@@ -233,6 +233,10 @@ class Cluster:
         strings contain the word "overflow".
         """
         klass = self.klass.lower()
+        if klass.startswith('cpu-exception'):
+            # the guest actually faulted. Whether the harness or the firmware is at fault
+            # is a triage question; it is never noise.
+            return 4
         if 'heap-buffer-overflow' in klass or 'unknown-crash' in klass:
             return 5 if '(write)' in klass else 4
         if any(k in klass for k in ('use-after-free', 'double-free', 'use-after-poison',
@@ -269,6 +273,52 @@ class Cluster:
         return suffix.strip() or ''
 
 
+EXC_RE = re.compile(r'X64 Exception Type - ([0-9A-Fa-f]{2})\(([^)]*)\)')
+IMG_RE = re.compile(r'Find image based on IP\((0x[0-9A-Fa-f]+)\)[^\n]*?/([A-Za-z0-9_]+)\.dll '
+                    r'\(ImageBase=([0-9A-Fa-f]+)')
+
+
+def guest_faults(protocol, path):
+    """CPU exceptions the guest took, from the serial capture.
+
+    A sanitizer report is not the only way a campaign finds something. Under the QEMU
+    backend most findings are a fault: the harness drives the firmware into a #GP and the
+    iteration ends. Those never reach crashes.csv, which only carries sanitizer output, so
+    a report built from that alone says a QEMU campaign found nothing.
+
+    The location is the module and the offset into it, because symbolising needs the build
+    tree. Resolve one with:
+
+        llvm-symbolizer --obj=<Build>/.../<Module>.debug --functions=linkage <rva>
+    """
+    if not os.path.isfile(path):
+        return []
+    try:
+        with open(path, 'rb') as handle:
+            text = handle.read().decode('utf-8', errors='replace').replace('\r', '')
+    except OSError:
+        return []
+    kinds = EXC_RE.findall(text)
+    if not kinds:
+        return []
+    images = IMG_RE.findall(text)
+    _, name = kinds[0]
+    module, where, message = '', '', f'{len(kinds)} fault(s)'
+    if images:
+        ip, module, base = images[0]
+        offset = int(ip, 16) - int(base, 16)
+        where = f'+{offset:#x}'
+        message = f'{len(kinds)} fault(s) at {module}{where}'
+    rows = []
+    for _ in range(len(kinds)):
+        rows.append(Report({'Phase': 'fuzz', 'Module': f'{module}.efi' if module else '',
+                            'File': where or 'unattributed',
+                            'Line': '', 'Asan Msg': '',
+                            'ErrorType': f'cpu-exception ({name.split("-")[0].strip()})',
+                            'Message': message, 'Count': '1'}, protocol))
+    return rows
+
+
 def load(root):
     """Read every crashes.csv, then merge reports that sit close together.
 
@@ -288,6 +338,9 @@ def load(root):
                 report = Report(row, protocol)
                 rows += 1
                 groups[report.group_key()].append(report)
+        for report in guest_faults(protocol, os.path.join(root, protocol, 'fuzz.txt')):
+            rows += 1
+            groups[report.group_key()].append(report)
 
     clusters = {}
     for base, reports in groups.items():
@@ -335,6 +388,64 @@ def verdict(cluster, boot_keys, ubiquity):
     return 'candidate', ''
 
 
+VERDICT_NOTE = {
+    'candidate': 'input driven, in firmware code',
+    'ubiquitous': 'present regardless of the input',
+    'harness': 'the harness, not the firmware',
+    'artefact': 'how that code works, not a defect',
+}
+
+
+def write_markdown(path, title, preamble, buckets, rows, clusters):
+    """One row per bug, with enough beside it to act on without rerunning anything."""
+    def line(cluster, reason, verdict):
+        detail = cluster.detail() or ''
+        note = reason or VERDICT_NOTE.get(verdict, '')
+        where = cluster.reports[0].path or ''
+        # the repo-relative path is what a reader can actually open
+        for marker in ('/edk2/', '/edk2-platforms/'):
+            if marker in where:
+                where = where.split(marker, 1)[1]
+                break
+        if cluster.klass.startswith('cpu-exception'):
+            # no source line for a fault: the location is an offset into the image, and
+            # saying "symbolise this" is more use than repeating the module name twice
+            where = 'no source -- symbolise the offset'
+        protocols = ', '.join(sorted(cluster.protocols)[:4])
+        if len(cluster.protocols) > 4:
+            protocols += f' +{len(cluster.protocols) - 4}'
+        return (f'| {cluster.module or "(unattributed)"} | `{where}` | {cluster.site} | '
+                f'{cluster.klass} | {cluster.hits} | {protocols} | {detail} {note} |')
+
+    with open(path, 'w') as handle:
+        handle.write(f'# {title}\n\n{preamble}\n\n')
+        handle.write(f'{rows} report rows from the campaigns, clustered into '
+                     f'{clusters} distinct sites.\n\n')
+        for verdict, heading, blurb in (
+            ('candidate', 'Firmware, provoked by an input',
+             'Reached because a testcase drove it there. Ordered by severity.'),
+            ('ubiquitous', 'Firmware, present on every run',
+             'In firmware code but not provoked by any input -- they fire on a plain '
+             'boot. A real defect can sit here; confirm by reading the source.'),
+            ('harness', 'Not firmware: the harness',
+             'Raised inside the harness image, or by a library linked into it that the '
+             'firmware never calls. Listed so they are accounted for, not hidden.'),
+            ('artefact', 'Not firmware: how that code works',
+             'Firmware code whose reports are inherent to what it does.'),
+        ):
+            entries = sorted(buckets.get(verdict, []),
+                             key=lambda pair: (-pair[0].severity(), -pair[0].hits))
+            handle.write(f'## {heading}\n\n{blurb}\n\n')
+            if not entries:
+                handle.write('None.\n\n')
+                continue
+            handle.write('| module | source | location | bug type | hits | reached by | '
+                         'detail |\n|---|---|---|---|---|---|---|\n')
+            for cluster, reason in entries:
+                handle.write(line(cluster, reason, verdict) + '\n')
+            handle.write('\n')
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Cluster sanitizer reports into bugs and drop the harness ones')
@@ -344,6 +455,9 @@ def main():
                         help='a cluster under this many protocols or more is background '
                              '(default 8)')
     parser.add_argument('--json', default='', help='write the full result here')
+    parser.add_argument('--markdown', default='', help='write a readable bug list here')
+    parser.add_argument('--title', default='Bugs', help='heading for --markdown')
+    parser.add_argument('--preamble', default='', help='paragraph under the heading')
     parser.add_argument('--show-filtered', action='store_true',
                         help='list every filtered cluster, not just the counts')
     parser.add_argument('--known', default='',
@@ -424,6 +538,11 @@ def main():
         print(f'\nnew clusters against the known set: {len(new_ids)}')
         for ident in new_ids:
             print(f'  {ident}')
+
+    if args.markdown:
+        write_markdown(args.markdown, args.title, args.preamble, buckets, rows,
+                       len(clusters))
+        print(f'\nWrote {args.markdown}')
 
     if args.json:
         payload = {

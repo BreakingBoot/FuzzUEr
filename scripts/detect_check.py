@@ -10,7 +10,7 @@ So this asserts on findings, not on exit codes. Each check states what it expect
 it, and says PASS or FAIL with the evidence.
 
   python3 scripts/detect_check.py --code OVMF_CODE.fd --vars OVMF_VARS.fd \\
-      --selftest AsanSelfTest.efi --matrix <dir> --known results/known-bugs.json
+      --selftest AsanSelfTest.efi --matrix <dir> --known scripts/known-bugs.json
 
 Any check whose inputs are not given is skipped and reported as such, so a partial run
 never reads as a pass.
