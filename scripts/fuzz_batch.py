@@ -154,6 +154,29 @@ def already_done(output, protocol):
     return os.path.isfile(os.path.join(output, protocol, 'log.json'))
 
 
+def bindable(output, image):
+    """Can the daemon actually bind this directory, or only something that looks like it?
+
+    A bind whose source the daemon cannot see is not an error: docker creates the path
+    inside its own namespace, the container writes there happily, every campaign exits 0
+    and every result directory on the host is empty. A whole batch was lost that way, and
+    nothing in the output said so -- it reads as campaigns that found nothing.
+
+    So write a file through the daemon and look for it here before committing to a run.
+    """
+    probe = os.path.join(os.path.abspath(output), '.bindprobe')
+    os.makedirs(os.path.dirname(probe), exist_ok=True)
+    if os.path.exists(probe):
+        os.unlink(probe)
+    subprocess.run(['docker', 'run', '--rm', '-v', f'{os.path.abspath(output)}:/probe',
+                    image, 'bash', '-c', 'touch /probe/.bindprobe'],
+                   capture_output=True, text=True)
+    ok = os.path.exists(probe)
+    if ok:
+        os.unlink(probe)
+    return ok
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Fuzz many protocols in parallel and collect one log per protocol')
@@ -260,6 +283,13 @@ def main():
         return 2
 
     os.makedirs(args.output, exist_ok=True)
+    if not args.dry_run and not bindable(args.output, args.image):
+        print(f'the docker daemon cannot bind {os.path.abspath(args.output)} -- it would '
+              f'mount a directory of its own there and every campaign would exit 0 having '
+              f'written nothing to the host. Choose a path the daemon shares, such as one '
+              f'under the repo.', file=sys.stderr)
+        return 2
+
     todo = [p for p in todo if not already_done(args.output, p)]
     print(f'{len(todo)} protocol(s) to fuzz, {args.jobs} at a time, '
           f'{args.budget}s each')
