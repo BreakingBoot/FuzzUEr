@@ -66,6 +66,23 @@ def guid_for(protocol, names, harness_dir=None):
     return None
 
 
+def binding_guid_for(protocol, names):
+    """The service binding GUID for a protocol that is reached by creating a child.
+
+    EFI_TCP4_PROTOCOL is never installed by its driver: TcpDxe installs
+    EFI_TCP4_SERVICE_BINDING_PROTOCOL, and the child protocol appears only when a consumer
+    calls CreateChild. On OVMF nothing did, so a census looking for the child GUID called
+    TCP4 absent on firmware that has a fully bound TcpDxe -- while UDP4 looked present
+    only because PXE happened to create five children. The harness creates its own child,
+    so the binding is what decides whether the protocol can be fuzzed.
+    """
+    for candidate in (f'g{protocol}ServiceBindingProtocolGuid',
+                      f'g{protocol}ServiceBindingGuid'):
+        if candidate in names:
+            return names[candidate]
+    return None
+
+
 def installed_guids(capture):
     text = open(capture, errors='ignore').read().replace('\x00', '')
     return {g.upper() for g in INSTALLED.findall(text)}
@@ -107,19 +124,34 @@ def main():
 
     rows = [['protocol', 'guid', 'status']]
     counts = {'present': 0, 'absent': 0, 'unknown': 0}
+    bindings = []
     for path in sorted(glob.glob(os.path.join(evalset, '*.txt'))):
         protocol = os.path.basename(path)[:-4]
         guid = guid_for(protocol, names, args.harness_dir)
-        if guid is None:
+        binding = binding_guid_for(protocol, names)
+        if guid is None and binding is None:
+            status = 'unknown'
+        elif guid is not None and guid in present:
+            status = 'present'
+        elif binding is not None and binding in present:
+            # the driver is bound and the harness supplies the CreateChild the boot never
+            # needed, so this is reachable even though the child protocol is not installed
+            status = 'present'
+            guid = guid or binding
+            bindings.append(protocol)
+        elif guid is None:
             status = 'unknown'
         else:
-            status = 'present' if guid in present else 'absent'
+            status = 'absent'
         counts[status] += 1
         rows.append([protocol, guid or '', status])
 
     print(f'{len(present)} protocols installed by this firmware')
     print(f'  present: {counts["present"]}   absent: {counts["absent"]}   '
           f'unresolved guid: {counts["unknown"]}')
+    if bindings:
+        print(f'  {len(bindings)} present via a service binding the harness creates a '
+              f'child on: {", ".join(bindings)}')
     if counts['absent']:
         print('  absent campaigns cost a full boot and budget to produce only harness '
               'startup coverage')
