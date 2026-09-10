@@ -98,10 +98,14 @@ fn qemu_args() -> Vec<String> {
     let memory = env_or("FIRNESS_MEMORY", "2048");
     let bios_dir = qemu_bios_dir();
 
-    [
+    // q35 by default; "q35,smm=on" for an SMI harness, which needs SMRAM to exist before
+    // PiSmmIpl will publish anything. The extra globals an SMM build needs come with it,
+    // because X64 plus SMM asserts in Platform.c without S3 disabled.
+    let machine = env_or("FIRNESS_QEMU_MACHINE", "q35");
+    let mut argv: Vec<String> = [
         "qemu-system-x86_64",
         "-machine",
-        "q35",
+        &machine,
         "-m",
         &memory,
         // One CPU, and the override OVMF asks for by name. Against QEMU 6.2 OVMF's
@@ -136,7 +140,14 @@ fn qemu_args() -> Vec<String> {
     ]
     .iter()
     .map(|s| s.to_string())
-    .collect()
+    .collect();
+    if machine.contains("smm=on") {
+        for extra in ["-global", "ICH9-LPC.disable_s3=1",
+                      "-global", "driver=cfi.pflash01,property=secure,value=on"] {
+            argv.push(extra.to_string());
+        }
+    }
+    argv
 }
 
 pub fn main() {
