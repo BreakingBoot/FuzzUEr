@@ -1251,7 +1251,10 @@ def collect_unique_crashes(log_file, output_dir=None):
                 pending = []
 
             if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev_line:
-                parts = prev_line.split(',')
+                # split(',', 2) so a detail containing a comma survives: the message
+                # is free text from the firmware and only the first two fields are
+                # positional.
+                parts = prev_line.split(',', 2)
                 path = parts[0]
                 line_no = ''
                 if len(parts) > 1 and ':' in parts[1]:

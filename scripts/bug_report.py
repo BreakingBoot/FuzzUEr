@@ -61,6 +61,47 @@ KNOWN_ARTEFACTS = [
     ('VbeShim', 'QemuVideoDxe writes its int10h shim into reserved low memory on purpose'),
 ]
 
+# The sanitizer names the handler it entered, not the defect. `__ubsan_handle_type_mismatch_v1`
+# covers a null dereference, a misaligned access and an undersized object; grouping all
+# three under "ubsan" throws away the distinction that decides whether a finding matters.
+# These are the clang runtime's own categories, spelled the way its diagnostics do.
+UBSAN_HANDLERS = {
+    'type_mismatch': 'invalid-pointer-use',
+    'pointer_overflow': 'pointer-arithmetic',
+    'add_overflow': 'signed-integer-overflow',
+    'sub_overflow': 'signed-integer-overflow',
+    'mul_overflow': 'signed-integer-overflow',
+    'negate_overflow': 'negation-overflow',
+    'divrem_overflow': 'division-overflow',
+    'shift_out_of_bounds': 'invalid-shift',
+    'out_of_bounds': 'array-index-out-of-bounds',
+    'load_invalid_value': 'invalid-enum-or-bool-value',
+    'nonnull_arg': 'null-passed-to-nonnull-parameter',
+    'nonnull_return': 'null-returned-from-nonnull-function',
+    'builtin_unreachable': 'reached-unreachable-code',
+    'missing_return': 'missing-return',
+    'vla_bound_not_positive': 'invalid-vla-bound',
+    'alignment_assumption': 'alignment-assumption-violated',
+    'function_type_mismatch': 'indirect-call-type-mismatch',
+    'float_cast_overflow': 'float-cast-overflow',
+    'implicit_conversion': 'lossy-implicit-conversion',
+    'invalid_builtin': 'invalid-builtin-argument',
+}
+
+# What the firmware writes into ErrorType, refined by the sentence that follows it.
+UBSAN_DETAIL = [
+    ('member access within null pointer', 'null-pointer-member-access'),
+    ('load of null pointer', 'null-pointer-read'),
+    ('store to null pointer', 'null-pointer-write'),
+    ('misaligned address', 'misaligned-pointer-use'),
+    ('insufficient space', 'object-too-small-for-type'),
+    ('offset applied to a null pointer', 'null-pointer-arithmetic'),
+    ('pointer index expression overflowed', 'pointer-arithmetic-overflow'),
+]
+
+TYPE_NAME = re.compile(r"of type '([^']+)'")
+
+
 # The interceptor reports at its own source line, so the file says CopyMemWrapper.c for
 # every out-of-bounds copy in the image. Cluster those by caller instead.
 INTERCEPTOR_SOURCES = ('CopyMemWrapper', 'SetMemWrapper', 'ScanMem', 'CompareMemWrapper',
@@ -107,13 +148,42 @@ class Report:
         except (TypeError, ValueError):
             return -1
 
+    def bug_type(self):
+        """The defect, not the handler that reported it.
+
+        Falls back to the handler's category when the firmware did not record a detail,
+        and says so rather than inventing one -- an older capture has no ErrorType on a
+        pointer_overflow at all.
+        """
+        haystack = f'{self.kind} {self.message}'.lower()
+        for needle, name in UBSAN_DETAIL:
+            if needle in haystack:
+                return name
+        if self.asan.startswith('__ubsan_handle_'):
+            stem = self.asan[len('__ubsan_handle_'):].replace('_abort', '')
+            stem = stem[:-3] if stem.endswith('_v1') else stem
+            base = UBSAN_HANDLERS.get(stem, stem.replace('_', '-'))
+            return f'{base} (undetailed)' if not self.message else base
+        if self.asan:
+            # an ASan class is already specific; the direction is the part that decides
+            # how bad it is, and it is in the message rather than the class
+            write = WRITE_RE.search(self.message)
+            if write:
+                return f'{self.asan} ({"write" if int(write.group(1), 16) else "read"})'
+            return self.asan
+        return self.kind or 'unknown'
+
+    def type_name(self):
+        found = TYPE_NAME.search(self.message)
+        return found.group(1) if found else ''
+
     def group_key(self):
         """Reports that could be the same bug, before proximity is considered.
 
         An interceptor reports at its own source line, so the file is always the wrapper
         and the caller is the only thing that separates two different overflows.
         """
-        klass = self.asan or self.kind
+        klass = self.bug_type()
         if any(name in self.basename for name in INTERCEPTOR_SOURCES):
             return (self.module, klass, 'via:' + (self.ip or self.basename))
         return (self.module, klass, self.basename)
@@ -157,24 +227,35 @@ class Cluster:
     def severity(self):
         """Higher is more likely to be a memory-safety defect worth chasing.
 
-        The class string decides, and the distinction that matters is which sanitizer
-        raised it. `__ubsan_handle_pointer_overflow` contains the word "overflow" and is
-        nothing like a heap-buffer-overflow: the first is arithmetic on a pointer, usually
-        NULL plus an offset that is never dereferenced, the second is a real access past
-        an allocation.
+        Ordered by what an attacker gets, not by how loud the report is. A write past an
+        allocation is the top of the list; arithmetic on a null pointer that is never
+        dereferenced is near the bottom, and the two used to sort together because both
+        strings contain the word "overflow".
         """
         klass = self.klass.lower()
-        ubsan = klass.startswith('__ubsan') or klass == 'ubsan'
-        if ubsan:
-            return 2 if 'pointer_overflow' in klass else 1
-        writing = 'write of' in self.detail().lower()
         if 'heap-buffer-overflow' in klass or 'unknown-crash' in klass:
-            return 5 if writing else 4
-        if 'use-after-free' in klass or 'double' in klass:
+            return 5 if '(write)' in klass else 4
+        if any(k in klass for k in ('use-after-free', 'double-free', 'use-after-poison',
+                                    'use-after-return', 'use-after-scope')):
             return 4
-        return 3
+        if 'buffer-overflow' in klass or 'buffer-underflow' in klass or \
+                'array-index-out-of-bounds' in klass or 'intra-object' in klass:
+            return 4
+        if 'pointer-arithmetic-overflow' in klass or 'null-pointer-write' in klass or \
+                'object-too-small' in klass or 'indirect-call-type-mismatch' in klass:
+            return 3
+        if 'null-pointer' in klass or 'misaligned' in klass or \
+                'nonnull' in klass or 'pointer-arithmetic' in klass:
+            return 2
+        return 1
 
     def detail(self):
+        # the type the firmware was reading through says a lot about a null dereference:
+        # a member access on SCRIPT_TABLE_PRIVATE_DATA is a different bug from one on CHAR16
+        # Only when it adds something. The message already names the type for a single
+        # one, so repeating it is noise; spanning several is the part worth saying.
+        names = {r.type_name() for r in self.reports if r.type_name()}
+        suffix = f' across {len(names)} types' if len(names) > 1 else ''
         for report in self.reports:
             if report.message:
                 size = SIZE_RE.search(report.message)
@@ -184,8 +265,8 @@ class Cluster:
                     direction = 'write' if int(write.group(1), 16) else 'read'
                     return (f'{direction} of {int(size.group(1), 16)} bytes'
                             f'{" at " + addr.group(1) if addr else ""}')
-                return report.message[:90]
-        return ''
+                return report.message[:90] + suffix
+        return suffix.strip() or ''
 
 
 def load(root):
