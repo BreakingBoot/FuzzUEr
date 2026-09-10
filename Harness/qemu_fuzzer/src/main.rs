@@ -159,6 +159,23 @@ fn qemu_args() -> Vec<String> {
         argv.push("-device".to_string());
         argv.push(format!("{nic},netdev=firnessnet"));
     }
+    // Same argument as the NIC, for the USB stack: UsbBusDxe and the class drivers are in
+    // the image, but with no host controller on the machine EFI_USB_IO_PROTOCOL and
+    // EFI_USB2_HC_PROTOCOL are never installed, and a census of the running firmware puts
+    // them in the "absent on QEMU" column next to differences that are real. An xHCI
+    // controller with a small backing disk brings both back and costs one device.
+    let usb = env_or("FIRNESS_QEMU_USB", "qemu-xhci");
+    if usb != "none" {
+        argv.push("-device".to_string());
+        argv.push(format!("{usb},id=firnessusb"));
+        let backing = env_or("FIRNESS_QEMU_USB_DISK", "");
+        if !backing.is_empty() {
+            argv.push("-drive".to_string());
+            argv.push(format!("id=firnessud,file={backing},format=raw,if=none"));
+            argv.push("-device".to_string());
+            argv.push("usb-storage,bus=firnessusb.0,drive=firnessud".to_string());
+        }
+    }
     let vga = env_or("FIRNESS_QEMU_VGA", "std");
     argv.push("-vga".to_string());
     argv.push(vga);
