@@ -73,6 +73,78 @@ def build_sizes(build_dirs):
     return sizes
 
 
+def package_relative(path):
+    """The part of a path from its edk2 package root onwards, or '' if there is none.
+
+    A build tree and a report's source path share only the package relative part -- one is
+    rooted at Build/<Plat>/<TARGET>_<TOOL>/<ARCH>, the other wherever the build ran. Every
+    edk2 package directory ends in "Pkg", which is what makes the two comparable.
+    """
+    parts = path.replace(os.sep, '/').strip('/').split('/')
+    for index, part in enumerate(parts):
+        if part.endswith('Pkg'):
+            return '/'.join(parts[index:])
+    return ''
+
+
+class SourceMap:
+    """Which module owns a source file, from the shape of the build tree.
+
+    An ASan report carries the address that faulted, so the image map resolves it. A UBSan
+    report does not: it names a source file and a line and nothing else, which is why every
+    row in the Simics corpus is unattributed even though its capture has the load addresses.
+
+    edk2 builds each module into <arch>/<pkg>/<path>/<ModuleDir>/<Name>/OUTPUT/<Name>.efi,
+    so three levels above the .efi is exactly the directory that module's sources live in.
+    That maps a report's file back to the driver that compiled it.
+
+    It only covers files the module owns. Code from a library instance is compiled into
+    that library's own directory, so FrameBufferBltLib.c resolves to no module here and
+    has to come from the faulting address instead -- the two are complementary, not
+    alternatives.
+    """
+
+    def __init__(self, build_dirs):
+        self.by_dir = {}
+        for root in build_dirs:
+            for base, _, files in os.walk(root):
+                for name in files:
+                    if not name.endswith('.efi'):
+                        continue
+                    stem = name[:-4]
+                    # The build directory is named for the INF, the image for its
+                    # BASE_NAME, and the two often differ -- HiiDatabaseDxe.inf produces
+                    # HiiDatabase.efi and DxeMain.inf produces DxeCore.efi. Keying on the
+                    # names matching drops exactly those modules, so key on the structure:
+                    # <module dir>/<inf stem>/{OUTPUT,DEBUG}/<image>.
+                    if os.path.basename(base) not in ('OUTPUT', 'DEBUG'):
+                        continue
+                    module_dir = os.path.dirname(os.path.dirname(base))
+                    key = package_relative(module_dir)
+                    if key:
+                        self.by_dir.setdefault(key, stem)
+
+    def __len__(self):
+        return len(self.by_dir)
+
+    def resolve(self, source_path):
+        """The module owning this source file, or None."""
+        if not source_path:
+            return None
+        wanted = package_relative(os.path.dirname(source_path.replace('\\', '/')))
+        # A module keeps sources in subdirectories -- DxeCore's FwVol/FwVolRead.c belongs
+        # to MdeModulePkg/Core/Dxe -- so walk up until a directory is one a module was
+        # built from. The package root is the floor; above it a match would be a guess.
+        while wanted:
+            name = self.by_dir.get(wanted)
+            if name:
+                return name
+            if '/' not in wanted:
+                return None
+            wanted = wanted.rsplit('/', 1)[0]
+        return None
+
+
 class ImageMap:
     """The images a boot loaded, ordered so an address can be looked up."""
 
@@ -127,6 +199,17 @@ def map_from_logs(paths, build_dirs=()):
         for base, entry, name in LOAD_RE.findall(read_text(path)):
             loads.append((int(base, 16), int(entry, 16), name))
     return ImageMap(loads, build_sizes(build_dirs) if build_dirs else {})
+
+
+_SOURCE_MAPS = {}
+
+
+def source_map(build_dirs):
+    """One SourceMap per set of build trees; walking them is not cheap."""
+    key = tuple(sorted(build_dirs))
+    if key not in _SOURCE_MAPS:
+        _SOURCE_MAPS[key] = SourceMap(build_dirs)
+    return _SOURCE_MAPS[key]
 
 
 def describe(imap, ip):

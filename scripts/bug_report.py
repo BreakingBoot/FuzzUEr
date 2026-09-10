@@ -344,13 +344,22 @@ def load(root, build_dirs=()):
         if not os.path.isfile(path):
             continue
         imap = resolve_modules.map_from_logs([serial], build_dirs)
+        smap = resolve_modules.source_map(build_dirs) if build_dirs else None
 
         def attribute(report):
-            if report.module or not len(imap):
+            if report.module:
                 return report
-            found = imap.resolve(int(report.ip, 16)) if report.ip else None
+            # An ASan report carries the faulting address, so the image map places it
+            # exactly, including code from a library instance. A UBSan report carries only
+            # a file and a line, and for those the build tree says which module compiled
+            # that file. Neither covers the other's rows.
+            found = imap.resolve(int(report.ip, 16)) if report.ip and len(imap) else None
             if found:
                 report.module = f'{found[0]}.efi'
+            elif smap is not None:
+                owner = smap.resolve(report.path)
+                if owner:
+                    report.module = f'{owner}.efi'
             return report
 
         with open(path, newline='') as handle:
