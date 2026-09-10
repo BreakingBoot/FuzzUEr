@@ -1477,8 +1477,14 @@ def generate_report(simics_dir, output_dir):
     coverage_per_time = parse_coverage_into(log_file)
     save_coverage_to_file(coverage_per_time, output_csv)
     plot_coverage(coverage_per_time, output_plot)
-    # the timeout path needs the same crash triage the Ctrl+C path does
-    collect_unique_crashes(fuzz_log, output_dir)
+    # A run that never booted leaves no serial capture. Reporting that plainly beats a
+    # traceback, which buries the reason the campaign failed under a stack trace from the
+    # reporting code.
+    if os.path.isfile(fuzz_log):
+        collect_unique_crashes(fuzz_log, output_dir)
+    else:
+        print(f'Warning: no serial capture at {fuzz_log} -- the run produced no output, '
+              f'so there is no crash table. The fuzzer log says why.')
 
     print('++++ Generated Report ++++')
 

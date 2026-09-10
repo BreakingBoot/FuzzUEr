@@ -130,17 +130,38 @@ fn qemu_args() -> Vec<String> {
         "isa-debugcon.iobase=0x402",
         "-serial",
         &format!("file:{}", env_or("FIRNESS_SERIAL", "/tmp/firness_serial.log")),
-        // no display and no display adapter: the harness reports over serial, and the
-        // vga bios is one more rom to find and one more device in every snapshot
+        // no display: the harness reports over serial
         "-display",
-        "none",
-        "-vga",
         "none",
         "-no-reboot",
     ]
     .iter()
     .map(|s| s.to_string())
     .collect();
+    // Devices the protocols under test are attached to. Without them the drivers load
+    // and bind nothing: SnpDxe and VirtioNetDxe were both in the image while the machine
+    // had no NIC, so EFI_SIMPLE_NETWORK_PROTOCOL was never installed and the harness for
+    // it had nothing to call. A campaign against a protocol that does not exist runs to
+    // completion and reports coverage, which is the worst way to find that out.
+    //
+    // FIRNESS_QEMU_NIC and FIRNESS_QEMU_VGA take a comma separated argument list, or
+    // "none" to leave that device out.
+    // A hub port, not user networking: the QEMU this fuzzer links has no slirp, so
+    // "-netdev user" fails with "network backend 'user' is not compiled into this
+    // binary" -- the same shape as its missing vvfat. A NIC on an empty hub carries no
+    // traffic, which is all this needs: the point is that the device exists so the
+    // driver binds and installs the protocol. Point FIRNESS_QEMU_NETDEV at a socket
+    // backend to put scripts/net_peer.py on the other end.
+    let nic = env_or("FIRNESS_QEMU_NIC", "virtio-net-pci");
+    if nic != "none" {
+        argv.push("-netdev".to_string());
+        argv.push(env_or("FIRNESS_QEMU_NETDEV", "hubport,id=firnessnet,hubid=0"));
+        argv.push("-device".to_string());
+        argv.push(format!("{nic},netdev=firnessnet"));
+    }
+    let vga = env_or("FIRNESS_QEMU_VGA", "std");
+    argv.push("-vga".to_string());
+    argv.push(vga);
     if machine.contains("smm=on") {
         for extra in ["-global", "ICH9-LPC.disable_s3=1",
                       "-global", "driver=cfi.pflash01,property=secure,value=on"] {
