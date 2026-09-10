@@ -84,6 +84,12 @@ def main():
                         help='a previous run directory, to read each harness for the guid it '
                              'locates instead of relying on the naming convention')
     parser.add_argument('--out', default=None, help='write the census here as csv')
+    parser.add_argument('--against', default=None,
+                        help='a census csv from the other backend; report what each '
+                             'firmware has that the other does not')
+    parser.add_argument('--matched', default=None,
+                        help='with --against, write the protocols present on both, one '
+                             'per line, to drive both matrices from the same set')
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -121,7 +127,38 @@ def main():
         with open(args.out, 'w', newline='') as handle:
             csv.writer(handle).writerows(rows)
         print(f'  wrote {args.out}')
+
+    if args.against:
+        compare(rows, args.against, args.matched)
     return 0
+
+
+def compare(rows, other_path, matched_path=None):
+    """What each firmware installs that the other does not.
+
+    Two backends running different protocol sets are not two measurements of the same
+    thing, and the difference does not announce itself: an absent protocol produces a
+    campaign that boots, runs its whole budget and reports coverage, so a matrix compares
+    as though both sides tested it. The intersection is the only set where a difference in
+    findings is a difference in the backends.
+    """
+    mine = {row[0]: row[2] for row in rows[1:]}
+    with open(other_path, newline='') as handle:
+        theirs = {row['protocol']: row['status'] for row in csv.DictReader(handle)}
+    names = sorted(set(mine) | set(theirs))
+    both = [n for n in names if mine.get(n) == 'present' and theirs.get(n) == 'present']
+    only_mine = [n for n in names if mine.get(n) == 'present' and theirs.get(n) != 'present']
+    only_theirs = [n for n in names if theirs.get(n) == 'present' and mine.get(n) != 'present']
+    label = os.path.basename(other_path)
+    print(f'\n  present on both        : {len(both)}')
+    print(f'  only this firmware     : {len(only_mine)}'
+          + (f'  ({", ".join(only_mine)})' if only_mine else ''))
+    print(f'  only {label:18}: {len(only_theirs)}'
+          + (f'  ({", ".join(only_theirs)})' if only_theirs else ''))
+    if matched_path:
+        with open(matched_path, 'w') as handle:
+            handle.write('\n'.join(both) + '\n')
+        print(f'  wrote {matched_path} -- run both matrices from this set')
 
 
 if __name__ == '__main__':

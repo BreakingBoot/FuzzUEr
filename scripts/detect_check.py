@@ -93,13 +93,17 @@ def check_selftest(args, work):
     shutil.copyfile(args.selftest, os.path.join(esp, 'EFI', 'BOOT', 'BOOTX64.EFI'))
     debug, serial, _ = boot(args, work,
                             extra=['-drive', f'file=fat:rw:{esp},format=raw,if=ide'])
-    if 'AsanSelfTest' not in debug:
+    # Where DEBUG lands depends on the build: -D DEBUG_ON_SERIAL_PORT puts it on the same
+    # wire as the sanitizer and leaves debugcon empty. Look for the narration in both, or
+    # a serial-DEBUG image reads as a guest that never booted.
+    narration = debug + serial
+    if 'AsanSelfTest' not in narration:
         return False, 'the self test never ran -- the guest did not boot it'
-    missing = [name for name, marker in SELFTEST_EXPECT if marker not in debug]
+    missing = [name for name, marker in SELFTEST_EXPECT if marker not in narration]
     if missing:
         return False, f'never reached: {", ".join(missing)}'
     # the control must be silent: it announces itself, then nothing may be reported for it
-    if 'control, expect NO report' not in debug:
+    if 'control, expect NO report' not in narration:
         return False, 'the control case did not run, so a silent runtime would pass'
     found = []
     if 'double free' in serial.lower():
@@ -122,7 +126,7 @@ def check_selftest(args, work):
 
 def check_network(args, work):
     """The peer completes a PXE boot and the guest runs what it is handed."""
-    debug, _, peer = boot(args, work, serve=args.selftest, peer_port=args.peer_port,
+    debug, serial, peer = boot(args, work, serve=args.selftest, peer_port=args.peer_port,
                           extra=['-netdev',
                                  f'socket,id=n0,connect=127.0.0.1:{args.peer_port}',
                                  '-device',
@@ -130,7 +134,7 @@ def check_network(args, work):
     if 'transfers completed: 1' not in peer:
         tail = [line for line in peer.splitlines() if line.startswith(('frames', 'tftp'))]
         return False, f'the TFTP transfer did not complete ({"; ".join(tail) or "no peer output"})'
-    if 'AsanSelfTest' not in debug:
+    if 'AsanSelfTest' not in debug + serial:
         return False, 'the image was fetched but never executed'
     return True, 'DHCP, ARP, TFTP transfer complete, image executed'
 

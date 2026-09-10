@@ -32,6 +32,9 @@ import re
 import sys
 from collections import defaultdict
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import resolve_modules
+
 IP_RE = re.compile(r'ip (0x[0-9A-Fa-f]+)')
 ADDR_RE = re.compile(r'address (0x[0-9A-Fa-f]+)')
 SIZE_RE = re.compile(r'size (0x[0-9A-Fa-f]+)')
@@ -319,26 +322,43 @@ def guest_faults(protocol, path):
     return rows
 
 
-def load(root):
+def load(root, build_dirs=()):
     """Read every crashes.csv, then merge reports that sit close together.
 
     Proximity has to be single linkage, not a fixed bucket. ExportPackageList raises the
     same construct every 13 lines from 3277 to 3368; bucketing by line // 32 split that
     one defect across four clusters purely on where the boundaries fell, which is the
     opposite of what this is for.
+
+    A sanitizer row names the interceptor's own source file, so without a module it
+    clusters with every other caller of that interceptor. The campaign's serial capture
+    carries the dispatch narration when the firmware was built with DEBUG_ON_SERIAL_PORT,
+    so the ip in the message can be turned back into a driver here -- one image map per
+    protocol, because each campaign is its own boot at its own addresses.
     """
     groups = defaultdict(list)
     rows = 0
     for protocol in sorted(os.listdir(root)):
         path = os.path.join(root, protocol, 'crashes.csv')
+        serial = os.path.join(root, protocol, 'fuzz.txt')
         if not os.path.isfile(path):
             continue
+        imap = resolve_modules.map_from_logs([serial], build_dirs)
+
+        def attribute(report):
+            if report.module or not len(imap):
+                return report
+            found = imap.resolve(int(report.ip, 16)) if report.ip else None
+            if found:
+                report.module = f'{found[0]}.efi'
+            return report
+
         with open(path, newline='') as handle:
             for row in csv.DictReader(handle):
-                report = Report(row, protocol)
+                report = attribute(Report(row, protocol))
                 rows += 1
                 groups[report.group_key()].append(report)
-        for report in guest_faults(protocol, os.path.join(root, protocol, 'fuzz.txt')):
+        for report in guest_faults(protocol, serial):
             rows += 1
             groups[report.group_key()].append(report)
 
@@ -487,12 +507,15 @@ def main():
     parser.add_argument('--known', default='',
                         help='a json list of cluster ids already accounted for; anything '
                              'not in it is reported as new')
+    parser.add_argument('--build', action='append', default=[],
+                        help='a build tree, so an unattributed ip can be resolved to the '
+                             'driver that issued it (repeatable)')
     args = parser.parse_args()
 
     if not os.path.isdir(args.root):
         print(f'no such directory: {args.root}', file=sys.stderr)
         return 2
-    clusters, rows = load(args.root)
+    clusters, rows = load(args.root, args.build)
     if not clusters:
         print(f'no crashes.csv under {args.root}')
         return 1
