@@ -612,8 +612,14 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
     # an empty corpus makes LibAFL exit with "No entries in corpus", which reads as a
     # broken target rather than a missing seed
     if not os.listdir(corpus):
+        # Zeroes, not random bytes. A fuzzer needs one input that survives before it has
+        # a corpus to mutate, and random bytes do not survive: every fuzzable handle is a
+        # raw value, so a random EFI_HII_HANDLE is a wild pointer and IsHiiHandleValid
+        # dereferences it -- #GP on the very first execution, nothing imported, and the
+        # client stops with "No entries in corpus". All zeroes takes the NULL path, which
+        # the firmware does check.
         with open(os.path.join(corpus, 'seed'), 'wb') as handle:
-            handle.write(os.urandom(64))
+            handle.write(bytes(64))
 
     environment = dict(os.environ)
     environment.update({
