@@ -4,6 +4,14 @@ import subprocess
 import csv
 import hashlib
 import os
+
+# gen_seeds is imported for the QEMU seed corpus. The campaign image copies this file to
+# /workspace and the rest of scripts/ to /workspace/scripts, so "beside this file" is only
+# right when running from a checkout -- both are tried.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+for _candidate in (_HERE, os.path.join(_HERE, 'scripts')):
+    if os.path.isdir(_candidate) and _candidate not in sys.path:
+        sys.path.insert(0, _candidate)
 import json
 import time
 import random
@@ -612,14 +620,26 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
     # an empty corpus makes LibAFL exit with "No entries in corpus", which reads as a
     # broken target rather than a missing seed
     if not os.listdir(corpus):
-        # Zeroes, not random bytes. A fuzzer needs one input that survives before it has
-        # a corpus to mutate, and random bytes do not survive: every fuzzable handle is a
-        # raw value, so a random EFI_HII_HANDLE is a wild pointer and IsHiiHandleValid
-        # dereferences it -- #GP on the very first execution, nothing imported, and the
-        # client stops with "No entries in corpus". All zeroes takes the NULL path, which
-        # the firmware does check.
-        with open(os.path.join(corpus, 'seed'), 'wb') as handle:
-            handle.write(bytes(64))
+        # One seed per fuzz target, not one seed total.
+        #
+        # Two reasons, and the second is the one that cost whole campaigns. A fuzzer needs
+        # an input that survives before it has a corpus to mutate, and a single seed that
+        # crashes leaves it with none: libafl imports nothing and the client stops with
+        # "No entries in corpus. This often implies the target is not properly
+        # instrumented." EfiAcpiSdt, EfiBlockIo2 and EfiSimpleTextOut each managed one
+        # execution or none that way, against thousands on Simics, which does not stop.
+        # And byte 0 selects which Fuzz<Func>() runs, so a lone seed only ever reaches
+        # target 0 until a mutation happens to change it.
+        try:
+            from gen_seeds import find_target_count, generate_seeds
+            targets = find_target_count(os.path.join(output, 'Firness', 'FirnessMain.c'))
+            if targets:
+                generate_seeds(corpus, targets, 64)
+        except Exception as error:
+            print(f'Warning: could not build a per-target corpus ({error})')
+        if not os.listdir(corpus):
+            with open(os.path.join(corpus, 'seed'), 'wb') as handle:
+                handle.write(bytes(64))
 
     environment = dict(os.environ)
     environment.update({
