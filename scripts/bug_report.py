@@ -421,17 +421,22 @@ def write_markdown(path, title, preamble, buckets, rows, clusters):
         handle.write(f'# {title}\n\n{preamble}\n\n')
         handle.write(f'{rows} report rows from the campaigns, clustered into '
                      f'{clusters} distinct sites.\n\n')
+        # Firmware only. The harness and artefact buckets are counted, not listed: a
+        # report raised inside Firness.efi is not a bug in the thing under test, and
+        # printing it beside real findings is how a solution count gets quoted as a bug
+        # count. The count stays so the filtering is visible rather than silent.
+        dropped = sum(len(buckets.get(k, [])) for k in ('harness', 'artefact', 'background'))
+        if dropped:
+            handle.write(f'{dropped} further cluster(s) were the harness itself, a library '
+                         f'linked into it that the firmware never calls, or code whose '
+                         f'reports are inherent to what it does. Run `bug_report.py '
+                         f'--show-filtered` to see them with the reason for each.\n\n')
         for verdict, heading, blurb in (
             ('candidate', 'Firmware, provoked by an input',
              'Reached because a testcase drove it there. Ordered by severity.'),
             ('ubiquitous', 'Firmware, present on every run',
              'In firmware code but not provoked by any input -- they fire on a plain '
              'boot. A real defect can sit here; confirm by reading the source.'),
-            ('harness', 'Not firmware: the harness',
-             'Raised inside the harness image, or by a library linked into it that the '
-             'firmware never calls. Listed so they are accounted for, not hidden.'),
-            ('artefact', 'Not firmware: how that code works',
-             'Firmware code whose reports are inherent to what it does.'),
         ):
             entries = sorted(buckets.get(verdict, []),
                              key=lambda pair: (-pair[0].severity(), -pair[0].hits))

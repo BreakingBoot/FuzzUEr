@@ -635,6 +635,15 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
         # 10s is the fuzzer's default and an instrumented boot exceeds it, so every
         # input becomes a timeout objective and the corpus never grows
         'FIRNESS_TIMEOUT': os.environ.get('FIRNESS_TIMEOUT', '60'),
+        # Snapshot restore is the per-iteration cost and it scales with guest RAM, which
+        # is most of why this backend looked slow. Measured on EfiGraphicsOutput, 600s:
+        #   2048MB  159 executions, 408 edges
+        #    512MB  899 executions, 368 edges
+        #    256MB 6112 executions, 105 edges
+        # 256 is fastest and much shallower -- the guest does less before it runs out of
+        # memory, and coverage collapses with it. 512 keeps nearly all the edges at five
+        # times the throughput, so it is the default.
+        'FIRNESS_MEMORY': os.environ.get('FIRNESS_MEMORY', '512'),
     })
     bios = qemu_bios_dir()
     if bios:
