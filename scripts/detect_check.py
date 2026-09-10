@@ -144,20 +144,30 @@ def check_triage(args):
     out = os.path.join(tempfile.mkdtemp(), 'bugs.json')
     result = subprocess.run(
         [sys.executable, os.path.join(HERE, 'bug_report.py'), '-r', args.matrix,
-         '--json', out] + (['--known', args.known] if args.known else []),
+         '--json', out]
+        + [flag for tree in args.build for flag in ('--build', tree)]
+        + (['--known', args.known] if args.known else []),
         capture_output=True, text=True)
     if result.returncode != 0:
         return False, result.stderr.strip()[:200] or 'bug_report.py failed'
     with open(out) as handle:
         payload = json.load(handle)
-    harness = len(payload['filtered']['harness'])
-    if harness == 0:
-        return False, ('nothing was filtered as the harness, which means the Module '
-                       'column stopped being populated or the filter stopped matching')
     if not payload['candidates'] and not payload['ubiquitous']:
         return False, 'no findings at all, which is not what this corpus contains'
+    # Assert the attribution, not the harness count. Requiring at least one harness
+    # cluster was a proxy for "the Module column is populated and the filter still
+    # matches", and it stopped being true for a good reason: once handles were no longer
+    # fuzzed as raw values the harness stopped producing findings, so a clean corpus
+    # failed. What matters is that reports still carry the module the filter reads.
+    reported = payload['candidates'] + payload['ubiquitous']
+    named = [c for c in reported if c.get('module')]
+    if not named:
+        return False, ('no reported cluster carries a module, so the Module column '
+                       'stopped being populated and the harness filter cannot match')
+    harness = len(payload['filtered']['harness'])
     new = [line for line in result.stdout.splitlines() if '[NEW]' in line]
     detail = (f"{payload['clusters']} clusters from {payload['rows']} rows, "
+              f"{len(named)}/{len(reported)} attributed, "
               f"{harness} filtered as harness, {len(payload['candidates'])} candidates")
     if args.known and new:
         return False, detail + f'; {len(new)} cluster(s) not in the known set'
@@ -171,6 +181,9 @@ def main():
     parser.add_argument('--selftest', help='AsanSelfTest.efi')
     parser.add_argument('--matrix', help='a campaign directory for the triage check')
     parser.add_argument('--known', default='', help='known-bugs.json to diff against')
+    parser.add_argument('--build', action='append', default=[],
+                        help='a build tree, so a corpus whose campaigns wrote no Module '
+                             'column can still be attributed (repeatable)')
     parser.add_argument('--timeout', type=int, default=90)
     parser.add_argument('--peer-port', type=int, default=5900)
     parser.add_argument('--qemu', default='qemu-system-x86_64')
