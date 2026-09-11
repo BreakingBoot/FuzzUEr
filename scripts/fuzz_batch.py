@@ -78,7 +78,11 @@ def launch(protocol, args):
     # their results that way. Different output directories are different runs, so give
     # them different names and let them coexist.
     tag = hashlib.sha1(os.path.abspath(args.output).encode()).hexdigest()[:6]
-    name = f'fuzz-{protocol.lower()}-{tag}'
+    # The prefix is configurable because "docker rm -f $(docker ps -aq --filter
+    # name=^fuzz-)" is the obvious way to clear a stuck matrix, and it takes every other
+    # campaign on the host with it. Give a run that must not be swept its own prefix.
+    prefix = os.environ.get('FIRNESS_CONTAINER_PREFIX', 'fuzz')
+    name = f'{prefix}-{protocol.lower()}-{tag}'
     # Same output directory and same protocol really is a collision, so still refuse.
     running = subprocess.run(['docker', 'ps', '--filter', f'name=^{name}$',
                               '--format', '{{.Names}}'], capture_output=True, text=True)
