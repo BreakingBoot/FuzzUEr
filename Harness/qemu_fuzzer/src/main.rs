@@ -38,7 +38,7 @@ use libafl_bolts::{
 };
 use libafl_qemu::{
     emu::Emulator, executor::QemuExecutor, modules::edges::StdEdgeCoverageModule,
-    QemuSnapshotManager,
+    FastSnapshotManager,
 };
 use libafl_targets::{edges_map_mut_ptr, EDGES_MAP_DEFAULT_SIZE, MAX_EDGES_FOUND};
 
@@ -218,7 +218,15 @@ pub fn main() {
         let mut emu = Emulator::builder()
             .qemu_parameters(qemu_args())
             .modules(modules)
-            .snapshot_manager(QemuSnapshotManager::default())
+            // Not QemuSnapshotManager: that one calls QEMU's save_snapshot/load_snapshot,
+            // which is the savevm/loadvm migration path -- it serialises the whole machine,
+            // every byte of guest RAM and every device, on every single iteration. Its cost
+            // is O(RAM), which is why dropping the guest from 2048M to 512M multiplied
+            // throughput by 5.6 and why a JIT emulator was turning in a fifth of the
+            // iterations of a functional simulator.
+            //
+            // FastSnapshotManager restores only the pages the iteration dirtied.
+            .snapshot_manager(FastSnapshotManager::new())
             .build()?;
 
         // Runs the guest until the first HARNESS_START. Under a harness that never
