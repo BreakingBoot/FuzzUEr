@@ -37,8 +37,8 @@ use libafl_bolts::{
     tuples::tuple_list,
 };
 use libafl_qemu::{
-    emu::Emulator, executor::QemuExecutor, modules::edges::StdEdgeCoverageModule,
-    FastSnapshotManager,
+    emu::Emulator, executor::QemuExecutor, modules::drcov::DrCovModule,
+    modules::edges::StdEdgeCoverageModule, FastSnapshotManager,
 };
 use libafl_targets::{edges_map_mut_ptr, EDGES_MAP_DEFAULT_SIZE, MAX_EDGES_FOUND};
 
@@ -176,6 +176,25 @@ fn qemu_args() -> Vec<String> {
             argv.push("usb-storage,bus=firnessusb.0,drive=firnessud".to_string());
         }
     }
+    // Deterministic virtual time. A snapshot restore puts the guest back byte for byte,
+    // but the clock keeps moving, and UEFI drivers poll the ACPI timer to implement
+    // timeouts -- BlockIo, DiskIo and SNP all do. The same input then takes a different
+    // number of turns round a wait loop on every iteration, which shows up as unstable
+    // edges: measured at 35-63% across protocols where a healthy target is above 90%.
+    // Below that the coverage feedback is noise, so the corpus stops growing and the
+    // harness never gets the longer inputs it needs to reach its later calls.
+    //
+    // icount ties the virtual clock to instructions retired, so a timer read becomes a
+    // function of the path rather than of how busy the host was. sleep=off stops the vCPU
+    // idling to match real time, which would hand the budget back to wall clock.
+    let icount = env_or("FIRNESS_QEMU_ICOUNT", "shift=auto,sleep=off");
+    if icount != "none" {
+        argv.push("-icount".to_string());
+        argv.push(icount);
+        // and the RTC follows the virtual clock rather than the host's
+        argv.push("-rtc".to_string());
+        argv.push(env_or("FIRNESS_QEMU_RTC", "clock=vm").to_string());
+    }
     let vga = env_or("FIRNESS_QEMU_VGA", "std");
     argv.push("-vga".to_string());
     argv.push(vga);
@@ -211,9 +230,26 @@ pub fn main() {
             .track_indices()
         };
 
-        let modules = tuple_list!(StdEdgeCoverageModule::builder()
-            .map_observer(edges_observer.as_mut())
-            .build()?);
+        // The edge map answers "is this input new"; it is hashed, so it cannot say which
+        // driver the coverage was in or what fraction of that driver was reached. DrCov
+        // records the basic blocks themselves, which scripts/coverage_report.py turns into
+        // a per-module and whole-image percentage against the blocks the binaries contain.
+        // Off unless asked for: recording every block costs throughput that a bug-finding
+        // run should not pay.
+        let drcov = env_or("FIRNESS_DRCOV", "");
+        let modules = tuple_list!(
+            StdEdgeCoverageModule::builder()
+                .map_observer(edges_observer.as_mut())
+                .build()?,
+            DrCovModule::builder()
+                .path(PathBuf::from(if drcov.is_empty() {
+                    "/dev/null".to_string()
+                } else {
+                    drcov.clone()
+                }))
+                .full_trace(false)
+                .build()
+        );
 
         let mut emu = Emulator::builder()
             .qemu_parameters(qemu_args())
