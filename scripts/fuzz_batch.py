@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import os
 import sys
 import json
@@ -67,12 +68,18 @@ def running(names):
 def launch(protocol, args):
     out = os.path.join(args.output, protocol)
     os.makedirs(out, exist_ok=True)
-    name = f'fuzz-{protocol.lower()}'
-    # The name comes from the protocol alone, so two campaigns over the same target -- a
-    # rerun started before the first finished, two output directories -- collide on it.
-    # The rm -f below is what makes that silent: each launch destroys the other's
-    # container, both keep restarting, and neither ever reaches the harness while the
-    # logs look merely slow. Refuse instead of fighting.
+    # Name by the output directory as well as the protocol. Keying on the protocol alone
+    # means two campaigns over the same target -- a rerun started before the first
+    # finished, an A/B across two output directories -- collide, and the rm -f below makes
+    # that silent: each launch destroys the other's container, both keep restarting, and
+    # neither reaches the harness while the logs look merely slow. Worse, a container
+    # removed before it exits never runs its copy-out, so the run leaves an empty
+    # directory and reads as a campaign that found nothing. Four overlapping runs lost
+    # their results that way. Different output directories are different runs, so give
+    # them different names and let them coexist.
+    tag = hashlib.sha1(os.path.abspath(args.output).encode()).hexdigest()[:6]
+    name = f'fuzz-{protocol.lower()}-{tag}'
+    # Same output directory and same protocol really is a collision, so still refuse.
     running = subprocess.run(['docker', 'ps', '--filter', f'name=^{name}$',
                               '--format', '{{.Names}}'], capture_output=True, text=True)
     if name in running.stdout.split():
