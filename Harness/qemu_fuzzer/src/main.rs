@@ -242,8 +242,12 @@ pub fn main() {
                 .map_observer(edges_observer.as_mut())
                 .build()?,
             DrCovModule::builder()
+                // A real file, never /dev/null: the module writes its table by seeking,
+                // and on a device that cannot seek the emulator never reaches the harness
+                // -- the campaign boots, dispatches every driver, and reports zero
+                // executions, which looks exactly like a protocol that is not installed.
                 .path(PathBuf::from(if drcov.is_empty() {
-                    "/dev/null".to_string()
+                    "firness_coverage.drcov".to_string()
                 } else {
                     drcov.clone()
                 }))
