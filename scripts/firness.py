@@ -597,7 +597,33 @@ def qemu_bios_dir():
     return ''
 
 
-def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
+def wait_for_qemu_harness(process, serial, raw, boot_timeout):
+    """Block until the guest reaches the harness, or give up.
+
+    The boot is not free and it is not fuzzing. An instrumented OVMF emits megabytes of
+    serial before the harness runs, every byte an emulated 16550 write, and under a
+    parallel matrix that stretches. Charging it to the fuzzing budget means a campaign can
+    spend its whole allowance booting and report zero iterations, which is indistinguishable
+    from a target that cannot be fuzzed at all -- 19 protocols that are installed on the
+    firmware did exactly that in one sweep. The Simics path has always waited for the boot
+    separately; this is the same allowance for QEMU.
+    """
+    deadline = time.time() + boot_timeout
+    while time.time() < deadline:
+        if process.poll() is not None:
+            return False
+        for path in (serial, raw):
+            try:
+                with open(path, 'rb') as handle:
+                    if b'FIRNESS: fuzzing starts' in handle.read():
+                        return True
+            except OSError:
+                pass
+        time.sleep(2)
+    return False
+
+
+def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700):
     if not os.path.isfile(QEMU_FUZZER) or not os.access(QEMU_FUZZER, os.X_OK):
         print(f'Error: no LibAFL-QEMU fuzzer at {QEMU_FUZZER}. Build it with '
               f'"cargo build --release" in Harness/qemu_fuzzer, or point '
@@ -679,12 +705,23 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus=''):
     # while they are being killed, so anything composed into a shared log.json is
     # overwritten by their parting messages
     raw_path = os.path.join(work, 'run.txt')
-    print(f'++++ Fuzzing under LibAFL-QEMU for {timeout}s ++++')
+    serial_path = environment['FIRNESS_SERIAL']
+    print(f'++++ Booting to the harness (up to {boot_timeout}s), then fuzzing under '
+          f'LibAFL-QEMU for {timeout}s ++++')
     with open(raw_path, 'w') as log:
+        started_at = time.time()
         process = subprocess.Popen([QEMU_FUZZER], stdout=log, stderr=subprocess.STDOUT,
                                    env=environment, cwd=work)
+        reached = wait_for_qemu_harness(process, serial_path, raw_path, boot_timeout)
+        if reached:
+            print(f'++++ Harness reached after {time.time() - started_at:.0f}s of boot; '
+                  f'fuzzing for {timeout}s ++++')
+        else:
+            print(f'++++ The boot did not reach the harness within {boot_timeout}s. The '
+                  f'protocol may not be installed, or the boot needs longer under this '
+                  f'much parallelism -- raise --boot-timeout. ++++')
         try:
-            process.wait(timeout=timeout)
+            process.wait(timeout=timeout if reached else 5)
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait()
@@ -1726,7 +1763,8 @@ def main():
                 print(f'Error: {HARNESS_IMAGE} is missing -- run the generate stage first.')
                 return 1
             fuzz_started = run_qemu_fuzzer(HARNESS_IMAGE, output, args.timeout,
-                                           args.seed_corpus)
+                                           args.seed_corpus,
+                                           boot_timeout=args.boot_timeout)
             # the same report the tsffs path produces, from the same serial capture, so a
             # QEMU campaign is directly comparable to a Simics one rather than reporting
             # only the fuzzer's own objective count
