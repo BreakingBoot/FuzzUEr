@@ -678,6 +678,15 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
         'FIRNESS_DEBUGCON': os.path.join(work, 'debugcon.log'),
         'FIRNESS_OVMF_CODE': QEMU_OVMF_CODE,
         'FIRNESS_OVMF_VARS': QEMU_OVMF_VARS,
+        # Absolute, and always set. DrCov records the basic blocks the campaign reached,
+        # which is the only thing that can give a per driver coverage percentage -- the
+        # edge map is hashed and carries no addresses. It has to be a real seekable file
+        # given by absolute path: a relative one does not resolve where the emulator runs,
+        # and the failure is silent in the worst way, with the guest booting and
+        # dispatching every driver but the harness never starting, so the campaign reports
+        # zero executions exactly as if the protocol were not installed.
+        'FIRNESS_DRCOV': os.environ.get('FIRNESS_DRCOV',
+                                        os.path.abspath(os.path.join(work, 'coverage.drcov'))),
         # 10s is the fuzzer's default and an instrumented boot exceeds it, so every
         # input becomes a timeout objective and the corpus never grows
         'FIRNESS_TIMEOUT': os.environ.get('FIRNESS_TIMEOUT', '60'),
@@ -1765,6 +1774,14 @@ def main():
             fuzz_started = run_qemu_fuzzer(HARNESS_IMAGE, output, args.timeout,
                                            args.seed_corpus,
                                            boot_timeout=args.boot_timeout)
+            if not fuzz_started:
+                # Say why here. Reporting walks the fuzzer's log, and when the fuzzer
+                # never ran there is no log to walk: the campaign ended in a
+                # FileNotFoundError traceback on log.json, which says nothing about the
+                # missing mtools or unbuilt ESP that actually stopped it.
+                print('Error: the fuzzer did not start, so there is nothing to report. '
+                      'The message above says why.')
+                return 1
             # the same report the tsffs path produces, from the same serial capture, so a
             # QEMU campaign is directly comparable to a Simics one rather than reporting
             # only the fuzzer's own objective count

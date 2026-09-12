@@ -1,6 +1,8 @@
 import csv
+import glob
 import hashlib
 import os
+import re
 import sys
 import json
 import time
@@ -165,6 +167,37 @@ def already_done(output, protocol):
     return os.path.isfile(os.path.join(output, protocol, 'log.json'))
 
 
+def declared_guids(repo):
+    """Every GUID symbol the source tree declares, from its .dec files."""
+    found = set()
+    for tree in sorted(glob.glob(os.path.join(repo, 'edk2*'))):
+        for dec in glob.glob(os.path.join(tree, '**', '*.dec'), recursive=True):
+            try:
+                text = open(dec, errors='ignore').read()
+            except OSError:
+                continue
+            found.update(re.findall(r'(g\w+Guid)\s*=\s*\{', text))
+    return found
+
+
+def undeclared(protocol, guids):
+    """True when this edk2 declares no GUID for the protocol.
+
+    Not the same question as whether the firmware installs it. edk2 removes deprecated
+    protocols, and moving to mainline drops seven of the targets here -- EFI_UNICODE_COLLATION
+    (v1), UGA_DRAW, SCSI_PASS_THRU, DEVICE_IO, UGA_IO, USB_HC and IP4_CONFIG. A campaign
+    against one of those spends a full analysis and build to end at "undefined reference to
+    gEfiUnicodeCollationProtocolGuid", which says nothing about the protocol having been
+    deleted upstream.
+
+    This warns rather than skips: a target named for a group of protocols rather than one
+    (ShellPaths, HiiConfig, TcpStack) has no single GUID either and is perfectly valid.
+    """
+    if not guids:
+        return False
+    return not any(f'g{protocol}{suffix}Guid' in guids for suffix in ('Protocol', ''))
+
+
 def bindable(output, image):
     """Can the daemon actually bind this directory, or only something that looks like it?
 
@@ -300,6 +333,14 @@ def main():
               f'written nothing to the host. Choose a path the daemon shares, such as one '
               f'under the repo.', file=sys.stderr)
         return 2
+
+    tree_guids = declared_guids(args.repo)
+    missing = [p for p in todo if undeclared(p, tree_guids)]
+    if missing:
+        print(f'  note: this edk2 declares no GUID for {len(missing)} target(s): '
+              f'{", ".join(missing)}')
+        print('  a deprecated protocol removed upstream will fail to link; a target named '
+              'for a group of protocols is fine')
 
     todo = [p for p in todo if not already_done(args.output, p)]
     print(f'{len(todo)} protocol(s) to fuzz, {args.jobs} at a time, '
