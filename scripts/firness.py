@@ -660,7 +660,11 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
             from gen_seeds import find_target_count, generate_seeds
             targets = find_target_count(os.path.join(output, 'Firness', 'FirnessMain.c'))
             if targets:
-                generate_seeds(corpus, targets, 64)
+                # 64 bytes is spent inside the first call; the harness then breaks out
+                # of its step loop and every execution is a single call. The guest buffer
+                # is 0x1000, so seed near it and let the mutator trim.
+                seed_size = int(os.environ.get('FIRNESS_SEED_SIZE', '1024'))
+                generate_seeds(corpus, targets, seed_size)
         except Exception as error:
             print(f'Warning: could not build a per-target corpus ({error})')
         if not os.listdir(corpus):

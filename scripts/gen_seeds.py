@@ -31,6 +31,21 @@ def find_target_count(main_file):
 
 
 def generate_seeds(output_dir, count, size):
+    """One seed per target per filler, long enough to reach a second call.
+
+    Size is not a detail. FirnessMain reads a step count, then for each step a byte that
+    picks the target and then that function's arguments, and it stops early the moment the
+    buffer runs dry:
+
+        if (Step > 0 && Input.Length == 0) break;
+
+    A 64 byte payload is spent inside the first call, so every execution was a single call
+    no matter how long the campaign ran -- 375246 executions of EfiShell reached a corpus
+    of 14 and found nothing past the entry point. That also explains the shape of the
+    findings: null dereferences where a function first touches an argument, and no heap
+    errors at all, because reaching a heap bug means getting a buffer allocated by one call
+    and misused by a later one. The guest buffer is 0x1000, so there is room.
+    """
     os.makedirs(output_dir, exist_ok=True)
     for index in range(count):
         # byte 0 selects the target. the tail is all zeros in one seed and all ones in
@@ -40,7 +55,8 @@ def generate_seeds(output_dir, count, size):
             body = bytes([index]) + bytes([filler]) * size
             with open(os.path.join(output_dir, f'seed_{index:02d}_{variant}'), 'wb') as f:
                 f.write(body)
-    print(f'Wrote {count * 2} seeds for {count} target(s) into {output_dir}')
+    print(f'Wrote {count * 2} seeds of {size + 1} bytes for {count} target(s) '
+          f'into {output_dir}')
 
 
 def main():
