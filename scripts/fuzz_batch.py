@@ -105,7 +105,7 @@ def launch(protocol, args):
         f'cd /workspace && rm -rf firness_output && mkdir -p firness_output && '
         f'cp /input/anacache/{protocol}/*.json firness_output/ && '
         f'python3 /workspace/firness.py -s /workspace/tmp '
-        f'-i /input/evalset/{protocol}.txt -g -f '
+        f'-i /input/{args.request_rel}/{protocol}.txt -g -f '
         f'-t {args.budget} --boot-timeout {args.boot_timeout}'
     )
     if args.smi:
@@ -165,6 +165,57 @@ def launch(protocol, args):
 
 def already_done(output, protocol):
     return os.path.isfile(os.path.join(output, protocol, 'log.json'))
+
+
+def resolve_requests(args):
+    """The request files to fuzz, discovered from the tree unless told otherwise.
+
+    A carried list only covers the protocols someone wrote down. A branch that adds its own
+    is then silently not fuzzed, which is the failure that matters least visibly: the run
+    is green and the new code was never touched. So discovery is the default and the
+    checked in set is the fallback for a tree that has none.
+
+    Discovery reads the tree the campaign will build: every protocol header that declares a
+    GUID and a struct of function pointers, and every SMI handler a registration call site
+    names. On edk2-stable202608 that is 236 protocols against the 145 carried here.
+    """
+    if args.evalset:
+        return args.evalset
+    if not args.discover:
+        return os.path.join(args.repo, 'eval_source', 'evalset')
+
+    tree = args.tree or os.path.join(args.repo, 'eval_source', 'edk2')
+    out = os.path.join(args.repo, 'eval_source', 'evalset_discovered')
+    here = os.path.dirname(os.path.abspath(__file__))
+    if not os.path.isdir(tree):
+        print(f'  no tree at {tree}; falling back to the carried request set')
+        return os.path.join(args.repo, 'eval_source', 'evalset')
+    shutil.rmtree(out, ignore_errors=True)
+    subprocess.run([sys.executable, os.path.join(here, 'gen_protocol_inputs.py'),
+                    '-s', tree, '-o', out, '-m', '1'], check=False)
+    subprocess.run([sys.executable, os.path.join(here, 'discover_smi.py'),
+                    '-s', tree, '-o', os.path.join(out, 'DiscoveredSmi.txt')], check=False)
+    if not os.path.isdir(out) or not os.listdir(out):
+        print('  discovery found nothing; falling back to the carried request set')
+        return os.path.join(args.repo, 'eval_source', 'evalset')
+    return out
+
+
+def request_dir_in_container(requests, repo):
+    """Where the request files land inside the container.
+
+    eval_source is bind mounted at /input, so a request directory is addressed by its path
+    relative to that. A discovered set written to eval_source/evalset_discovered is
+    /input/evalset_discovered; anything outside eval_source cannot be reached from the
+    container at all, so say so rather than producing a path that does not exist.
+    """
+    root = os.path.join(os.path.abspath(repo), 'eval_source')
+    here = os.path.abspath(requests)
+    rel = os.path.relpath(here, root)
+    if rel.startswith('..'):
+        raise SystemExit(f'--evalset must live under {root}; {here} is not reachable from '
+                         f'the container, which only sees eval_source as /input')
+    return rel.replace(os.sep, '/')
 
 
 def declared_guids(repo):
@@ -257,6 +308,16 @@ def main():
                         help='Simulated seconds per fuzzing iteration before it times out')
     parser.add_argument('--boot-timeout', type=int, default=2700,
                         help='Seconds to allow for the boot before giving up on a protocol')
+    parser.add_argument('--discover', action='store_true', default=True,
+                        help='discover the targets from the tree (the default)')
+    parser.add_argument('--no-discover', dest='discover', action='store_false',
+                        help='use the request set carried in the repository instead')
+    parser.add_argument('--tree', type=str, default='',
+                        help='the edk2 to discover from (default: <repo>/eval_source/edk2)')
+    parser.add_argument('--evalset', type=str, default='',
+                        help='directory of <target>.txt request files (default: the '
+                             'tree\'s eval_source/evalset). Point it at a discovered set '
+                             'so a branch that adds its own protocols gets them fuzzed.')
     parser.add_argument('--image', type=str, default=DEFAULT_IMAGE)
     parser.add_argument('--cpus', type=str, default='',
                         help='Per-container cpu limit, e.g. 2 -- leaves the box usable by others')
@@ -273,11 +334,13 @@ def main():
                         help='Print what would run without starting anything')
     args = parser.parse_args()
 
+    requests = resolve_requests(args)
+    args.request_rel = request_dir_in_container(requests, args.repo)
     if args.protocols:
         todo = list(args.protocols)
     else:
-        requests = os.path.join(args.repo, 'eval_source', 'evalset')
         todo = sorted(f[:-4] for f in os.listdir(requests) if f.endswith('.txt'))
+    print(f'  {len(todo)} target(s) from {requests}')
 
     # A protocol the firmware never installs cannot be fuzzed: the harness's opening
     # LocateProtocol fails and every Fuzz* function returns at once, but the campaign still

@@ -1,0 +1,166 @@
+# Fuzz whatever edk2 branch this runs on.
+#
+# The target list is discovered, not carried: scripts/gen_protocol_inputs.py reads every
+# protocol header in the tree and scripts/discover_smi.py reads every SMI registration
+# call site, so a branch that adds its own protocols or handlers gets them fuzzed without
+# anyone editing a list. On edk2-stable202608 that is 236 protocols and 16 handlers,
+# against the 145 the hand written evalset carries.
+name: Fuzz EDK2
+
+on:
+  workflow_dispatch:
+    inputs:
+      edk2_ref:
+        description: 'edk2 branch, tag or SHA to fuzz (default: this checkout)'
+        required: false
+        default: ''
+      budget:
+        description: 'Seconds of fuzzing per target'
+        required: false
+        default: '600'
+      jobs:
+        description: 'Targets fuzzed at once'
+        required: false
+        default: '8'
+      targets:
+        description: 'Space separated target names, or empty for every discovered one'
+        required: false
+        default: ''
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out the fuzzer and its submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Select the edk2 under test
+        id: edk2
+        run: |
+          set -euo pipefail
+          TREE="$GITHUB_WORKSPACE/eval_source/edk2"
+          REF='${{ github.event.inputs.edk2_ref }}'
+          if [ -n "$REF" ]; then
+            git -C "$TREE" fetch --depth=1 origin "$REF"
+            git -C "$TREE" checkout -q FETCH_HEAD
+          fi
+          echo "tree=$TREE" >> "$GITHUB_OUTPUT"
+          echo "Fuzzing $(git -C "$TREE" rev-parse --short HEAD) on $(git -C "$TREE" rev-parse --abbrev-ref HEAD 2>/dev/null || echo detached)"
+
+      # edk2 vendors its dependencies as submodules and the build fails a long way from
+      # the cause when one is missing -- BrotliCompress stops BaseTools, MipiSysTLib stops
+      # the DEC parse, and OpensslLib stops CryptoPkg.
+      - name: Fetch the edk2 submodules
+        run: git -C '${{ steps.edk2.outputs.tree }}' submodule update --init --depth=1
+
+      - name: Build the container images
+        run: |
+          set -euo pipefail
+          docker build -q -f Dockerfile       -t fuzzuer-base:latest .
+          docker build -q -f run.Dockerfile   -t fuzzuer-cur:latest  .
+          docker build -q -f qemu-run.Dockerfile -t fuzzuer-qemu:latest .
+
+      # ASan lives in the tree as a DSC include and a set of libraries, so "applying" it is
+      # a build flag rather than a patch. ASAN_SCOPE=full instruments every DXE module;
+      # the self test is the proof it is armed, because a shadow that is not mapped and a
+      # runtime that never reports look exactly like a clean run.
+      - name: Build the firmware with AddressSanitizer
+        run: |
+          set -euo pipefail
+          docker run --rm -v '${{ steps.edk2.outputs.tree }}':/edk2 fuzzuer-base:latest \
+            bash -lc 'cd /edk2 && source edksetup.sh >/dev/null &&
+              build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \
+                -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE \
+                -D FD_SIZE_IN_KB=8192 -n $(nproc)'
+
+      - name: Prove the sanitizer actually reports
+        run: |
+          set -euo pipefail
+          python3 scripts/detect_check.py \
+            --code  '${{ steps.edk2.outputs.tree }}'/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_CODE.fd \
+            --vars  '${{ steps.edk2.outputs.tree }}'/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_VARS.fd \
+            --selftest "$(find '${{ steps.edk2.outputs.tree }}'/Build -name AsanSelfTest.efi | head -1)" \
+            --skip-network
+
+      - name: Discover every protocol and SMI handler in this tree
+        run: |
+          set -euo pipefail
+          python3 scripts/gen_protocol_inputs.py -s '${{ steps.edk2.outputs.tree }}' \
+            -o eval_source/evalset_discovered -m 1
+          python3 scripts/discover_smi.py -s '${{ steps.edk2.outputs.tree }}' \
+            -o eval_source/evalset_discovered/DiscoveredSmi.txt --with-source
+
+      # Absent protocols are not free: the campaign boots, spends its whole budget and
+      # reports coverage that is all harness startup. Censusing is cheaper than paying that
+      # for every target the firmware does not install -- and the capture is taken here
+      # rather than found, so the census describes the firmware this run just built and
+      # never a stale artefact from some earlier one.
+      - name: Boot once and census what the firmware installs
+        run: |
+          set -euo pipefail
+          FV='${{ steps.edk2.outputs.tree }}'/Build/OvmfX64/DEBUG_CLANGSAN/FV
+          cp "$FV/OVMF_VARS.fd" /tmp/vars.fd
+          timeout 300 qemu-system-x86_64 -machine q35 -m 512 -no-reboot -smp 1 \
+            -fw_cfg name=opt/org.tianocore/X-Cpuhp-Bugcheck-Override,string=yes \
+            -drive if=pflash,format=raw,unit=0,readonly=on,file="$FV/OVMF_CODE.fd" \
+            -drive if=pflash,format=raw,unit=1,file=/tmp/vars.fd \
+            -netdev user,id=n0 -device virtio-net-pci,netdev=n0 \
+            -device qemu-xhci -display none -serial file:/tmp/census.log || true
+          python3 scripts/protocol_presence.py \
+            --capture /tmp/census.log \
+            --evalset eval_source/evalset_discovered \
+            --out presence.csv
+
+      - name: Fuzz
+        env:
+          # Snapshot restore rewinds guest memory and not the clock, and UEFI drivers poll
+          # the ACPI timer for timeouts, so without this the same input takes a different
+          # path every iteration and the coverage feedback is noise.
+          FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
+          FIRNESS_CONTAINER_PREFIX: ci
+        run: |
+          set -euo pipefail
+          TARGETS='${{ github.event.inputs.targets }}'
+          python3 scripts/fuzz_batch.py \
+            -o results/campaigns \
+            ${TARGETS:+-p $TARGETS} \
+            -j '${{ github.event.inputs.jobs }}' \
+            -t '${{ github.event.inputs.budget }}' \
+            --backend qemu --image fuzzuer-qemu:latest \
+            --evalset eval_source/evalset_discovered \
+            --presence presence.csv
+
+      # Raw reports are not findings. This clusters them, separates the harness and the
+      # PCI hole from the firmware, and names the driver each one belongs to.
+      - name: Triage the crashes
+        if: always()
+        run: |
+          set -euo pipefail
+          python3 scripts/bug_report.py -r results/campaigns \
+            --build '${{ steps.edk2.outputs.tree }}'/Build/OvmfX64 \
+            --markdown results/bugs.md \
+            --json results/bugs.json \
+            --title "Bugs found on $(git -C '${{ steps.edk2.outputs.tree }}' rev-parse --short HEAD)"
+          cat results/bugs.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-results
+          path: |
+            results/bugs.md
+            results/bugs.json
+            results/campaigns/*/crashes.csv
+            results/campaigns/*/fuzz.txt
+            presence.csv
