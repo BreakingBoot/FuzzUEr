@@ -58,10 +58,15 @@ else
     cid=$(docker create fuzzuer-fuzzer:latest)
     trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
     docker cp "$cid:/workspace/qemu_fuzzer/target/release/firness_qemu" qemustage/
-    # libafl_qemu clones the bridge under the target directory; ask the image where it put
-    # it rather than assuming, since the path moves with the crate version
+    # libafl_qemu clones the bridge under the target directory; ask the image where it
+    # put it rather than assuming, since the path moves with the crate version. There are
+    # three directories called pc-bios in there and only one is the emulator's rom set --
+    # the other two hold 12 and 18 files against its 81, and a fuzzer started with one of
+    # those cannot find a BIOS at all. Take the fullest.
     roms=$(docker run --rm --entrypoint bash fuzzuer-fuzzer:latest -c \
-        'find /workspace/qemu_fuzzer/target/release -maxdepth 3 -type d -name pc-bios | head -1')
+        'for d in $(find /workspace/qemu_fuzzer/target -type d -name pc-bios); do
+             printf "%s %s\n" "$(ls "$d" | wc -l)" "$d"
+         done | sort -rn | head -1 | cut -d" " -f2')
     [ -n "$roms" ] || { echo '  no pc-bios in the build output' >&2; exit 1; }
     rm -rf qemustage/pc-bios
     docker cp "$cid:$roms" qemustage/pc-bios

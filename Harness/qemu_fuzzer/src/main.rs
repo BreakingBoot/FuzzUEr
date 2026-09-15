@@ -239,8 +239,24 @@ pub fn main() {
         // Runs the guest until the first HARNESS_START. Under a harness that never
         // reaches it -- the protocol is not installed, the boot option was not taken --
         // this is where the run stops, so say so rather than reporting zero coverage.
+        //
+        // A guest that faults on the way there sends END before any START, because the
+        // exception handler signals a crash so the iteration is not merely recorded as a
+        // timeout. Before the harness exists there is no iteration to end, and unwrapping
+        // that turned a firmware that did not boot into "the fuzzer crashed inside a crash
+        // handler, this is likely a bug in fuzzer or libafl" -- a message about libafl,
+        // from a campaign whose firmware faulted in DiskIoDxe. Say what happened instead.
         unsafe {
-            emu.start().unwrap();
+            if let Err(why) = emu.start() {
+                eprintln!(
+                    "the guest never reached the harness: {why:?}. \
+                     EndBeforeStart means it faulted while booting -- the serial log names \
+                     the driver. Anything else means the boot did not get that far."
+                );
+                return Err(Error::illegal_state(format!(
+                    "boot did not reach the harness: {why:?}"
+                )));
+            }
         }
 
         let mut harness = |emulator: &mut Emulator<_, _, _, _, _, _, _>,

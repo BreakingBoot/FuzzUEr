@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       refs:
-        description: 'Space separated edk2 refs (default: four recent stable tags)'
+        description: 'Space separated edk2 refs (default: the three newest stable tags and master)'
         required: false
         default: ''
       budget:
@@ -24,8 +24,12 @@ on:
         description: 'Targets fuzzed at once'
         required: false
         default: '8'
+      boot_timeout:
+        description: 'Seconds a target may spend booting to the harness before it is given up on'
+        required: false
+        default: '900'
       qualify_only:
-        description: 'Stop after discovery, do not spend the fuzzing budget'
+        description: 'Qualify each version -- port, build, instrument, detect -- without spending the fuzzing budget'
         type: boolean
         required: false
         default: false
@@ -64,7 +68,7 @@ jobs:
           set -uo pipefail
           REFS='${{ github.event.inputs.refs }}'
           if [ -z "$REFS" ]; then
-            REFS='edk2-stable202502 edk2-stable202505 edk2-stable202511 edk2-stable202608'
+            REFS='edk2-stable202502 edk2-stable202505 edk2-stable202511 master'
           fi
           QUALIFY=''
           [ '${{ github.event.inputs.qualify_only }}' = 'true' ] && QUALIFY='--skip-fuzz'
@@ -74,6 +78,7 @@ jobs:
             python3 scripts/fuzz_edk2.py --ref "$ref" \
               --budget "${{ github.event.inputs.budget }}" \
               --jobs "${{ github.event.inputs.jobs }}" \
+              --boot-timeout "${{ github.event.inputs.boot_timeout }}" \
               $QUALIFY || rc=1
             echo "::endgroup::"
           done
@@ -106,8 +111,14 @@ jobs:
                   cells = []
                   for n in names:
                       s = stages.get(n)
-                      cells.append('—' if not s else ('✅ ' + s['detail'] if s['ok']
-                                                      else '❌ ' + s['detail'][:60]))
+                      if s is None:
+                          cells.append('—')           # the run stopped before this stage
+                      elif s['ok']:
+                          cells.append('✅ ' + s['detail'])
+                      elif s['ok'] is None:
+                          cells.append('⏭️ ' + s['detail'])   # deliberately not run
+                      else:
+                          cells.append('❌ ' + s['detail'][:60])
                   print(f'| `{ref}` | ' + ' | '.join(cells) + ' |')
           PY
 
@@ -121,4 +132,11 @@ jobs:
             results/fuzz-*/bugs.md
             results/fuzz-*/bugs.json
             results/fuzz-*/build.log
+            results/fuzz-*/detect-build.log
+            results/fuzz-*/detect_check.log
+            results/fuzz-*/fuzz.log
+            results/fuzz-*/triage.log
             results/fuzz-*/campaigns/*/crashes.csv
+            results/fuzz-*/campaigns/*/log.json
+            results/fuzz-*/campaigns/*/run.log
+            results/fuzz-*/campaigns/*/fuzz.txt
