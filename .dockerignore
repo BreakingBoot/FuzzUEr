@@ -10,3 +10,7 @@ FuzzUEr_Overview.png
 **/__pycache__/
 qemu/build/
 qemu/.git/
+
+# staging for the per-version campaign images, and the runs themselves
+imgstage/
+results/
