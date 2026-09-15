@@ -194,6 +194,66 @@ instead of a harness. Seeded with a first byte of 0 it commits a heap overflow a
 fuzzer records an objective about a second after the boot; seeded with 4 it does the same
 allocation correctly and produces nothing but a timeout.
 
+## One command per EDK2 version
+
+`scripts/fuzz_edk2.py` takes a ref and goes as far as a bug report. It is what the
+GitHub workflow runs, once per version.
+
+```
+scripts/bootstrap_runner.sh                          # once per machine
+python3 scripts/fuzz_edk2.py --ref edk2-stable202511
+```
+
+Eleven stages, each printing PASS or FAIL with what it saw. The run stops at the first
+failure, because every stage after one would report a number that looks like a result:
+
+| stage | what it answers |
+| --- | --- |
+| `ready` | are the images and the builder container here |
+| `fetch` | is the ref real, and checked out |
+| `submodules` | edk2 vendors its dependencies; three separate build failures name none of them |
+| `port` | did the sanitizer integration apply, and how much of it merged cleanly |
+| `build` | did the firmware build |
+| `instrumented` | do modules actually carry `__asan_load`/`__asan_store` -- "applied" is not "instrumented" |
+| `discover` | protocols from headers, SMI handlers from registration call sites |
+| `image` | a campaign image holding *this* tree, so the harness is built from the version under test |
+| `detects` | does the sanitizer report a deliberate error in this build's own firmware |
+| `fuzz` | the campaigns, and how many reached the harness |
+| `triage` | cluster, separate the harness and the PCI hole from the firmware, name a driver |
+
+`--skip-fuzz` stops after `detects`, which is the useful form for asking "does this
+version port, build and report at all" without spending a fuzzing budget.
+
+Two stages exist because of what they caught. `image` is there because campaigns
+generate and build their harness from the tree inside the image: without a per-version
+image, every version in a matrix is fuzzed against whichever edk2 the image shipped and
+the result is filed under the ref the matrix named. `detects` builds the tree a second
+time with `-D ASAN_FUZZER=none`, because under the LibAFL backend the runtime reports by
+executing a custom instruction that is an invalid opcode outside LibAFL -- the guest dies
+in CpuDxe before BDS launches the self test, which looks exactly like firmware with no
+bugs in it.
+
+### On a runner
+
+`.github/workflows/fuzz-edk2.yml` runs the bootstrap and then the driver over a list of
+refs, and writes one table saying which stages each version passed.
+
+It needs a **self-hosted** runner. The first run on a cold machine builds LLVM 15 from
+source, installs the Simics packages, and builds QEMU through libafl -- hours, not
+minutes. Every bootstrap step checks for its own output first, so later runs cost
+seconds. Budget ~60 GB of disk for the images and one campaign image per version.
+
+Verified against `edk2-stable202502`, `edk2-stable202505`, `edk2-stable202511` and
+`master`: the port applies with nothing unresolved, the firmware builds, every built
+module carries ASan checks (232, 236, 242 and 242 respectively), and the self test
+catches a double free, an overflow, an underflow, a use-after-free and a length-driven
+overread in each version's own firmware.
+
+What is not yet working on those trees is the boot reaching the harness: the campaigns
+run, and spend their boot budget without arriving, so `fuzz` fails rather than reporting
+a clean sweep of nothing. The serial capture names the driver -- on 202505 it is a
+shadow access in DiskIoDxe after ReadyToBoot.
+
 ## AddressSanitizer
 
 ### Adding it to a platform
