@@ -349,6 +349,106 @@ def complete_sanitizer_rules(src, dst):
     return added
 
 
+def drop_duplicate_modules(dst, path):
+    """Remove an INF the port adds to a volume that this edk2 now adds itself.
+
+    The port adds SmmCommunicationBufferDxe to DXEFV because PiSmmIpl has no
+    communication region to advertise without it. edk2 master adds it too, so the ported
+    FDF lists it twice and GenFv stops at "the 52th file and 61th file have the same file
+    GUID" -- a message naming neither the module nor the file it is in.
+
+    Three things decide whether a repeat is really a duplicate:
+
+    The whole line, not the .inf path. edk2 lists a module twice on purpose where the
+    second carries an overriding FILE_GUID -- master does that for CpuDxe and CpuMpPei --
+    and those are two different files in the volume.
+
+    Whether the two can be present together. Sibling arms of one conditional never are.
+    A line inside an arm and a line outside it always are, which is exactly the case here:
+    the port's copy sits in the !else of STANDALONE_MM_ENABLE and upstream's sits below
+    the !endif.
+
+    An APRIORI block lists dispatch order, not files, so an INF there is not a copy of
+    anything.
+
+    Where both are present, the one under a condition goes and the unconditional one
+    stays, so the volume keeps the module however the condition evaluates.
+    """
+    full = os.path.join(dst, path)
+    try:
+        lines = open(full, newline='', errors='ignore').read().split('\n')
+    except OSError:
+        return []
+
+    def coexist(one, other):
+        arms = dict(one)
+        return not any(where in arms and arms[where] != arm for where, arm in other)
+
+    section, branch, counter, apriori = '', [], 0, 0
+    ours_conditions = set()
+    seen, drop = [], []
+    for i, line in enumerate(lines):
+        body = line.strip()
+        if apriori:
+            apriori -= body.count('}')
+            continue
+        if re.match(r'^APRIORI\b', body, re.I):
+            apriori += body.count('{')
+            continue
+        if body.startswith('['):
+            section, branch, seen = body, [], []
+            continue
+        if body.startswith('!if'):
+            counter += 1
+            branch.append((counter, 0))
+            if re.search(r'ASAN_SCOPE|ASAN_FUZZER|FIRNESS_', body, re.I):
+                ours_conditions.add(counter)
+            continue
+        if body.startswith('!else'):
+            if branch:
+                where, arm = branch[-1]
+                branch[-1] = (where, arm + 1)
+            continue
+        if body.startswith('!endif'):
+            if branch:
+                branch.pop()
+            continue
+        if not re.match(r'^INF\s', body, re.I):
+            continue
+        whole = ' '.join(body.split()).lower()
+        here = list(branch)
+
+        clash = next((n for n, (sec, text, where, _) in enumerate(seen)
+                      if sec == section and text == whole and coexist(where, here)), None)
+        if clash is None:
+            seen.append((section, whole, here, i))
+            continue
+        _, _, there, at = seen[clash]
+        # A line the port puts under its own condition says when the module should be
+        # there; an unconditional copy says always. The port's is the deliberate one, so
+        # where exactly one of the two is under a port condition, that one stays --
+        # otherwise BootScriptExecutorDxe is back in every build and the block excluding
+        # it at full scope has nothing left to exclude.
+        mine = any(w in ours_conditions for w, _ in here)
+        theirs = any(w in ours_conditions for w, _ in there)
+        if mine != theirs:
+            if mine:
+                drop.append((at, body.split()[-1]))
+                seen[clash] = (section, whole, here, i)
+            else:
+                drop.append((i, body.split()[-1]))
+        elif len(here) >= len(there):
+            drop.append((i, body.split()[-1]))
+        else:
+            drop.append((at, body.split()[-1]))
+            seen[clash] = (section, whole, here, i)
+    if drop:
+        for i, _ in sorted(drop, reverse=True):
+            del lines[i]
+        open(full, 'w', newline='').write('\n'.join(lines))
+    return [name for _, name in drop]
+
+
 def balance_conditionals(dst, path):
     """Give the port's own conditional its own !endif.
 
@@ -597,6 +697,31 @@ def main():
             modified = [f for f in modified if f != TOOLS_DEF]
             print(f'  appended {len(ours_only)} CLANGSAN line(s) to tools_def')
 
+        # A flag edk2 has added since the fork exists for every toolchain it ships and
+        # for none it does not. edk2 master added GENFWHII_FLAGS, which the Hii rule
+        # passes to GenFw; CLANGSAN had none, GenFw was handed no option to act on, and
+        # the build stopped at "GenFw: ERROR 1001: Missing option" while building
+        # LogoDxehii.lib -- a message with nothing in it about toolchains. Take the value
+        # from CLANGDWARF, which is the clang toolchain edk2 does ship, and only for flags
+        # the CLANGSAN block does not set for itself.
+        body = open(target, newline='', errors='ignore').read()
+        setting = re.compile(r'^\*_(\w+)_([^_\s]+)_(\w+)\s*=(.*)$', re.M)
+        have = {m.group(3) for m in setting.finditer(body) if m.group(1) == 'CLANGSAN'}
+        borrowed = []
+        for found in setting.finditer(body):
+            tool, arch, flag, value = found.groups()
+            if tool != 'CLANGDWARF' or flag in have:
+                continue
+            have.add(flag)
+            borrowed.append(f'*_CLANGSAN_{arch}_{flag} ={value}')
+        if borrowed:
+            with open(target, 'a', newline='') as handle:
+                handle.write('\n#\n# Flags this edk2 has and the port does not know '
+                             'about, taken from CLANGDWARF.\n#\n')
+                handle.write('\n'.join(borrowed) + '\n')
+            print(f'  gave CLANGSAN {len(borrowed)} flag(s) it had none of: '
+                  f'{", ".join(b.split("=")[0].split("_")[-2] + "_" + b.split("=")[0].split("_")[-1].strip() for b in borrowed[:4])}')
+
     # one file at a time: git apply is atomic, so a single unmergeable hunk would discard
     # the whole port and report nothing about which file caused it
     clean, conflicted, failed = [], [], []
@@ -790,6 +915,14 @@ def main():
     # -- while leaving .rej files nobody reads. This tree is already instrumented, and by
     # a port that understands the version it is being applied to.
     open(os.path.join(dst, 'patch_applied'), 'w').close()
+
+    doubled = []
+    for path in modified:
+        if path.endswith(('.fdf', '.fdf.inc')):
+            doubled += drop_duplicate_modules(dst, path)
+    if doubled:
+        print(f'  dropped {len(doubled)} module(s) the port adds and this edk2 already '
+              f'has: {", ".join(os.path.basename(d) for d in doubled)}')
 
     ruled = complete_sanitizer_rules(src, dst)
     if ruled:
