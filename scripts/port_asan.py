@@ -157,6 +157,252 @@ def enforce_library_pins(src, base, dst, path):
     return changed
 
 
+REGION_RE = re.compile(r'^(\s*)(0x[0-9A-Fa-f]+)\s*\|\s*(0x[0-9A-Fa-f]+)\s*$')
+
+
+def _regions(lines):
+    """Every "offset|size" line with the PCD pair or FV it binds on the next line."""
+    found = []
+    for i, line in enumerate(lines):
+        hit = REGION_RE.match(line.rstrip('\r'))
+        if hit:
+            binding = lines[i + 1].strip() if i + 1 < len(lines) else ''
+            found.append((i, int(hit.group(2), 16), int(hit.group(3), 16), binding))
+    return found
+
+
+def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
+    """Grow the PEI and DXE volumes in whichever file defines MEMFD.
+
+    The port enlarges them because instrumented code is roughly three times the size and
+    neither volume fits otherwise. It does that by carrying the fork's whole [FD.MEMFD]
+    inline, which worked while upstream's was inline too. edk2-stable202511 moved it to
+    OvmfPkg/Include/Fdf/MemFd.fdf.inc, so the ported FDF defines MEMFD twice and GenFds
+    stops at "Unexpected the same FD name". Letting the port's copy win is not the answer
+    either: that copy is the fork's 2023 layout, and upstream has added regions since --
+    work areas and page tables that this version's modules read.
+
+    So keep upstream's layout and change only what the port is actually asking for: the
+    size of the two volumes, the offset of the one that follows, and the totals. Every
+    region before them stays where upstream put it.
+
+    Returns a description of what changed, or ''.
+    """
+    fdf = os.path.join(dst, fdf_rel)
+    try:
+        body = open(fdf, newline='', errors='ignore').read()
+    except OSError:
+        return ''
+    lines = body.split('\n')
+    # the include that defines MEMFD, if this file does not define it itself
+    target, target_lines = None, None
+    if not any(l.strip().upper().startswith('[FD.MEMFD]') for l in lines):
+        return ''
+    inline = [i for i, l in enumerate(lines) if l.strip().upper().startswith('[FD.MEMFD]')]
+    included = []
+    for line in lines:
+        hit = re.match(r'^\s*!include\s+(\S+)', line)
+        if not hit:
+            continue
+        path = os.path.join(dst, hit.group(1))
+        try:
+            text = open(path, newline='', errors='ignore').read()
+        except OSError:
+            continue
+        if any(l.strip().upper().startswith('[FD.MEMFD]') for l in text.split('\n')):
+            included.append((hit.group(1), path, text))
+    if not included or not inline:
+        return ''                                   # only one definition: nothing to fix
+
+    # Drop the port's inline copy, back to the blank line before its leading comment.
+    start = inline[0]
+    while start > 0 and lines[start - 1].strip().startswith('#'):
+        start -= 1
+    end = start + 1
+    for i in range(inline[0] + 1, len(lines)):
+        stripped = lines[i].strip()
+        if stripped.startswith('[') or stripped.startswith('!include'):
+            end = i
+            break
+        end = i + 1
+    del lines[start:end]
+    open(fdf, 'w', newline='').write('\n'.join(lines))
+
+    rel, path, text = included[0]
+    target_lines = text.split('\n')
+    block = os.path.getsize(path) and 0x10000
+    for line in target_lines:
+        hit = re.match(r'^\s*BlockSize\s*=\s*(0x[0-9A-Fa-f]+)', line)
+        if hit:
+            block = int(hit.group(1), 16)
+            break
+    regions = _regions(target_lines)
+    pei = next((r for r in regions if 'PcdOvmfPeiMemFvBase' in r[3]), None)
+    dxe = next((r for r in regions if 'PcdOvmfDxeMemFvBase' in r[3]), None)
+    if not pei or not dxe:
+        return f'{rel}: no PEI/DXE volume to enlarge'
+    dxe_base = pei[1] + pei_size
+    total = dxe_base + dxe_size
+    pad = REGION_RE.match(target_lines[pei[0]].rstrip('\r')).group(1)
+    eol = '\r' if target_lines[pei[0]].endswith('\r') else ''
+    target_lines[pei[0]] = f'{pad}0x{pei[1]:06X}|0x{pei_size:06X}{eol}'
+    target_lines[dxe[0]] = f'{pad}0x{dxe_base:06X}|0x{dxe_size:06X}{eol}'
+    for i, line in enumerate(target_lines):
+        if re.match(r'^\s*Size\s*=\s*0x', line):
+            target_lines[i] = re.sub(r'0x[0-9A-Fa-f]+', f'0x{total:X}', line, count=1)
+        elif re.match(r'^\s*NumBlocks\s*=\s*0x', line):
+            target_lines[i] = re.sub(r'0x[0-9A-Fa-f]+',
+                                     f'0x{total // block:X}', line, count=1)
+    open(path, 'w', newline='').write('\n'.join(target_lines))
+    return (f'{rel}: PEI 0x{pei_size:X}, DXE 0x{dxe_size:X} at 0x{dxe_base:X}, '
+            f'MEMFD 0x{total:X}')
+
+
+def port_memfd_sizes(src, base):
+    """The volume sizes the port's own FDF asks for."""
+    text = git_bytes(src, 'show', f'HEAD:OvmfPkg/OvmfPkgX64.fdf').stdout.decode(
+        'utf-8', 'replace')
+    lines = text.split('\n')
+    regions = _regions(lines)
+    pei = next((r for r in regions if 'PcdOvmfPeiMemFvBase' in r[3]), None)
+    dxe = next((r for r in regions if 'PcdOvmfDxeMemFvBase' in r[3]), None)
+    return (pei[2] if pei else 0), (dxe[2] if dxe else 0)
+
+
+def _command_blocks(lines):
+    """Map section header -> {command name: (index, indent, body lines)}."""
+    out, section = {}, None
+    for i, line in enumerate(lines):
+        if line.strip().startswith('['):
+            section = line.strip()
+            out.setdefault(section, {})
+            continue
+        hit = re.match(r'^(\s*)<Command\.(\w+)>', line)
+        if hit and section:
+            body, j = [], i + 1
+            while j < len(lines) and not re.match(r'^\s*<', lines[j]) \
+                    and not lines[j].strip().startswith('['):
+                body.append(lines[j])
+                j += 1
+            while body and not body[-1].strip():
+                body.pop()
+            out[section][hit.group(2)] = (i, hit.group(1), body)
+    return out
+
+
+def complete_sanitizer_rules(src, dst):
+    """Put the port's SANITIZER build rules in the sections they belong to.
+
+    CLANGSAN declares BUILDRULEFAMILY = SANITIZER, so a section with no
+    <Command.SANITIZER> either runs its step without $(SAN_FLAGS) or skips it. The port
+    adds those commands by patch, which places them wherever the surrounding context
+    matched. On edk2-stable202511 upstream had added a [Cxx-Code-File] section just above
+    [C-Code-File] and the C compile command landed in it: the build ran, produced a
+    firmware, and instrumented nothing -- 1388 clang invocations, not one with
+    -fsanitize, and a volume 20% full where an instrumented one is 56%.
+
+    Which sections need one is not a guess: it is whichever the port's own build_rule
+    gives one to. Anything else -- adding $(SAN_FLAGS) to every link command, say -- is
+    inventing a configuration nobody has built.
+    """
+    path = os.path.join(dst, 'BaseTools/Conf/build_rule.template')
+    try:
+        here = open(path, newline='', errors='ignore').read().split('\n')
+    except OSError:
+        return []
+    ours = git_bytes(src, 'show', 'HEAD:BaseTools/Conf/build_rule.template'
+                     ).stdout.decode('utf-8', 'replace').split('\n')
+    wanted = {head: cmds['SANITIZER']
+              for head, cmds in _command_blocks(ours).items() if 'SANITIZER' in cmds}
+    if not wanted:
+        return []
+    mine = _command_blocks(here)
+
+    def same_section(head):
+        if head in mine:
+            return head
+        name = head.strip('[]').split(',')[0].split('.')[0].strip()
+        for other in mine:
+            if other.strip('[]').split(',')[0].split('.')[0].strip() == name:
+                return other
+        return None
+
+    added = []
+    for head, (_, pad, body) in sorted(wanted.items(), reverse=True):
+        target = same_section(head)
+        if target is None or 'SANITIZER' in mine.get(target, {}):
+            continue
+        anchor = mine[target].get('GCC') or next(iter(mine[target].values()), None)
+        if not anchor:
+            continue
+        at = anchor[0]
+        stop = at + 1
+        while stop < len(here) and not re.match(r'^\s*<', here[stop]) \
+                and not here[stop].strip().startswith('['):
+            stop += 1
+        eol = '\r' if here[at].endswith('\r') else ''
+        here[stop:stop] = [f'{pad}<Command.SANITIZER>{eol}'] + body + [eol]
+        added.append(target)
+        mine = _command_blocks(here)
+    if added:
+        open(path, 'w', newline='').write('\n'.join(here))
+    return added
+
+
+def balance_conditionals(dst, path):
+    """Give the port's own conditional its own !endif.
+
+    The port wraps a driver it has to drop at full sanitizer scope in
+    "!if "$(ASAN_SCOPE)" != "full" ... !else ... !endif". In the fork that block stands
+    alone, so the patch adds the !if and the !else and treats the !endif below it as
+    context. Upstream can have put that !endif to its own use since: edk2-stable202511
+    wraps the same two drivers in "!if $(STANDALONE_MM_ENABLE) != TRUE", and after the
+    patch the port's conditional closes with that !endif, leaving STANDALONE_MM_ENABLE
+    open. The build stops at "Missing !endif near line 610" -- three hundred lines past
+    the conditional that is actually unterminated.
+
+    Only acts on a file that is genuinely unbalanced, and only on the port's own
+    conditionals, which are the ones naming its defines.
+    """
+    full = os.path.join(dst, path)
+    try:
+        lines = open(full, newline='', errors='ignore').read().split('\n')
+    except OSError:
+        return 0
+
+    def kind(line):
+        body = line.strip()
+        if body.startswith('!if'):              # !if, !ifdef, !ifndef
+            return 'if'
+        return 'endif' if body.startswith('!endif') else ''
+
+    short = sum(1 for l in lines if kind(l) == 'if') - \
+        sum(1 for l in lines if kind(l) == 'endif')
+    if short <= 0:
+        return 0
+    ours = re.compile(r'ASAN_SCOPE|ASAN_FUZZER|FIRNESS_', re.I)
+    added, i = 0, 0
+    while i < len(lines) and added < short:
+        if kind(lines[i]) == 'if' and ours.search(lines[i]):
+            depth = 0
+            for j in range(i + 1, len(lines)):
+                step = kind(lines[j])
+                if step == 'if':
+                    depth += 1
+                elif step == 'endif':
+                    if depth == 0:              # the !endif this block would borrow
+                        pad = re.match(r'\s*', lines[j]).group(0)
+                        eol = '\r' if lines[j].endswith('\r') else ''
+                        lines.insert(j, f'{pad}!endif{eol}')
+                        added += 1
+                        break
+                    depth -= 1
+        i += 1
+    if added:
+        open(full, 'w', newline='').write('\n'.join(lines))
+    return added
+
+
 def twin_clang_toolchain(dst):
     """Give CLANGSAN the build options edk2 already writes for CLANGDWARF.
 
@@ -544,6 +790,25 @@ def main():
     # -- while leaving .rej files nobody reads. This tree is already instrumented, and by
     # a port that understands the version it is being applied to.
     open(os.path.join(dst, 'patch_applied'), 'w').close()
+
+    ruled = complete_sanitizer_rules(src, dst)
+    if ruled:
+        print(f'  the port\'s SANITIZER build rule was missing from '
+              f'{len(ruled)} section(s); added: {", ".join(ruled)}')
+
+    pei_size, dxe_size = port_memfd_sizes(src, base)
+    if pei_size and dxe_size:
+        grew = enlarge_memfd(dst, 'OvmfPkg/OvmfPkgX64.fdf', pei_size, dxe_size)
+        if grew:
+            print(f'  MEMFD is defined in an include here; enlarged that instead -- {grew}')
+
+    closed = 0
+    for path in modified:
+        if path.endswith(('.fdf', '.fdf.inc', '.dsc', '.dsc.inc')):
+            closed += balance_conditionals(dst, path)
+    if closed:
+        print(f'  closed {closed} conditional(s) the port opened and upstream no longer '
+              f'had a spare !endif for')
 
     repinned = []
     for path in modified:
