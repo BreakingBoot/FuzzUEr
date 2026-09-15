@@ -25,6 +25,7 @@ looks like a result and is not one.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -460,6 +461,28 @@ def main():
         if args.skip_fuzz:
             return None, 'not run: --skip-fuzz'
         campaigns = os.path.join(out, 'campaigns')
+        # Start from an empty directory. fuzz_batch skips a protocol that already has a
+        # log.json, so a second run of the same ref would report the first run's
+        # campaigns as its own. The campaign containers write as root through the bind
+        # mount, which is why this cannot simply be shutil.rmtree.
+        if os.path.isdir(campaigns):
+            sh(['docker', 'run', '--rm', '-v', f'{os.path.abspath(out)}:/out',
+                '--entrypoint', 'sh', args.base_image, '-c',
+                'rm -rf /out/campaigns'], timeout=600)
+            shutil.rmtree(campaigns, ignore_errors=True)
+            if os.path.isdir(campaigns):
+                return False, f'could not clear {campaigns} from the last run'
+        # A run that was killed leaves its containers behind, and fuzz_batch rightly
+        # refuses to reuse a name that is still running -- so every later run of the same
+        # ref launches nothing at all. The name carries a hash of the output directory,
+        # which this run has just emptied, so anything still holding one is orphaned.
+        tag = hashlib.sha1(os.path.abspath(campaigns).encode()).hexdigest()[:6]
+        prefix = os.environ.get('FIRNESS_CONTAINER_PREFIX', 'fuzz')
+        stale = sh(['docker', 'ps', '-aq', '--filter', f'name={prefix}-.*-{tag}$'])
+        ids = stale.stdout.split()
+        if ids:
+            sh(['docker', 'rm', '-f'] + ids, timeout=600)
+            print(f'    removed {len(ids)} container(s) left by an earlier run')
         argv = [sys.executable, os.path.join(HERE, 'fuzz_batch.py'),
                 '-r', REPO, '-o', campaigns, '-j', str(args.jobs),
                 '-t', str(args.budget), '--backend', 'qemu',
