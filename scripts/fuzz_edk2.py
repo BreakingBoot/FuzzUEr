@@ -507,9 +507,26 @@ def main():
             if os.path.isdir(campaigns) else []
         if not made:
             return False, 'no campaign produced a log.json'
-        detail = f'{len(made)}/{planned} campaign(s) produced a log'
-        # fuzz_batch already exits non-zero when a campaign produced nothing; say which
-        return (code == 0), detail + ('' if code == 0 else ' -- some did not')
+        # A campaign can produce a log and have fuzzed nothing: the boot has a budget of
+        # its own, and a firmware that never reaches the harness spends all of it and
+        # then reports zero. Counting logs alone makes that run green, which is the one
+        # thing this script exists not to do.
+        fuzzed, iterations = 0, 0
+        for name in made:
+            log = os.path.join(campaigns, name, 'run.log')
+            if not os.path.isfile(log):
+                continue
+            got = re.findall(r'Fuzzed (\d+) iteration',
+                             open(log, errors='ignore').read())
+            count = max((int(n) for n in got), default=0)
+            iterations += count
+            fuzzed += 1 if count else 0
+        detail = (f'{len(made)}/{planned} campaign(s) produced a log, {fuzzed} of them '
+                  f'reached the harness ({iterations} iteration(s))')
+        if not fuzzed:
+            return False, (detail + ' -- every boot spent its budget without reaching '
+                           'the harness; each run.log says how far it got')
+        return (code == 0), detail + ('' if code == 0 else ' -- some produced nothing')
 
     def triage():
         if args.skip_fuzz:
