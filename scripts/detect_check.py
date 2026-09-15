@@ -188,6 +188,9 @@ def main():
     parser.add_argument('--peer-port', type=int, default=5900)
     parser.add_argument('--qemu', default='qemu-system-x86_64')
     parser.add_argument('--skip-network', action='store_true')
+    parser.add_argument('--require-all', action='store_true',
+                        help='treat a skipped check as a failure, for unattended runs '
+                             'where "nothing was checked" must not read as "all passed"')
     args = parser.parse_args()
 
     work = tempfile.mkdtemp(prefix='detect_check_')
@@ -203,10 +206,23 @@ def main():
             os.makedirs(netwd, exist_ok=True)
             results.append(('network peer pxe boot',) + check_network(args, netwd))
     else:
-        results.append(('asan detection classes', None,
-                        'skipped: needs --code, --vars and --selftest'))
+        # Skipped is a pass on the command line, and under CI that is how a broken run goes
+        # green: pass three paths that do not exist and this exits 0 having checked nothing.
+        # A path that was given and is missing is an error; only omitting it is a skip.
+        named = [(flag, path) for flag, path in
+                 (('--code', args.code), ('--vars', args.vars),
+                  ('--selftest', args.selftest)) if path]
+        missing = [flag for flag, path in named if not os.path.isfile(path)]
+        if missing:
+            results.append(('asan detection classes', False,
+                            f'{", ".join(missing)} given but not on disk'))
+        else:
+            results.append(('asan detection classes', None,
+                            'skipped: needs --code, --vars and --selftest'))
         if not args.skip_network:
-            results.append(('network peer pxe boot', None, 'skipped: needs the same'))
+            results.append(('network peer pxe boot',
+                            False if missing else None,
+                            'not run' if missing else 'skipped: needs the same'))
 
     if args.matrix and os.path.isdir(args.matrix):
         results.append(('bug triage',) + check_triage(args))
@@ -224,6 +240,9 @@ def main():
             state, failed = 'FAIL', failed + 1
         print(f'  [{state}] {name:26} {detail}')
     print()
+    if skipped and args.require_all:
+        print(f'{skipped} check(s) skipped and --require-all was given')
+        failed += skipped
     if failed:
         print(f'{failed} check(s) failed')
     elif skipped:

@@ -101,15 +101,91 @@ def compile(src, capture_db=False):
     return log
 
 
+def compile_ovmf(src, capture_db=False):
+    """Build OVMF under bear, in the tree under test.
+
+    The Simics path gets its compilation database by building edk2-platforms'
+    BoardX58Ich10. A campaign image for one edk2 version carries that version's edk2 and
+    nothing else, so build_bios.py has no platform to build: compile_commands.json is
+    never written, the firness tool emits "null" for every analysis artefact, and the
+    generator dies five steps later in load_macros with "TypeError: 'NoneType' object is
+    not iterable". Building the platform the QEMU backend actually boots answers the same
+    question and needs only the tree under test.
+    """
+    dir1 = os.path.join(src, 'edk2')
+    bear = (f'bear --output {os.path.join(src, "compile_commands.json")} -- '
+            if capture_db else '')
+    # The same toolchain and the same defines as the firmware this will be fuzzed
+    # against. CLANGDWARF is a configuration nothing else here builds, and on
+    # edk2-stable202505 it stops at "error F003: Output file for RAW section could not be
+    # found for OvmfPkg/ResetVector/ResetVector.inf" -- so the database came back empty
+    # from a toolchain the run never uses.
+    clang = os.environ.get('CLANGSAN_BIN', '/workspace/llvm-15.0.7/build/bin/')
+    defines = os.environ.get('FIRNESS_ANALYSIS_DEFINES',
+                             '-D ASAN_SCOPE=full -D FD_SIZE_IN_KB=8192')
+    # bear records compilations as they happen, so an already-built tree yields an empty
+    # database and every analysis artefact comes back as "null" -- from a build whose log
+    # says "- Done -". The firmware the campaign boots is prebuilt and copied in, not
+    # taken from this tree, so clearing it costs nothing.
+    cmd = (f'cd {dir1} && rm -rf {dir1}/Build && '
+           f'make -C BaseTools clean && make -C BaseTools && '
+           f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
+           f'CONF_PATH={dir1}/Conf CLANGSAN_BIN={clang} && '
+           f'source edksetup.sh && cd {dir1} && '
+           f'{bear}build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
+           f'{defines} -n "$(nproc)"')
+    process = subprocess.run(cmd, shell=True, executable='/bin/bash',
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return (process.stdout.decode('utf-8', errors='ignore') +
+            process.stderr.decode('utf-8', errors='ignore'))
+
+
 # Run bear on the entire simics code base to get the compilation database
-def get_compilation_database(src, dst):
-    # run the stock upstream build under bear
-    log = compile(dst, capture_db=True)
+def get_compilation_database(src, dst, backend='tsffs'):
+    # Analyse the platform that will be booted. Simics boots BoardX58Ich10 out of
+    # edk2-platforms; QEMU boots OVMF. The base image carries the whole Simics platform
+    # stack, so "is edk2-platforms present" is not the question -- it always is, and
+    # building it against a tree that is some other edk2 version produces a database with
+    # no entries in it. firness then emits "null" for every artefact and the generator
+    # dies in load_macros with "TypeError: 'NoneType' object is not iterable".
+    compilation_db = os.path.join(dst, 'compile_commands.json')
+    # The database describes the tree, not the protocol. When one is already here -- the
+    # per-version campaign image builds it once -- reuse it rather than rebuilding the
+    # whole of OVMF under bear for every protocol.
+    existing = []
+    if os.path.isfile(compilation_db):
+        try:
+            existing = json.load(open(compilation_db))
+        except (ValueError, OSError):
+            existing = []
+    if existing:
+        print(f'++++ Reusing the compilation database ({len(existing)} entries) ++++')
+        return ''
+    if (backend and backend != 'tsffs') or \
+            not os.path.isdir(os.path.join(dst, 'edk2-platforms')):
+        print('++++ Analysing the OVMF build ++++')
+        log = compile_ovmf(dst, capture_db=True)
+    else:
+        log = compile(dst, capture_db=True)
     # there are a couple gcc commands that need to be removed from the compilation database
     # remove them
-    compilation_db = os.path.join(dst, 'compile_commands.json')
+    if not os.path.isfile(compilation_db):
+        # Without this the next line raises FileNotFoundError from inside a helper, and
+        # the campaign's log ends on a traceback about a JSON file rather than on the
+        # build that never ran.
+        print(f'Error: the analysis build wrote no {compilation_db}. Its output follows.')
+        print(log[-4000:])
+        return log
     with open(compilation_db, 'r') as f:
         compile_commands = json.load(f)
+    if not compile_commands:
+        # An empty database is as useless as a missing one and much quieter: every
+        # analysis artefact is then written as "null" and the failure surfaces in the
+        # generator, four steps away from the build that compiled nothing.
+        print(f'Error: the analysis build compiled nothing -- {compilation_db} is empty. '
+              f'Its output follows.')
+        print(log[-4000:])
+        return log
 
     filtered_commands = [cmd for cmd in compile_commands if 'gcc' not in cmd['arguments'][0]]
 
@@ -539,12 +615,20 @@ def compile_harness(src, count=0):
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
     if process.returncode != 0:
-        # generate_includes(os.path.join(dir1, 'Firness'))
-        # if count < 5:
-        #     compile_harness(src, count + 1)
-        # else:
-        #     exit(1)
+        # Say what the compiler said. "Harness compilation failed" on its own leaves an
+        # unattended run with a campaign that produced nothing and no way to tell a
+        # generator bug from a missing library from a protocol this edk2 has dropped --
+        # the build output is the only place the answer exists, and it was being thrown
+        # away. Compiler diagnostics only: the full log is thousands of GenFw lines.
         print('Error: Harness compilation failed')
+        said = [line for line in log.splitlines()
+                if re.search(r'\berror\b|\bwarning: implicit\b|undefined reference',
+                             line, re.I) and len(line) < 400]
+        for line in said[:25]:
+            print(f'  {line}')
+        if len(said) > 25:
+            print(f'  ... and {len(said) - 25} more; the whole build log is in this '
+                  f'campaign\'s run.log')
     else:
         print('++++ Compiled Harness ++++')
     return log
@@ -1742,7 +1826,7 @@ def main():
         log += asan_instrumetation(asan_dir, os.path.join(tmp_dir, 'edk2'))
         # compile the firmware to get the compilation database; this also produces
         # the instrumented BOARDX58ICH10.fd that fuzz.simics boots
-        log += get_compilation_database('/workspace/scripts', tmp_dir)
+        log += get_compilation_database('/workspace/scripts', tmp_dir, args.backend)
         log += run_firness(tmp_dir, output, input_file, args.smi)
 
     # generate the harness

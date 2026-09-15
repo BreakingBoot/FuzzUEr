@@ -526,8 +526,30 @@ def main():
         return 2
     clusters, rows = load(args.root, args.build)
     if not clusters:
-        print(f'no crashes.csv under {args.root}')
-        return 1
+        # A campaign that ran and found nothing is a result: the version was fuzzed and
+        # the sanitizer reported nothing the filters did not explain. Only a root with no
+        # campaigns in it at all is a failure -- "there were no crashes" and "nothing ran"
+        # must not look the same to an unattended run.
+        campaigns = [d for d in sorted(os.listdir(args.root))
+                     if os.path.isdir(os.path.join(args.root, d))]
+        if not campaigns:
+            print(f'no campaign directories under {args.root}', file=sys.stderr)
+            return 1
+        print(f'{len(campaigns)} campaign(s) under {args.root} and no crashes.csv in any '
+              f'of them: nothing was reported')
+        empty = {'rows': [], 'clusters': 0, 'candidates': [], 'ubiquitous': [],
+                 'filtered': {'harness': [], 'artefact': [], 'background': []}}
+        if args.json:
+            with open(args.json, 'w') as handle:
+                json.dump(empty, handle, indent=2)
+            print(f'Wrote {args.json}')
+        if args.markdown:
+            with open(args.markdown, 'w') as handle:
+                handle.write(f'# {args.title or "Bug report"}\n\n'
+                             f'{len(campaigns)} campaign(s) produced no sanitizer '
+                             f'reports.\n')
+            print(f'Wrote {args.markdown}')
+        return 0
 
     boot_keys = {k for k, c in clusters.items() if 'boot' in c.phases}
     buckets = defaultdict(list)

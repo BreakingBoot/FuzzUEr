@@ -103,9 +103,16 @@ def launch(protocol, args):
     # matrix of "per-protocol" coverage was really one harness measured over and over.
     command = (
         f'cd /workspace && rm -rf firness_output && mkdir -p firness_output && '
-        f'cp /input/anacache/{protocol}/*.json firness_output/ && '
+        # The cache is an optimisation, not a prerequisite: firness.py runs the analysis
+        # itself when it is absent. Chaining it with && made a missing cache fatal, so a
+        # protocol discovered on the branch under test -- exactly the case the discovery
+        # pass exists for -- could never be fuzzed: the campaign died on "cp: cannot stat
+        # /input/anacache/<Protocol>/*.json" before firness.py ever started.
+        + ('' if args.no_anacache else
+           f'(cp /input/anacache/{protocol}/*.json firness_output/ 2>/dev/null || '
+           f'echo "no cached analysis for {protocol}; analysing from source") && ') +
         f'python3 /workspace/firness.py -s /workspace/tmp '
-        f'-i /input/{args.request_rel}/{protocol}.txt -g -f '
+        f'-i /input/{args.request_rel}/{protocol}.txt {stages(args, protocol)} '
         f'-t {args.budget} --boot-timeout {args.boot_timeout}'
     )
     if args.smi:
@@ -167,6 +174,21 @@ def already_done(output, protocol):
     return os.path.isfile(os.path.join(output, protocol, 'log.json'))
 
 
+def stages(args, protocol):
+    """Which firness stages this campaign has to run.
+
+    -g -f generates a harness and fuzzes it, and takes the analysis as given: the matrix
+    seeds firness_output from a cached call-database. A protocol discovered on the branch
+    under test has no cache, and -g then stops at "call-database.json is missing -- run the
+    analysis stage first", which is the one case the discovery pass exists to serve. Add -a
+    when there is nothing to seed from, and pay the analysis once.
+    """
+    if args.no_anacache:
+        return '-a -g -f'
+    cached = os.path.join(os.path.abspath(args.repo), 'eval_source', 'anacache', protocol)
+    return '-g -f' if os.path.isdir(cached) and os.listdir(cached) else '-a -g -f'
+
+
 def resolve_requests(args):
     """The request files to fuzz, discovered from the tree unless told otherwise.
 
@@ -218,16 +240,21 @@ def request_dir_in_container(requests, repo):
     return rel.replace(os.sep, '/')
 
 
-def declared_guids(repo):
-    """Every GUID symbol the source tree declares, from its .dec files."""
+def declared_guids(tree):
+    """Every GUID symbol this source tree declares, from its .dec files.
+
+    The tree is the one the campaign will build, not the repository root: globbing
+    "edk2*" under the repository matched nothing -- the checkouts live in eval_source --
+    so the set came back empty and undeclared() below, which fails open on an empty set,
+    never warned about anything.
+    """
     found = set()
-    for tree in sorted(glob.glob(os.path.join(repo, 'edk2*'))):
-        for dec in glob.glob(os.path.join(tree, '**', '*.dec'), recursive=True):
-            try:
-                text = open(dec, errors='ignore').read()
-            except OSError:
-                continue
-            found.update(re.findall(r'(g\w+Guid)\s*=\s*\{', text))
+    for dec in glob.glob(os.path.join(tree, '**', '*.dec'), recursive=True):
+        try:
+            text = open(dec, errors='ignore').read()
+        except OSError:
+            continue
+        found.update(re.findall(r'(g\w+Guid)\s*=\s*\{', text))
     return found
 
 
@@ -318,6 +345,11 @@ def main():
                         help='directory of <target>.txt request files (default: the '
                              'tree\'s eval_source/evalset). Point it at a discovered set '
                              'so a branch that adds its own protocols gets them fuzzed.')
+    parser.add_argument('--no-anacache', action='store_true',
+                        help='analyse the tree under test instead of seeding from '
+                             'eval_source/anacache. The cache is keyed by protocol with '
+                             'no version in it, so against any tree but the one it was '
+                             'taken from it describes a different edk2.')
     parser.add_argument('--image', type=str, default=DEFAULT_IMAGE)
     parser.add_argument('--cpus', type=str, default='',
                         help='Per-container cpu limit, e.g. 2 -- leaves the box usable by others')
@@ -397,7 +429,8 @@ def main():
               f'under the repo.', file=sys.stderr)
         return 2
 
-    tree_guids = declared_guids(args.repo)
+    tree_guids = declared_guids(
+        args.tree or os.path.join(args.repo, 'eval_source', 'edk2'))
     missing = [p for p in todo if undeclared(p, tree_guids)]
     if missing:
         print(f'  note: this edk2 declares no GUID for {len(missing)} target(s): '
@@ -409,6 +442,9 @@ def main():
     print(f'{len(todo)} protocol(s) to fuzz, {args.jobs} at a time, '
           f'{args.budget}s each')
 
+    # The launch loop drains todo, so remember what was planned before it does. Checking
+    # the emptied list afterwards compares nothing against nothing and always passes.
+    planned = list(todo)
     active, started, failed = [], 0, 0
     while todo or active:
         active = running(active)
@@ -436,7 +472,17 @@ def main():
     print(f'\nlaunched {started}, failed to launch {failed}')
     print(f'summarise with: python3 {os.path.join(args.repo, "scripts", "coverage_matrix.py")} '
           f'-r {args.output}')
-    return 0 if not failed else 1
+    # The exit status has to mean "the campaigns ran", not "the containers started".
+    # Reporting success because docker run returned 0 is how an unattended matrix goes green
+    # with every result directory empty.
+    ran = [p for p in planned
+           if os.path.isfile(os.path.join(args.output, p, 'log.json'))]
+    if len(ran) < len(planned):
+        missing = [p for p in planned if p not in ran]
+        print(f'  {len(missing)} of {len(planned)} campaign(s) produced no log.json: '
+              f'{", ".join(missing[:8])}{" ..." if len(missing) > 8 else ""}')
+        print(f'  each one\'s run.log under {args.output} says how far it got')
+    return 0 if (not failed and len(ran) == len(planned)) else 1
 
 
 if __name__ == '__main__':

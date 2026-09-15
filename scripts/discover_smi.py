@@ -65,6 +65,10 @@ def main():
     parser.add_argument('-o', '--output', help='write the handler list here')
     parser.add_argument('--with-source', action='store_true',
                         help='annotate each handler with the file that registers it')
+    parser.add_argument('--require', type=int, default=0,
+                        help='fail unless at least this many handlers are found; an '
+                             'unattended run cannot tell "this tree has none" from "the '
+                             'scan matched nothing because the shape changed"')
     args = parser.parse_args()
 
     if not os.path.isdir(args.src):
@@ -86,6 +90,9 @@ def main():
     else:
         for line in lines[:20]:
             print(f'  {line}')
+    if args.require and len(found) < args.require:
+        print(f'  fewer than the {args.require} handler(s) required', file=sys.stderr)
+        return 1
     return 0
 
 

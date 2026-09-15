@@ -134,6 +134,28 @@ def write_inputs(protocols, output_dir, min_methods, limit):
     return written
 
 
+# Firness learns a protocol's shape from its call sites, not from its header: a protocol
+# nothing in the tree calls yields "Total Functions: 0" and the campaign spends a full
+# analysis and build to produce nothing. Scanning every Include/Protocol directory rather
+# than five named packages turns that from a rarity into a routine cost -- ArmPkg,
+# EmbeddedPkg and EmulatorPkg headers all declare protocols an OVMF X64 build never
+# installs -- so ask which ones the tree actually uses.
+def consumed_guids(src):
+    used = set()
+    token = re.compile(rb'(g\w*ProtocolGuid)')
+    for base, dirs, files in os.walk(src):
+        dirs[:] = [d for d in dirs if d not in ('.git', 'Build')]
+        for name in files:
+            if not name.endswith('.c'):
+                continue
+            try:
+                with open(os.path.join(base, name), 'rb') as handle:
+                    used.update(m.decode() for m in token.findall(handle.read()))
+            except OSError:
+                continue
+    return used
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Generate one firness input file per UEFI protocol found in the source')
@@ -143,14 +165,43 @@ def main():
                         help='Directory to write the input files into')
     parser.add_argument('-m', '--min-methods', type=int, default=3,
                         help='Skip protocols with fewer callable methods than this')
+    parser.add_argument('--packages', nargs='*', default=None,
+                        help='restrict the scan to these packages (default: the whole '
+                             'tree). A protocol declared by a package the platform does '
+                             'not build cannot be installed by the firmware under test, '
+                             'so a campaign against it spends its budget proving that.')
+    parser.add_argument('--any-protocol', action='store_true',
+                        help='keep protocols no source file in the tree calls; they have '
+                             'no call sites for firness to learn a harness from')
     parser.add_argument('-n', '--limit', type=int, default=0,
                         help='Stop after this many protocols (0 = no limit)')
     args = parser.parse_args()
 
-    roots = [os.path.join(args.src, p, 'Include', 'Protocol')
-             for p in ('MdePkg', 'MdeModulePkg', 'NetworkPkg', 'ShellPkg', 'SecurityPkg')]
+    # Every Include/Protocol directory in the tree, not a list of five packages. A branch
+    # that adds a package -- or a protocol under OvmfPkg, UefiCpuPkg or CryptoPkg, none of
+    # which was named -- had it silently left out of the run, and the report then says
+    # nothing was found there rather than that nothing was looked for.
+    scan = ([os.path.join(args.src, p) for p in args.packages]
+            if args.packages else [args.src])
+    roots = []
+    for top in scan:
+        for base, dirs, _ in os.walk(top):
+            dirs[:] = [d for d in dirs if d not in ('.git', 'Build', 'BaseTools')]
+            if os.path.basename(base) == 'Protocol' and \
+                    os.path.basename(os.path.dirname(base)) == 'Include':
+                roots.append(base)
+    roots = sorted(set(roots))
+    print(f'Scanning {len(roots)} Include/Protocol director(ies)')
     protocols = scan_roots(roots)
     print(f'Found {len(protocols)} protocol(s) with callable methods')
+    if not args.any_protocol:
+        used = consumed_guids(args.src)
+        keep = {g: v for g, v in protocols.items() if g in used}
+        dropped = len(protocols) - len(keep)
+        if dropped:
+            print(f'{dropped} of them are declared but never called in this tree; '
+                  f'pass --any-protocol to generate inputs for those too')
+        protocols = keep
     write_inputs(protocols, args.output, args.min_methods, args.limit)
 
 
