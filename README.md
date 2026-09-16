@@ -286,18 +286,6 @@ A campaign on 202505 reaches the harness and fuzzes: 58,786 iterations over 1,19
 for EFI_BLOCK_IO_PROTOCOL in a 300 second budget, and the triage names a finding by
 module, file and line.
 
-What that finding shows is worth knowing before reading a report. Fuzzing
-EFI_DEVICE_PATH_UTILITIES_PROTOCOL reports a one byte out of bounds read in
-`DevicePathType`, at `MdePkg/Library/UefiDevicePathLib/DevicePathUtilities.c:130`, on
-every iteration. It is not a firmware defect: the generated harness allocates
-`sizeof (EFI_DEVICE_PATH_PROTOCOL)`, four bytes, writes a valid end-of-path node into it,
-and then lets the fuzzer overwrite `Type`. With the end marker gone the firmware walks to
-the next node, four bytes on, which is the end of the allocation -- it is required to read
-past it. A harness that feeds an unterminated device path is violating the caller's side
-of the contract, and every protocol that takes a device path will report the same thing.
-Bounding those generators the way the buffer generators are already bounded is the next
-thing worth doing.
-
 ## AddressSanitizer
 
 ### Adding it to a platform
@@ -325,7 +313,26 @@ PEI. Without that HOB AsanLib deactivates itself, and every instrumented access
 becomes a no-op that looks exactly like a clean run. `OvmfPkg/PlatformPei/MemDetect.c`
 is the worked example.
 
-### Porting to a fresh EDK2 tree
+### Applying it to a version of EDK2
+
+```
+python3 uefi_asan/apply_asan.py --to <edk2 tree>
+```
+
+That is the whole of it. `--from` names the tree the integration is taken from and
+defaults to `eval_source/edk2` beside this repository; `--base` is the commit that
+integration sits on and is known to the tool. `scripts/fuzz_edk2.py` calls exactly this,
+so the workflow and a person at a terminal apply the sanitizer the same way.
+
+The tool lives with the sanitizer rather than with the pipeline because that is what it
+is: the way to put this sanitizer on an edk2, not something one harness does privately.
+It applies 81 added files and three-way merges 30 modified ones, then repairs what the
+merge cannot know about -- a toolchain flag this edk2 has added, a build rule section it
+has split, a firmware volume it has moved, a driver it now ships itself. It refuses to
+leave a conflict unresolved rather than producing a tree that builds and is not
+instrumented.
+
+### Porting to a fresh EDK2 tree, by hand
 
 The sanitizer is five libraries, two headers and a patch. Against a clean upstream
 checkout:

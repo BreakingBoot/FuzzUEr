@@ -182,7 +182,7 @@ def main():
     parser.add_argument('--out', default='', help='where the artifacts go')
     parser.add_argument('--builder', default='fwbuild-stack',
                         help='container holding the toolchain')
-    parser.add_argument('--port-base', default='1eeca0750af5af2f0e78437bf791ac2de74bde74',
+    parser.add_argument('--port-base', default='',
                         help='the commit the sanitizer port sits on top of')
     parser.add_argument('--boot-timeout', type=int, default=900,
                         help='seconds a campaign may spend booting to the harness before '
@@ -241,8 +241,12 @@ def main():
             return True, 'none declared'
         paths = re.findall(r'path\s*=\s*(\S+)', open(mods).read())
         sh(['git', '-C', tree, 'submodule', 'update', '--init', '--depth=1'], timeout=3600)
-        empty = [p for p in paths if not os.listdir(os.path.join(tree, p))
-                 if os.path.isdir(os.path.join(tree, p))]
+        # isdir first: listdir on a path that is not there raises, and the stage then
+        # fails with a FileNotFoundError naming a directory rather than saying which
+        # submodule did not come down.
+        empty = [p for p in paths
+                 if os.path.isdir(os.path.join(tree, p))
+                 and not os.listdir(os.path.join(tree, p))]
         # only the ones the build actually reaches matter; the rest are noise
         needed = [p for p in empty if any(k in p for k in
                   ('brotli', 'mipisyst', 'openssl', 'mbedtls'))]
@@ -251,9 +255,18 @@ def main():
         return True, f'{len(paths) - len(empty)}/{len(paths)} populated'
 
     def port():
-        done = sh([sys.executable, os.path.join(HERE, 'port_asan.py'),
-                   '--from', args.source, '--to', tree, '--base', args.port_base],
-                  timeout=1800)
+        # The tool lives with the sanitizer, in uefi_asan, because it is how you apply
+        # that sanitizer to any edk2 rather than something this pipeline does privately.
+        # Anyone with a checkout can run it the same way: apply_asan.py --to <tree>.
+        apply = os.path.join(REPO, 'uefi_asan', 'apply_asan.py')
+        if not os.path.isfile(apply):
+            return False, f'{apply} is missing; is the uefi_asan submodule checked out?'
+        argv = [sys.executable, apply, '--to', tree]
+        if args.source:
+            argv += ['--from', args.source]
+        if args.port_base:
+            argv += ['--base', args.port_base]
+        done = sh(argv, timeout=1800)
         text = done.stdout + done.stderr
         clean = re.search(r'merged cleanly\s+(\d+)', text)
         fixed = re.search(r'conflicts resolved\s+(\d+)', text)
