@@ -295,12 +295,27 @@ def main():
                   f'CLANGSAN_BIN=/workspace/llvm-15.0.7/build/bin/ '
                   f'PYTHON_COMMAND=$(command -v python3); cd {dest} && '
                   f'source edksetup.sh >/dev/null 2>&1 && '
-                  f'make -C BaseTools -j"$(nproc)" >/tmp/bt-{slug}.log 2>&1; '
+                  # BaseTools generates VfrCompile's parser with antlr and does not
+                  # declare every dependency, so a wide -j races: on edk2-stable202602
+                  # at -j72 the compiler read a half-written Pccts header and stopped at
+                  # "AParser.h:300: expected initializer before 'if'", while the same
+                  # tree at -j8 builds it cleanly. A failure here also has to be fatal --
+                  # it used to be followed by ';', so a missing VfrCompile surfaced much
+                  # later as clang being handed a .c file that was never generated.
+                  f'{{ make -C BaseTools -j8 || make -C BaseTools -j1 ; }} '
+                  f'>/tmp/bt-{slug}.log 2>&1; '
+                  f'test -x BaseTools/Source/C/bin/VfrCompile -a '
+                  f'-x BaseTools/Source/C/bin/GenFw || '
+                  f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
                   f'{defines} -D FD_SIZE_IN_KB=8192 -n "$(nproc)"')
         done = docker(args.builder, script, timeout=7200)
         text = done.stdout + done.stderr
         open(os.path.join(out, logname), 'w').write(text)
+        if 'BASETOOLS-FAILED' in text:
+            why = [l for l in text.splitlines() if 'error' in l.lower()][:1]
+            return False, ('BaseTools did not build: '
+                           + (why[0][:90] if why else 'see the log'))
         if '- Done -' not in text:
             why = [l for l in text.splitlines() if 'error' in l.lower()][:1]
             return False, (why[0][:110] if why else 'build did not finish')

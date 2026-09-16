@@ -449,6 +449,52 @@ def drop_duplicate_modules(dst, path):
     return [name for _, name in drop]
 
 
+FDF_REGION = re.compile(r'^\s*0x[0-9A-Fa-f]+\s*\|\s*0x[0-9A-Fa-f]+\s*$')
+
+
+def drop_orphan_regions(dst, path):
+    """Remove an FD region line that nothing binds.
+
+    A region in an FDF is an "offset|size" line and, under it, the PCD pair or FV it
+    binds. The port moves two of them -- the volumes have to be bigger for instrumented
+    code -- and where the merge keeps both sides' offsets the result is two offset lines
+    above one binding. The first is then a region with no type, and GenFds stops either
+    at "A valid region type was not found" naming the binding, or at "The PCD should be
+    FeatureFlag type or FixedAtBuild type" naming a PCD, neither of which mentions a
+    region or a line that was kept by mistake.
+
+    Which one to drop is not a guess: the resolver emits upstream's side first and the
+    port's second, so the later line is the port's.
+
+    This is deliberately a question about the finished file rather than about one
+    conflict. Keying on what a region binds fails when the binding falls outside the
+    hunk -- on edk2-stable202508 upstream's DXE region was the last line of the conflict
+    and its PCD line was common context below it, so it looked unbound and survived.
+    """
+    full = os.path.join(dst, path)
+    try:
+        lines = open(full, newline='', errors='ignore').read().split('\n')
+    except OSError:
+        return 0
+    keep, unbound, dropped = [], None, 0
+    for line in lines:
+        if FDF_REGION.match(line):
+            if unbound is not None:
+                keep[unbound] = None                # an offset line nothing bound
+                dropped += 1
+            keep.append(line)
+            unbound = len(keep) - 1
+            continue
+        body = line.strip()
+        if body and not body.startswith('#'):
+            unbound = None                          # this is what binds it
+        keep.append(line)
+    if dropped:
+        open(full, 'w', newline='').write(
+            '\n'.join(l for l in keep if l is not None))
+    return dropped
+
+
 def balance_conditionals(dst, path):
     """Give the port's own conditional its own !endif.
 
@@ -874,8 +920,6 @@ def main():
             # "PCD gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvBase is not defined in DSC
             # file", naming neither the region nor the merge. When the port moves a region
             # it means to move it, so its offset replaces upstream's.
-            is_fdf = path.endswith(('.fdf', '.fdf.inc'))
-            region = re.compile(r'^\s*0x[0-9A-Fa-f]+\s*\|\s*0x[0-9A-Fa-f]+\s*$')
             def key_of(line):
                 body = line.split('#')[0].strip()
                 for sep in ('|', '='):
@@ -883,11 +927,8 @@ def main():
                         return body.split(sep)[0].strip()
                 return None
             def flush():
-                drop_regions = is_fdf and any(region.match(l) for l in theirs)
                 theirkeys = {key_of(l) for l in theirs if key_of(l)}
-                merged.extend(l for l in ours
-                              if key_of(l) not in theirkeys
-                              and not (drop_regions and region.match(l)))
+                merged.extend(l for l in ours if key_of(l) not in theirkeys)
                 merged.extend(theirs)
             for line in body.split('\n'):
                 if line.startswith('<<<<<<< '):
@@ -934,6 +975,14 @@ def main():
         grew = enlarge_memfd(dst, 'OvmfPkg/OvmfPkgX64.fdf', pei_size, dxe_size)
         if grew:
             print(f'  MEMFD is defined in an include here; enlarged that instead -- {grew}')
+
+    orphans = 0
+    for path in modified:
+        if path.endswith(('.fdf', '.fdf.inc')):
+            orphans += drop_orphan_regions(dst, path)
+    if orphans:
+        print(f'  dropped {orphans} FD region line(s) the merge left with nothing '
+              f'bound to them')
 
     closed = 0
     for path in modified:
