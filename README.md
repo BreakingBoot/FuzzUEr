@@ -249,10 +249,21 @@ module carries ASan checks (232, 236, 242 and 242 respectively), and the self te
 catches a double free, an overflow, an underflow, a use-after-free and a length-driven
 overread in each version's own firmware.
 
-What is not yet working on those trees is the boot reaching the harness: the campaigns
-run, and spend their boot budget without arriving, so `fuzz` fails rather than reporting
-a clean sweep of nothing. The serial capture names the driver -- on 202505 it is a
-shadow access in DiskIoDxe after ReadyToBoot.
+A campaign on 202505 reaches the harness and fuzzes: 58,786 iterations over 1,196 edges
+for EFI_BLOCK_IO_PROTOCOL in a 300 second budget, and the triage names a finding by
+module, file and line.
+
+What that finding shows is worth knowing before reading a report. Fuzzing
+EFI_DEVICE_PATH_UTILITIES_PROTOCOL reports a one byte out of bounds read in
+`DevicePathType`, at `MdePkg/Library/UefiDevicePathLib/DevicePathUtilities.c:130`, on
+every iteration. It is not a firmware defect: the generated harness allocates
+`sizeof (EFI_DEVICE_PATH_PROTOCOL)`, four bytes, writes a valid end-of-path node into it,
+and then lets the fuzzer overwrite `Type`. With the end marker gone the firmware walks to
+the next node, four bytes on, which is the end of the allocation -- it is required to read
+past it. A harness that feeds an unterminated device path is violating the caller's side
+of the contract, and every protocol that takes a device path will report the same thing.
+Bounding those generators the way the buffer generators are already bounded is the next
+thing worth doing.
 
 ## AddressSanitizer
 
