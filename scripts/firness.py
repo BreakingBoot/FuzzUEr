@@ -121,8 +121,10 @@ def compile_ovmf(src, capture_db=False):
     # found for OvmfPkg/ResetVector/ResetVector.inf" -- so the database came back empty
     # from a toolchain the run never uses.
     clang = os.environ.get('CLANGSAN_BIN', '/workspace/llvm-15.0.7/build/bin/')
-    defines = os.environ.get('FIRNESS_ANALYSIS_DEFINES',
-                             '-D ASAN_SCOPE=full -D FD_SIZE_IN_KB=8192')
+    defines = os.environ.get(
+        'FIRNESS_ANALYSIS_DEFINES',
+        '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
+        '-D FD_SIZE_IN_KB=8192')
     # bear records compilations as they happen, so an already-built tree yields an empty
     # database and every analysis artefact comes back as "null" -- from a build whose log
     # says "- Done -". The firmware the campaign boots is prebuilt and copied in, not
@@ -1363,15 +1365,75 @@ HARNESS_MODULE = 'Firness.efi'
 
 def module_for(modules, ip):
     """The loaded image containing ip, or '' when the capture never showed a load."""
+    found = image_for(modules, ip)
+    return found[1] if found else ''
+
+
+def image_for(modules, ip):
+    """(base, name) of the loaded image containing ip, or None."""
     if not modules or ip is None:
-        return ''
-    found = ''
+        return None
+    found = None
     for base, name in modules:
         if base <= ip:
-            found = name
+            found = (base, name)
         else:
             break
     return found
+
+
+# Where the build that produced the running firmware left its unstripped copies. A
+# compiler-inserted check reports an address and nothing else, and an address is not
+# something anyone can act on; the .debug beside the image turns it back into a function
+# and a line.
+SYMBOL_BUILD = os.environ.get('FIRNESS_SYMBOL_BUILD', '/workspace/tmp/edk2/Build')
+SYMBOLIZERS = ('/workspace/llvm-15.0.7/build/bin/llvm-symbolizer', 'llvm-symbolizer')
+_DEBUG_INDEX = None
+_SYMBOL_CACHE = {}
+
+
+def _debug_index():
+    global _DEBUG_INDEX
+    if _DEBUG_INDEX is None:
+        _DEBUG_INDEX = {}
+        for base, _dirs, files in os.walk(SYMBOL_BUILD):
+            for name in files:
+                if name.endswith('.debug'):
+                    _DEBUG_INDEX.setdefault(name[:-len('.debug')],
+                                            os.path.join(base, name))
+    return _DEBUG_INDEX
+
+
+def symbolise(module, rva):
+    """(source path, line) for an offset into a module, or ('', '').
+
+    The .debug and the image in the firmware are the same build, so the offset is the
+    same in both. Nothing here is fatal: a tree without debug output, or a symbolizer
+    that is not installed, just leaves the address as the only thing said about the site.
+    """
+    key = (module, rva)
+    if key in _SYMBOL_CACHE:
+        return _SYMBOL_CACHE[key]
+    answer = ('', '')
+    debug = _debug_index().get(module[:-len('.efi')] if module.endswith('.efi')
+                               else module)
+    if debug:
+        for tool in SYMBOLIZERS:
+            try:
+                done = subprocess.run([tool, f'--obj={debug}', '--functions=none',
+                                       hex(rva)],
+                                      capture_output=True, text=True, timeout=30)
+            except (OSError, subprocess.SubprocessError):
+                continue
+            first = [l.strip() for l in done.stdout.splitlines() if l.strip()]
+            if first and ':' in first[0] and not first[0].startswith('??'):
+                path, _, tail = first[0].rpartition(':')
+                path, _, line = path.rpartition(':')
+                if path and line.isdigit():
+                    answer = (path, line)
+            break
+    _SYMBOL_CACHE[key] = answer
+    return answer
 
 
 def boot_report_sites(capture):
@@ -1499,9 +1561,18 @@ def collect_unique_crashes(log_file, output_dir=None):
                 if pending_callback:
                     # bug_report.py reads an address out of the message, which is how a
                     # row with no source file is resolved back to a driver against a
-                    # build tree.
-                    record('', '', pending_callback, 'asan', f'ip {found_ip}',
-                           site=found_ip)
+                    # build tree. Where the .debug files are to hand, say the function
+                    # and line outright: "DevicePathUtilities.c:130" is a thing someone
+                    # can go and read, and "ip 0x1D984B34" is not.
+                    owner = image_for(modules, int(found_ip, 16))
+                    where, at = ('', '')
+                    if owner:
+                        where, at = symbolise(owner[1], int(found_ip, 16) - owner[0])
+                    # an int, not the string: record() reads a line number as hex
+                    # first, which is right for the UBSan shape's "line:0x0D1F" and
+                    # would turn the symbolizer's decimal 130 into 304
+                    record(where, int(at) if at else '', pending_callback, 'asan',
+                           f'ip {found_ip}', site=found_ip)
                     pending_callback = ''
                 if pending:
                     owner = module_for(modules, int(found_ip, 16))

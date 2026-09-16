@@ -128,6 +128,10 @@ RUN make -C /workspace/tmp/edk2/BaseTools -j"$(nproc)" >/tmp/basetools.log 2>&1 
 # It describes the tree, not the protocol, so every campaign was paying for the same
 # instrumented build of the whole of OVMF under bear -- minutes each, times as many
 # protocols as the version has.
+#
+# The defines are the firmware build's, exactly. The .debug files this leaves behind are
+# what turns an address in a sanitizer report back into a function and a line, and that
+# only holds while they are the same build as the image that is running.
 RUN cd /workspace/tmp/edk2 \\
     && export WORKSPACE=/workspace/tmp/edk2 \\
        EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools \\
@@ -136,7 +140,8 @@ RUN cd /workspace/tmp/edk2 \\
     && . ./edksetup.sh >/dev/null 2>&1 \\
     && bear --output /workspace/tmp/compile_commands.json -- \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
-       -D ASAN_SCOPE=full -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
+       -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE \\
+       -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
 """
 
