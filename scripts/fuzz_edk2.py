@@ -30,6 +30,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -87,6 +88,28 @@ def docker(container, script, timeout=None):
     return sh(['docker', 'exec', container, 'bash', '-lc', script], timeout=timeout)
 
 
+# The child currently running under sh_log, so a signal can take it down too.
+_child = None
+
+
+def _stop_child(signum, _frame):
+    """Take the fuzzing batch with us.
+
+    Killing this script used to leave its child running: the batch kept launching
+    campaigns, and a second run then shared the output directory with the first -- 40
+    containers for a --jobs 20 run, two batches interleaving results into the same
+    directories. A cancelled CI job would do exactly the same and leave the runner
+    fuzzing.
+    """
+    if _child is not None and _child.poll() is None:
+        _child.terminate()
+        try:
+            _child.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            _child.kill()
+    sys.exit(128 + signum)
+
+
 def sh_log(argv, path, timeout=None):
     """Run, echoing as it goes and keeping a copy.
 
@@ -94,16 +117,21 @@ def sh_log(argv, path, timeout=None):
     finishes, which under CI is indistinguishable from a hang, and the log is the only
     place "reached the harness after 41s of boot" is ever written.
     """
+    global _child
     with open(path, 'w') as handle:
         proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, text=True, bufsize=1)
+        _child = proc
         try:
             for line in proc.stdout:
                 sys.stdout.write('    | ' + line)
                 handle.write(line)
         finally:
             proc.stdout.close()
-        return proc.wait(timeout=timeout)
+        try:
+            return proc.wait(timeout=timeout)
+        finally:
+            _child = None
 
 
 # The campaign image for one version: the base image with this tree in place of whatever
@@ -170,6 +198,8 @@ def run_stage(run, name, fn):
 
 
 def main():
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, _stop_child)
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--ref', required=True, help='edk2 tag, branch or SHA to fuzz')
