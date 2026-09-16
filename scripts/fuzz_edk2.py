@@ -177,6 +177,20 @@ RUN cd /workspace/tmp/edk2 \\
        -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE \\
        -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
+# The firmware the fuzzer boots has to be the build those .debug files describe, and it
+# was not. qemu_fw copied in above is the build stage's, built at
+# /workspace/tmp/edk2-master; the analysis build just now produced a second image of the
+# same source at /workspace/tmp/edk2. Two paths mean two sets of __FILE__ strings, so the
+# two images are not byte-identical -- and a compiler-inserted check reports nothing but a
+# return address, which was then turned into a file and a line against binaries that were
+# not the ones running. That is how a report from SmbiosDxe came back pointing at
+# UefiDriverModel.c. Take the firmware from the build whose debug images are here and the
+# two cannot drift apart again.
+RUN cp /workspace/tmp/edk2/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_CODE.fd \\
+       /workspace/tmp/edk2/Build/OvmfX64/DEBUG_CLANGSAN/FV/OVMF_VARS.fd \\
+       /workspace/qemu_fw/ \\
+    && cp /workspace/tmp/edk2/Build/OvmfX64/DEBUG_CLANGSAN/X64/AsanSelfTest.efi \\
+       /workspace/qemu_fw/
 """
 
 
@@ -416,7 +430,14 @@ def main():
         smi = os.path.join(evalset, 'DiscoveredSmi.txt')
         sh([sys.executable, os.path.join(HERE, 'discover_smi.py'),
             '-s', tree, '-o', smi], timeout=3600)
-        protos = len([f for f in os.listdir(evalset) if f.endswith('.txt')]) \
+        # DiscoveredSmi.txt shares this directory with the protocol request files but is
+        # not one: it is the handler list written just above. Counting it made the planned
+        # campaign count one too many, and the batch fuzzed it as a protocol -- a
+        # container, a full analysis and a build spent to die in the generator with "no
+        # target functions were resolved". fuzz_batch.py skips it by name for the same
+        # reason, unless it is running in --smi mode, which is what the file is for.
+        protos = len([f for f in os.listdir(evalset)
+                      if f.endswith('.txt') and f != os.path.basename(smi)]) \
             if os.path.isdir(evalset) else 0
         handlers = len([l for l in open(smi).read().split('\n') if l.strip()]) \
             if os.path.isfile(smi) else 0
@@ -580,22 +601,43 @@ def main():
         # its own, and a firmware that never reaches the harness spends all of it and
         # then reports zero. Counting logs alone makes that run green, which is the one
         # thing this script exists not to do.
-        fuzzed, iterations = 0, 0
-        for name in made:
+        #
+        # A protocol this platform never calls is not a failure. FuzzUEr models a
+        # protocol from the call sites the analysis recorded, so one that is declared in
+        # a header but that no module in this build ever calls yields an empty call
+        # database and nothing to harness -- EmbeddedGpio and EfiSpiConfiguration are
+        # platform protocols, EdkiiNonDiscoverableDevice and EdkiiSdMmcOverride belong to
+        # drivers OvmfPkgX64 does not carry. Discovery reads headers and cannot know that
+        # in advance, so name them here rather than reporting red for four protocols that
+        # were never present to fuzz.
+        #
+        NO_CALL_SITES = 'no target functions were resolved'
+        fuzzed, iterations, absent, silent = 0, 0, [], []
+        for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
             log = os.path.join(campaigns, name, 'run.log')
             if not os.path.isfile(log):
                 continue
-            got = re.findall(r'Fuzzed (\d+) iteration',
-                             open(log, errors='ignore').read())
-            count = max((int(n) for n in got), default=0)
+            text = open(log, errors='ignore').read()
+            count = max((int(n) for n in re.findall(r'Fuzzed (\d+) iteration', text)),
+                        default=0)
             iterations += count
-            fuzzed += 1 if count else 0
-        detail = (f'{len(made)}/{planned} campaign(s) produced a log, {fuzzed} of them '
-                  f'reached the harness ({iterations} iteration(s))')
+            if count:
+                fuzzed += 1
+            elif NO_CALL_SITES in text:
+                absent.append(name)
+            else:
+                silent.append(name)
+        detail = (f'{fuzzed}/{planned} campaign(s) reached the harness '
+                  f'({iterations} iteration(s))')
+        if absent:
+            detail += f', {len(absent)} not called anywhere in this build'
         if not fuzzed:
             return False, (detail + ' -- every boot spent its budget without reaching '
                            'the harness; each run.log says how far it got')
-        return (code == 0), detail + ('' if code == 0 else ' -- some produced nothing')
+        if silent:
+            shown = ', '.join(silent[:6]) + ('...' if len(silent) > 6 else '')
+            return False, detail + f' -- {len(silent)} produced nothing: {shown}'
+        return True, detail + ('' if code == 0 else f' -- the batch exited {code}')
 
     def triage():
         if args.skip_fuzz:

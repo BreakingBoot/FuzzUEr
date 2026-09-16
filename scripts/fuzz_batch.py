@@ -19,6 +19,15 @@ import subprocess
 # scripts/coverage_matrix.py can summarise the lot.
 DEFAULT_IMAGE = 'fuzzuer-cur:latest'
 
+# discover_smi.py writes its list of SMI handler names into the same directory as the
+# protocol request files, so the batch picked it up as though "DiscoveredSmi" were a
+# protocol. It is not one: the file carries no [Protocols] section and no GUID, so
+# load_functions() files every handler under the empty service, nothing resolves, and the
+# campaign spends a container and a full analysis before dying in the generator with "no
+# target functions were resolved". It is a target only under --smi, which is the mode it
+# was written for.
+SMI_REQUEST_FILE = 'DiscoveredSmi.txt'
+
 
 # Launching against an image built before a flag existed wastes a whole batch: every
 # container exits instantly with "unrecognized arguments" and the run looks like a fuzzing
@@ -371,7 +380,9 @@ def main():
     if args.protocols:
         todo = list(args.protocols)
     else:
-        todo = sorted(f[:-4] for f in os.listdir(requests) if f.endswith('.txt'))
+        todo = sorted(f[:-4] for f in os.listdir(requests)
+                      if f.endswith('.txt')
+                      and (args.smi or f != SMI_REQUEST_FILE))
     print(f'  {len(todo)} target(s) from {requests}')
 
     # A protocol the firmware never installs cannot be fuzzed: the harness's opening

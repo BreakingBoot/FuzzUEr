@@ -292,9 +292,34 @@ def run_firness(edk_dir, output_dir, input_file, smi=False):
     if smi:
         cmd += ' -smi '
     cmd += ' dummyfile'
-    process = subprocess.run(cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    log = process.stdout.decode('utf-8', errors='ignore')
-    log += process.stderr.decode('utf-8', errors='ignore')
+    # The analyser traps sporadically: SIGILL, no message, nothing written. It is not
+    # about the input -- both protocols it killed in the mainline sweep
+    # (EfiHttpUtilities, EfiPciHostBridgeResourceAllocation, 2 of 244) analyse cleanly on
+    # their own, and a targeted rerun of one of them crashed 1 time in 6 under the same
+    # concurrency the batch runs at. This used to throw the exit status away, so the
+    # campaign carried on and died forty lines later on a missing call-database.json with
+    # nothing anywhere saying the analyser had crashed. Retry once -- the crash is rare
+    # enough that a second attempt recovers it -- and say what happened either way.
+    log = ''
+    for attempt in (1, 2):
+        process = subprocess.run(cmd, shell=True, executable='/bin/bash',
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        attempt_log = process.stdout.decode('utf-8', errors='ignore')
+        attempt_log += process.stderr.decode('utf-8', errors='ignore')
+        log += attempt_log
+        if process.returncode == 0:
+            break
+        # subprocess reports a signal as a negative code; the same death through bash
+        # arrives as 128 + the signal number
+        code = process.returncode
+        killed = -code if code < 0 else (code - 128 if code > 128 else 0)
+        how = f'exited {code}' + (f' (killed by signal {killed})' if killed else '')
+        print(f'  static analysis {how}'
+              + (' -- retrying once' if attempt == 1 else ' again; giving up'))
+        for line in [l.rstrip() for l in attempt_log.splitlines() if l.strip()][-10:]:
+            print(f'  {line[:400]}')
+        if not attempt_log.strip():
+            print('  it printed nothing at all before dying')
     print('++++ Ran Static Analysis Tool ++++')
     return log
 
@@ -598,6 +623,10 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     log += process.stderr.decode('utf-8', errors='ignore')
     print(process.stdout.decode('utf-8', errors='ignore'))
     print(process.stderr.decode('utf-8', errors='ignore'))
+    generate_rc = process.returncode
+    generate_log = log
+    generate_failed = generate_rc != 0
+    harness_dsc = os.path.join(dst, 'Firness', 'Firness.dsc')
     # copy the generated harness to the output directory
     # take into account if the dst directory already exists
     if os.path.exists(os.path.join(edk2_dir, 'Firness')):
@@ -606,12 +635,40 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     process = subprocess.run(relocate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log += process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')
-    print('++++ Generated Harness ++++')
+    # The generator can die and leave nothing behind, and this said "++++ Generated
+    # Harness ++++" anyway -- so a campaign whose generator raised printed a traceback
+    # followed by a success banner, then built an edk2 tree with no Firness directory in
+    # it. That build fails in eight lines that contain no compiler diagnostic at all, so
+    # the campaign ended with "Harness compilation failed" and nothing under it, and the
+    # traceback thirty lines further up was the only record of what actually happened.
+    if generate_failed or not os.path.isfile(harness_dsc):
+        print('Error: harness generation failed -- no Firness tree was produced, so '
+              'there is nothing to compile.')
+        if generate_failed:
+            print(f'  {generate_cmd.split()[1]} exited {generate_rc}. Its last lines:')
+            reason = [line.rstrip() for line in generate_log.splitlines() if line.strip()]
+            for line in reason[-12:]:
+                print(f'  {line[:400]}')
+        else:
+            print(f'  {harness_dsc} is missing after generation.')
+    else:
+        print('++++ Generated Harness ++++')
     return log
 
 # compile the harness
 def compile_harness(src, count=0):
     dir1 = os.path.join(src, 'edk2')
+    # Nothing to build is not a compilation failure, and saying so here is the only
+    # chance to say it: edk2's build prints "- Failed -" over a missing platform
+    # description without the word "error" anywhere in its eight lines of output, so the
+    # filter below matched nothing and the campaign reported a bare "Harness compilation
+    # failed". Every one of those was really the generator having died minutes earlier.
+    harness_dsc = os.path.join(dir1, 'Firness', 'Firness.dsc')
+    if not os.path.isfile(harness_dsc):
+        print(f'Error: Harness compilation skipped -- {harness_dsc} does not exist, so '
+              f'the generator produced no harness to build. The generator\'s output '
+              f'above says why.')
+        return ''
     test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
@@ -631,6 +688,22 @@ def compile_harness(src, count=0):
         if len(said) > 25:
             print(f'  ... and {len(said) - 25} more; the whole build log is in this '
                   f'campaign\'s run.log')
+        if not said:
+            # A build can fail without a compiler ever running -- a DSC or INF the parser
+            # rejects, a GenFw or BaseTools failure, a diagnostic longer than the 400
+            # characters this filter allows. Printing nothing then is the worst outcome
+            # in the pipeline: the campaign is dead and the log says only that it is.
+            # The tail of the build output is where the reason is in every one of those
+            # cases, so print that instead of leaving the line bare.
+            tail = [line.rstrip() for line in log.splitlines() if line.strip()][-20:]
+            if tail:
+                print(f'  no compiler diagnostic in the build output; its last '
+                      f'{len(tail)} line(s) were:')
+                for line in tail:
+                    print(f'  {line[:400]}')
+            else:
+                print(f'  the build produced no output at all (exit '
+                      f'{process.returncode}); the command was: {test_cmd}')
     else:
         print('++++ Compiled Harness ++++')
     return log
@@ -1956,6 +2029,15 @@ def main():
             return 1
         log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend,
                                 args.max_steps)
+        # Stop here when the generator produced nothing. Carrying on builds an edk2 tree
+        # with no Firness in it -- a minute spent to print a failure that names no cause --
+        # and then measures whatever Firness.efi the image already carried against this
+        # protocol's name.
+        if not os.path.isfile(os.path.join(tmp_dir, 'edk2', 'Firness', 'Firness.dsc')):
+            print(f'Error: no harness was generated for {os.path.basename(input_file)}, '
+                  f'so there is nothing to build or fuzz. The generator\'s output above '
+                  f'says why.')
+            return 1
         log += compile_harness(tmp_dir)
         # compile_harness only prints when the build fails, and the fuzz stage would then
         # happily run the Firness.efi left over from whatever protocol was built last and
