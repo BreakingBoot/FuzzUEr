@@ -243,11 +243,44 @@ source, installs the Simics packages, and builds QEMU through libafl -- hours, n
 minutes. Every bootstrap step checks for its own output first, so later runs cost
 seconds. Budget ~60 GB of disk for the images and one campaign image per version.
 
-Verified against `edk2-stable202502`, `edk2-stable202505`, `edk2-stable202511` and
-`master`: the port applies with nothing unresolved, the firmware builds, every built
-module carries ASan checks (232, 236, 242 and 242 respectively), and the self test
-catches a double free, an overflow, an underflow, a use-after-free and a length-driven
-overread in each version's own firmware.
+### Which versions it works on
+
+Every upstream stable tag from `edk2-stable202305` to `edk2-stable202608`, and `master`.
+These are tianocore's own commits -- `edk2-stable202505` here is `6951dfe7d59d`, which is
+what `git ls-remote https://github.com/tianocore/edk2.git` returns for that tag. For each
+one the port applies with nothing unresolved, the firmware builds, the built modules carry
+ASan checks, and the self test catches a double free, an overflow, an underflow, a
+use-after-free and a length-driven overread in that version's own firmware.
+
+| version | port | instrumented | protocols found |
+| --- | --- | --- | --- |
+| edk2-stable202305 | 29 clean, 0 resolved | 218/220 | 249 |
+| edk2-stable202308 | 28 clean, 1 resolved | 218/220 | 250 |
+| edk2-stable202311 | 27 clean, 2 resolved | 220/222 | 250 |
+| edk2-stable202402 | 25 clean, 4 resolved | 218/220 | 244 |
+| edk2-stable202405 | 25 clean, 4 resolved | 222/224 | 247 |
+| edk2-stable202408 | 24 clean, 5 resolved | 228/230 | 247 |
+| edk2-stable202411 | 23 clean, 6 resolved | 228/228 | 248 |
+| edk2-stable202502 | 21 clean, 7 resolved | 232/232 | 247 |
+| edk2-stable202505 | 19 clean, 9 resolved | 236/236 | 247 |
+| edk2-stable202508 | 19 clean, 9 resolved | 242/242 | 245 |
+| edk2-stable202511 | 19 clean, 9 resolved | 242/242 | 243 |
+| edk2-stable202602 | 19 clean, 9 resolved | 242/242 | 242 |
+| edk2-stable202605 | 20 clean, 8 resolved | 244/244 | 243 |
+| edk2-stable202608 | 20 clean, 8 resolved | 246/246 | 244 |
+| master | 20 clean, 8 resolved | 242/242 | 242 |
+
+The "resolved" column is how many of the port's 30 modified files needed a conflict
+resolved rather than merging outright, and it tracks distance from the commit the port
+sits on: nothing to resolve on the tags nearest it, nine on the ones furthest away.
+
+None of this makes the next release safe by assumption. Each of the versions above
+needed something, and the something was different every time -- a toolchain flag edk2
+added, a build rule section it split, a firmware volume it moved, a driver it now ships
+itself. What the port does is fail loudly on each: `port` refuses to leave a conflict
+unresolved, `instrumented` counts the modules that actually carry ASan checks rather than
+trusting the build, and `detects` makes the sanitizer catch a deliberate error in the
+firmware it just built.
 
 A campaign on 202505 reaches the harness and fuzzes: 58,786 iterations over 1,196 edges
 for EFI_BLOCK_IO_PROTOCOL in a 300 second budget, and the triage names a finding by
