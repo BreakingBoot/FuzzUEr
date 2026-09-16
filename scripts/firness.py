@@ -1312,12 +1312,14 @@ def save_crashes_to_file(crashes, output_dir=None):
                    'Message', 'Count']]
     # a site that also reported during boot is firmware doing what it does anyway; the
     # harness starting does not make it a finding
-    at_boot = {(c.file, c.line) for c in crashes.values() if c.phase == 'boot'}
+    at_boot = {(getattr(c, 'site', c.file), c.line)
+               for c in crashes.values() if c.phase == 'boot'}
     # fuzzing findings first, boot reports are a fixed baseline
     ordered = sorted(crashes.values(), key=lambda c: (c.phase != 'fuzz', c.file, c.line))
     for crash in ordered:
         repeat = 'yes' if (crash.phase == 'fuzz'
-                           and (crash.file, crash.line) in at_boot) else ''
+                           and (getattr(crash, 'site', crash.file),
+                                crash.line) in at_boot) else ''
         crash_list.append([crash.phase, repeat, getattr(crash, 'module', ''), crash.file,
                            f'{crash.line}', crash.asan_msg,
                            crash.error_type, crash.message, f'{crash.count}'])
@@ -1405,9 +1407,16 @@ def collect_unique_crashes(log_file, output_dir=None):
     crashes = dict()
     phase = 'boot'
 
-    def record(path, line_text, asan_msg, error_type='', message='', module=''):
+    def record(path, line_text, asan_msg, error_type='', message='', module='',
+               site=''):
         path = path.strip()
-        if not path:
+        # A compiler-inserted check names no source file -- only the routine that failed
+        # and the address it failed at -- so "no path" cannot mean "not a report". It is
+        # the shape every __asan_load/__asan_store finding arrives in, which is to say
+        # most of what the sanitizer catches during fuzzing: one run against
+        # EFI_DEVICE_PATH_UTILITIES_PROTOCOL raised 16 of them and wrote a crashes.csv
+        # holding only the 8 boot-time UBSan reports.
+        if not path and not site:
             return
         try:
             line_no = int(line_text, 16)
@@ -1416,10 +1425,14 @@ def collect_unique_crashes(log_file, output_dir=None):
                 line_no = int(line_text)
             except (ValueError, TypeError):
                 line_no = 0
-        key = f'{phase}:{path}:{line_no}'
+        key = f'{phase}:{path or site}:{line_no}'
         existing = crashes.get(key)
         if existing is None:
             existing = AsanError(path, line_no, error_type, message, asan_msg, 1, phase)
+            # what identifies this site: its source location, or its address when it has
+            # none. The boot baseline is compared on this, not on the file alone, or
+            # every address-only finding would match every other one.
+            existing.site = path or site
             crashes[key] = existing
         else:
             existing.count += 1
@@ -1430,6 +1443,26 @@ def collect_unique_crashes(log_file, output_dir=None):
 
     modules = []
     pending = []
+    pending_callback = ''
+
+    # Where the image map comes from depends on the backend. Simics puts DXE's dispatch
+    # narration on the same serial stream as the sanitizer; OVMF writes DEBUG to the ISA
+    # debug port instead, so the serial capture carries the findings and none of the
+    # loads -- 0 "Loading driver at" lines in fuzz.txt against 88 in debugcon.log. Without
+    # the map every address-only finding is reported with no module at all.
+    here = os.path.dirname(os.path.abspath(log_file))
+    for candidate in (os.path.join(here, 'qemu', 'debugcon.log'),
+                      os.path.join(here, 'debugcon.log'),
+                      os.environ.get('FIRNESS_DEBUGCON', '')):
+        if not candidate or not os.path.isfile(candidate):
+            continue
+        with open(candidate, 'r', encoding='utf-8', errors='ignore') as handle:
+            for entry in handle:
+                found = LOAD_LINE.search(entry)
+                if found:
+                    modules.append((int(found.group(1), 16), found.group(2)))
+        break
+    modules.sort()
     # a checkpoint-restored run has no boot, so seed the map with what the boot that wrote
     # the checkpoint saw; loads from this run are appended as they appear
     recorded_modules = os.path.join(os.path.dirname(os.path.abspath(log_file)),
@@ -1461,12 +1494,21 @@ def collect_unique_crashes(log_file, output_dir=None):
                 modules.append((int(loaded.group(1), 16), loaded.group(2)))
                 modules.sort()
             seen_ip = REPORT_IP.search(line)
-            if seen_ip and pending:
-                owner = module_for(modules, int(seen_ip.group(1), 16))
-                for entry in pending:
-                    if owner and not entry.module:
-                        entry.module = owner
-                pending = []
+            if seen_ip:
+                found_ip = seen_ip.group(1)
+                if pending_callback:
+                    # bug_report.py reads an address out of the message, which is how a
+                    # row with no source file is resolved back to a driver against a
+                    # build tree.
+                    record('', '', pending_callback, 'asan', f'ip {found_ip}',
+                           site=found_ip)
+                    pending_callback = ''
+                if pending:
+                    owner = module_for(modules, int(found_ip, 16))
+                    for entry in pending:
+                        if owner and not entry.module:
+                            entry.module = owner
+                    pending = []
 
             if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev_line:
                 # split(',', 2) so a detail containing a comma survives: the message
@@ -1488,6 +1530,12 @@ def collect_unique_crashes(log_file, output_dir=None):
                     tail = line.split('!', 1)[1].strip().split(' ')
                     asan_msg = tail[0] if tail else ''
                 record(path, line_no, asan_msg, error_type, message)
+
+            elif 'ASAN MEMORY ACCESS check fail' in line:
+                # The same banner without a source line above it: a compiler-inserted
+                # __asan_load/__asan_store check, whose address arrives on the next line.
+                tail = line.split('!', 1)[1].strip().split(' ') if '!' in line else []
+                pending_callback = tail[0] if tail else '__asan_check'
 
             elif line.startswith('bug_descr=') and ' in file: ' in line and ' at line: ' in line:
                 descr = line.split('=', 1)[1].split(' in file: ', 1)[0].strip()
