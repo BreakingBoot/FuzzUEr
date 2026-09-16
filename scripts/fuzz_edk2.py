@@ -122,8 +122,14 @@ COPY ./scripts /workspace/scripts/
 COPY ./scripts/firness.py /workspace/
 COPY ./harness_generator /workspace/harness_generator
 COPY ./HarnessHelpers /workspace/HarnessHelpers
-RUN make -C /workspace/tmp/edk2/BaseTools -j"$(nproc)" >/tmp/basetools.log 2>&1 \\
-    && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/GenFw
+# -j8, and -j1 if that still loses: BaseTools generates VfrCompile's parser with antlr
+# without declaring every dependency, so a wide -j reads half-written headers. Same race
+# as the firmware build stage, and it fails here as an opaque "The command ... returned a
+# non-zero code" from docker build.
+RUN {{ make -C /workspace/tmp/edk2/BaseTools -j8 \\
+     || make -C /workspace/tmp/edk2/BaseTools -j1 ; }} >/tmp/basetools.log 2>&1 \\
+    && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/GenFw \\
+    && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/VfrCompile
 # The compilation database firness analyses, built once here instead of once per campaign.
 # It describes the tree, not the protocol, so every campaign was paying for the same
 # instrumented build of the whole of OVMF under bear -- minutes each, times as many

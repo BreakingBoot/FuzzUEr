@@ -171,20 +171,21 @@ def _regions(lines):
     return found
 
 
-def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
-    """Grow the PEI and DXE volumes in whichever file defines MEMFD.
+def layout_memfd(dst, fdf_rel, pei_size, dxe_size):
+    """Make the two firmware volumes big enough without running over anything else.
 
-    The port enlarges them because instrumented code is roughly three times the size and
-    neither volume fits otherwise. It does that by carrying the fork's whole [FD.MEMFD]
-    inline, which worked while upstream's was inline too. edk2-stable202511 moved it to
-    OvmfPkg/Include/Fdf/MemFd.fdf.inc, so the ported FDF defines MEMFD twice and GenFds
-    stops at "Unexpected the same FD name". Letting the port's copy win is not the answer
-    either: that copy is the fork's 2023 layout, and upstream has added regions since --
-    work areas and page tables that this version's modules read.
+    Instrumented code does not fit in the stock volumes, so the port enlarges PEIFV and
+    DXEFV. It does that by carrying its own [FD.MEMFD] across, which pins them at the
+    offsets that were free in the fork's edk2 -- and upstream keeps adding regions below
+    them. edk2-stable202508 put an EarlyMemDebugLog region at 0xF0000, right inside where
+    the port wants PEIFV, and GenFds stopped at "Region offset 0x20000 overlaps with
+    Region starting from 0xF0000". edk2-stable202511 moved the whole of [FD.MEMFD] into
+    OvmfPkg/Include/Fdf/MemFd.fdf.inc, so the ported FDF defined it twice and GenFds
+    stopped at "Unexpected the same FD name".
 
-    So keep upstream's layout and change only what the port is actually asking for: the
-    size of the two volumes, the offset of the one that follows, and the totals. Every
-    region before them stays where upstream put it.
+    So do not carry a layout at all. Keep whichever [FD.MEMFD] this edk2 has, wherever it
+    keeps it, and move only the two volumes: above every other region, in order, with the
+    totals recomputed. Every region upstream has stays where upstream put it.
 
     Returns a description of what changed, or ''.
     """
@@ -194,11 +195,11 @@ def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
     except OSError:
         return ''
     lines = body.split('\n')
-    # the include that defines MEMFD, if this file does not define it itself
-    target, target_lines = None, None
-    if not any(l.strip().upper().startswith('[FD.MEMFD]') for l in lines):
-        return ''
-    inline = [i for i, l in enumerate(lines) if l.strip().upper().startswith('[FD.MEMFD]')]
+
+    def defines_memfd(text):
+        return any(l.strip().upper().startswith('[FD.MEMFD]') for l in text.split('\n'))
+
+    inline = defines_memfd(body)
     included = []
     for line in lines:
         hit = re.match(r'^\s*!include\s+(\S+)', line)
@@ -209,28 +210,37 @@ def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
             text = open(path, newline='', errors='ignore').read()
         except OSError:
             continue
-        if any(l.strip().upper().startswith('[FD.MEMFD]') for l in text.split('\n')):
+        if defines_memfd(text):
             included.append((hit.group(1), path, text))
-    if not included or not inline:
-        return ''                                   # only one definition: nothing to fix
 
-    # Drop the port's inline copy, back to the blank line before its leading comment.
-    start = inline[0]
-    while start > 0 and lines[start - 1].strip().startswith('#'):
-        start -= 1
-    end = start + 1
-    for i in range(inline[0] + 1, len(lines)):
-        stripped = lines[i].strip()
-        if stripped.startswith('[') or stripped.startswith('!include'):
-            end = i
-            break
-        end = i + 1
-    del lines[start:end]
-    open(fdf, 'w', newline='').write('\n'.join(lines))
+    # Defined twice: the port's inline copy is the one to go, because it is the fork's
+    # vintage and upstream's has regions it does not.
+    if inline and included:
+        at = next(i for i, l in enumerate(lines)
+                  if l.strip().upper().startswith('[FD.MEMFD]'))
+        start = at
+        while start > 0 and lines[start - 1].strip().startswith('#'):
+            start -= 1
+        stop = start + 1
+        for i in range(at + 1, len(lines)):
+            body_line = lines[i].strip()
+            if body_line.startswith('[') or body_line.startswith('!include'):
+                stop = i
+                break
+            stop = i + 1
+        del lines[start:stop]
+        open(fdf, 'w', newline='').write('\n'.join(lines))
+        inline = False
 
-    rel, path, text = included[0]
-    target_lines = text.split('\n')
-    block = os.path.getsize(path) and 0x10000
+    if inline:
+        target, target_lines, rel = fdf, lines, fdf_rel
+    elif included:
+        rel, target, text = included[0]
+        target_lines = text.split('\n')
+    else:
+        return ''
+
+    block = 0x10000
     for line in target_lines:
         hit = re.match(r'^\s*BlockSize\s*=\s*(0x[0-9A-Fa-f]+)', line)
         if hit:
@@ -240,12 +250,24 @@ def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
     pei = next((r for r in regions if 'PcdOvmfPeiMemFvBase' in r[3]), None)
     dxe = next((r for r in regions if 'PcdOvmfDxeMemFvBase' in r[3]), None)
     if not pei or not dxe:
-        return f'{rel}: no PEI/DXE volume to enlarge'
-    dxe_base = pei[1] + pei_size
-    total = dxe_base + dxe_size
+        return f'{rel}: no PEI/DXE volume to place'
+
+    def align(value):
+        return (value + block - 1) // block * block
+
+    # above everything that is not one of the two volumes
+    floor = 0
+    for index, offset, size, _binding in regions:
+        if index in (pei[0], dxe[0]):
+            continue
+        floor = max(floor, offset + size)
+    pei_base = align(max(pei[1], floor))
+    dxe_base = align(pei_base + pei_size)
+    total = align(dxe_base + dxe_size)
+
     pad = REGION_RE.match(target_lines[pei[0]].rstrip('\r')).group(1)
     eol = '\r' if target_lines[pei[0]].endswith('\r') else ''
-    target_lines[pei[0]] = f'{pad}0x{pei[1]:06X}|0x{pei_size:06X}{eol}'
+    target_lines[pei[0]] = f'{pad}0x{pei_base:06X}|0x{pei_size:06X}{eol}'
     target_lines[dxe[0]] = f'{pad}0x{dxe_base:06X}|0x{dxe_size:06X}{eol}'
     for i, line in enumerate(target_lines):
         if re.match(r'^\s*Size\s*=\s*0x', line):
@@ -253,9 +275,9 @@ def enlarge_memfd(dst, fdf_rel, pei_size, dxe_size):
         elif re.match(r'^\s*NumBlocks\s*=\s*0x', line):
             target_lines[i] = re.sub(r'0x[0-9A-Fa-f]+',
                                      f'0x{total // block:X}', line, count=1)
-    open(path, 'w', newline='').write('\n'.join(target_lines))
-    return (f'{rel}: PEI 0x{pei_size:X}, DXE 0x{dxe_size:X} at 0x{dxe_base:X}, '
-            f'MEMFD 0x{total:X}')
+    open(target, 'w', newline='').write('\n'.join(target_lines))
+    return (f'{rel}: PEI 0x{pei_size:X} at 0x{pei_base:X}, DXE 0x{dxe_size:X} at '
+            f'0x{dxe_base:X}, MEMFD 0x{total:X}')
 
 
 def port_memfd_sizes(src, base):
@@ -970,12 +992,6 @@ def main():
         print(f'  the port\'s SANITIZER build rule was missing from '
               f'{len(ruled)} section(s); added: {", ".join(ruled)}')
 
-    pei_size, dxe_size = port_memfd_sizes(src, base)
-    if pei_size and dxe_size:
-        grew = enlarge_memfd(dst, 'OvmfPkg/OvmfPkgX64.fdf', pei_size, dxe_size)
-        if grew:
-            print(f'  MEMFD is defined in an include here; enlarged that instead -- {grew}')
-
     orphans = 0
     for path in modified:
         if path.endswith(('.fdf', '.fdf.inc')):
@@ -983,6 +999,13 @@ def main():
     if orphans:
         print(f'  dropped {orphans} FD region line(s) the merge left with nothing '
               f'bound to them')
+
+    pei_size, dxe_size = port_memfd_sizes(src, base)
+    if pei_size and dxe_size:
+        placed = layout_memfd(dst, 'OvmfPkg/OvmfPkgX64.fdf', pei_size, dxe_size)
+        if placed:
+            print(f'  placed the enlarged volumes above this edk2\'s own regions -- '
+                  f'{placed}')
 
     closed = 0
     for path in modified:
