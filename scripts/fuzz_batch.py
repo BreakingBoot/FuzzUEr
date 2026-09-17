@@ -67,12 +67,28 @@ def image_supports(image, flags):
     return [flag for flag in flags if flag not in help_text]
 
 
-def running(names):
+def running(names, keep=False):
+    """The campaigns still going, removing each container as we notice it has stopped.
+
+    A campaign copies its results out as the last thing its command does, so by the time
+    it leaves docker ps everything worth keeping is already on the host and what is left
+    is a writable layer of a couple of hundred megabytes. Nothing removed them: 491
+    campaign containers had piled up on this machine from earlier sweeps, 989 stopped
+    containers in all and 137GB reclaimable. An unattended matrix over 15 versions at 243
+    targets adds a few thousand a week, so the runner fills up and every version after
+    that fails on something that looks nothing like a disk problem.
+
+    --keep-containers holds them for anyone debugging a campaign from the inside.
+    """
     if not names:
         return []
     result = subprocess.run(['docker', 'ps', '--format', '{{.Names}}'],
                             capture_output=True, text=True)
     alive = set(result.stdout.split())
+    finished = [n for n in names if n not in alive]
+    if finished and not keep:
+        subprocess.run(['docker', 'rm', '-f'] + finished,
+                       capture_output=True, text=True)
     return [n for n in names if n in alive]
 
 
@@ -354,6 +370,10 @@ def main():
                         help='directory of <target>.txt request files (default: the '
                              'tree\'s eval_source/evalset). Point it at a discovered set '
                              'so a branch that adds its own protocols gets them fuzzed.')
+    parser.add_argument('--keep-containers', action='store_true',
+                        help='do not remove a campaign container when it finishes; '
+                             'its results are already copied out, so this is for '
+                             'looking inside one that went wrong')
     parser.add_argument('--no-anacache', action='store_true',
                         help='analyse the tree under test instead of seeding from '
                              'eval_source/anacache. The cache is keyed by protocol with '
@@ -458,7 +478,7 @@ def main():
     planned = list(todo)
     active, started, failed = [], 0, 0
     while todo or active:
-        active = running(active)
+        active = running(active, args.keep_containers)
         while todo and len(active) < args.jobs:
             if args.max_load and not args.dry_run:
                 with open('/proc/loadavg') as handle:
