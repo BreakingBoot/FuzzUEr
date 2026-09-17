@@ -687,15 +687,26 @@ def main():
         if args.skip_fuzz:
             return None, 'not run: --skip-fuzz'
         campaigns = os.path.join(out, 'campaigns')
-        argv = [sys.executable, os.path.join(HERE, 'bug_report.py'),
-                '-r', campaigns,
-                '--json', os.path.join(out, 'bugs.json'),
-                '--markdown', os.path.join(out, 'bugs.md'),
-                '--title', f'edk2 {args.ref}',
-                '--build', tree]
+        # In the image, not on the host. A CPU exception is reported as a module and an
+        # offset, and turning that into a function and a line needs the .debug images of
+        # the build that was running -- which live in the image, beside the firmware the
+        # campaigns booted. The firmware build happens inside the builder container, so
+        # the host's copy of the tree has no Build directory at all and every fault came
+        # out as "no source -- symbolise the offset". Same reason the detects stage runs
+        # in a container rather than here.
         known = os.path.join(HERE, 'known-bugs.json')
+        inner = ['python3', '/workspace/scripts/bug_report.py',
+                 '-r', '/campaigns',
+                 '--json', '/out/bugs.json',
+                 '--markdown', '/out/bugs.md',
+                 '--title', f'edk2 {args.ref}',
+                 '--build', '/workspace/tmp/edk2']
         if os.path.isfile(known):
-            argv += ['--known', known]
+            inner += ['--known', '/workspace/scripts/known-bugs.json']
+        argv = ['docker', 'run', '--rm',
+                '-v', f'{os.path.abspath(campaigns)}:/campaigns:ro',
+                '-v', f'{os.path.abspath(out)}:/out',
+                '--entrypoint', 'python3', image_tag] + inner[1:]
         code = sh_log(argv, os.path.join(out, 'triage.log'), timeout=3600)
         report = os.path.join(out, 'bugs.json')
         if code != 0 or not os.path.isfile(report):

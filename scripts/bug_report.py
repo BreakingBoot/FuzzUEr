@@ -29,6 +29,7 @@ import csv
 import json
 import os
 import re
+import subprocess
 import sys
 from collections import defaultdict
 
@@ -444,7 +445,74 @@ VERDICT_NOTE = {
 }
 
 
-def write_markdown(path, title, preamble, buckets, rows, clusters):
+# A CPU exception carries a module and an offset and nothing else -- no source file, no
+# line -- because the fault is reported by the exception handler rather than by a
+# sanitizer that knows where it is. The .debug image beside the build turns that offset
+# into a function and a line, which is the difference between "DxeCore+0x170f2" and
+# "CoreGetProtocolInterface at Handle.c:1013". It needs the build that produced the
+# running firmware: pass --build a tree whose Build directory is present, which for a
+# campaign means running this inside the image rather than on the host.
+SYMBOLIZERS = ('/workspace/llvm-15.0.7/build/bin/llvm-symbolizer', 'llvm-symbolizer')
+OFFSET = re.compile(r'^\+0x([0-9a-fA-F]+)$')
+_DEBUG_INDEX = None
+_OFFSET_CACHE = {}
+
+
+def _debug_index(build_dirs):
+    """module name -> the .debug beside it, for every build dir given."""
+    global _DEBUG_INDEX
+    if _DEBUG_INDEX is None:
+        _DEBUG_INDEX = {}
+        for root in build_dirs:
+            for base, _dirs, files in os.walk(os.path.join(root, 'Build')):
+                for name in files:
+                    if name.endswith('.debug'):
+                        _DEBUG_INDEX.setdefault(name[:-len('.debug')],
+                                                os.path.join(base, name))
+    return _DEBUG_INDEX
+
+
+def symbolise_offset(module, site, build_dirs):
+    """"Function -- path:line" for "+0xNNN" in module, or '' when it cannot be resolved.
+
+    Nothing here is fatal. A tree built without debug output, a symbolizer that is not
+    installed, an offset in a module nobody kept the .debug for: each just leaves the
+    offset as the only thing said about the site, which is what it was before.
+    """
+    found = OFFSET.match((site or '').strip())
+    if not found or not module or not build_dirs:
+        return ''
+    key = (module, site)
+    if key in _OFFSET_CACHE:
+        return _OFFSET_CACHE[key]
+    name = module[:-len('.efi')] if module.endswith('.efi') else module
+    debug = _debug_index(build_dirs).get(name)
+    answer = ''
+    if debug:
+        for tool in SYMBOLIZERS:
+            try:
+                done = subprocess.run(
+                    [tool, f'--obj={debug}', '--functions=linkage', '--demangle',
+                     hex(int(found.group(1), 16))],
+                    capture_output=True, text=True, timeout=30)
+            except (OSError, subprocess.SubprocessError):
+                continue
+            lines = [l.strip() for l in done.stdout.splitlines() if l.strip()]
+            if len(lines) >= 2 and not lines[0].startswith('??'):
+                func, where = lines[0], lines[1]
+                for marker in ('/edk2/', '/edk2-master/', '/edk2-platforms/'):
+                    if marker in where:
+                        where = where.split(marker, 1)[1]
+                        break
+                # a trailing ":0:0" is "no line known"; rstrip would eat the zero off
+                # a real line number like ":10:0" and leave ":1"
+                answer = f'{func} -- {re.sub(r"(:0)+$", "", where)}'
+            break
+    _OFFSET_CACHE[key] = answer
+    return answer
+
+
+def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()):
     """One row per bug, with enough beside it to act on without rerunning anything."""
     def line(cluster, reason, verdict):
         detail = cluster.detail() or ''
@@ -456,9 +524,10 @@ def write_markdown(path, title, preamble, buckets, rows, clusters):
                 where = where.split(marker, 1)[1]
                 break
         if cluster.klass.startswith('cpu-exception'):
-            # no source line for a fault: the location is an offset into the image, and
-            # saying "symbolise this" is more use than repeating the module name twice
-            where = 'no source -- symbolise the offset'
+            # the fault comes from the exception handler, which knows the address and
+            # nothing else; the .debug beside the build knows the rest
+            where = (symbolise_offset(cluster.module, cluster.site, build_dirs)
+                     or 'no source -- symbolise the offset')
         protocols = ', '.join(sorted(cluster.protocols)[:4])
         if len(cluster.protocols) > 4:
             protocols += f' +{len(cluster.protocols) - 4}'
@@ -619,7 +688,7 @@ def main():
 
     if args.markdown:
         write_markdown(args.markdown, args.title, args.preamble, buckets, rows,
-                       len(clusters))
+                       len(clusters), args.build)
         print(f'\nWrote {args.markdown}')
 
     if args.json:
