@@ -228,9 +228,10 @@ def main():
                         help='container holding the toolchain')
     parser.add_argument('--port-base', default='',
                         help='the commit the sanitizer port sits on top of')
-    parser.add_argument('--boot-timeout', type=int, default=900,
+    parser.add_argument('--boot-timeout', type=int, default=0,
                         help='seconds a campaign may spend booting to the harness before '
-                             'it is given up on')
+                             'it is given up on; the default scales with --jobs, because '
+                             'that is what the boot is competing with')
     parser.add_argument('--base-image', default='fuzzuer-ci:latest',
                         help='the image the per-version campaign image is layered on; '
                              'scripts/bootstrap_runner.sh builds the default')
@@ -238,8 +239,24 @@ def main():
                         help='qualify a version without spending the fuzzing budget')
     args = parser.parse_args()
 
+    # The boot competes with every other campaign booting at the same time, so a fixed
+    # budget is really a different budget at every --jobs. Measured on a 72-core box over
+    # 243 campaigns: at --jobs 4 the harness was reached in 108s and 298s; at --jobs 20
+    # the median was 495s, the p90 645s and the p99 849s -- against a 900s limit. Four
+    # campaigns fell off that edge and reported zero iterations, three of which had fuzzed
+    # in the previous run, which reads as a regression and is not one. 90s a job puts the
+    # limit at roughly twice the p99 at the parallelism that produced it, and leaves the
+    # old 900s floor for small runs. An explicit --boot-timeout still wins.
+    if not args.boot_timeout:
+        args.boot_timeout = max(900, 90 * args.jobs)
+
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)
-    out = args.out or os.path.join(REPO, 'results', f'fuzz-{slug}')
+    # Absolute, because several stages hand this to "docker run -v", and a relative
+    # path there is read as a named volume rather than a directory: "includes invalid
+    # characters for a local volume name". The default is already absolute, so only an
+    # explicit --out could trip it -- and when it did, it failed the run at the detects
+    # stage, after the image had already been rebuilt.
+    out = os.path.abspath(args.out or os.path.join(REPO, 'results', f'fuzz-{slug}'))
     tree = os.path.join(REPO, 'eval_source', f'edk2-{slug}')
     run = Run(args.ref, out)
     run.evalset = ''
