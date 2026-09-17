@@ -25,9 +25,9 @@ on:
         required: false
         default: '8'
       boot_timeout:
-        description: 'Seconds a target may spend booting to the harness before it is given up on'
+        description: 'Seconds a target may spend booting to the harness (blank: scale with jobs)'
         required: false
-        default: '900'
+        default: ''
       qualify_only:
         description: 'Qualify each version -- port, build, instrument, detect -- without spending the fuzzing budget'
         type: boolean
@@ -64,21 +64,43 @@ jobs:
         env:
           FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
           FIRNESS_CONTAINER_PREFIX: ci
+          # Through the environment rather than interpolated into the script: an input is
+          # whatever the person typed, and a ref like $(...) or a quote would otherwise be
+          # pasted straight into the shell this step runs.
+          IN_REFS: ${{ github.event.inputs.refs }}
+          IN_BUDGET: ${{ github.event.inputs.budget }}
+          IN_JOBS: ${{ github.event.inputs.jobs }}
+          IN_BOOT_TIMEOUT: ${{ github.event.inputs.boot_timeout }}
+          IN_QUALIFY: ${{ github.event.inputs.qualify_only }}
         run: |
           set -uo pipefail
-          REFS='${{ github.event.inputs.refs }}'
+          # An input's default applies to workflow_dispatch and to nothing else, so on the
+          # weekly schedule every one of these arrives as an empty string -- and
+          # "--budget ''" is not a small problem: argparse rejects it as "invalid int
+          # value" before the first stage runs, so the scheduled sweep has never got as
+          # far as fetching a ref. The defaults belong here, where both triggers reach
+          # them, and they match the ones declared on the inputs.
+          REFS="${IN_REFS:-}"
           if [ -z "$REFS" ]; then
             REFS='edk2-stable202502 edk2-stable202505 edk2-stable202511 master'
           fi
+          BUDGET="${IN_BUDGET:-600}"
+          JOBS="${IN_JOBS:-8}"
           QUALIFY=''
-          [ '${{ github.event.inputs.qualify_only }}' = 'true' ] && QUALIFY='--skip-fuzz'
+          [ "${IN_QUALIFY:-}" = 'true' ] && QUALIFY='--skip-fuzz'
+          # Passed only when someone asked for one. The boot competes with every campaign
+          # booting beside it, so the script's default scales with --jobs; sending a fixed
+          # 900 here would pin it back and lose targets to a timeout at high parallelism,
+          # which is exactly the failure that default exists to prevent.
+          BOOT=''
+          [ -n "${IN_BOOT_TIMEOUT:-}" ] && BOOT="--boot-timeout ${IN_BOOT_TIMEOUT}"
           rc=0
           for ref in $REFS; do
             echo "::group::$ref"
             python3 scripts/fuzz_edk2.py --ref "$ref" \
-              --budget "${{ github.event.inputs.budget }}" \
-              --jobs "${{ github.event.inputs.jobs }}" \
-              --boot-timeout "${{ github.event.inputs.boot_timeout }}" \
+              --budget "$BUDGET" \
+              --jobs "$JOBS" \
+              $BOOT \
               $QUALIFY || rc=1
             echo "::endgroup::"
           done
