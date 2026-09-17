@@ -629,25 +629,52 @@ def main():
         # were never present to fuzz.
         #
         NO_CALL_SITES = 'no target functions were resolved'
-        fuzzed, iterations, absent, silent = 0, 0, [], []
+        #
+        # Reaching the harness is not the same as fuzzing it. A member that blocks or
+        # never returns makes every input time out, and a timeout is recorded as an
+        # objective -- so the campaign reports a handful of iterations, every one of them
+        # a solution, and no edges at all. On an edk2 master sweep that was 19 of 239
+        # campaigns, and every one of them was counted as a success: EfiBdsArch fuzzing
+        # Entry, which by specification never returns; EfiMetronomeArch fuzzing
+        # WaitForTick with a fuzzed tick count; EfiCpuIo2 reading physical addresses
+        # nothing is mapped at. Together they spend a budget and a boot each -- some seven
+        # hours of the run -- to produce nothing, and say the same thing as a campaign
+        # that worked.
+        #
+        # Zero edges is what separates them. A campaign that executed the target even once
+        # records coverage; one that never got through the call records none.
+        #
+        LINE = re.compile(r'Fuzzed (\d+) iteration\(s\), (\d+) edge\(s\), (\d+) solution\(s\)')
+        fuzzed, iterations, absent, silent, stuck = 0, 0, [], [], []
         for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
             log = os.path.join(campaigns, name, 'run.log')
             if not os.path.isfile(log):
                 continue
             text = open(log, errors='ignore').read()
-            count = max((int(n) for n in re.findall(r'Fuzzed (\d+) iteration', text)),
-                        default=0)
+            runs = [(int(a), int(b), int(c)) for a, b, c in LINE.findall(text)]
+            count, edges, solutions = max(runs, default=(0, 0, 0), key=lambda r: r[0])
+            if not runs:
+                count = max((int(n) for n in re.findall(r'Fuzzed (\d+) iteration', text)),
+                            default=0)
             iterations += count
-            if count:
+            if count and edges:
+                fuzzed += 1
+            elif count and solutions >= count:
+                stuck.append(name)
+            elif count:
                 fuzzed += 1
             elif NO_CALL_SITES in text:
                 absent.append(name)
             else:
                 silent.append(name)
-        detail = (f'{fuzzed}/{planned} campaign(s) reached the harness '
+        detail = (f'{fuzzed}/{planned} campaign(s) fuzzed the harness '
                   f'({iterations} iteration(s))')
         if absent:
             detail += f', {len(absent)} not called anywhere in this build'
+        if stuck:
+            shown = ', '.join(stuck[:5]) + ('...' if len(stuck) > 5 else '')
+            detail += (f', {len(stuck)} reached the harness but never came back out of '
+                       f'the call ({shown})')
         if not fuzzed:
             return False, (detail + ' -- every boot spent its budget without reaching '
                            'the harness; each run.log says how far it got')
