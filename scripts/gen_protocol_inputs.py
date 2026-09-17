@@ -93,6 +93,16 @@ def scan_header(path):
     return guids[0], members
 
 
+# Protocols that exist in a header but are deliberately not in the firmware. Discovery
+# reads headers, so a driver behind a build flag still looks like a target: AsanFaultDxe
+# is the sanitizer's positive control and is built only under ASAN_FAULT_PROTOCOL, which
+# no sweep defines. A request for it costs a container, a full analysis, a harness build
+# and then the whole boot budget waiting for a protocol that was never installed -- once
+# per version, every run, and it leaves the sweep reporting degraded forever for a
+# protocol nobody wanted fuzzed.
+NOT_TARGETS = {'AsanFault.h'}
+
+
 def scan_roots(roots):
     protocols = {}
     for root in roots:
@@ -100,7 +110,7 @@ def scan_roots(roots):
             continue
         for dirpath, _dirs, files in os.walk(root):
             for name in sorted(files):
-                if not name.endswith('.h'):
+                if not name.endswith('.h') or name in NOT_TARGETS:
                     continue
                 hit = scan_header(os.path.join(dirpath, name))
                 if hit:
