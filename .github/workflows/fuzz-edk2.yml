@@ -21,9 +21,9 @@ on:
         required: false
         default: '600'
       jobs:
-        description: 'Targets fuzzed at once'
+        description: 'Targets fuzzed at once (blank: a quarter of the runner''s cores)'
         required: false
-        default: '8'
+        default: ''
       boot_timeout:
         description: 'Seconds a target may spend booting to the harness (blank: scale with jobs)'
         required: false
@@ -42,7 +42,12 @@ permissions:
 jobs:
   matrix:
     runs-on: [self-hosted, linux, x64]
-    timeout-minutes: 720
+    # 24h, because the default sweep does not fit in less. Measured here: 243 targets at
+    # --jobs 20 and a 900s budget took 6.4h for one version. The four refs below at a 600s
+    # budget come to about 16h, and the old 720 would have killed the job a third of the
+    # way through the second version -- with the first version's report already written,
+    # so the run would look merely incomplete rather than cut short.
+    timeout-minutes: 1440
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,7 +90,17 @@ jobs:
             REFS='edk2-stable202502 edk2-stable202505 edk2-stable202511 master'
           fi
           BUDGET="${IN_BUDGET:-600}"
-          JOBS="${IN_JOBS:-8}"
+          # Sized to the runner rather than fixed. A campaign is one QEMU plus a harness
+          # build, so a quarter of the cores keeps the box busy without making every boot
+          # compete -- at 8 on this 72-core runner the sweep would have needed 31 hours,
+          # and the boot timeout scales with this number for the same reason. Floor of 4
+          # so a small runner still makes progress.
+          JOBS="${IN_JOBS:-}"
+          if [ -z "$JOBS" ]; then
+            JOBS=$(( $(nproc) / 4 ))
+            [ "$JOBS" -lt 4 ] && JOBS=4
+          fi
+          echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
           QUALIFY=''
           [ "${IN_QUALIFY:-}" = 'true' ] && QUALIFY='--skip-fuzz'
           # Passed only when someone asked for one. The boot competes with every campaign
