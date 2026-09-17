@@ -135,6 +135,11 @@ jobs:
                       s = stages.get(n)
                       if s is None:
                           cells.append('—')           # the run stopped before this stage
+                      elif s['ok'] == 'warn':
+                          # did its job, but not for every target -- the run went on and
+                          # its report stands. Checked before the truthiness test below,
+                          # which would otherwise call this a pass.
+                          cells.append('⚠️ ' + s['detail'][:80])
                       elif s['ok']:
                           cells.append('✅ ' + s['detail'])
                       elif s['ok'] is None:

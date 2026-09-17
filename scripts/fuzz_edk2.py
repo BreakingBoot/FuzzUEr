@@ -22,6 +22,12 @@ than merely absent. They are run in order and each one says PASS or FAIL with wh
 
 A stage that fails stops the run, because everything after it would report a number that
 looks like a result and is not one.
+
+A stage can also come back WARN: it did its job, but not for everything it was asked
+about -- a sweep where four campaigns of 243 lost their boot to a timeout. That does not
+stop the run, because the campaigns that did fuzz are what the run exists to report on,
+and throwing away their triage to punish the gap leaves nothing at all. A degraded run
+still exits non-zero.
 """
 
 import argparse
@@ -37,6 +43,25 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
+
+
+# A stage can end three ways, not two. PASS and FAIL are obvious; WARN is "this did its
+# job, but not for everything it was asked about" -- a sweep where 239 of 243 campaigns
+# fuzzed and four lost their boot to a timeout. Treating that as FAIL stopped the run, so
+# triage never ran and the weekly sweep produced campaign directories and no report at
+# all, which is the one output it exists for. A degraded run still exits non-zero, so CI
+# still shows it as needing a look.
+WARN = 'warn'
+
+
+def state_of(ok):
+    if ok is WARN:
+        return 'WARN'
+    if ok is False:
+        return 'FAIL'
+    if ok is None:
+        return 'SKIP'
+    return 'PASS'
 
 
 class Stage:
@@ -62,11 +87,17 @@ class Run:
         print()
         print(f'  === {self.ref} ===')
         for s in self.stages:
-            state = 'PASS' if s.ok else ('FAIL' if s.ok is False else 'SKIP')
-            print(f'    [{state}] {s.name:<14}{s.detail}  ({s.seconds:.0f}s)')
+            print(f'    [{state_of(s.ok)}] {s.name:<14}{s.detail}  ({s.seconds:.0f}s)')
         failed = [s for s in self.stages if s.ok is False]
-        print(f'  {"FAILED at " + failed[0].name if failed else "OK"}')
-        return 1 if failed else 0
+        degraded = [s for s in self.stages if s.ok == WARN]
+        if failed:
+            print(f'  FAILED at {failed[0].name}')
+        elif degraded:
+            print(f'  DEGRADED at {degraded[0].name} -- the run finished and its report '
+                  f'stands, but not every target was covered')
+        else:
+            print('  OK')
+        return 1 if failed or degraded else 0
 
     def save(self):
         os.makedirs(self.out, exist_ok=True)
@@ -206,8 +237,7 @@ def run_stage(run, name, fn):
     s.seconds = time.time() - start
     # None is "deliberately not run", not a failure: printing FAIL for a stage the caller
     # asked to skip is how --skip-fuzz reads as a broken version.
-    state = 'PASS' if s.ok else ('FAIL' if s.ok is False else 'SKIP')
-    print(f'  [{state}] {name:<14}{s.detail}')
+    print(f'  [{state_of(s.ok)}] {name:<14}{s.detail}')
     return s.ok
 
 
@@ -680,8 +710,13 @@ def main():
                            'the harness; each run.log says how far it got')
         if silent:
             shown = ', '.join(silent[:6]) + ('...' if len(silent) > 6 else '')
-            return False, detail + f' -- {len(silent)} produced nothing: {shown}'
-        return True, detail + ('' if code == 0 else f' -- the batch exited {code}')
+            # Degraded, not failed. The campaigns that did fuzz are exactly what the run
+            # exists to produce, and discarding their triage because one boot in two
+            # hundred ran out of time throws away the report to punish the gap.
+            return WARN, detail + f' -- {len(silent)} produced nothing: {shown}'
+        if code != 0:
+            return WARN, detail + f' -- the batch exited {code}'
+        return True, detail
 
     def triage():
         if args.skip_fuzz:
