@@ -181,9 +181,23 @@ def launch(protocol, args):
     # backend's per-iteration timeout in particular -- silently does not reach the
     # campaign, and the run looks like a target that always times out rather than one
     # that was never given long enough.
-    for name_, value in sorted(os.environ.items()):
-        if name_.startswith('FIRNESS_'):
-            argv += ['-e', f'{name_}={value}']
+    env = {k: v for k, v in os.environ.items() if k.startswith('FIRNESS_')}
+    # Deterministic guest time by default. The fuzzer's own default is "none", and the
+    # only place this was ever set was an env line on the CI runner -- which has never
+    # run, so no campaign in this pipeline has had it. It is not a tuning knob:
+    # without it the same input takes a different path often enough that edges_stability
+    # sits at 78%, and a map feedback cannot tell a new path from that much jitter.
+    # Measured on EfiSimpleTextIn, one campaign each, nothing else changed:
+    #
+    #   icount off   112706 executions   edges_stability 78.4%
+    #   icount on     78120 executions   edges_stability  100%
+    #
+    # It costs throughput -- the guest clock is driven by instructions retired rather
+    # than the host -- and buys feedback that means something. Set FIRNESS_QEMU_ICOUNT
+    # explicitly to override, "none" included.
+    env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=auto,sleep=off')
+    for name_, value in sorted(env.items()):
+        argv += ['-e', f'{name_}={value}']
     argv += [args.image, 'bash', '-c', command]
     if args.dry_run:
         print('  would run:', ' '.join(argv[:8]), '...', command)
