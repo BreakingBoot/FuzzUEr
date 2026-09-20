@@ -697,8 +697,32 @@ def main():
                 absent.append(name)
             else:
                 silent.append(name)
+        # How good the coverage signal was, not just how much of it there was. The
+        # fuzzer reports edges_stability every 30s into each campaign's qemu/run.txt and
+        # nothing here ever read it -- so a sweep where three quarters of every observed
+        # edge was jitter reported exactly what a clean one reports. That is how the
+        # master sweep of 2026-09-17 came to be quoted as 3.4M iterations finding
+        # nothing, when it ran at a median stability of 24.5% with the determinism
+        # control switched off entirely. A run whose feedback is mostly noise has not
+        # searched the space it appears to have searched, and it must say so itself.
+        stability = []
+        for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
+            beats = os.path.join(campaigns, name, 'qemu', 'run.txt')
+            if not os.path.isfile(beats):
+                continue
+            seen = re.findall(r'edges_stability: ([\d.]+)%',
+                              open(beats, errors='ignore').read())
+            if seen:
+                stability.append(float(seen[-1]))
         detail = (f'{fuzzed}/{planned} campaign(s) fuzzed the harness '
                   f'({iterations} iteration(s))')
+        if stability:
+            stability.sort()
+            median = stability[len(stability) // 2]
+            shaky = sum(1 for v in stability if v < 90.0)
+            detail += f', edge stability median {median:.0f}%'
+            if shaky:
+                detail += f' ({shaky} campaign(s) under 90%)'
         if absent:
             detail += f', {len(absent)} not called anywhere in this build'
         if stuck:
@@ -716,6 +740,14 @@ def main():
             return WARN, detail + f' -- {len(silent)} produced nothing: {shown}'
         if code != 0:
             return WARN, detail + f' -- the batch exited {code}'
+        # Below this the coverage feedback is mostly jitter, the corpus grows on noise
+        # and the search never leaves the neighbourhood of the first call. The campaigns
+        # ran and their findings stand; what cannot stand is reading the iteration count
+        # as though the space had been explored. 90% is where a target that is merely
+        # awkward stops and one that is not being searched begins.
+        if stability and stability[len(stability) // 2] < 90.0:
+            return WARN, (detail + ' -- the coverage signal is mostly noise; treat the '
+                          'iteration count as a lower bound on nothing')
         return True, detail
 
     def triage():

@@ -195,7 +195,21 @@ def launch(protocol, args):
     # It costs throughput -- the guest clock is driven by instructions retired rather
     # than the host -- and buys feedback that means something. Set FIRNESS_QEMU_ICOUNT
     # explicitly to override, "none" included.
-    env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=auto,sleep=off')
+    #
+    # shift=6, not shift=auto. "auto" lets QEMU recalibrate the instruction-to-time ratio
+    # as it runs, and that recalibration costs exploration even though both report ~100%
+    # stability. Seven campaigns over three protocols, one variable, nothing else changed:
+    #
+    #                          corpus      edges    stability   executions
+    #   EfiDevicePathFromText  49 -> 100   1468 -> 1528   ~100 -> 100   28k -> 17k   (n=3)
+    #   EfiDecompress          60 -> 100   1532 -> 1612   90.6 -> 100   4.8k -> 3.1k
+    #   EfiHiiFont             31 -> 100   1719 -> 1821   95.0 -> 100    53k -> 15k
+    #
+    # A fixed shift wins on every axis and does it on fewer executions, which is what a
+    # feedback loop that is actually learning looks like: it spends its budget on inputs
+    # that differ rather than re-running ones that do not.
+    #
+    env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=6,sleep=off')
     for name_, value in sorted(env.items()):
         argv += ['-e', f'{name_}={value}']
     argv += [args.image, 'bash', '-c', command]
