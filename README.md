@@ -238,10 +238,26 @@ bugs in it.
 `.github/workflows/fuzz-edk2.yml` runs the bootstrap and then the driver over a list of
 refs, and writes one table saying which stages each version passed.
 
-It needs a **self-hosted** runner. The first run on a cold machine builds LLVM 15 from
-source, installs the Simics packages, and builds QEMU through libafl -- hours, not
-minutes. Every bootstrap step checks for its own output first, so later runs cost
-seconds. Budget ~60 GB of disk for the images and one campaign image per version.
+It needs a **self-hosted** runner labelled `self-hosted, linux, x64`. Register one with:
+
+```
+scripts/setup_gh_runner.sh <registration-token>   # Settings -> Actions -> Runners
+scripts/bootstrap_runner.sh                       # then the images, once per machine
+```
+
+Without a runner the schedule has nothing to execute on and never starts -- and there is
+no failed run to notice either, so check `Settings -> Actions -> Runners` shows one idle
+before trusting the weekly sweep.
+
+The first run on a cold machine builds LLVM 15 from source, installs the Simics packages,
+and builds QEMU through libafl -- hours, not minutes. Every bootstrap step checks for its
+own output first, so later runs cost seconds. Budget ~60 GB of disk for the images and one
+campaign image per version, and expect Docker to hold considerably more than that over
+time: campaign containers are removed as they finish, but rebuilt images leave untagged
+layers behind that only `docker image prune` clears.
+
+Run it manually once with **qualify_only** before trusting a full sweep: ten stages, a few
+minutes, and it exercises everything except the fuzzing. A full matrix is ~17 hours.
 
 ### Which versions it works on
 
