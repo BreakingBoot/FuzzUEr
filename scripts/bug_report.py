@@ -425,15 +425,24 @@ def verdict(cluster, boot_keys, ubiquity):
     reason = match_reason(sample.path, KNOWN_ARTEFACTS)
     if reason:
         return 'artefact', reason
-    if cluster.key in boot_keys and cluster.phases == {'boot'}:
-        return 'background', 'only ever seen during boot, with no input in play'
     if len(cluster.protocols) >= ubiquity:
-        # Not a drop. A real defect can be ubiquitous: the ExportPackageList pointer
-        # overflow fires under every protocol that touches HII, and it is still a defect.
-        # Ubiquity says the input did not provoke it, which changes how it is
-        # investigated, not whether it counts.
+        # Before the background drop below, not after. A real defect can be ubiquitous:
+        # the ExportPackageList pointer overflow fires under every protocol that touches
+        # HII, and it is still a defect. Ubiquity says the input did not provoke it, which
+        # changes how it is investigated, not whether it counts.
+        #
+        # That was the intent and the order defeated it. These fire during boot and only
+        # during boot, so "background" matched first and dropped them, and the section
+        # this bucket feeds -- "Firmware, present on every run: a real defect can sit
+        # here" -- printed None while the filter held 1896 hits at 8 sites. The one it
+        # was hiding is the case this comment already named: HiiExportPackageLists
+        # computes (UINT8 *)Buffer + ResultSize eight times with Buffer NULL, on the
+        # size-query path every caller uses first. Nothing dereferences it, and adding a
+        # non-zero integer to a null pointer is still undefined behaviour.
         return 'ubiquitous', (f'seen under {len(cluster.protocols)} unrelated protocols, '
                               f'so it is not input driven -- review, do not dismiss')
+    if cluster.key in boot_keys and cluster.phases == {'boot'}:
+        return 'background', 'only ever seen during boot, with no input in play'
     return 'candidate', ''
 
 
