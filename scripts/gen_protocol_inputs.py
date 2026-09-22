@@ -75,12 +75,20 @@ def scan_header(path):
     # callable methods belong to the protocol, not to the binding: Tls.h declares
     # gEfiTlsServiceBindingProtocolGuid then gEfiTlsProtocolGuid, and SetSessionData is a
     # member of _EFI_TLS_PROTOCOL. pick whichever guid actually owns a struct here
-    members = []
+    # Every guid in the header that owns a struct, not the first one that does. A header
+    # is allowed to declare more than one protocol and two upstream ones do -- Print2.h
+    # carries gEfiPrint2ProtocolGuid and gEfiPrint2SProtocolGuid, SmmCpuService.h carries
+    # gEfiSmmCpuServiceProtocolGuid and gEdkiiSmmCpuRendezvousProtocolGuid -- and
+    # stopping at the first meant the second was never discovered and so never fuzzed.
+    owned = []
     for guid in guids:
-        members = struct_members(src, guid, fptypes)
-        if members:
-            guids = [guid] + [g for g in guids if g != guid]
-            break
+        found = struct_members(src, guid, fptypes)
+        if found and guid not in [g for g, _ in owned]:
+            owned.append((guid, found))
+    if owned:
+        return owned
+
+    members = []
     if not members:
         # no block matched the guid name, so fall back to every function-pointer member in
         # the header rather than dropping the protocol entirely
@@ -90,7 +98,7 @@ def scan_header(path):
                 members.append(m.group(2))
     if not members:
         return None
-    return guids[0], members
+    return [(guids[0], members)]
 
 
 # Protocols that exist in a header but are deliberately not in the firmware. Discovery
@@ -113,8 +121,7 @@ def scan_roots(roots):
                 if not name.endswith('.h') or name in NOT_TARGETS:
                     continue
                 hit = scan_header(os.path.join(dirpath, name))
-                if hit:
-                    guid, members = hit
+                for guid, members in (hit or []):
                     # a header can be scanned twice via different roots; keep the richest
                     if guid not in protocols or len(members) > len(protocols[guid][1]):
                         protocols[guid] = (name, members)
