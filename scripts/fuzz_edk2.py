@@ -205,7 +205,7 @@ RUN cd /workspace/tmp/edk2 \\
     && . ./edksetup.sh >/dev/null 2>&1 \\
     && bear --output /workspace/tmp/compile_commands.json -- \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
-       -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE \\
+       -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench} \\
        -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
 # The firmware the fuzzer boots has to be the build those .debug files describe, and it
@@ -265,6 +265,12 @@ def main():
     parser.add_argument('--base-image', default='fuzzuer-ci:latest',
                         help='the image the per-version campaign image is layered on; '
                              'scripts/bootstrap_runner.sh builds the default')
+    parser.add_argument('--bench', action='store_true',
+                        help='build the SanBench benchmark drivers and the firmware '
+                             'sanitizer into the image and fuzz them. Ground truth: '
+                             'every member hides a fault behind a condition an input '
+                             'has to satisfy, so what a sweep finds among them is a '
+                             'measurement of the fuzzer rather than of the firmware')
     parser.add_argument('--skip-fuzz', action='store_true',
                         help='qualify a version without spending the fuzzing budget')
     args = parser.parse_args()
@@ -279,6 +285,21 @@ def main():
     # old 900s floor for small runs. An explicit --boot-timeout still wins.
     if not args.boot_timeout:
         args.boot_timeout = max(900, 90 * args.jobs)
+
+    # The benchmark and the sanitizer are gated in the DSC and the FDF, and the same
+    # string has to reach the firmware build and the campaign image's analysis build --
+    # a benchmark present in one and absent from the other is a campaign fuzzing a
+    # protocol the image never installed.
+    # =TRUE, not a bare -D. BaseTools honours a valueless -D for the DSC and not for the
+    # FDF's !ifdef, so with "-D SAN_BENCH" the drivers compiled and were left out of the
+    # firmware volume: DXEFV.inf came back without either GUID, the exerciser said "no
+    # memory protocol -- build with -D SAN_BENCH" on a build that had been given exactly
+    # that, and a campaign fuzzed a protocol nothing had installed for 22297 iterations
+    # and called it zero findings.
+    #
+    # ASAN_FAULT_PROTOCOL in the same FDF has the same shape and so the same latent
+    # problem; it is gated the same way and has never been enabled from here.
+    bench_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE' if args.bench else ''
 
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)
     # Absolute, because several stages hand this to "docker run -v", and a relative
@@ -433,7 +454,8 @@ def main():
 
     def build():
         ok_, text = build_firmware(
-            '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE',
+            '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE'
+            + bench_defines,
             'build.log')
         if not ok_:
             return False, text
@@ -471,6 +493,11 @@ def main():
         packages = sorted(d for d in built.stdout.split() if d.endswith('Pkg'))
         argv = [sys.executable, os.path.join(HERE, 'gen_protocol_inputs.py'),
                 '-s', tree, '-o', evalset, '-m', '1']
+        # Only when the drivers are actually in the image. Discovery reads headers,
+        # so without this the benchmark protocols are found on every run and each
+        # one spends a boot budget waiting for a protocol nothing installed.
+        if args.bench:
+            argv.append('--bench')
         if packages:
             argv += ['--packages'] + packages
         sh(argv, timeout=3600)
@@ -534,7 +561,8 @@ def main():
             shutil.copytree(src_dir, os.path.join(stage, name),
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
-            IMAGE_DOCKERFILE.format(base=args.base_image))
+            IMAGE_DOCKERFILE.format(base=args.base_image,
+                                                   bench=bench_defines))
         built = sh(['docker', 'build', '-q', '-t', image_tag,
                     '-f', os.path.join(stage, 'Dockerfile'), stage], timeout=5400)
         if built.returncode:
