@@ -340,10 +340,25 @@ def main():
             shutil.rmtree(tree, ignore_errors=True)
         got = sh(['git', '-C', args.source, 'rev-parse', '--verify', f'{args.ref}^{{commit}}'])
         if got.returncode:
-            fetched = sh(['git', '-C', args.source, 'fetch', '--depth=1', 'tianocore',
-                          args.ref], timeout=1800)
+            # Whichever remote this checkout actually has. Fetching from a hardcoded
+            # "tianocore" works for the edk2 mirror this started with and fails for every
+            # vendor tree -- NVIDIA's clone calls its remote "origin" -- so a ref that is
+            # not already local would have failed with "no such remote" rather than
+            # anything about the ref.
+            remotes = sh(['git', '-C', args.source, 'remote']).stdout.split()
+            ordered = [r for r in ('tianocore', 'origin') if r in remotes]
+            ordered += [r for r in remotes if r not in ordered]
+            fetched = None
+            for remote in ordered:
+                fetched = sh(['git', '-C', args.source, 'fetch', '--depth=1', remote,
+                              args.ref], timeout=1800)
+                if not fetched.returncode:
+                    break
+            if fetched is None:
+                return False, f'{args.source} has no git remote to fetch {args.ref} from'
             if fetched.returncode:
-                return False, f'no such ref, and fetch failed: {fetched.stderr.strip()[:80]}'
+                return False, (f'no such ref, and fetch from {", ".join(ordered)} failed: '
+                               f'{fetched.stderr.strip()[:80]}')
         made = sh(['git', '-C', args.source, 'worktree', 'add', '--detach', tree, args.ref],
                   timeout=1800)
         if made.returncode:
