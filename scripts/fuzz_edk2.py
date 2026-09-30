@@ -290,15 +290,16 @@ def main():
     # string has to reach the firmware build and the campaign image's analysis build --
     # a benchmark present in one and absent from the other is a campaign fuzzing a
     # protocol the image never installed.
-    # =TRUE, not a bare -D. BaseTools honours a valueless -D for the DSC and not for the
-    # FDF's !ifdef, so with "-D SAN_BENCH" the drivers compiled and were left out of the
-    # firmware volume: DXEFV.inf came back without either GUID, the exerciser said "no
-    # memory protocol -- build with -D SAN_BENCH" on a build that had been given exactly
-    # that, and a campaign fuzzed a protocol nothing had installed for 22297 iterations
-    # and called it zero findings.
+    # The FDF gates are "!ifdef $(SAN_BENCH)", the form upstream uses for CSM_ENABLE, and
+    # that form reads a bare -D perfectly well. They were "!ifdef SAN_BENCH", which the DSC
+    # parser honours and the FDF parser does not: the drivers compiled -- build.log shows
+    # all three -- and DXEFV.inf came back without either FILE_GUID, so the volume never
+    # carried them. A campaign then fuzzed a protocol nothing had installed for 22297
+    # iterations and reported zero findings, which read as a sanitizer blind to its own
+    # benchmark. The exerciser had been saying "no memory protocol -- build with
+    # -D SAN_BENCH" the whole time, on a build given exactly that.
     #
-    # ASAN_FAULT_PROTOCOL in the same FDF has the same shape and so the same latent
-    # problem; it is gated the same way and has never been enabled from here.
+    # =TRUE is kept because it is explicit and costs nothing; the gates no longer need it.
     bench_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE' if args.bench else ''
 
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)

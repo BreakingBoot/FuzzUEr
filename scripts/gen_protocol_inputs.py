@@ -108,17 +108,24 @@ def scan_header(path):
 # and then the whole boot budget waiting for a protocol that was never installed -- once
 # per version, every run, and it leaves the sweep reporting degraded forever for a
 # protocol nobody wanted fuzzed.
-NOT_TARGETS = {'AsanFault.h'}
+NOT_TARGETS = {'AsanFault.h', 'SanBench.h'}
+
+# SanBench.h is the exception to the exception. Its protocols ARE targets, but only when
+# the firmware was built with -D SAN_BENCH -- otherwise the drivers are not in the image
+# and a campaign spends a container, an analysis and a whole boot budget discovering that
+# nothing installed them. --bench turns them back on, and fuzz_edk2.py passes it exactly
+# when it passed the define.
+BENCH_TARGETS = {'SanBench.h'}
 
 
-def scan_roots(roots):
+def scan_roots(roots, skip=NOT_TARGETS):
     protocols = {}
     for root in roots:
         if not os.path.isdir(root):
             continue
         for dirpath, _dirs, files in os.walk(root):
             for name in sorted(files):
-                if not name.endswith('.h') or name in NOT_TARGETS:
+                if not name.endswith('.h') or name in skip:
                     continue
                 hit = scan_header(os.path.join(dirpath, name))
                 for guid, members in (hit or []):
@@ -190,6 +197,10 @@ def main():
     parser.add_argument('--any-protocol', action='store_true',
                         help='keep protocols no source file in the tree calls; they have '
                              'no call sites for firness to learn a harness from')
+    parser.add_argument('--bench', action='store_true',
+                        help='also emit the SanBench benchmark protocols, which are '
+                             'only installed when the firmware was built with '
+                             '-D SAN_BENCH')
     parser.add_argument('-n', '--limit', type=int, default=0,
                         help='Stop after this many protocols (0 = no limit)')
     args = parser.parse_args()
@@ -209,7 +220,7 @@ def main():
                 roots.append(base)
     roots = sorted(set(roots))
     print(f'Scanning {len(roots)} Include/Protocol director(ies)')
-    protocols = scan_roots(roots)
+    protocols = scan_roots(roots, NOT_TARGETS - (BENCH_TARGETS if args.bench else set()))
     print(f'Found {len(protocols)} protocol(s) with callable methods')
     if not args.any_protocol:
         used = consumed_guids(args.src)
