@@ -52,10 +52,18 @@ CASES = [
 
 # A line that is a sanitizer saying something, as opposed to the exerciser narrating.
 # Both arrive on the same wire, which is what makes a report attributable to a case.
+# The underscore form is the one that matters and it was missing. DEFINE_ASAN_LOAD in
+# AsanLib prints "__asan_load0x02" -- underscore, no class name, no "ERROR:
+# AddressSanitizer" banner -- because the named-class reporter lives on a different path.
+# Matching only the hyphenated "asan-load" scored two real detections as MISS and left the
+# sanitizer looking blind to sub-granule overreads, which it is not.
+#
+# "ASAN MEMORY ACCESS check fail" is deliberately NOT an alternative here: __ubsan_handle_*
+# shares that prefix, so it would credit every boot's HII UB to whatever case was running.
 REPORT = re.compile(
     r'(ERROR: AddressSanitizer|FWSAN:|heap-buffer-overflow|heap-buffer-underflow|'
-    r'use-after-free|double-free|stale-protocol-interface|asan-(load|store)|'
-    r'CPU Exception|runtime error)', re.I)
+    r'use-after-free|double-free|stale-protocol-interface|asan[-_](load|store)|'
+    r'__asan_report|CPU Exception|runtime error)', re.I)
 
 NARRATION = 'SanBenchDrive:'
 
@@ -119,10 +127,18 @@ def score_one(args, case, expect, unreachable, work):
     # otherwise be credited to the case.
     after = serial
     marker = 'expect %s' % case
+
+    def from_line_start(text, at):
+        # From the start of the LINE, not from the marker. Slicing at the marker cuts off
+        # the "SanBenchDrive: " prefix that the NARRATION filter below depends on, so the
+        # case's own announcement survives the filter -- and a case NAMED after a report
+        # class then scores PASS off its own echo, with the sanitizer switched off.
+        return text[text.rfind('\n', 0, at) + 1:]
+
     if marker in serial:
-        after = serial[serial.index(marker):]
-    elif case == 'control':
-        after = serial[serial.index('control'):] if 'control' in serial else serial
+        after = from_line_start(serial, serial.index(marker))
+    elif case == 'control' and 'control' in serial:
+        after = from_line_start(serial, serial.index('control'))
 
     reports = [line.strip() for line in after.splitlines()
                if REPORT.search(line) and NARRATION not in line]
