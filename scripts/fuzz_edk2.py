@@ -826,6 +826,31 @@ def main():
         if not fuzzed:
             return False, (detail + ' -- every boot spent its budget without reaching '
                            'the harness; each run.log says how far it got')
+
+        # Did the guest ever see its testcase? Everything above counts iterations and
+        # edges, and all of it moves whether or not the bytes arrived: the length alone
+        # drives how many steps a sequence takes. A campaign fuzzing a constant input
+        # reports the findings a constant input reaches and no check objected -- 474
+        # byte-identical heap overflows from one planted constant, with a corpus that
+        # never left the seed count. So this is asserted, not assumed.
+        starved = []
+        sys.path.insert(0, os.path.join(REPO, 'scripts'))
+        try:
+            from input_check import scan, verdict as input_verdict
+            for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
+                where = os.path.join(campaigns, name)
+                if not os.path.isdir(where):
+                    continue
+                state, _why = input_verdict(*scan(where))
+                if state in ('DEAD', 'LENGTH ONLY'):
+                    starved.append(f'{name}:{state.lower().replace(" ", "-")}')
+        except Exception as error:                      # never fail the run over a check
+            detail += f', input delivery unchecked ({error})'
+        if starved:
+            shown = ', '.join(starved[:6]) + ('...' if len(starved) > 6 else '')
+            return WARN, (detail + f' -- {len(starved)} campaign(s) never received a '
+                          f'testcase, so their coverage and findings are functions of the '
+                          f'input length alone: {shown}')
         if silent:
             shown = ', '.join(silent[:6]) + ('...' if len(silent) > 6 else '')
             # Degraded, not failed. The campaigns that did fuzz are exactly what the run
