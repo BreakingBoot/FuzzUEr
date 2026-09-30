@@ -3,13 +3,27 @@ import re
 import argparse
 
 
-# FirnessMain consumes the first input byte as a target selector:
-#     ReadBytes(&Input, sizeof(DriverChoice), (VOID *)&DriverChoice);
-#     switch (DriverChoice % <N>)
-# so a seed's first byte decides which Fuzz<Func>() runs and the rest feeds its
-# arguments. the corpus this repo shipped was nine DER certificates that all start
-# with 0x30, so every one of them selected target 0 and the other targets were only
-# ever reached by mutation
+# FirnessMain reads TWO bytes before it dispatches, and which one is which has been got
+# wrong twice now, so it is written out here in full:
+#
+#     UINT8 SequenceLength = 0;
+#     ReadBytes(&Input, sizeof(SequenceLength), (VOID *)&SequenceLength);   <-- byte 0
+#     Steps = (UINTN)(SequenceLength % 8) + 1;
+#     for (Step = 0; Step < Steps; Step++) {
+#         UINT8 DriverChoice = 0;
+#         ReadBytes(&Input, sizeof(DriverChoice), (VOID *)&DriverChoice);   <-- byte 1
+#         switch (DriverChoice % <N>)
+#
+# Byte 0 is the STEP COUNT. Byte 1 is the target. The first version of this script seeded
+# nine DER certificates that all began with 0x30, so every one selected target 0; the
+# replacement put the target index in byte 0 and filled the rest, so byte 1 was always
+# 0x00 or 0xFF -- and 0 % N is 0 for every N while 255 % 5 is also 0. Across a 234
+# protocol sweep the result was that every corpus reached at most 2 of a protocol's
+# members and 87 of them reached exactly 1: EfiShell has 43 members and its seeds
+# dispatched 2. Everything else was left to a mutation of one byte.
+#
+# So the count is printed at the end, from the same parse, and a caller that changes the
+# layout will see the number fall.
 def target_count_from_main(main_file):
     with open(main_file, 'r', encoding='utf-8', errors='ignore') as f:
         source = f.read()
@@ -30,33 +44,83 @@ def find_target_count(main_file):
     return 0
 
 
-def generate_seeds(output_dir, count, size):
-    """One seed per target per filler, long enough to reach a second call.
+# How many steps a seed asks for. Steps = (byte0 % 8) + 1, and more than one matters: a
+# heap error needs a buffer that one call allocates and a later call misuses, so a
+# single-step seed can only ever find the faults that live in a function's first touch of
+# its arguments. That is the shape the findings actually had -- null dereferences at entry
+# and no heap errors at all.
+SEQUENCE_STEPS = 4
 
-    Size is not a detail. FirnessMain reads a step count, then for each step a byte that
-    picks the target and then that function's arguments, and it stops early the moment the
-    buffer runs dry:
+
+def _payload(variant, index, size):
+    if variant == 'zero':
+        return bytes(size)
+    if variant == 'ones':
+        return bytes([0xFF]) * size
+    if variant == 'same':
+        return bytes([index & 0xFF]) * size
+    return bytes((i & 0xFF) for i in range(size))          # ramp
+
+
+def generate_seeds(output_dir, count, size):
+    """Three seeds per target, each of which actually dispatches that target.
+
+    The tail fillers are the two extremes plus the index itself:
+
+      zero  arguments all 0x00 -- zero lengths, NULL-shaped values
+      ones  arguments all 0xFF -- maximum lengths, which the harness clamps with % (N+1)
+      same  every byte is the target index, so every step of the sequence dispatches the
+            SAME target: call it, then call it again with what the last call left behind.
+            That is the arrangement a use-after-free or a double free needs, and neither
+            of the extremes provides it -- under both of them steps 2..N dispatch
+            whatever 0x00 or 0xFF happens to select.
+      ramp  0x00,0x01,0x02,... A uniform filler makes every multi-byte field in the
+            payload the same degenerate value: a length is 0 or 0xFFFFFFFF and nothing
+            in between, and a member whose guard wants a moderate size with small
+            contents -- SanBenchDoubleFetch wants SharedSize >= 36 with a first word
+            <= 32 -- cannot be satisfied by any single byte value at all, because the
+            size and the contents are fed from the same filler. A ramp gives each field
+            a different value and costs one more seed.
+
+    None of this claims to satisfy a particular member's guard: that needs the layout of
+    that member's arguments, which the generator knows and this does not. What it does is
+    put every target in the corpus with a non-degenerate payload, so the mutator starts
+    inside the function instead of never entering it.
+
+    Size is not a detail. The harness stops the moment the buffer runs dry:
 
         if (Step > 0 && Input.Length == 0) break;
 
     A 64 byte payload is spent inside the first call, so every execution was a single call
-    no matter how long the campaign ran -- 375246 executions of EfiShell reached a corpus
-    of 14 and found nothing past the entry point. That also explains the shape of the
-    findings: null dereferences where a function first touches an argument, and no heap
-    errors at all, because reaching a heap bug means getting a buffer allocated by one call
-    and misused by a later one. The guest buffer is 0x1000, so there is room.
+    however long the campaign ran -- 375246 executions of EfiShell reached a corpus of 14.
+    The guest buffer is 0x1000, so there is room.
     """
     os.makedirs(output_dir, exist_ok=True)
+    written = 0
     for index in range(count):
-        # byte 0 selects the target. the tail is all zeros in one seed and all ones in
-        # the other so the first execution of each harness already sees both extremes,
-        # which is where length and enum handling tends to break
-        for variant, filler in (('zero', 0x00), ('ones', 0xFF)):
-            body = bytes([index]) + bytes([filler]) * size
+        for variant in ('zero', 'ones', 'same', 'ramp'):
+            # byte 0: how many steps. byte 1: which target. then the arguments.
+            body = bytes([SEQUENCE_STEPS - 1, index & 0xFF]) + _payload(variant, index, size)
             with open(os.path.join(output_dir, f'seed_{index:02d}_{variant}'), 'wb') as f:
                 f.write(body)
-    print(f'Wrote {count * 2} seeds of {size + 1} bytes for {count} target(s) '
+            written += 1
+
+    # Say which targets the corpus reaches, computed the way the harness computes it, so
+    # a layout change shows up here as a number instead of as a quiet loss of coverage.
+    reached = set()
+    for index in range(count):
+        for variant in ('zero', 'ones', 'same', 'ramp'):
+            body = bytes([SEQUENCE_STEPS - 1, index & 0xFF]) + _payload(variant, index, size)
+            reached.add(body[1] % count)
+    print(f'Wrote {written} seeds of {size + 2} bytes for {count} target(s) '
           f'into {output_dir}')
+    print(f'  seeds dispatch {len(reached)}/{count} target(s) on their first step, '
+          f'{SEQUENCE_STEPS} step(s) each')
+    if len(reached) < count:
+        missing = sorted(set(range(count)) - reached)
+        print(f'  WARNING: no seed reaches target(s) {missing} -- those are left to '
+              f'mutation')
+    return written
 
 
 def main():
@@ -64,7 +128,7 @@ def main():
     parser.add_argument('-o', '--output', type=str, required=True, help='Corpus directory to write')
     parser.add_argument('-n', '--targets', type=int, help='Number of fuzz targets')
     parser.add_argument('-m', '--main', type=str, help='Generated FirnessMain.c to infer the target count from')
-    parser.add_argument('-s', '--size', type=int, default=64, help='Bytes of argument data after the selector')
+    parser.add_argument('-s', '--size', type=int, default=64, help='Bytes of argument data after the two selectors')
     args = parser.parse_args()
 
     count = args.targets if args.targets else find_target_count(args.main)
