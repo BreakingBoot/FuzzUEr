@@ -103,3 +103,30 @@ eval_source/smigen/
 eval_source/smigen2/
 eval_source/smigen3/
 qemustage/
+
+# Build staging and campaign output: 31 GB of the former, 24 GB of the latter, all of it
+# reproducible from a script in scripts/ and none of it something a clone should carry.
+# qemustage/ above is the same thing under an older name.
+.bt/
+.bt-stale/
+.dfwork/
+covstage/
+imgstage/
+mlstage/
+faultstage/
+.verify-try.sh
+
+# Campaign artifacts, except the two hand-written write-ups that live among them.
+results/*
+!results/*.md
+
+# The per-version checkouts fuzz_edk2.py makes and the evalsets discovered from them.
+# Named one by one rather than as edk2-*: edk2-non-osi and edk2-platforms are submodules
+# and a glob would quietly stop tracking them.
+eval_source/edk2-edk2-stable*/
+eval_source/edk2-mainline/
+eval_source/edk2-master/
+eval_source/edk2-nvidia/
+eval_source/edk2-platforms-mainline/
+eval_source/evalset-*/
+eval_source/evalset_discovered/

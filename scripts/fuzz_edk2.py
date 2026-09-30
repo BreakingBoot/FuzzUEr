@@ -8,6 +8,9 @@ than merely absent. They are run in order and each one says PASS or FAIL with wh
   fetch        is the ref real and checked out
   submodules   edk2 vendors its dependencies; three separate build failures name none of them
   port         the sanitizer integration applied, and how much of it merged cleanly
+  vendor       defects the vendor branch ships repaired and named -- a branch can leave a
+               library class unresolvable for OvmfPkg and still ship, and that fails
+               AutoGen before a line compiles
   build        the firmware built
   instrumented modules actually carry __asan_load/__asan_store -- "applied" is not "instrumented",
                and the difference is invisible from the build log
@@ -397,6 +400,68 @@ def main():
         if stray:
             return False, f'conflict markers left in {stray.splitlines()[0]}'
         return True, detail
+
+    def vendor():
+        """Repair defects the vendor tree ships, and say which ones were there.
+
+        A vendor branch can add a library class, declare it, provide an instance, resolve
+        it for the platforms it cares about, and leave OvmfPkg unresolvable -- their OVMF
+        does not have to build for their product to ship. That is not something the
+        sanitizer port can fix and not something to discover halfway through a build log,
+        so it is repaired here, named, and reported.
+
+        Each entry only ever adds a resolution the tree itself already provides, and only
+        where the class really is unresolved, so an upstream tree comes back untouched.
+        """
+        fixups = [
+            # NVIDIA/edk2, main-edk2-stable202508 and neighbours. VariableRuntimeDxe --
+            # which every OvmfPkg DSC builds -- consumes VarSetCallbacksLib. It is
+            # declared in MdeModulePkg.dec and resolved in MdeModulePkg.dsc and
+            # UefiPayloadPkg.dsc; no OvmfPkg DSC resolves it, so OVMF X64 fails AutoGen
+            # with "error 4000: VarSetCallbacksLib not found" before a line is compiled.
+            # Reported at <pending>; the Null instance is theirs, not ours.
+            dict(cls='VarSetCallbacksLib',
+                 instance='MdeModulePkg/Library/VarSetCallbacksLibNull/'
+                          'VarSetCallbacksLibNull.inf',
+                 why='NVIDIA consumes it in VariableRuntimeDxe and resolves it nowhere '
+                     'OvmfPkg can see'),
+        ]
+
+        dscs = [os.path.join(tree, 'OvmfPkg', name) for name in
+                ('OvmfPkgX64.dsc', 'OvmfPkgIa32X64.dsc', 'OvmfPkgIa32.dsc')]
+        dscs = [d for d in dscs if os.path.isfile(d)]
+        if not dscs:
+            return False, 'no OvmfPkg DSC in this tree'
+
+        applied = []
+        for fix in fixups:
+            # Consumed by something, and shipped with an instance: without both, adding
+            # a resolution would be inventing a dependency rather than repairing one.
+            consumers = sh(f"grep -rl '^[[:space:]]*{fix['cls']}[[:space:]]*$' "
+                           f"{tree} --include=*.inf 2>/dev/null | head -1").stdout.strip()
+            if not consumers or not os.path.isfile(os.path.join(tree, fix['instance'])):
+                continue
+
+            for dsc in dscs:
+                text = open(dsc, newline='').read()
+                if fix['cls'] in text:
+                    continue
+                # Into the platform's own [LibraryClasses], which is the common
+                # fall-back every module type inherits. Appending after the header keeps
+                # it clear of the architecture-specific overrides further down.
+                nl = '\r\n' if '\r\n' in text else '\n'
+                marker = '[LibraryClasses]' + nl
+                if marker not in text:
+                    return False, f'{os.path.basename(dsc)} has no [LibraryClasses]'
+                line = f"  {fix['cls']}|{fix['instance']}{nl}"
+                text = text.replace(marker, marker + line, 1)
+                with open(dsc, 'w', newline='') as handle:
+                    handle.write(text)
+                applied.append(f"{fix['cls']} -> {os.path.basename(dsc)}")
+
+        if not applied:
+            return True, 'nothing to repair'
+        return True, f"{len(applied)} vendor defect(s): {'; '.join(applied)}"
 
     def in_builder():
         """Where this tree lives inside the toolchain container."""
@@ -816,6 +881,7 @@ def main():
     ok = True
     for name, fn in (('ready', ready),
                      ('fetch', fetch), ('submodules', submodules), ('port', port),
+                     ('vendor', vendor),
                      ('sync', sync), ('build', build), ('instrumented', instrumented),
                      ('discover', discover), ('image', stage_image),
                      ('detects', detects), ('fuzz', fuzz), ('triage', triage)):
