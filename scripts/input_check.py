@@ -1,31 +1,42 @@
 """Did the guest actually receive the testcase?
 
-Every other check in this repo assumes it did. A campaign whose bytes never reach the
-guest buffer is indistinguishable from a healthy one from the outside: the length still
-arrives, the harness still runs, coverage still moves because the length drives how many
-steps the sequence takes, and the findings that come out are whatever a constant input
-reaches. Nothing fails.
+Everything else in this pipeline counts iterations and edges, and all of that moves
+whether or not the fuzzer's bytes arrived -- the delivered LENGTH alone decides how many
+steps a harness sequence takes. So "the campaign ran" and "the campaign was fuzzed" are
+different claims and only one of them was ever checked.
 
-What that looks like, from a real campaign: SanBenchMemory reported 474 heap overflows in
-69120 executions, all of them byte-identical -- same faulting address, same return IP,
-size 0x48 every time -- because 0x48 is KEY_KP8, a constant the generator planted in one
-arm of the length argument and reachable with no input at all. Its corpus sat at 8, the
-seed count, for the whole run. The paired SanBenchFirmware campaign reported nothing,
-which read as a sanitizer blind to its own benchmark.
-
-So FirnessMain now says what it got, once per iteration, on the serial wire:
+FirnessMain emits, once per iteration, before anything interprets the buffer:
 
     IN=<length, 4 hex digits>:<first 6 bytes, hex>
 
-and this asserts those values vary. Six bytes is the span that decides which member is
-called: the step count, the target selector, and the first argument's choice bytes.
+and this classifies a campaign from those lines: OK when the byte prefixes vary, LENGTH
+ONLY when the length moves and the bytes never do, DEAD when neither moves.
 
   python3 scripts/input_check.py results/<run>/campaigns/<protocol>
   python3 scripts/input_check.py results/<run>            # every campaign under it
 
-A campaign whose harness predates the marker is reported as UNINSTRUMENTED, not as a
-pass: "no evidence" and "evidence of delivery" are different answers and only one of them
-is worth having.
+Read the FIRST SIX BYTES and not "the input page", which is the mistake this check exists
+to make impossible. The buffer is one 4 KiB page and delivered lengths run 1..1025, so in
+a perfectly healthy campaign 75% to 99.98% of that page is untouched and still holds
+EDK2's 0xAF PcdDebugClearMemoryValue fill. Two separate investigations dumped the page,
+truthfully reported 0xAF, and concluded the host never wrote anything. It does: in
+libafl_qemu's LqemuInputSetter one call produces both the write and the byte count in RAX,
+
+    let ret_value = input_location.write(&input.target_bytes());
+    input_location.cpu().write_reg(*reg, ret_value as GuestReg)
+
+so a correct length in RAX is itself evidence the copy ran, and "length right, page all
+0xAF" is self-contradictory rather than damning. Six bytes at offset 0 sits inside the
+delivered region whenever the length is at least 6, which is what makes this marker an
+instrument instead of another way to measure the tail.
+
+Its first real use found delivery WORKING and the corpus starving instead: a campaign that
+had reported 0 firmware findings in 16234 executions with one imported seed reported 9041
+distinct IN= prefixes and 3168 objectives once every seed was imported. The defect was
+never delivery; see load_initial_inputs_forced and the byte-1 target selector.
+
+A campaign whose harness predates the marker reports UNINSTRUMENTED, not OK: "no evidence"
+and "evidence of delivery" are different answers and only one is worth having.
 """
 
 import argparse
