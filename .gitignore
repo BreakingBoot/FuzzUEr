@@ -114,6 +114,7 @@ covstage/
 imgstage/
 mlstage/
 faultstage/
+seedstage/
 .verify-try.sh
 
 # Campaign artifacts, except the two hand-written write-ups that live among them.
