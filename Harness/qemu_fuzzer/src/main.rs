@@ -314,8 +314,17 @@ pub fn main() {
         executor.break_on_timeout();
 
         if state.must_load_initial_inputs() {
+            // _forced, and it is the difference between fuzzing a protocol and fuzzing one
+            // of its members. load_initial_inputs keeps only the seeds the feedback finds
+            // novel, and on a protocol whose members share most of their edges that is
+            // the first one: every campaign under results/ printed "Imported 1 input(s)
+            // from disk" from a corpus of twenty, so nineteen members began with no entry
+            // at all and were reachable only if havoc happened to rewrite the selector
+            // byte. A member that adds no NEW edge on its first execution is still the
+            // only foothold the mutator has at that member, which is exactly what the
+            // unforced variant throws away.
             state
-                .load_initial_inputs(&mut fuzzer, &mut executor, &mut mgr, &corpus_dirs)
+                .load_initial_inputs_forced(&mut fuzzer, &mut executor, &mut mgr, &corpus_dirs)
                 .unwrap_or_else(|err| {
                     println!("Failed to load initial corpus at {corpus_dirs:?}: {err:?}");
                     process::exit(0);

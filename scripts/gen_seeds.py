@@ -51,6 +51,24 @@ def find_target_count(main_file):
 # and no heap errors at all.
 SEQUENCE_STEPS = 4
 
+# A short seed as well as a long one, for each target, because the two arguments about
+# seed size are both correct and they pull opposite ways.
+#
+# Long is needed for sequences: the harness breaks out of its step loop the moment the
+# buffer runs dry, so a short payload is spent inside the first call and every execution
+# is one call -- which is why the findings were all null dereferences at a function's
+# first touch of its arguments and never a heap error, since a heap error needs a buffer
+# one call allocates and a later call misuses.
+#
+# Short is needed for steering: havoc picks byte positions, so in 1026 bytes the selector
+# at byte 1 is one position in a thousand and the mutator almost never moves it, while in
+# twenty bytes it is one in twenty. ReadBytes zero-fills a read past the end, so a short
+# seed still reaches every member -- its arguments simply start at zero and grow.
+#
+# Emitting both costs a few files and lets the scheduler decide, which is better than this
+# script guessing which of the two effects dominates for a protocol it cannot see.
+SHORT_SIZE = 24
+
 
 def _payload(variant, index, size):
     if variant == 'zero':
@@ -104,6 +122,13 @@ def generate_seeds(output_dir, count, size):
             with open(os.path.join(output_dir, f'seed_{index:02d}_{variant}'), 'wb') as f:
                 f.write(body)
             written += 1
+        for variant in ('ramp', 'zero'):
+            body = (bytes([SEQUENCE_STEPS - 1, index & 0xFF])
+                    + _payload(variant, index, SHORT_SIZE))
+            with open(os.path.join(output_dir, f'seed_{index:02d}_{variant}_short'),
+                      'wb') as f:
+                f.write(body)
+            written += 1
 
     # Say which targets the corpus reaches, computed the way the harness computes it, so
     # a layout change shows up here as a number instead of as a quiet loss of coverage.
@@ -112,8 +137,8 @@ def generate_seeds(output_dir, count, size):
         for variant in ('zero', 'ones', 'same', 'ramp'):
             body = bytes([SEQUENCE_STEPS - 1, index & 0xFF]) + _payload(variant, index, size)
             reached.add(body[1] % count)
-    print(f'Wrote {written} seeds of {size + 2} bytes for {count} target(s) '
-          f'into {output_dir}')
+    print(f'Wrote {written} seeds for {count} target(s) into {output_dir} '
+          f'({size + 2} bytes and {SHORT_SIZE + 2} bytes)')
     print(f'  seeds dispatch {len(reached)}/{count} target(s) on their first step, '
           f'{SEQUENCE_STEPS} step(s) each')
     if len(reached) < count:
