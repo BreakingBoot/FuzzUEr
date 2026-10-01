@@ -252,6 +252,11 @@ def main():
     parser.add_argument('--ref', required=True, help='edk2 tag, branch or SHA to fuzz')
     parser.add_argument('--source', default=os.path.join(REPO, 'eval_source', 'edk2'),
                         help='an edk2 checkout to take the ref and the port from')
+    parser.add_argument('--port-from', default='',
+                        help='the tree the sanitizer integration is taken from. Defaults '
+                             'to apply_asan.py\'s own default, the fork beside this '
+                             'repository. Only set this if the port lives somewhere else '
+                             '-- it is NOT the tree being fuzzed, which is --source')
     parser.add_argument('--budget', type=int, default=600, help='seconds per target')
     parser.add_argument('--jobs', type=int, default=8, help='targets fuzzed at once')
     parser.add_argument('--targets', nargs='*', default=None,
@@ -393,8 +398,15 @@ def main():
         if not os.path.isfile(apply):
             return False, f'{apply} is missing; is the uefi_asan submodule checked out?'
         argv = [sys.executable, apply, '--to', tree]
-        if args.source:
-            argv += ['--from', args.source]
+        # --from is where the sanitizer integration is TAKEN FROM, not the tree being
+        # fuzzed. Deriving it from --source is right only while --source is the fork that
+        # carries the port, and wrong the moment it is a vendor tree: pointing it at
+        # NVIDIA/edk2 asked apply_asan to lift the port out of a tree that does not have
+        # one, and the run died with "165 clean, 3 failed -- the port did not land" while
+        # the same tree ports with zero failures when --from names the fork. Left unset,
+        # apply_asan uses its own default, which IS the fork.
+        if args.port_from:
+            argv += ['--from', args.port_from]
         if args.port_base:
             argv += ['--base', args.port_base]
         done = sh(argv, timeout=1800)

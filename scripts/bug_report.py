@@ -461,7 +461,20 @@ VERDICT_NOTE = {
 # "CoreGetProtocolInterface at Handle.c:1013". It needs the build that produced the
 # running firmware: pass --build a tree whose Build directory is present, which for a
 # campaign means running this inside the image rather than on the host.
-SYMBOLIZERS = ('/workspace/llvm-15.0.7/build/bin/llvm-symbolizer', 'llvm-symbolizer')
+# Tried in order. The absolute path is where the campaign image keeps it, which is why
+# triage run INSIDE the image has always symbolised and triage run on the host never did --
+# neither of the first two exists here, and the failure is silent, so every CPU exception
+# rendered as "no source" with nothing saying the symbolizer was missing. addr2line is the
+# fallback that is actually installed on a plain host; it takes different flags and resolves
+# inlined frames less well, so it goes last.
+SYMBOLIZERS = ('/workspace/llvm-15.0.7/build/bin/llvm-symbolizer', 'llvm-symbolizer',
+               'llvm-symbolizer-15', 'llvm-symbolizer-14', 'addr2line')
+
+
+def _symbolizer_argv(tool, debug, addr):
+    if os.path.basename(tool).startswith('addr2line'):
+        return [tool, '--exe=' + debug, '--functions', '--demangle', addr]
+    return [tool, f'--obj={debug}', '--functions=linkage', '--demangle', addr]
 OFFSET = re.compile(r'^\+0x([0-9a-fA-F]+)$')
 _DEBUG_INDEX = None
 _OFFSET_CACHE = {}
@@ -473,11 +486,21 @@ def _debug_index(build_dirs):
     if _DEBUG_INDEX is None:
         _DEBUG_INDEX = {}
         for root in build_dirs:
-            for base, _dirs, files in os.walk(os.path.join(root, 'Build')):
-                for name in files:
-                    if name.endswith('.debug'):
-                        _DEBUG_INDEX.setdefault(name[:-len('.debug')],
-                                                os.path.join(base, name))
+            # Walk <root>/Build when that exists, and otherwise <root> itself. Only the
+            # first was tried before, so handing this the output directory that actually
+            # holds the .debug files -- Build/OvmfX64/DEBUG_CLANGSAN/X64, which is what
+            # you get from a docker cp of a campaign image -- indexed nothing, and every
+            # CPU exception rendered as "no source -- symbolise the offset" with no hint
+            # that the build dir was the problem.
+            starts = [os.path.join(root, 'Build')]
+            if not os.path.isdir(starts[0]):
+                starts = [root]
+            for start in starts:
+                for base, _dirs, files in os.walk(start):
+                    for name in files:
+                        if name.endswith('.debug'):
+                            _DEBUG_INDEX.setdefault(name[:-len('.debug')],
+                                                    os.path.join(base, name))
     return _DEBUG_INDEX
 
 
@@ -501,8 +524,7 @@ def symbolise_offset(module, site, build_dirs):
         for tool in SYMBOLIZERS:
             try:
                 done = subprocess.run(
-                    [tool, f'--obj={debug}', '--functions=linkage', '--demangle',
-                     hex(int(found.group(1), 16))],
+                    _symbolizer_argv(tool, debug, hex(int(found.group(1), 16))),
                     capture_output=True, text=True, timeout=30)
             except (OSError, subprocess.SubprocessError):
                 continue
@@ -516,7 +538,8 @@ def symbolise_offset(module, site, build_dirs):
                 # a trailing ":0:0" is "no line known"; rstrip would eat the zero off
                 # a real line number like ":10:0" and leave ":1"
                 answer = f'{func} -- {re.sub(r"(:0)+$", "", where)}'
-            break
+            if answer:
+                break
     _OFFSET_CACHE[key] = answer
     return answer
 
