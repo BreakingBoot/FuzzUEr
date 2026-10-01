@@ -115,6 +115,7 @@ imgstage/
 mlstage/
 faultstage/
 seedstage/
+snapstage/
 .verify-try.sh
 
 # Campaign artifacts, except the two hand-written write-ups that live among them.
@@ -131,3 +132,13 @@ eval_source/edk2-nvidia/
 eval_source/edk2-platforms-mainline/
 eval_source/evalset-*/
 eval_source/evalset_discovered/
+
+# Agent and verification scratch: builds, boots, extracted firmware and symbol trees. Every
+# one of these is reproducible from a script in scripts/ and the largest is 1.8 GB.
+.vfy*/
+.dfwork/
+
+# The per-version worktrees fuzz_edk2.py adds under eval_source. Named by the ref, so they
+# cannot be listed one by one the way the fixed checkouts above are.
+eval_source/edk2-main-edk2-stable*/
+eval_source/edk2-edk2-stable*-worktree/
