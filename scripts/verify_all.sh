@@ -19,7 +19,17 @@ BUDGET=${BUDGET:-600}
 mkdir -p "$OUT"
 echo "== output: $OUT"
 
-echo "== 0. docker health"
+# Before anything that needs a container, because it needs none and because a drifted
+# sanitizer makes every later stage measure the wrong source. uefi_asan/ is what
+# apply_asan.py copies FROM and eval_source/edk2/ is what gets built, so a fix applied to
+# one and not the other either does not ship or appears not to work.
+echo "== 0. sanitizer copies in sync"
+if ! python3 "$ROOT/scripts/asan_sync_check.py" --quiet; then
+  echo "   the two copies of the sanitizer disagree -- fix that before trusting any result"
+  exit 1
+fi
+
+echo "== 0b. docker health"
 # -k so a wedged docker run is killed rather than ignoring the term signal
 if ! timeout -k 10 120 docker run --rm "$IMAGE" true 2>/dev/null; then
   echo "   docker still cannot start a container from $IMAGE -- stopping here."
