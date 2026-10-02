@@ -2038,6 +2038,29 @@ def main():
                   f'so there is nothing to build or fuzz. The generator\'s output above '
                   f'says why.')
             return 1
+        # A harness with nothing to read from the input cannot be searched. Both
+        # EFI_MM_CONFIGURATION_PROTOCOL and EFI_SMM_CONFIGURATION_PROTOCOL are one member
+        # whose only argument is a function-pointer typedef the firmware registers and then
+        # CALLS, so once that argument is left NULL the only thing an input still varies is
+        # how many times the member is called. Say so rather than spending a boot budget and
+        # reporting "0 findings in 20000 iterations", which reads as evidence of robustness
+        # and is evidence of nothing.
+        #
+        # Not fatal: the sequence length still varies, so a state bug across repeated calls
+        # is reachable in principle. It is a warning about what the number will be worth.
+        harness_c = os.path.join(tmp_dir, 'edk2', 'Firness', 'FirnessHarnesses.c')
+        if os.path.isfile(harness_c):
+            try:
+                with open(harness_c, errors='replace') as handle:
+                    body = handle.read()
+                if 'ReadBytes(Input' not in body:
+                    print(f'Warning: nothing in {os.path.basename(input_file)} is fuzzable -- '
+                          f'the generated harness reads no input at all, so every iteration '
+                          f'makes the same call and only the sequence length varies. Any '
+                          f'iteration count from this campaign measures the loop, not the '
+                          f'protocol.')
+            except OSError:
+                pass
         log += compile_harness(tmp_dir)
         # compile_harness only prints when the build fails, and the fuzz stage would then
         # happily run the Firness.efi left over from whatever protocol was built last and
