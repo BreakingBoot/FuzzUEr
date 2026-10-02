@@ -691,7 +691,8 @@ def main():
         os.makedirs(probe)
         hunt = docker(args.builder,
                       f'find {dest}/Build \\( -name OVMF_CODE.fd -o -name OVMF_VARS.fd '
-                      f'-o -name AsanSelfTest.efi \\) 2>/dev/null | sort')
+                      f'-o -name AsanSelfTest.efi -o -name SanBenchDrive.efi '
+                      f'\\) 2>/dev/null | sort')
         found = {}
         for line in hunt.stdout.split():
             found.setdefault(os.path.basename(line), line)
@@ -700,6 +701,13 @@ def main():
                 return False, f'the check build produced no {name}'
             sh(['docker', 'cp', f'{args.builder}:{found[name]}',
                 os.path.join(probe, name)], timeout=900)
+        # Optional, unlike the three above: the benchmark drivers only exist when the build
+        # was given -D SAN_BENCH, and a run without them is not a failure. Finding it and
+        # not copying it is how the scoreboard below would have reported "drivers absent"
+        # on every run, including the ones that had them.
+        if 'SanBenchDrive.efi' in found:
+            sh(['docker', 'cp', f'{args.builder}:{found["SanBenchDrive.efi"]}',
+                os.path.join(probe, 'SanBenchDrive.efi')], timeout=900)
         done = sh(['docker', 'run', '--rm', '-v', f'{REPO}:/repo:ro',
                    '-v', f'{probe}:/fw:ro',
                    '--entrypoint', 'bash', args.base_image, '-lc',
@@ -713,7 +721,36 @@ def main():
             return False, 'detect_check reached no verdict -- see detect_check.log'
         if '[PASS]' not in said[0]:
             return False, said[0].split(']', 1)[-1].strip()[:110]
-        return True, said[0].split('classes', 1)[-1].strip()[:90]
+        detail = said[0].split('classes', 1)[-1].strip()[:90]
+
+        # AsanSelfTest covers five heap classes. The SanBench drivers cover eleven,
+        # including the four only a firmware-specific check can see, and until now the
+        # scoreboard that reads them -- scripts/bench_cases.py -- was run by hand and by
+        # nothing else, which makes it the most capable ground truth here and the least
+        # likely to be consulted. Run it on the same serial-reporting firmware this stage
+        # already built, one boot per class, and fail the stage on a class that regressed.
+        bench_app = os.path.join(probe, 'SanBenchDrive.efi')
+        if not os.path.isfile(bench_app):
+            return True, detail + ' (benchmark drivers absent: pass --bench to score them)'
+        scored = sh(['docker', 'run', '--rm', '-v', f'{REPO}:/repo:ro',
+                     '-v', f'{probe}:/fw:ro', '-v', f'{os.path.abspath(out)}:/out',
+                     '--entrypoint', 'bash', args.base_image, '-lc',
+                     'python3 /repo/scripts/bench_cases.py --code /fw/OVMF_CODE.fd '
+                     '--vars /fw/OVMF_VARS.fd --app /fw/SanBenchDrive.efi '
+                     '--out /out/bench_cases --roms /workspace/qemu_fw --jobs 2'],
+                    timeout=2400)
+        bench_text = scored.stdout + scored.stderr
+        open(os.path.join(out, 'bench_cases.log'), 'w').write(bench_text)
+        verdict = [l for l in bench_text.splitlines() if 'scorable classes detected' in l]
+        if not verdict:
+            return WARN, detail + ' -- the benchmark reached no verdict, see bench_cases.log'
+        found = re.search(r'(\d+) of (\d+)', verdict[0])
+        if found and found.group(1) != found.group(2):
+            missed = [l.split()[0] for l in bench_text.splitlines()
+                      if ' MISS ' in l or ' WRONG ' in l]
+            return False, (f'{detail}; benchmark {verdict[0].strip()} -- '
+                           f'{", ".join(missed[:6])} regressed')
+        return True, f'{detail}; benchmark {verdict[0].strip()}'
 
     def fuzz():
         if args.skip_fuzz:
