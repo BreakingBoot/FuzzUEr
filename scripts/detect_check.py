@@ -256,7 +256,12 @@ def main():
         print(f'all run checks passed, {skipped} skipped -- not a full pass')
     else:
         print('all checks passed')
-    shutil.rmtree(work, ignore_errors=True)
+    # --keep means keep: the whole point is that the boot capture outlives the run so a
+    # protocol census can be taken from it. Changing only where the work directory is left
+    # this cleanup deleting it anyway, so the directory was created, used and removed and
+    # the census silently had nothing to read.
+    if not args.keep:
+        shutil.rmtree(work, ignore_errors=True)
     return 1 if failed else 0
 
 
