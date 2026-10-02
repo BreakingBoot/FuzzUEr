@@ -709,11 +709,12 @@ def main():
             sh(['docker', 'cp', f'{args.builder}:{found["SanBenchDrive.efi"]}',
                 os.path.join(probe, 'SanBenchDrive.efi')], timeout=900)
         done = sh(['docker', 'run', '--rm', '-v', f'{REPO}:/repo:ro',
-                   '-v', f'{probe}:/fw:ro',
+                   '-v', f'{probe}:/fw:ro', '-v', f'{os.path.abspath(out)}:/out',
                    '--entrypoint', 'bash', args.base_image, '-lc',
                    'python3 /repo/scripts/detect_check.py '
                    '--code /fw/OVMF_CODE.fd --vars /fw/OVMF_VARS.fd '
-                   '--selftest /fw/AsanSelfTest.efi --skip-network'], timeout=1800)
+                   '--selftest /fw/AsanSelfTest.efi --skip-network '
+                   '--keep /out/detect_capture'], timeout=1800)
         text = done.stdout + done.stderr
         open(os.path.join(out, 'detect_check.log'), 'w').write(text)
         said = [l for l in text.splitlines() if 'asan detection classes' in l]
@@ -778,6 +779,22 @@ def main():
         if ids:
             sh(['docker', 'rm', '-f'] + ids, timeout=600)
             print(f'    removed {len(ids)} container(s) left by an earlier run')
+        # A protocol this firmware never installs costs a whole boot and a whole budget to
+        # discover that its opening LocateProtocol fails. protocol_presence.py has taken
+        # that census for a long time and nothing passed it here, so every sweep fuzzed
+        # them: AndroidBootImg and AndroidFastbootTransport are EmbeddedPkg drivers that
+        # OvmfPkgX64 does not build, and they reported thousands of executions each.
+        presence = os.path.join(out, 'presence.csv')
+        capture = os.path.join(out, 'detect_capture', 'debug.log')
+        if os.path.isfile(capture):
+            took = sh([sys.executable, os.path.join(HERE, 'protocol_presence.py'),
+                       '--capture', capture, '--root', os.path.join(REPO, 'eval_source'),
+                       '--evalset', run.evalset, '--out', presence], timeout=600)
+            if took.returncode or not os.path.isfile(presence):
+                presence = ''
+        else:
+            presence = ''
+
         argv = [sys.executable, os.path.join(HERE, 'fuzz_batch.py'),
                 '-r', REPO, '-o', campaigns, '-j', str(args.jobs),
                 '-t', str(args.budget), '--backend', 'qemu',
@@ -789,6 +806,8 @@ def main():
                 # the cache holds an analysis of whichever tree it was taken from; this
                 # run is about a specific ref, so analyse that
                 '--no-anacache']
+        if presence:
+            argv += ['--presence', presence]
         if args.targets:
             argv += ['-p'] + list(args.targets)
         # a campaign is its budget plus a boot and a harness build; the queue runs

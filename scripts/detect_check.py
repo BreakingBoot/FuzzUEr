@@ -188,12 +188,19 @@ def main():
     parser.add_argument('--peer-port', type=int, default=5900)
     parser.add_argument('--qemu', default='qemu-system-x86_64')
     parser.add_argument('--skip-network', action='store_true')
+    parser.add_argument('--keep', default='',
+                        help='keep the boot captures in this directory instead of a '
+                             'temporary one, so a protocol census can be taken from them')
     parser.add_argument('--require-all', action='store_true',
                         help='treat a skipped check as a failure, for unattended runs '
                              'where "nothing was checked" must not read as "all passed"')
     args = parser.parse_args()
 
-    work = tempfile.mkdtemp(prefix='detect_check_')
+    # A given directory instead of a temporary one, so the boot's debugcon capture survives
+    # for scripts/protocol_presence.py: the census needs InstallProtocolInterface lines from
+    # this firmware, and this is the first boot of it in the run.
+    work = args.keep or tempfile.mkdtemp(prefix='detect_check_')
+    os.makedirs(work, exist_ok=True)
     results = []
 
     firmware_ready = all([args.code, args.vars, args.selftest]) and \
