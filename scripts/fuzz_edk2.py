@@ -209,6 +209,7 @@ RUN cd /workspace/tmp/edk2 \\
     && bear --output /workspace/tmp/compile_commands.json -- \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
        -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench} \\
+       -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE \\
        -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
 # The firmware the fuzzer boots has to be the build those .debug files describe, and it
@@ -243,6 +244,21 @@ def run_stage(run, name, fn):
     print(f'  [{state_of(s.ok)}] {name:<14}{s.detail}')
     return s.ok
 
+
+NETWORK_DEFINES = (
+    # OvmfPkgX64 defaults NETWORK_TLS_ENABLE, NETWORK_IP6_ENABLE and
+    # NETWORK_HTTP_BOOT_ENABLE to FALSE, so twelve protocols the evalset asks for are never
+    # installed: the six of the IPv6 stack and the four HTTP ones. They were costing a boot
+    # and a budget each to discover their opening LocateProtocol fails. iSCSI is already
+    # TRUE upstream.
+    # TLS is deliberately NOT here. Enabling it pulls OpenSSL's TLS sources, which need
+    # errno/strcmp/strcpy/strchr from the full OpensslLib and a TLS-capable BaseCryptLib --
+    # and the ASan port overrides BaseCryptLib with a variant that does not carry those
+    # shims, so the link fails with a page of undefined references. Recovering EfiTls and
+    # EfiTlsConfiguration means reworking the port's crypto choice, not setting a flag.
+    ' -D NETWORK_IP6_ENABLE=TRUE'
+    ' -D NETWORK_HTTP_BOOT_ENABLE=TRUE'
+)
 
 def main():
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -532,7 +548,7 @@ def main():
                   f'-x BaseTools/Source/C/bin/GenFw || '
                   f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
-                  f'{defines} -D FD_SIZE_IN_KB=8192 -n "$(nproc)"')
+                  f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 -n "$(nproc)"')
         done = docker(args.builder, script, timeout=7200)
         text = done.stdout + done.stderr
         open(os.path.join(out, logname), 'w').write(text)

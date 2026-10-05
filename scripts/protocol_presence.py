@@ -141,6 +141,19 @@ def main():
             bindings.append(protocol)
         elif guid is None:
             status = 'unknown'
+        elif binding is not None:
+            # A service binding exists in the tree and neither it nor the child protocol
+            # was seen installed. That is NOT evidence of absence: these drivers are
+            # UEFI_DRIVER model and bind only once something connects the controller,
+            # which in a campaign the harness itself triggers. This boot launches an
+            # application straight from an ESP and never connects the NIC, so the whole
+            # upper network stack looked absent -- and skipping it cost the four most
+            # productive targets in a sweep: EfiHttp, EfiManagedNetwork, EfiTcp6 and
+            # EfiTcp4 had reached 16972, 15566, 8802 and 7643 executions.
+            #
+            # 'unknown' is never skipped, so the cost of being wrong here is one wasted
+            # boot rather than a lost finding. That is the right way round.
+            status = 'unknown'
         else:
             status = 'absent'
         counts[status] += 1

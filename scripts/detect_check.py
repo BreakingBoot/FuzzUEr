@@ -91,8 +91,15 @@ def check_selftest(args, work):
     esp = os.path.join(work, 'esp')
     os.makedirs(os.path.join(esp, 'EFI', 'BOOT'), exist_ok=True)
     shutil.copyfile(args.selftest, os.path.join(esp, 'EFI', 'BOOT', 'BOOTX64.EFI'))
+    # The same NIC the campaigns attach. Without it the network stack never binds, so a
+    # protocol census taken from this boot calls every network protocol absent -- and those
+    # are among the most productive targets there are: EfiHttp, EfiManagedNetwork, EfiTcp6
+    # and EfiTcp4 reached 16972, 15566, 8802 and 7643 executions in an earlier sweep. A
+    # hubport needs no backend, which is what the campaign uses for the same reason.
     debug, serial, _ = boot(args, work,
-                            extra=['-drive', f'file=fat:rw:{esp},format=raw,if=ide'])
+                            extra=['-drive', f'file=fat:rw:{esp},format=raw,if=ide',
+                                   '-netdev', 'hubport,id=dcnet,hubid=0',
+                                   '-device', 'virtio-net-pci,netdev=dcnet'])
     # Where DEBUG lands depends on the build: -D DEBUG_ON_SERIAL_PORT puts it on the same
     # wire as the sanitizer and leaves debugcon empty. Look for the narration in both, or
     # a serial-DEBUG image reads as a guest that never booted.
