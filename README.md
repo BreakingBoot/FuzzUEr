@@ -97,15 +97,29 @@ choice is not just taste.
 
 | | Simics / TSFFS | QEMU |
 |---|---|---|
-| speed | ~0.17 exec/s | ~7.4 exec/s |
 | ASan instrumentation | yes | yes |
-| how a finding surfaces | an ASan report becomes a solution | a crash or a timeout |
+| a sanitizer report becomes a counted solution | yes | yes |
+| protocols installed by the platform | see note | 89 of 246 on OvmfPkgX64 |
+| speed | not re-measured | median 1.35 exec/s, range 0.03-10.2 |
 
-With `ASAN_FUZZER=qemu`, AsanLib emits the LibAFL crash handshake when it reports.
-That the handshake is emitted has been checked -- stock QEMU raises `#UD` on those four
-bytes, which is what `qemu_smoke.sh` keys on -- but it has not yet been confirmed
-captured end to end by the LibAFL fuzzer, so treat QEMU ASan findings as crashes to
-triage rather than as counted solutions.
+Both numbers in that last row used to read "~0.17 exec/s" and "~7.4 exec/s", and the prose
+below the table called QEMU forty times faster. Neither claim survives: the QEMU figure is
+the top of its range rather than a typical campaign, measured over 85 campaigns of a master
+sweep, and a later Simics measurement put Simics ahead by roughly an order of magnitude on
+the protocols the two share. **Treat the comparison as open until both are measured in the
+same week on the same protocols** -- only 66 protocols exist on both backends, so outside
+that set the comparison is between platform builds, not between backends.
+
+With `ASAN_FUZZER=qemu`, AsanLib emits the LibAFL crash handshake when it reports, and that
+is now confirmed end to end rather than inferred. In one benchmark campaign the firmware
+emitted 3628 `FWSAN: interface` reports and 3283 `FWSAN: double-fetch` reports, and LibAFL
+recorded exactly 6911 objectives -- every report became a counted solution. Reports are also
+parsed out of the serial capture into `crashes.csv` and attributed to a module, so a finding
+is actionable whether or not it escalated.
+
+A caveat that still holds: most objectives in a typical campaign are crashes and timeouts
+rather than escalated sanitizer reports, so an objective count is not a bug count. Group by
+return IP and read the Module column -- `scripts/bug_report.py` does both.
 
 Pick with `--backend`. The backend is compiled into the harness, so it has to be set
 at generation time (`-g --backend qemu`), not just at fuzzing time.
@@ -133,8 +147,9 @@ the compiler.
 
 ## Running it under QEMU, end to end
 
-Simics is what the paper used; QEMU is roughly forty times faster per execution and needs
-no licence. The whole path, from nothing to a campaign:
+Simics is what the paper used; QEMU needs no licence, which is the reason to reach for it.
+See the table above on speed -- the old "forty times faster" claim does not hold. The whole
+path, from nothing to a campaign:
 
 **1. Build the firmware with ASan and the QEMU backend.** `ASAN_FUZZER=qemu` is what makes
 a finding reach the fuzzer rather than only the log.
@@ -439,6 +454,94 @@ distinguishable from a clean run. Put it on an ESP and boot it:
 
 A working image reports the overflow, the underflow and the use-after-free with shadow
 `FA`/`FD`, reports the double free, and stays silent on the control case.
+
+## Ground truth: the benchmark drivers
+
+Nothing downstream means anything until a deliberate error has been seen caught, and a
+sanitizer that reports nothing looks exactly like firmware with no bugs in it. Two sets of
+drivers exist for that, built only when asked and never shipped.
+
+`AsanSelfTest` is the small one: five heap classes in a UEFI application, exercised on every
+pipeline run by the `detects` stage. It proves the shadow is mapped and the runtime reports.
+What it cannot prove is that a *separately built and separately instrumented driver* reports
+when reached through a protocol call, which is the path a campaign actually exercises.
+
+`SanBenchDxe` is the larger one, and that is the path it covers. It publishes two protocols
+whose members each hide a fault behind a condition an input has to satisfy, and
+`SanBenchDrive` calls each one from an application:
+
+| class | what it is | detected |
+|---|---|---|
+| heap-buffer-overflow | copy past a fixed allocation | yes |
+| heap-buffer-underflow | read one entry below a table | yes |
+| tlv-overread | header read from a blob too small to hold it | yes |
+| size-overflow | wrapped `Count * sizeof` | yes |
+| use-after-free | read through a released slot | yes |
+| double-free | release the same slot twice | yes |
+| foreign-pointer | dereference a region the driver does not own | yes (FWSAN) |
+| double-fetch | untrusted word read twice in one call | yes (FWSAN) |
+| stale-interface | read through an uninstalled interface | yes (FWSAN) |
+| variable-size-trusted | `GetVariable` reissued into a known-small buffer | yes (FWSAN) |
+| boot-service-after-exit | a boot service called after ExitBootServices | not attemptable |
+
+Score it with one boot per class, which is the only way the two destructive cases do not
+take the rest of the run with them:
+
+```bash
+python3 scripts/bench_cases.py --code OVMF_CODE.fd --vars OVMF_VARS.fd \
+    --app SanBenchDrive.efi --out cases --roms /workspace/qemu_fw
+```
+
+Eleven of eleven are detected. The twelfth, `boot-service-after-exit`, needs the runtime
+phase and an application under BDS is by definition before it -- it is reported "not
+attempted" rather than counted as a miss, because a benchmark that hides its own gaps is
+worth less than one that names them. The remaining blind spot is stack memory: the build
+carries `-mllvm -asan-stack=0` because enabling stack instrumentation faults the boot in
+CpuDxe, so a stack overread of any shape is invisible.
+
+Pass `--bench` to `scripts/fuzz_edk2.py` to build these into the firmware and fuzz them, and
+the `detects` stage then scores all eleven and fails on any class that regresses.
+
+## The firmware sanitizer
+
+ASan and UBSan find memory errors. Four classes matter in firmware and are invisible to
+both, because the memory involved is perfectly valid:
+
+- **foreign-region access** -- a dereference into flash, the legacy BIOS window, or any
+  region the calling driver does not own. The shape of an SMM callout. Regions are registered
+  by `FwSanDxe` and checked before the shadow lookup, because flash has no shadow.
+- **double fetch** -- a word read twice from memory something outside the firmware can still
+  change between the two reads. Validate with one read, use another.
+- **stale interface** -- a read through a protocol interface after it has been uninstalled.
+  `FwSanDxe` hooks `UninstallProtocolInterface` and poisons the storage.
+- **variable-size-trusted** -- `GetVariable` reissued into a destination already known to be
+  too small.
+
+A harness declares which buffers are untrusted around each call, which is what gives the
+double-fetch check something to watch; without that a double fetch is just two ordinary
+reads. Findings are emitted in the same shape ASan uses, so they reach `crashes.csv` and
+triage with a module and a return IP rather than being narration only.
+
+This found a real one: `UefiDevicePathLib` reads a caller-supplied device path node's `Type`
+and `SubType` twice within one `ConvertDevicePathToText` call --
+`DevicePathUtilities.c:130` and `:152`.
+
+## Checks
+
+Each of these asserts something a passing build does not:
+
+| script | what it asserts |
+|---|---|
+| `detect_check.py` | a deliberate error is still reported, and the correct case is not |
+| `bench_cases.py` | all eleven benchmark classes, one boot each |
+| `harness_check.py` | every requested protocol member is generated and dispatchable |
+| `asan_sync_check.py` | the two copies of the sanitizer have not drifted |
+| `input_check.py` | the guest actually received the testcase, not just its length |
+| `protocol_presence.py` | which protocols the firmware installs, so absent ones are skipped |
+| `build_sweep.sh` | every harness links with the real toolchain |
+
+`verify_all.sh` runs the ones that do not need a campaign. `scripts/fuzz_edk2.py` gates on
+`detect_check`, the benchmark, the presence census and `input_check` as pipeline stages.
 
 ## SMI fuzzing
 
