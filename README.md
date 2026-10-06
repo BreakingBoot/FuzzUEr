@@ -558,6 +558,24 @@ the firmware does not use it, so an SMI harness has nothing to talk to. `--smm` 
 `PiSmmCore`, which is what installs `EFI_MM_COMMUNICATION3_PROTOCOL`. On the Simics path this
 does not arise, because that backend boots a different image which has SMM already.
 
+Verified on `edk2-stable202502`, the same version built both ways:
+
+| | default | `--smm` |
+|---|---|---|
+| firmware | FV 62% full | FV 65% full |
+| modules carrying ASan checks | 248/248 | 276/276 |
+| SMM modules in the image | 0 | 45 |
+| SMI handlers discovered | 17 | 17 |
+
+The handler count does not move because discovery is static analysis of the source -- those 17
+were always *found*. What `--smm` changes is that there is now an SMM core and a set of
+handlers in the image for them to be driven against.
+
+One limit worth stating plainly: the 28 added modules resolve **AsanLibNull**, so they carry
+instrumentation whose handlers are no-ops. `--smm` makes SMI fuzzing reach real SMM code; it
+does not yet give memory-safety *detection* inside SMM. Doing that needs a shadow mapping
+reachable from SMRAM, which is a separate piece of work.
+
 Two things had to be fixed before that build worked, and both are worth knowing if you port
 this elsewhere:
 
