@@ -15,6 +15,7 @@ re-triaged.
 | 2 | `InstallAcpiTable` | OOB read, 4 bytes | yes | yes | low, can fault at a page edge |
 | 3 | `CoreInsertEventTimer` | NULL list link | unknown | yes | crash, cause not yet attributed |
 | 4 | `HiiExportPackageLists` | undefined behaviour | no | yes | UB only, nothing dereferenced |
+| 5 | `PiSmmCore` | does not compile | n/a | yes | build break, DEBUG + SMM_REQUIRE only |
 
 None are reported upstream as of 2026-10-06.
 
@@ -115,6 +116,36 @@ times in every version from `edk2-stable202305` to master -- unchanged for three
 is dereferenced: each helper is guarded by `if (ResultSize + *UsedSize <= BufferSize)`. So it is
 not a memory-safety bug, but it is genuine UB in shipping firmware, and it is the cleanest
 instance here of a defect that is unambiguously EDK2's rather than shaped by the harness.
+
+## 5. PiSmmCore does not compile in a DEBUG build
+
+Not a memory-safety defect -- a build break, included because it is in current master and
+blocks anyone building SMM with debug enabled.
+
+`MdeModulePkg/Core/PiSmmCore/PiSmmCore.c`:
+
+    PiSmmCore.c:751:11: error: use of undeclared identifier 'IsOverUnderflow'
+
+A refactor moved the over/underflow test into `InternalIsBufferOverlapped` -- whose own
+documentation says `@retval TRUE  Math error.  Prevents potential math over and underflows.`
+-- and rewrote the guard to `IsOverlapped || (BufferSize < OFFSET_OF (...))`. The `DEBUG ((...))`
+immediately below still passes `IsOverUnderflow`, and no declaration of that name survives in
+the function.
+
+Counting the single declaration and the bare uses per tree places it exactly:
+
+| tree | declaration | bare uses | compiles |
+|---|---|---|---|
+| edk2-stable202502 | 1 | 4 | yes |
+| edk2-stable202508 | 0 | 1 | no |
+| edk2-stable202511 | 0 | 1 | no |
+| master | 0 | 1 | no |
+
+So it landed between `stable202502` and `stable202508`. It survives because `DEBUG ((...))`
+compiles away in a RELEASE build and `PiSmmCore` is only built when `SMM_REQUIRE=TRUE`; you
+need both at once to see it. The fix is to drop the argument and the `overunder=%d` from the
+format string -- with that and a sanitizer instance for the SMM module types, the build
+completes: exit 0, FVMAIN_COMPACT 67% full, 45 SMM modules, no undefined `__asan_*`.
 
 ## Not defects: the 24 FWSAN double-fetch reports
 

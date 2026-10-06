@@ -295,6 +295,18 @@ def main():
                              'every member hides a fault behind a condition an input '
                              'has to satisfy, so what a sweep finds among them is a '
                              'measurement of the fuzzer rather than of the firmware')
+    parser.add_argument('--smm', action='store_true',
+                        help='build with SMM_REQUIRE=TRUE, which is what puts an SMM core '
+                             'and its handlers in the image. Without it the firmware has no '
+                             'SMM at all -- measured, 0 SMM modules -- even though the guest '
+                             'already runs with "q35,smm=on", so an SMI harness has nothing '
+                             'to talk to. Costs a larger FV and a slower boot, so it is off '
+                             'by default')
+    parser.add_argument('--standalone-mm', action='store_true',
+                        help='with --smm, use the StandaloneMM model rather than PiSmmCore, '
+                             'which is what installs EFI_MM_COMMUNICATION3_PROTOCOL. Inert '
+                             'on its own: OvmfPkgX64.dsc nests the whole StandaloneMM block '
+                             'inside !if $(SMM_REQUIRE) == TRUE')
     parser.add_argument('--skip-fuzz', action='store_true',
                         help='qualify a version without spending the fuzzing budget')
     args = parser.parse_args()
@@ -325,6 +337,16 @@ def main():
     #
     # =TRUE is kept because it is explicit and costs nothing; the gates no longer need it.
     bench_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE' if args.bench else ''
+    # SMM_REQUIRE is what builds the SMM core and its handlers; STANDALONE_MM_ENABLE only
+    # chooses WHICH core, and does nothing by itself because the DSC nests it inside
+    # !if $(SMM_REQUIRE) == TRUE. Asking for the model without the foundation is a mistake
+    # worth naming rather than silently ignoring.
+    if args.standalone_mm and not args.smm:
+        sys.exit('--standalone-mm needs --smm: OvmfPkgX64.dsc nests the StandaloneMM '
+                 'components inside !if $(SMM_REQUIRE) == TRUE, so on its own it builds '
+                 'nothing and the run would look like a plain one.')
+    smm_defines = (' -D SMM_REQUIRE=TRUE' if args.smm else '') + \
+                  (' -D STANDALONE_MM_ENABLE=TRUE' if args.standalone_mm else '')
 
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)
     # Absolute, because several stages hand this to "docker run -v", and a relative
@@ -564,7 +586,7 @@ def main():
     def build():
         ok_, text = build_firmware(
             '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE'
-            + bench_defines,
+            + bench_defines + smm_defines,
             'build.log')
         if not ok_:
             return False, text
@@ -697,7 +719,7 @@ def main():
         """
         # ASAN_FUZZER defaults to qemu inside the DSC, so omitting it changes
         # nothing; the DSC's own comment names -D ASAN_FUZZER=none for this.
-        ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none',
+        ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none' + smm_defines,
                                    'detect-build.log')
         if not ok_:
             return False, f'the check build failed: {text}'

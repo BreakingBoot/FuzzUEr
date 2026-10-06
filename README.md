@@ -550,6 +550,30 @@ the SMM Core private data and raises the SMI, which is what `SmmCommunicationCom
 does; a plain write to the command port dispatches on whatever the last DXE caller left
 behind.
 
+**Under QEMU this needs `fuzz_edk2.py --smm`.** `SMM_REQUIRE` defaults to FALSE in
+`OvmfPkgX64.dsc`, so a default build contains no SMM core and no handlers -- measured, zero
+SMM modules -- while the guest is already started with `q35,smm=on`. The machine has SMM and
+the firmware does not use it, so an SMI harness has nothing to talk to. `--smm` sets
+`SMM_REQUIRE=TRUE`; add `--standalone-mm` to get the StandaloneMM model instead of
+`PiSmmCore`, which is what installs `EFI_MM_COMMUNICATION3_PROTOCOL`. On the Simics path this
+does not arise, because that backend boots a different image which has SMM already.
+
+Two things had to be fixed before that build worked, and both are worth knowing if you port
+this elsewhere:
+
+* The sanitizer attaches `AsanLib` **per component** in `[Components]`, while `SAN_FLAGS`
+  instruments at the toolchain level. Any flag that *adds* components therefore produces
+  modules that are instrumented with no runtime behind them, and the link fails on undefined
+  `__asan_init`/`__asan_load*`. The four SMM/MM module types now resolve `AsanLibNull` --
+  Null, not the real one, because SMM runs in SMRAM behind its own page tables and cannot
+  reach the shadow.
+* `MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` in edk2 `stable202508` and later, master
+  included, does not compile in a DEBUG build: a refactor folded the over/underflow check
+  into `InternalIsBufferOverlapped` but left `IsOverUnderflow` as an argument to a `DEBUG`
+  call with no declaration left in the function. It is invisible in a RELEASE build, where
+  `DEBUG` compiles away, and `PiSmmCore` is only built when `SMM_REQUIRE=TRUE`. See
+  `results/findings.md`.
+
 ### From a Linux kernel module
 
 `--host linux` emits the same harness as a kernel module, so handlers can be driven from
