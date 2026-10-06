@@ -691,3 +691,9 @@ python scripts/symbolize.py       # raw addresses -> module names
 
 Group reports by return IP first. A single site dominating the count is a scanner or a
 loop rather than N bugs.
+
+`results/bugs-qemu.md` and `results/bugs-simics.md` are generated from the report stream, so
+a row there is a report and not a defect. `results/findings.md` is the hand-written other
+half: the reports that were read back to source, with the four that are defects in EDK2
+written up, and the 24 that are not recorded so they are not re-triaged. A defect that never
+trips a sanitizer -- a hang, say -- can only appear in that file.
