@@ -295,6 +295,11 @@ def main():
                              'every member hides a fault behind a condition an input '
                              'has to satisfy, so what a sweep finds among them is a '
                              'measurement of the fuzzer rather than of the firmware')
+    parser.add_argument('--smi', action='store_true',
+                        help='also fuzz the SMI handlers the discover stage finds, not just '
+                             'the protocols. Implies --smm: the handlers answer an SMM core, '
+                             'and without SMM_REQUIRE=TRUE the firmware has none at all, so '
+                             'the campaign would spend its budget proving that')
     parser.add_argument('--smm', action='store_true',
                         help='build with SMM_REQUIRE=TRUE, which is what puts an SMM core '
                              'and its handlers in the image. Without it the firmware has no '
@@ -341,6 +346,12 @@ def main():
     # chooses WHICH core, and does nothing by itself because the DSC nests it inside
     # !if $(SMM_REQUIRE) == TRUE. Asking for the model without the foundation is a mistake
     # worth naming rather than silently ignoring.
+    # Fuzzing handlers against a firmware with no SMM core is not a degraded run, it is a
+    # guaranteed empty one: every handler's Communicate finds no protocol and returns. So
+    # this turns SMM on rather than letting the combination look like it was tried.
+    if args.smi and not args.smm:
+        args.smm = True
+        print('--smi implies --smm; building with SMM_REQUIRE=TRUE')
     if args.standalone_mm and not args.smm:
         sys.exit('--standalone-mm needs --smm: OvmfPkgX64.dsc nests the StandaloneMM '
                  'components inside !if $(SMM_REQUIRE) == TRUE, so on its own it builds '
@@ -609,6 +620,18 @@ def main():
             return False, 'no built modules to check'
         if int(hit) == 0:
             return False, f'{ratio} -- nothing instrumented'
+        # A floor, not just "something was instrumented". Getting full scope to boot took
+        # four separate fixes and the healthy value here is near-total -- every run in
+        # results/ sits between 218/220 and 276/276, i.e. 99% or better. A partial collapse
+        # is the dangerous shape: the firmware still boots, the campaigns still run, and a
+        # sweep over uninstrumented modules reports a clean result that means nothing.
+        # 90% leaves room for the handful of modules the scope deliberately excludes
+        # without admitting the case where most of the image lost its checks.
+        share = int(hit) / int(total)
+        if share < 0.90:
+            return False, (f'{ratio} = {share:.0%} instrumented, under the 90% floor. A '
+                           f'sweep over uninstrumented firmware reports clean and means '
+                           f'nothing, so this stops the run')
         return True, f'{ratio} modules carry ASan checks'
 
     def discover():
@@ -649,9 +672,22 @@ def main():
         if protos == 0:
             return False, 'no protocols discovered'
         run.evalset = evalset
-        run.target_count = protos
+        # Under --smi the handler list is one more target: fuzz_batch stops excluding
+        # DiscoveredSmi.txt by name and firness.py --smi generates every handler in it into
+        # a single harness, dispatched by the selector byte. Counting it matters because the
+        # fuzz stage sizes its own timeout from this number.
+        run.target_count = protos + (1 if args.smi and handlers else 0)
         scope = f' from {len(packages)} package(s)' if packages else ''
-        return True, f'{protos} protocols{scope}, {handlers} SMI handlers'
+        if args.smi:
+            if not handlers:
+                return False, ('--smi was asked for and discovery found no SMI handlers in '
+                               'this tree, so there is nothing to fuzz')
+            return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
+                          f'(fuzzing both)')
+        # Said plainly, because the count on its own reads as though they were targets:
+        # without --smi these are discovered and then left alone.
+        return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
+                      f'(not fuzzed; pass --smi)')
 
     def stage_image():
         """A campaign image whose harness tree is the version under test.
@@ -844,6 +880,8 @@ def main():
                 # the cache holds an analysis of whichever tree it was taken from; this
                 # run is about a specific ref, so analyse that
                 '--no-anacache']
+        if args.smi:
+            argv.append('--smi')
         if presence:
             argv += ['--presence', presence]
         if args.targets:
