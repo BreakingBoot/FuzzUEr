@@ -109,7 +109,7 @@ choice is not just taste.
 | ASan instrumentation | yes | yes |
 | a sanitizer report becomes a counted solution | yes | yes |
 | protocols installed by the platform | see note | 89 of 246 on OvmfPkgX64 |
-| speed | not re-measured | median 7.0 exec/s, range 0.03-86.9 |
+| speed | not re-measured | peak-rate median 7.0 exec/s, throughput median 1.76 |
 
 Both numbers in that last row once read "~0.17 exec/s" and "~7.4 exec/s", and the prose
 below the table called QEMU forty times faster. Neither claim survives: the QEMU figure was
@@ -137,9 +137,22 @@ EOF
 
 Take the **maximum** rate a campaign reported, not the last line: LibAFL starts a fresh
 client whose first heartbeat reads 0.000, so reading the tail reports zero for a campaign
-that ran fine. Earlier sweeps are much slower -- `results/sweep-census` medians 1.35 over its
-85 campaigns -- because `FastSnapshotManager` and the optional icount mode landed after it,
-so a figure quoted from a sweep older than those is not a measurement of this code. **Treat the comparison as open until both are measured in the
+that ran fine. Sweeps differ by more than an order of magnitude, and not by date. By this same method
+`results/fuzz-master` (2026-09-16) medians 23.6 over its 215 campaigns,
+`results/fuzz-master-fixed` 21.1 over 235, `results/fuzz-master-icount` 8.97 over 239, and
+`results/sweep-census` (2026-10-03) medians 1.35 over 85 -- the slowest of them is the
+newest, and it postdates both `FastSnapshotManager` (2026-09-11) and the icount default
+(2026-09-18). What sets sweep-census apart is how little it ran: 25065 executions in total,
+a median of 12 per campaign against the 600s it was given, so its rates describe that sweep
+and not the backend. Quote a sweep that fuzzed, and name it.
+
+A peak rate is also not a throughput. The figure above is the median of each campaign's
+*peak* heartbeat rate. Dividing each campaign's final `executions:` by the budget it was
+given -- counted from the harness being hit, and the measured window lands within a few
+percent of it -- puts sweep-v2 at a median of 1.76 exec/s against the 7.0 above. The same
+division gives 29.1 for fuzz-master (300s), 10.9 for fuzz-master-fixed and 8.25 for
+fuzz-master-icount (900s each), and 0.02 for sweep-census. Budgets are not uniform across
+the stored sweeps, so a rate quoted without its budget is not comparable to another. **Treat the comparison as open until both are measured in the
 same week on the same protocols** -- only 66 protocols exist on both backends, so outside
 that set the comparison is between platform builds, not between backends.
 
