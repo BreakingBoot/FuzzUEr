@@ -9,6 +9,15 @@
 #   3. a short fuzzing campaign per protocol, several at a time
 #   4. a coverage summary across every campaign
 set -u
+set -o pipefail   # check_generation's status is read through a pipe; without this it is lost
+
+# Every stage records into this rather than exiting, so one failure does not hide the state
+# of the stages after it -- the point of this script is a full picture. The script exits
+# non-zero at the end if anything failed, which it previously could not do: the last line
+# was an echo, so "verify_all" reported success for a tree whose harnesses did not compile.
+FAILED=''
+note_fail() { FAILED="$FAILED
+  - $1"; echo "   FAIL: $1"; }
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${1:-$ROOT/eval_source/verify}
@@ -79,7 +88,9 @@ docker run --rm \
   -v "$ROOT/eval_source/edk2-platforms:/w/platforms:ro" \
   -v "$OUT/generated:/w/out" \
   "$IMAGE" python3 /w/scripts/check_generation.py -c /w/cache -i /w/inputs \
-    --edk2 /w/edk2 --platforms /w/platforms -o /w/out | tail -8
+    --edk2 /w/edk2 --platforms /w/platforms -o /w/out > "$OUT/generation.log" 2>&1 \
+    || note_fail "harness generation or its syntax check (see $OUT/generation.log)"
+tail -8 "$OUT/generation.log" 2>/dev/null || true
 
 # the build stage no longer depends on the check above having succeeded: a failure
 # there used to skip the production build entirely and hide whether it works
@@ -96,16 +107,30 @@ if [ -n "$first" ]; then
            CONF_PATH=/workspace/tmp/edk2/Conf CLANGSAN_BIN=/usr/bin/
     source edksetup.sh >/dev/null 2>&1
     build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN >/tmp/b.log 2>&1
-    echo "   build rc=$?"
+    rc=$?
+    echo "   build rc=$rc"
     grep -E "^- (Done|Failed) -" /tmp/b.log | tail -1
-    ls -la /workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi 2>/dev/null || echo "   no efi produced"'
+    # The .efi is the verdict, not the build chatter: exit on it so the host can see it.
+    if [ ! -f /workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi ]; then
+      echo "   no efi produced"; tail -20 /tmp/b.log; exit 1
+    fi
+    ls -la /workspace/tmp/edk2/Build/Firness/DEBUG_CLANGSAN/X64/Firness.efi' \
+    || note_fail "the generated harness did not build with the production toolchain"
+else
+  note_fail "generation produced no harness to build"
 fi
 
 echo "== 3. fuzzing campaigns ($JOBS at a time, ${BUDGET}s each)"
 python3 "$ROOT/scripts/fuzz_batch.py" -o "$OUT/campaigns" -j "$JOBS" -t "$BUDGET" \
-  --image "$IMAGE" --cpus 4
+  --image "$IMAGE" --cpus 4 || note_fail "the fuzzing batch returned non-zero"
 
 echo "== 4. coverage summary"
-python3 "$ROOT/scripts/coverage_matrix.py" -r "$OUT/campaigns" -o "$OUT/coverage_matrix.csv"
+python3 "$ROOT/scripts/coverage_matrix.py" -r "$OUT/campaigns" -o "$OUT/coverage_matrix.csv" \
+  || note_fail "the coverage summary could not be written"
 
 echo "== done. results under $OUT"
+if [ -n "$FAILED" ]; then
+  echo "== FAILED stages:$FAILED"
+  exit 1
+fi
+echo "== every stage passed"
