@@ -1,0 +1,76 @@
+# Does the composite action work when GitHub runs it, rather than when a person runs its
+# steps by hand?
+#
+# Everything else here tests the driver. This tests the wrapper: that action.yml's inputs
+# arrive, that its submodule and bootstrap steps behave inside a job, that it finds the tree
+# a caller points `source` at, and that its outputs come back. That path has no other cover,
+# and it is the one every other repository uses.
+#
+# Not on every push: it builds firmware, so it costs ten minutes rather than thirty seconds.
+# Push a branch whose name starts with "ci-" to run it, or dispatch it.
+name: Action smoke
+
+on:
+  push:
+    branches: ['ci-**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # The tree under test is this repository's own edk2 fork, which is already here as a
+      # submodule. A caller would point `source` at their checkout; the action cannot tell
+      # the difference, which is the point.
+      - id: fuzz
+        uses: ./
+        with:
+          source: eval_source/edk2
+          qualify-only: true
+          bootstrap: true
+
+      - name: The action reported what it should
+        shell: bash
+        env:
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+          STAGES: ${{ steps.fuzz.outputs.stages }}
+          CANDIDATES: ${{ steps.fuzz.outputs.candidates }}
+        run: |
+          set -uo pipefail
+          echo "  results    = ${RESULTS:-<empty>}"
+          echo "  stages     = ${STAGES:-<empty>}"
+          echo "  candidates = ${CANDIDATES:-<empty>}"
+          rc=0
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; rc=1; }
+          [ -f "${RESULTS:-}/run.json" ] \
+            || { echo "::error::no run.json under ${RESULTS:-<empty>}"; rc=1; }
+          # On a qualify run every stage that ran must have passed, and candidates must be
+          # EMPTY rather than 0: triage never ran, and "0 candidates" would read as a clean
+          # sweep of something that was never fuzzed.
+          case "${STAGES:-}" in
+            '') echo "::error::the action set no stage count"; rc=1 ;;
+            *) p=${STAGES%%/*}; t=${STAGES##*/}
+               [ "$p" = "$t" ] && echo "  all $t stage(s) passed" \
+                 || { echo "::error::only $p of $t stages passed"; rc=1; } ;;
+          esac
+          [ -z "${CANDIDATES:-}" ] \
+            || echo "::warning::candidates is '${CANDIDATES}'; a qualify run should leave it empty"
+          exit $rc
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: action-smoke-${{ github.run_id }}
+          path: |
+            ${{ steps.fuzz.outputs.results }}/run.json
+            ${{ steps.fuzz.outputs.results }}/*.log
+          if-no-files-found: warn
