@@ -21,6 +21,7 @@ difference is not drift. Anything else is.
 
 import argparse
 import os
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +48,38 @@ def read(path):
             return handle.read().replace(b'\r\n', b'\n')
     except OSError:
         return None
+
+
+def read_committed(repo, rel):
+    """The file as HEAD has it, which is what apply_asan.py actually ships.
+
+    Reading the worktree here was the hole this check was written to close and did not:
+    apply_asan.py takes the port from `git show HEAD:<path>`, so a fix edited in both trees
+    and committed to neither compares equal, reports "in sync", and reaches no build. The
+    symptom is then indistinguishable from a wrong fix, which is the expensive case.
+    """
+    done = subprocess.run(['git', '-C', repo, 'show', f'HEAD:{rel}'],
+                          capture_output=True)
+    if done.returncode:
+        return None
+    return done.stdout.replace(b'\r\n', b'\n')
+
+
+def dirty_paths(repo):
+    """Tracked files with uncommitted changes, relative to that repository."""
+    done = subprocess.run(['git', '-C', repo, 'status', '--porcelain', '--untracked-files=no'],
+                          capture_output=True, text=True)
+    if done.returncode:
+        return set()
+    found = set()
+    for line in done.stdout.splitlines():
+        name = line[3:].strip()
+        # a rename prints "old -> new"; the new side is what would be shipped
+        if ' -> ' in name:
+            name = name.split(' -> ', 1)[1]
+        if name:
+            found.add(name.strip('"'))
+    return found
 
 
 def expand(reference_root, fork_root):
@@ -76,13 +109,25 @@ def main():
     args = parser.parse_args()
 
     drifted, missing, same = [], [], 0
+    uncommitted, absent_pairs = [], []
+    dirty = dirty_paths(args.fork)
     for reference_rel, fork_rel in PAIRS:
         reference_root = os.path.join(args.reference, reference_rel)
         fork_root = os.path.join(args.fork, fork_rel)
         if not os.path.exists(reference_root):
+            # Silently skipping made a renamed or deleted reference directory drop out of
+            # the comparison with no notice -- the script just printed a smaller "N in sync".
+            absent_pairs.append(reference_rel)
             continue
         for src, dst in expand(reference_root, fork_root):
-            a, b = read(src), read(dst)
+            rel = os.path.relpath(dst, args.fork)
+            if rel in dirty:
+                uncommitted.append(os.path.relpath(dst, REPO))
+            a = read(src)
+            # HEAD, not the worktree: that is what gets ported.
+            b = read_committed(args.fork, rel)
+            if b is None:
+                b = read(dst)
             short_src = os.path.relpath(src, REPO)
             short_dst = os.path.relpath(dst, REPO)
             if b is None:
@@ -100,11 +145,21 @@ def main():
         print('  MISSING  %s\n           has no counterpart at %s' % (short_src, short_dst))
     for short_src, short_dst in drifted:
         print('  DRIFTED  %s\n           differs from %s' % (short_src, short_dst))
+    for short in uncommitted:
+        print('  UNCOMMITTED  %s\n               edited but not committed, so apply_asan.py '
+              'ships the old one' % short)
+    for name in absent_pairs:
+        print('  ABSENT   %s is in PAIRS but not in the reference tree -- renamed or removed?'
+              % name)
 
     print()
-    print('%d in sync, %d drifted, %d missing from the fork'
-          % (same, len(drifted), len(missing)))
-    if drifted or missing:
+    print('%d in sync, %d drifted, %d missing from the fork, %d uncommitted'
+          % (same, len(drifted), len(missing), len(uncommitted)))
+    if uncommitted:
+        print('An uncommitted edit to the fork reaches NO build: apply_asan.py reads '
+              'git show HEAD:<path>. Commit it, or the next version ported gets the old '
+              'sanitizer and the symptom looks like a wrong fix.')
+    if drifted or missing or uncommitted or absent_pairs:
         print('Fix by copying whichever side is right -- and remember apply_asan.py reads '
               'git show HEAD:<path>, so an uncommitted edit to the fork reaches no build.')
         return 1
