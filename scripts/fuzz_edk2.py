@@ -682,8 +682,21 @@ def main():
             if not handlers:
                 return False, ('--smi was asked for and discovery found no SMI handlers in '
                                'this tree, so there is nothing to fuzz')
-            return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
-                          f'(fuzzing both)')
+            # Two different discoveries have to agree before an SMI campaign can run, and
+            # they do not here. discover_smi.py scans SOURCE and finds handlers wherever
+            # they are written; the generator needs smi-function-guid-map.json, which the
+            # C++ analyser builds from the campaign image's COMPILATION DATABASE. Handler
+            # registrations live in DXE_SMM_DRIVER modules, and those are only compiled
+            # when SMM_REQUIRE=TRUE -- so an image whose database was built without SMM
+            # contains none of them, the analyser emits a null map, and the generator dies
+            # in load_smi_data with "'NoneType' object has no attribute 'items'" after
+            # spending a container, an analysis and ten minutes. Say so here instead.
+            return True, (f'{protos} protocols{scope}, {handlers} SMI handlers found in '
+                          f'source. NOTE: the campaign image bakes its compilation database '
+                          f'once and that build has no SMM modules, so the analyser cannot '
+                          f'see their registrations and the SMI harness will not generate. '
+                          f'Protocols will fuzz; the SMI target is expected to fail until '
+                          f'the image is built with SMM')
         # Said plainly, because the count on its own reads as though they were targets:
         # without --smi these are discovered and then left alone.
         return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '

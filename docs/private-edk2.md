@@ -210,7 +210,15 @@ iterations and still grows coverage while calling nothing. Check `presence.csv`.
 
 ## SMI handlers
 
-Add `smm: true`. The handler count FuzzUEr reports is a lower bound -- discovery matches
+`smm: true` builds the firmware with an SMM core, which is what SMI handlers answer. Driving
+them is **not yet end to end**: `fuzz_edk2.py --smi` passes through to the analyser correctly,
+but the generator needs `smi-function-guid-map.json`, which is built from the campaign image's
+compilation database -- and that database is baked once from a build with no SMM modules, so
+the handler registrations are not in it and the SMI harness does not generate. Protocol
+fuzzing is unaffected. The remaining step is building the campaign image's database with
+`SMM_REQUIRE=TRUE`.
+
+The handler count FuzzUEr reports is a lower bound -- discovery matches
 registration call sites, so a handler registered via a function pointer stored in a structure
 is not seen. Without it the firmware contains no SMM core at all, so an SMI harness has
 nothing to answer it — even though the guest is started with `q35,smm=on`. Verified on
