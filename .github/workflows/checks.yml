@@ -86,6 +86,19 @@ jobs:
               except Exception as exc:
                   print(f'::error file={f}::{exc}')
                   bad = 1
+          # A composite action's run step needs its own shell. Omit it and the action is
+          # accepted at publish time and fails at use time, in somebody else's workflow,
+          # with "required property is missing: shell" -- so check it here where it is ours.
+          try:
+              action = yaml.safe_load(open('action.yml'))
+              for step in (action.get('runs', {}) or {}).get('steps', []) or []:
+                  if 'uses' not in step and 'shell' not in step:
+                      print(f"::error file=action.yml::step "
+                            f"{step.get('name', step.get('id', '?'))!r} declares no shell")
+                      bad = 1
+          except Exception as exc:
+              print(f'::error file=action.yml::{exc}')
+              bad = 1
           sys.exit(bad)
           PY
 
