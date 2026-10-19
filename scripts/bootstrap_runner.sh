@@ -22,9 +22,30 @@ say() { printf '\n=== %s ===\n' "$*"; }
 
 FORCE="${BOOTSTRAP_FORCE:-}"
 
+# The Dockerfile takes NJOBS and defaults it to 4, so without passing it the two from-source
+# LLVM 15 builds and the QEMU build run 4-way whatever the machine has -- and those are the
+# bulk of the "hours, not minutes" first run. Everything else here already sizes itself by
+# nproc.
+NJOBS="${NJOBS:-$(nproc)}"
+echo "building with NJOBS=$NJOBS"
+
 # --- the submodules the images are built from ------------------------------------------
 # A checkout without them produces an image with an empty /workspace/harness_generator,
 # and every campaign then fails inside the container with no reference to the checkout.
+# --- the one prerequisite that cannot be built --------------------------------------------
+# Checked FIRST, not last. apply_asan.py takes the sanitizer integration from
+# eval_source/edk2 by default, so this is load-bearing even when the tree being fuzzed is
+# somebody else's -- and it used to be a bare exit 1 after the base image, the fuzzer and
+# the ci image, i.e. hours of work thrown away over a missing checkout.
+say 'the sanitizer source tree'
+if [ -d eval_source/edk2/.git ] || [ -f eval_source/edk2/.git ]; then
+    echo '  eval_source/edk2 present'
+else
+    echo '  eval_source/edk2 is not checked out, and the sanitizer port is taken from it.' >&2
+    echo '  git submodule update --init --depth=1 eval_source/edk2' >&2
+    exit 1
+fi
+
 say 'submodules'
 for m in firness uefi_asan tsffs; do
     if [ ! -e "$m/.git" ] && [ -z "$(ls -A "$m" 2>/dev/null || true)" ]; then
@@ -41,7 +62,7 @@ if have_image fuzzuer-base:latest && [ -z "$FORCE" ]; then
     echo '  present'
 else
     echo '  building (LLVM 15 from source and the Simics packages; this takes hours)'
-    docker build -t fuzzuer-base:latest -f Dockerfile "$REPO"
+    docker build --build-arg "NJOBS=$NJOBS" -t fuzzuer-base:latest -f Dockerfile "$REPO"
 fi
 
 # --- the LibAFL-QEMU fuzzer -------------------------------------------------------------
@@ -53,7 +74,7 @@ if [ -x qemustage/firness_qemu ] && [ -d qemustage/pc-bios ] && [ -z "$FORCE" ];
 $(ls qemustage/pc-bios | wc -l) rom files)"
 else
     echo '  building the fuzzer (clones and builds qemu-libafl-bridge)'
-    docker build -t fuzzuer-fuzzer:latest -f fuzzer.Dockerfile "$REPO"
+    docker build --build-arg "NJOBS=$NJOBS" -t fuzzuer-fuzzer:latest -f fuzzer.Dockerfile "$REPO"
     mkdir -p qemustage
     cid=$(docker create fuzzuer-fuzzer:latest)
     trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
