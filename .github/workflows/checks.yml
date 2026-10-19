@@ -1,4 +1,11 @@
-# The fast checks, on every push. Seconds, not hours: nothing here builds firmware or fuzzes.
+# The fast checks, on every push. Nothing here builds firmware or fuzzes.
+#
+# "Fast" is about the checks, not the job: they take seconds, and the checkout does not. This
+# needs the submodules -- asan_sync_check compares uefi_asan against eval_source/edk2, and the
+# gitlink assertion reads all four -- and eval_source/edk2 is a full edk2 tree, so a FIRST run
+# on a new runner spends about nine minutes and ~24 GB fetching it. After that
+# actions/checkout reuses the workspace and the job is quick. Measured on the first real run,
+# 2026-10-19: 19:36:48 to 19:46, result Succeeded.
 #
 # It exists for two reasons. The first is the ordinary one -- a syntax error in a driver
 # script or a drifted sanitizer copy should not wait for someone to run a sweep. The second
