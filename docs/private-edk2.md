@@ -45,9 +45,15 @@ second argument to attach it elsewhere -- for shape B, that is your edk2 reposit
 scripts/setup_gh_runner.sh <token> https://github.com/acme/edk2-platform
 ```
 
-A registration token is scoped to one repository, so a token issued for repo A with a URL for
-repo B fails inside `config.sh` with `Invalid configuration provided for url` -- which reads
-like a bad token rather than a wrong target.
+A registration token is scoped to the thing that issued it, so a token issued for repo A with
+a URL for repo B fails inside `config.sh` with `Invalid configuration provided for url` --
+which reads like a bad token rather than a wrong target.
+
+An **organisation** URL (`https://github.com/<org>`, no repository) registers one runner for
+every repository in the org, which is usually what you want for more than one edk2 tree. One
+extra step comes with it: org runners belong to a runner group, and a group can be limited to
+selected repositories. If a job sits in "Queued" with an idle runner on the machine, check
+Organisation Settings -> Actions -> Runner groups and confirm the repository is allowed.
 
 `bootstrap_runner.sh` is idempotent — seconds on a warm machine. The **first** run is hours,
 because it builds LLVM 15 from source and a QEMU through libafl. Do it before you need it,

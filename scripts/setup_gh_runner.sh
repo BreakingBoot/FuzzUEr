@@ -93,9 +93,24 @@ echo "=== configuring against $REPO_URL with labels $LABELS ==="
 echo "=== installing the service ==="
 # As a service, not ./run.sh: a runner in a terminal dies with the terminal, and a weekly
 # job that fires at 03:00 needs the machine to answer without anyone logged in.
-sudo ./svc.sh install "$(whoami)"
-sudo ./svc.sh start
-sudo ./svc.sh status || true
+#
+# sudo -n first, and say what to do rather than blocking. Called from a script or a CI step
+# there is no tty, and plain sudo then stops with "a terminal is required to read the
+# password" AFTER the runner has already registered -- leaving a configured runner with no
+# service, which looks like the whole thing failed.
+if sudo -n true 2>/dev/null; then
+    sudo ./svc.sh install "$(whoami)"
+    sudo ./svc.sh start
+    sudo ./svc.sh status || true
+else
+    echo "    The runner is registered, but installing the service needs sudo and this"
+    echo "    shell cannot prompt for it. Finish with:"
+    echo
+    echo "      cd $RUNNER_DIR && sudo ./svc.sh install \$(whoami) && sudo ./svc.sh start"
+    echo
+    echo "    Until then the runner is configured but offline, so a job queued for it waits."
+    exit 3
+fi
 
 cat <<'DONE'
 
