@@ -20,7 +20,9 @@ FuzzUEr needs a **self-hosted Linux x64 runner**. This is not a preference. A ru
 LLVM-instrumented OVMF and a QEMU that libafl compiles from source; a hosted runner has
 neither the disk nor the job time for it.
 
-On a machine with Docker, 16+ cores and ~100 GB free:
+On a machine with Docker, 16+ cores and ~100 GB free. You also need `sudo`: the runner
+installs itself as a systemd service, and your user must be in the `docker` group or
+every container step fails with a permission error on the socket.
 
 ```bash
 git clone --recurse-submodules https://github.com/<you>/FuzzUEr.git
@@ -36,8 +38,16 @@ after it is issued. Copy the `--token` value GitHub shows you, or:
 gh api -X POST repos/<owner>/<repo>/actions/runners/registration-token --jq .token
 ```
 
-Pass a second argument if the runner should attach to a repository other than the FuzzUEr
-checkout it is run from — for shape B, that is your edk2 repository.
+By default the runner registers against whatever this checkout's `origin` points at. Pass a
+second argument to attach it elsewhere -- for shape B, that is your edk2 repository:
+
+```bash
+scripts/setup_gh_runner.sh <token> https://github.com/acme/edk2-platform
+```
+
+A registration token is scoped to one repository, so a token issued for repo A with a URL for
+repo B fails inside `config.sh` with `Invalid configuration provided for url` -- which reads
+like a bad token rather than a wrong target.
 
 `bootstrap_runner.sh` is idempotent — seconds on a warm machine. The **first** run is hours,
 because it builds LLVM 15 from source and a QEMU through libafl. Do it before you need it,
@@ -67,8 +77,9 @@ qualify_only  ✓            <- leave this on for the first run
 **Leave `qualify_only` on the first time.** It runs every stage except the fuzzing: the port,
 the build, the instrumentation check, protocol discovery, the campaign image, and a self test
 that provokes real errors in *your* firmware. Minutes instead of hours, and it is how you find
-out your tree is wired up correctly before spending a budget on it. Measured on a clean
-`edk2-stable202605` plus one added package: **11 stages, about 8 minutes.**
+out your tree is wired up correctly before spending a budget on it. Measured on a branch of clean `edk2-stable202605` with one package added: **11 stages, about
+8 minutes.** That fixture was temporary, so no artifact for it ships in the repository --
+the figure is what to expect, not a stored result.
 
 Turn it off for a real sweep, and expect hours — one tree at a 600-second budget is most of a
 day, because the budget is *per target* and a tree has a couple of hundred of them.
@@ -120,10 +131,13 @@ jobs:
           path: ${{ steps.fuzz.outputs.results }}
 ```
 
-`uses: ./fuzzuer` runs the action out of the directory you just checked out. Referencing it as
-`uses: <you>/FuzzUEr@main` also works, but if FuzzUEr is private that needs the action-sharing
-setting enabled for the owner; checking it out explicitly works either way and pins what you
-ran.
+`uses: ./fuzzuer` runs the action out of the directory you just checked out, and it has to be
+done this way. `uses: <you>/FuzzUEr@main` does **not** work: GitHub fetches a referenced
+action as an archive with no git history, so its submodules arrive empty -- and the harness
+generator, the sanitizer and the Simics backend are three of them. The action detects that
+and stops with `firness is empty and this checkout is not a git repository` rather than
+building images with nothing in them. Checking it out explicitly also pins the version you
+ran, which a floating `@main` does not.
 
 **On pull requests, use `qualify-only: true`.** A fuzzing budget does not belong in a PR gate:
 the result is not deterministic, so the same diff can pass and then fail. What *is* worth
@@ -200,12 +214,10 @@ Add `smm: true`. Without it the firmware contains no SMM core at all, so an SMI 
 nothing to answer it — even though the guest is started with `q35,smm=on`. Verified on
 `edk2-stable202502`: 0 SMM modules by default, 45 with it.
 
-One warning if your tree is `edk2-stable202508` or newer, master included: upstream
-`MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` does not compile in a DEBUG build. A refactor left
-`IsOverUnderflow` as an argument to a `DEBUG` call with no declaration in the function. It is
-invisible in RELEASE, where `DEBUG` compiles away, and `PiSmmCore` is only built when
-`SMM_REQUIRE=TRUE`, so you meet it the moment you turn SMM on and not before. Drop the
-argument and the `overunder=%d` from the format string. Details in `results/findings.md`.
+If an `--smm` build of a newer edk2 stops in `MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` with
+`use of undeclared identifier 'IsOverUnderflow'`, update FuzzUEr: that was a trace this port
+carried forward which named a local upstream had removed, fixed on 2026-10-19. It is not an
+upstream bug -- a clean checkout of those versions has no such trace.
 
 Note what `smm: true` does and does not buy: SMM modules resolve `AsanLibNull`, so they carry
 instrumentation whose handlers are no-ops. It gets SMI fuzzing to real SMM code; it does not

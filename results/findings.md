@@ -6,7 +6,8 @@ the harness rather than the firmware, and a defect that never trips a sanitizer 
 at all. This file is the hand-written other half -- the reports that were read back to source
 and the question "is this a defect in EDK2?" answered either way.
 
-Four are defects in EDK2. One class of 24 reports is not, and is recorded here so it is not
+Four are defects in EDK2. One class of 24 reports is not, and one that was written up here
+as an upstream build break turned out to be ours -- both are recorded below so neither is
 re-triaged.
 
 | # | where | class | input driven | upstream | severity |
@@ -15,7 +16,6 @@ re-triaged.
 | 2 | `InstallAcpiTable` | OOB read, 4 bytes | yes | yes | low, can fault at a page edge |
 | 3 | `CoreInsertEventTimer` | NULL list link | unknown | yes | crash, cause not yet attributed |
 | 4 | `HiiExportPackageLists` | undefined behaviour | no | yes | UB only, nothing dereferenced |
-| 5 | `PiSmmCore` | does not compile | n/a | yes | build break, DEBUG + SMM_REQUIRE only |
 
 None are reported upstream as of 2026-10-06.
 
@@ -117,36 +117,6 @@ is dereferenced: each helper is guarded by `if (ResultSize + *UsedSize <= Buffer
 not a memory-safety bug, but it is genuine UB in shipping firmware, and it is the cleanest
 instance here of a defect that is unambiguously EDK2's rather than shaped by the harness.
 
-## 5. PiSmmCore does not compile in a DEBUG build
-
-Not a memory-safety defect -- a build break, included because it is in current master and
-blocks anyone building SMM with debug enabled.
-
-`MdeModulePkg/Core/PiSmmCore/PiSmmCore.c`:
-
-    PiSmmCore.c:751:11: error: use of undeclared identifier 'IsOverUnderflow'
-
-A refactor moved the over/underflow test into `InternalIsBufferOverlapped` -- whose own
-documentation says `@retval TRUE  Math error.  Prevents potential math over and underflows.`
--- and rewrote the guard to `IsOverlapped || (BufferSize < OFFSET_OF (...))`. The `DEBUG ((...))`
-immediately below still passes `IsOverUnderflow`, and no declaration of that name survives in
-the function.
-
-Counting the single declaration and the bare uses per tree places it exactly:
-
-| tree | declaration | bare uses | compiles |
-|---|---|---|---|
-| edk2-stable202502 | 1 | 4 | yes |
-| edk2-stable202508 | 0 | 1 | no |
-| edk2-stable202511 | 0 | 1 | no |
-| master | 0 | 1 | no |
-
-So it landed between `stable202502` and `stable202508`. It survives because `DEBUG ((...))`
-compiles away in a RELEASE build and `PiSmmCore` is only built when `SMM_REQUIRE=TRUE`; you
-need both at once to see it. The fix is to drop the argument and the `overunder=%d` from the
-format string -- with that and a sanitizer instance for the SMM module types, the build
-completes: exit 0, FVMAIN_COMPACT 67% full, 45 SMM modules, no undefined `__asan_*`.
-
 ## Not defects: the 24 FWSAN double-fetch reports
 
 The sweep produces 24 `fwsan-double-fetch` rows across 12 modules, named to function
@@ -168,3 +138,33 @@ UEFI variables -- so the pattern is real even where this sweep's instances are n
 triage exposed that the SMI harness never registered the comm buffer as untrusted, making the
 check inert in the one place where a double fetch genuinely matters, since the comm buffer is
 written by the OS and read by SMM. Fixed in firness.
+
+## Not a defect, and previously recorded here as one: the PiSmmCore build break
+
+An earlier version of this file listed a fifth finding: that upstream
+`MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` fails to compile in a DEBUG build with
+
+    PiSmmCore.c:751:11: error: use of undeclared identifier 'IsOverUnderflow'
+
+That was wrong, and the error is ours. The `DEBUG ((... overunder=%d ..., IsOverUnderflow))`
+it comes from was added by this fork's own commit `c4fdefe880`, "Trace SMI handler dispatch in
+the SMM core". In the fork's base the enclosing function declares `IsOverUnderflow`, so it
+compiles here. `apply_asan.py` then carries that delta onto whichever edk2 is being ported,
+and upstream has since folded the over/underflow test into `InternalIsBufferOverlapped` --
+whose own documentation says `@retval TRUE  Math error.` -- and dropped the caller's
+declaration. The ported DEBUG therefore names a variable that does not exist in the newer
+function.
+
+What settles the attribution: clean upstream `edk2-stable202605` contains no `overunder`
+DEBUG at all, so there is nothing upstream to fail. The trees that failed were trees this
+port had already been applied to.
+
+Fixed by printing only `IsOverlapped`, which exists in both shapes. The reason it hid so long
+is worth keeping: `DEBUG ((...))` compiles away in RELEASE and `PiSmmCore` is only built when
+`SMM_REQUIRE=TRUE`, a combination nothing here used until SMM support was added.
+
+**The general lesson.** A patch that the port carries forward is evaluated against every
+future edk2, not just the one it was written on. Referring to a local variable by name in
+carried code is a version dependency, and the failure surfaces as a compile error in
+somebody else's file -- which reads as their defect. Check whether a "upstream" build break
+is reachable in a *clean* checkout of that version before reporting it.

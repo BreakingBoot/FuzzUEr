@@ -39,11 +39,20 @@ And then you can add the input file containing the target functions, for example
 ```
 This file is already included in the `eval_source` directory.
 
-A new docker container can be created by running the following commands:
+A new docker container can be created by running the following commands. Clone with the
+submodules first -- the image COPYs `firness/`, `tsffs/` and `qemu/` out of the checkout, so
+on a plain `git clone` the build stops on a COPY error naming a path you never touched:
+
 ```
+git clone --recurse-submodules <this repo>
+cd FuzzUEr
 docker build -t fuzzuer-image .
 docker run -it -v ./eval_source/:/input fuzzuer-image
 ```
+
+Budget ~100 GB of disk and expect the first build to take hours: it compiles LLVM 15 from
+source. `scripts/bootstrap_runner.sh` does the same work and is idempotent, so prefer it if
+you intend to run the pipeline rather than the container by hand.
 
 And then you can run everything with the helper script `firness.py`:
 
@@ -100,13 +109,37 @@ choice is not just taste.
 | ASan instrumentation | yes | yes |
 | a sanitizer report becomes a counted solution | yes | yes |
 | protocols installed by the platform | see note | 89 of 246 on OvmfPkgX64 |
-| speed | not re-measured | median 1.35 exec/s, range 0.03-10.2 |
+| speed | not re-measured | median 7.0 exec/s, range 0.03-86.9 |
 
-Both numbers in that last row used to read "~0.17 exec/s" and "~7.4 exec/s", and the prose
-below the table called QEMU forty times faster. Neither claim survives: the QEMU figure is
-the top of its range rather than a typical campaign, measured over 85 campaigns of a master
-sweep, and a later Simics measurement put Simics ahead by roughly an order of magnitude on
-the protocols the two share. **Treat the comparison as open until both are measured in the
+Both numbers in that last row once read "~0.17 exec/s" and "~7.4 exec/s", and the prose
+below the table called QEMU forty times faster. Neither claim survives: the QEMU figure was
+the top of its range rather than a typical campaign, and a later Simics measurement put
+Simics ahead by roughly an order of magnitude on the protocols the two share.
+
+The figure in the table is the per-campaign median of the `exec/sec` LibAFL itself reports,
+taken from `results/sweep-v2` (110 campaigns with a non-zero rate). Reproduce it with
+
+```bash
+python3 - <<'EOF'
+import glob, os, re, statistics
+pat = re.compile(r'exec/sec:\s*([0-9.]+)')
+rates = []
+for c in glob.glob('results/sweep-v2/campaigns/*'):
+    f = os.path.join(c, 'qemu', 'run.txt')
+    if not os.path.isfile(f):
+        continue
+    best = max([float(v) for v in pat.findall(open(f, errors='replace').read())] or [0])
+    if best:
+        rates.append(best)
+print(len(rates), statistics.median(rates), min(rates), max(rates))
+EOF
+```
+
+Take the **maximum** rate a campaign reported, not the last line: LibAFL starts a fresh
+client whose first heartbeat reads 0.000, so reading the tail reports zero for a campaign
+that ran fine. Earlier sweeps are much slower -- `results/sweep-census` medians 1.35 over its
+85 campaigns -- because `FastSnapshotManager` and the optional icount mode landed after it,
+so a figure quoted from a sweep older than those is not a measurement of this code. **Treat the comparison as open until both are measured in the
 same week on the same protocols** -- only 66 protocols exist on both backends, so outside
 that set the comparison is between platform builds, not between backends.
 
@@ -159,8 +192,21 @@ export WORKSPACE=$PWD/eval_source/edk2 EDK_TOOLS_PATH=$WORKSPACE/BaseTools
 export CONF_PATH=$WORKSPACE/Conf CLANGSAN_BIN=/path/to/llvm/bin/
 cd $WORKSPACE && make -C BaseTools && source edksetup.sh
 build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \
-      -D ASAN_SCOPE=per-module -D ASAN_FUZZER=qemu
+      -D ASAN_SCOPE=per-module -D ASAN_FUZZER=qemu \
+      -D FIRNESS_QEMU_CRASH=TRUE \
+      -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE
 ```
+
+`FIRNESS_QEMU_CRASH=TRUE` is not optional in practice. It is what sets
+`FIRNESS_LIBAFL_CRASH_ON_EXCEPTION`, so a guest fault ends the iteration instead of dead
+looping until the boot timeout -- without it a campaign that finds a crash looks exactly
+like one whose firmware never reached the harness. The two `NETWORK_*` defines decide
+whether the IPv6 and HTTP protocols are installed at all, so they change which targets the
+census finds rather than just how fast the run goes. `scripts/fuzz_edk2.py` passes all three
+on every build, which is why its results and a hand-built tree's can disagree.
+
+`ASAN_SCOPE=per-module` is the gentler scope and a reasonable first build; `full` is what the
+pipeline uses and what every number in this README was measured on.
 
 **2. Build the fuzzer.** It compiles its own QEMU, so the first build is long.
 
@@ -288,11 +334,16 @@ sanitizer port is applied to a throwaway worktree of your ref.
     qualify-only: true       # every stage except the fuzzing: ~8 minutes
 ```
 
-Verified on a clean `edk2-stable202605` plus one added package, fuzzed through `--source`
-as a private branch with its own `origin`: 11/11 stages, the port applying 21 clean and 8
-resolved, 260/260 modules instrumented, 244 protocols and 16 SMI handlers discovered, and
-the self test provoking a double free, three store reports and a length-driven overread in
-that tree's own firmware.
+Verified by fuzzing a branch of clean `edk2-stable202605` with one package added, through
+`--source` with its own `origin`: 11/11 stages, the port applying 21 clean and 8 resolved,
+260/260 modules instrumented, 244 protocols and 16 SMI handlers discovered, and the self test
+provoking a double free, three store reports and a length-driven overread in that tree's own
+firmware. That run used a throwaway fixture outside the repository, so there is no artifact
+under `results/` for it -- reproduce it against any tree of your own with
+
+```bash
+python3 scripts/fuzz_edk2.py --ref <your-branch> --source /path/to/your/edk2 --skip-fuzz
+```
 
 ### Which versions it works on
 
@@ -312,14 +363,14 @@ use-after-free and a length-driven overread in that version's own firmware.
 | edk2-stable202405 | 25 clean, 4 resolved | 222/224 | 247 |
 | edk2-stable202408 | 24 clean, 5 resolved | 228/230 | 247 |
 | edk2-stable202411 | 23 clean, 6 resolved | 228/228 | 248 |
-| edk2-stable202502 | 21 clean, 7 resolved | 232/232 | 247 |
+| edk2-stable202502 | 22 clean, 7 resolved | 248/248 | 248 |
 | edk2-stable202505 | 19 clean, 9 resolved | 236/236 | 247 |
 | edk2-stable202508 | 19 clean, 9 resolved | 242/242 | 245 |
 | edk2-stable202511 | 19 clean, 9 resolved | 242/242 | 243 |
 | edk2-stable202602 | 19 clean, 9 resolved | 242/242 | 242 |
 | edk2-stable202605 | 20 clean, 8 resolved | 244/244 | 243 |
 | edk2-stable202608 | 20 clean, 8 resolved | 246/246 | 244 |
-| master | 20 clean, 8 resolved | 242/242 | 242 |
+| master | 21 clean, 8 resolved | 262/262 | 245 |
 
 The "resolved" column is how many of the port's 30 modified files needed a conflict
 resolved rather than merging outright, and it tracks distance from the commit the port
@@ -333,7 +384,7 @@ unresolved, `instrumented` counts the modules that actually carry ASan checks ra
 trusting the build, and `detects` makes the sanitizer catch a deliberate error in the
 firmware it just built.
 
-A campaign on 202505 reaches the harness and fuzzes: 58,786 iterations over 1,196 edges
+A campaign on 202505 reaches the harness and fuzzes: 53,234 iterations over 919 edges
 for EFI_BLOCK_IO_PROTOCOL in a 300 second budget, and the triage names a finding by
 module, file and line.
 
@@ -512,10 +563,15 @@ python3 scripts/bench_cases.py --code OVMF_CODE.fd --vars OVMF_VARS.fd \
     --app SanBenchDrive.efi --out cases --roms /workspace/qemu_fw
 ```
 
-Eleven of eleven are detected. The twelfth, `boot-service-after-exit`, needs the runtime
+Ten of ten are detected. The eleventh, `boot-service-after-exit`, needs the runtime
 phase and an application under BDS is by definition before it -- it is reported "not
 attempted" rather than counted as a miss, because a benchmark that hides its own gaps is
-worth less than one that names them. The remaining blind spot is stack memory: the build
+worth less than one that names them.
+
+The script boots twelve times, not eleven: besides the rows above it runs a `control` case
+on correct code, which passes by staying silent. It is not in the table because it is not a
+bug class, but it is the row that makes the other ten mean something -- a sanitizer that
+reports on the control is reporting on anything. The remaining blind spot is stack memory: the build
 carries `-mllvm -asan-stack=0` because enabling stack instrumentation faults the boot in
 CpuDxe, so a stack overread of any shape is invisible.
 
@@ -605,12 +661,12 @@ this elsewhere:
   `__asan_init`/`__asan_load*`. The four SMM/MM module types now resolve `AsanLibNull` --
   Null, not the real one, because SMM runs in SMRAM behind its own page tables and cannot
   reach the shadow.
-* `MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` in edk2 `stable202508` and later, master
-  included, does not compile in a DEBUG build: a refactor folded the over/underflow check
-  into `InternalIsBufferOverlapped` but left `IsOverUnderflow` as an argument to a `DEBUG`
-  call with no declaration left in the function. It is invisible in a RELEASE build, where
-  `DEBUG` compiles away, and `PiSmmCore` is only built when `SMM_REQUIRE=TRUE`. See
-  `results/findings.md`.
+* The port carries a DEBUG trace into `MdeModulePkg/Core/PiSmmCore/PiSmmCore.c` that named a
+  local variable upstream has since removed, so a DEBUG build of a newer edk2 failed with
+  `use of undeclared identifier 'IsOverUnderflow'`. Fixed by printing only the value that
+  exists in both shapes. It was briefly written up as an upstream defect and is not one --
+  clean upstream has no such trace. See `results/findings.md` for why that mattered and how
+  to avoid the same mistake with carried patches.
 
 ### From a Linux kernel module
 
