@@ -47,12 +47,18 @@ def read(path):
         return ''
 
 
-def boot(args, work, extra=None, serve=None, peer_port=0):
-    """Boot the firmware once and hand back what it said."""
+def boot(args, work, extra=None, serve=None, peer_port=0, reuse_vars=False):
+    """Boot the firmware once and hand back what it said.
+
+    reuse_vars keeps the variable store this work directory already has instead of starting
+    from the pristine one, which is what lets a caller run the second half of a boot the
+    firmware asked to restart.
+    """
     debug = os.path.join(work, 'debug.log')
     serial = os.path.join(work, 'serial.log')
     varsfd = os.path.join(work, 'vars.fd')
-    shutil.copyfile(args.vars, varsfd)
+    if not (reuse_vars and os.path.isfile(varsfd)):
+        shutil.copyfile(args.vars, varsfd)
     peer = None
     peer_log = os.path.join(work, 'peer.log')
     if peer_port:
@@ -65,12 +71,22 @@ def boot(args, work, extra=None, serve=None, peer_port=0):
                                 stderr=subprocess.STDOUT)
         time.sleep(0.5)
 
-    qemu = [args.qemu, '-machine', 'q35', '-m', '2048', '-no-reboot', '-smp', '1',
+    # Firmware built with SMM_REQUIRE=TRUE needs the machine to actually offer SMM, and it
+    # needs the two globals guest_run.py already passes: S3 off, because X64 plus SMM asserts
+    # with it on, and the pflash marked secure, which is where the SMM-protected variable
+    # store lives. Boot such an image on a plain q35 and it does not come up -- the probe
+    # then reports "the self test never ran", which reads as a broken sanitizer rather than
+    # a machine missing the hardware the firmware was built for.
+    machine = 'q35,smm=on' if args.smm else 'q35'
+    qemu = [args.qemu, '-machine', machine, '-m', '2048', '-no-reboot', '-smp', '1',
             '-fw_cfg', 'name=opt/org.tianocore/X-Cpuhp-Bugcheck-Override,string=yes',
-            '-debugcon', f'file:{debug}', '-global', 'isa-debugcon.iobase=0x402',
-            '-drive', f'if=pflash,format=raw,unit=0,readonly=on,file={args.code}',
-            '-drive', f'if=pflash,format=raw,unit=1,file={varsfd}',
-            '-display', 'none', '-serial', f'file:{serial}']
+            '-debugcon', f'file:{debug}', '-global', 'isa-debugcon.iobase=0x402']
+    if args.smm:
+        qemu += ['-global', 'ICH9-LPC.disable_s3=1',
+                 '-global', 'driver=cfi.pflash01,property=secure,value=on']
+    qemu += ['-drive', f'if=pflash,format=raw,unit=0,readonly=on,file={args.code}',
+             '-drive', f'if=pflash,format=raw,unit=1,file={varsfd}',
+             '-display', 'none', '-serial', f'file:{serial}']
     qemu += extra or []
     try:
         subprocess.run(qemu, timeout=args.timeout + 25,
@@ -104,6 +120,20 @@ def check_selftest(args, work):
     # wire as the sanitizer and leaves debugcon empty. Look for the narration in both, or
     # a serial-DEBUG image reads as a guest that never booted.
     narration = debug + serial
+    # OVMF resets once when the memory type information in the varstore changes, which it
+    # does on the first boot of a fresh store -- and an SMM build changes it, because SMM
+    # moves the usage. We pass -no-reboot, so QEMU exits on that reset rather than coming
+    # back up, and the self test never gets its turn: the probe then reports an unbootable
+    # guest for firmware whose log plainly reaches BDS. Boot once more on the store the
+    # first boot wrote, which is what the reset was asking for.
+    if 'AsanSelfTest' not in narration and 'Memory Type Information settings change' in narration:
+        print('   the firmware reset to settle its memory type information; booting again')
+        debug, serial, _ = boot(args, work,
+                                extra=['-drive', f'file=fat:rw:{esp},format=raw,if=ide',
+                                       '-netdev', 'hubport,id=dcnet,hubid=0',
+                                       '-device', 'virtio-net-pci,netdev=dcnet'],
+                                reuse_vars=True)
+        narration = debug + serial
     if 'AsanSelfTest' not in narration:
         return False, 'the self test never ran -- the guest did not boot it'
     missing = [name for name, marker in SELFTEST_EXPECT if marker not in narration]
@@ -195,6 +225,10 @@ def main():
     parser.add_argument('--peer-port', type=int, default=5900)
     parser.add_argument('--qemu', default='qemu-system-x86_64')
     parser.add_argument('--skip-network', action='store_true')
+    parser.add_argument('--smm', action='store_true',
+                        help='the firmware was built with SMM_REQUIRE=TRUE, so boot it on a '
+                             'machine that offers SMM. Without this such an image does not '
+                             'boot and the probe reports that the self test never ran')
     parser.add_argument('--keep', default='',
                         help='keep the boot captures in this directory instead of a '
                              'temporary one, so a protocol census can be taken from them')

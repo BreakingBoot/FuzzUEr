@@ -788,6 +788,12 @@ def main():
                    'python3 /repo/scripts/detect_check.py '
                    '--code /fw/OVMF_CODE.fd --vars /fw/OVMF_VARS.fd '
                    '--selftest /fw/AsanSelfTest.efi --skip-network '
+                   # The probe builds the same defines as the campaign, so when SMM is in
+                   # the image the probe's machine has to offer it too -- and it needs
+                   # longer: SMM init plus the UBSan narration this build prints to serial
+                   # pushed the boot past the 90s default, which the probe then reported as
+                   # "the self test never ran" even though the log shows it reaching BDS.
+                   + ('--smm --timeout 300 ' if args.smm else '') +
                    '--keep /out/detect_capture'], timeout=1800)
         text = done.stdout + done.stderr
         open(os.path.join(out, 'detect_check.log'), 'w').write(text)

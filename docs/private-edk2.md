@@ -210,7 +210,9 @@ iterations and still grows coverage while calling nothing. Check `presence.csv`.
 
 ## SMI handlers
 
-Add `smm: true`. Without it the firmware contains no SMM core at all, so an SMI harness has
+Add `smm: true`. The handler count FuzzUEr reports is a lower bound -- discovery matches
+registration call sites, so a handler registered via a function pointer stored in a structure
+is not seen. Without it the firmware contains no SMM core at all, so an SMI harness has
 nothing to answer it — even though the guest is started with `q35,smm=on`. Verified on
 `edk2-stable202502`: 0 SMM modules by default, 45 with it.
 

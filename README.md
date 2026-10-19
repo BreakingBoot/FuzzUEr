@@ -657,7 +657,10 @@ Verified on `edk2-stable202502`, the same version built both ways:
 | SMI handlers discovered | 17 | 17 |
 
 The handler count does not move because discovery is static analysis of the source -- those 17
-were always *found*. What `--smm` changes is that there is now an SMM core and a set of
+were always *found*. It is a **lower bound**: discovery matches registration call sites, so a
+handler registered through a function pointer held in a structure is not found
+(`scripts/discover_smi.py` says so, and `firness/firness/SmiFunctionAnalysis.h:78` carries the
+same gap as a TODO). A tree with more handlers than this reports is expected, not a defect. What `--smm` changes is that there is now an SMM core and a set of
 handlers in the image for them to be driven against.
 
 One limit worth stating plainly: the 28 added modules resolve **AsanLibNull**, so they carry
