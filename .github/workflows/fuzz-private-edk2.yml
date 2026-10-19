@@ -1,0 +1,108 @@
+# Fuzz an edk2 tree that lives in another repository, including a private one.
+#
+# The other workflow here, fuzz-edk2.yml, sweeps upstream tags out of the fork beside this
+# repository. This one takes a repository and a ref you name, which is what you want for a
+# platform branch or a vendor tree: nothing is added to that repository, and it is only ever
+# read.
+#
+# Private repositories need a token, because the job's built-in GITHUB_TOKEN is scoped to
+# THIS repository and cannot read another one. Make a fine-grained PAT with
+# "Contents: read" on the edk2 repository and store it as the secret EDK2_TOKEN. A public
+# edk2 needs no secret at all.
+name: Fuzz a private EDK2
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'owner/repo holding the edk2 tree (private is fine, with EDK2_TOKEN set)'
+        required: true
+      ref:
+        description: 'Tag, branch or SHA in that repository'
+        required: false
+        default: ''
+      budget:
+        description: 'Seconds of fuzzing per target'
+        required: false
+        default: '600'
+      jobs:
+        description: 'Targets fuzzed at once (blank: a quarter of the runner''s cores)'
+        required: false
+        default: ''
+      targets:
+        description: 'Space separated protocol names (blank: everything discovered in the tree)'
+        required: false
+        default: ''
+      qualify_only:
+        description: 'Every stage except the fuzzing -- minutes, not hours. Try this first'
+        type: boolean
+        required: false
+        default: true
+      smm:
+        description: 'Build with SMM_REQUIRE=TRUE so SMI handlers have an SMM core to answer'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: [self-hosted, linux, x64]
+    # A qualify run is minutes. A full sweep of one tree at a 600s budget is hours, and the
+    # default here has to cover the slow case or the job is killed with a partial report
+    # already written -- which reads as incomplete rather than as cut short.
+    timeout-minutes: 1440
+    steps:
+      # FuzzUEr itself: the driver, the sanitizer port and the harness generator. Submodules
+      # are required -- without them the images build with an empty harness generator.
+      - name: Check out FuzzUEr
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # The tree under test, kept out of the way of this repository's own files. Full depth
+      # because the driver resolves the ref out of git history and makes a worktree of it;
+      # a shallow clone has only one commit and any other ref then has to be fetched.
+      - name: Check out the EDK2 tree
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.repository }}
+          ref: ${{ github.event.inputs.ref }}
+          token: ${{ secrets.EDK2_TOKEN || github.token }}
+          path: edk2-under-test
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Fuzz it
+        id: fuzz
+        uses: ./
+        with:
+          source: edk2-under-test
+          # Blank is honoured: the action falls back to the commit actions/checkout left
+          # checked out, which is the right answer when the input named a branch.
+          ref: ${{ github.event.inputs.ref }}
+          budget: ${{ github.event.inputs.budget }}
+          jobs: ${{ github.event.inputs.jobs }}
+          targets: ${{ github.event.inputs.targets }}
+          qualify-only: ${{ github.event.inputs.qualify_only }}
+          smm: ${{ github.event.inputs.smm }}
+
+      - name: Upload the findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzzuer-${{ github.run_id }}
+          # The action prints where it put them, so this does not have to guess.
+          path: |
+            ${{ steps.fuzz.outputs.results }}/run.json
+            ${{ steps.fuzz.outputs.results }}/bugs.md
+            ${{ steps.fuzz.outputs.results }}/bugs.json
+            ${{ steps.fuzz.outputs.results }}/presence.csv
+            ${{ steps.fuzz.outputs.results }}/*.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/crashes.csv
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/run.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/fuzz.txt
+          if-no-files-found: warn

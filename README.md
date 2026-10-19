@@ -274,6 +274,26 @@ layers behind that only `docker image prune` clears.
 Run it manually once with **qualify_only** before trusting a full sweep: ten stages, a few
 minutes, and it exercises everything except the fuzzing. A full matrix is ~17 hours.
 
+### On your own EDK2, in a private repository
+
+`docs/private-edk2.md` is the walkthrough: a dispatch workflow that reads a repository you
+name, or a workflow file for your own edk2 repo that calls this one as an action. Both go
+through the same `scripts/fuzz_edk2.py`, and neither writes to the tree under test -- the
+sanitizer port is applied to a throwaway worktree of your ref.
+
+```yaml
+- uses: ./fuzzuer            # after checking this repo out with submodules
+  with:
+    source: edk2             # your tree
+    qualify-only: true       # every stage except the fuzzing: ~8 minutes
+```
+
+Verified on a clean `edk2-stable202605` plus one added package, fuzzed through `--source`
+as a private branch with its own `origin`: 11/11 stages, the port applying 21 clean and 8
+resolved, 260/260 modules instrumented, 244 protocols and 16 SMI handlers discovered, and
+the self test provoking a double free, three store reports and a length-driven overread in
+that tree's own firmware.
+
 ### Which versions it works on
 
 Every upstream stable tag from `edk2-stable202305` to `edk2-stable202608`, and `master`.

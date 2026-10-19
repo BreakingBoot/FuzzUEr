@@ -1,0 +1,272 @@
+# Fuzz an edk2 tree with FuzzUEr from any repository's workflow.
+#
+# This wraps scripts/fuzz_edk2.py rather than reimplementing its stages in YAML. A workflow
+# that repeats the pipeline step by step drifts from the pipeline, and the drift shows up as
+# a green run that checked something else.
+#
+# The tree being fuzzed is yours and is named by `source`. The sanitizer integration is NOT
+# taken from it -- it comes from the fork inside this action's own checkout, and the `port`
+# stage applies it to a throwaway worktree of your ref. Your repository is never modified.
+#
+# Needs a self-hosted Linux x64 runner: this builds LLVM-instrumented OVMF and a QEMU that
+# libafl compiles from source, which does not fit a hosted runner's disk or job timeout.
+name: FuzzUEr
+description: Fuzz an EDK2 tree's protocol and SMI handlers under AddressSanitizer
+
+inputs:
+  source:
+    description: 'Path to the edk2 checkout to fuzz, relative to the workspace or absolute'
+    required: true
+  ref:
+    description: 'Tag, branch or SHA inside that checkout. Default: whatever it has checked out'
+    required: false
+    default: ''
+  budget:
+    description: 'Seconds of fuzzing per target'
+    required: false
+    default: '600'
+  jobs:
+    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4'
+    required: false
+    default: ''
+  boot-timeout:
+    description: 'Seconds a target may spend booting to the harness. Blank: scale with jobs'
+    required: false
+    default: ''
+  targets:
+    description: 'Space separated protocol names. Blank: everything discovered in your tree'
+    required: false
+    default: ''
+  qualify-only:
+    description: 'Run every stage except the fuzzing. Minutes instead of hours -- use this first'
+    required: false
+    default: 'false'
+  smm:
+    description: 'Build with SMM_REQUIRE=TRUE so the image has an SMM core for SMI handlers'
+    required: false
+    default: 'false'
+  bench:
+    description: 'Also build the SanBench drivers, which measure the fuzzer rather than your firmware'
+    required: false
+    default: 'false'
+  out:
+    description: 'Where the artifacts go. Default: <action>/results/fuzz-<ref>'
+    required: false
+    default: ''
+  fail-on-findings:
+    description: 'Fail the step when triage reports candidate bugs. Default false: a finding is
+                  something to read, and a sweep that goes red on one stops reporting the rest'
+    required: false
+    default: 'false'
+  bootstrap:
+    description: 'Build the images if the runner lacks them. Idempotent, and seconds on a warm
+                  runner -- but hours on a cold one, so it can be turned off for a runner you
+                  prepared yourself'
+    required: false
+    default: 'true'
+
+outputs:
+  results:
+    description: 'Directory holding run.json, bugs.md and the per-campaign logs'
+    value: ${{ steps.run.outputs.results }}
+  candidates:
+    description: 'Candidate bugs triage attributed to firmware code'
+    value: ${{ steps.run.outputs.candidates }}
+  stages:
+    description: 'passed/total stages'
+    value: ${{ steps.run.outputs.stages }}
+
+runs:
+  using: composite
+  steps:
+    # An action's repository is checked out WITHOUT its submodules, and three of them --
+    # firness, uefi_asan, tsffs -- are the harness generator, the sanitizer and the Simics
+    # backend. Without this the images build with an empty /workspace/harness_generator and
+    # every campaign fails inside the container with nothing pointing back at the checkout.
+    - name: Submodules of the action's own checkout
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+        if [ -d .git ] || [ -f .git ]; then
+          git submodule update --init --depth=1 firness uefi_asan tsffs
+        else
+          # A tarball download rather than a clone: nothing to init, and the submodule
+          # directories are empty. Say so here instead of failing later inside Docker.
+          for m in firness uefi_asan tsffs; do
+            [ -n "$(ls -A "$m" 2>/dev/null || true)" ] || {
+              echo "::error::$m is empty and this checkout is not a git repository."
+              echo "Check FuzzUEr out with actions/checkout and submodules: recursive."
+              exit 1
+            }
+          done
+        fi
+
+    - name: Bootstrap the runner
+      if: inputs.bootstrap == 'true'
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: scripts/bootstrap_runner.sh
+
+    - name: Fuzz
+      id: run
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        # Through the environment, never interpolated into the script body: an input is
+        # whatever the caller typed, and a ref containing $(...) or a quote would otherwise
+        # be pasted straight into this shell.
+        IN_SOURCE: ${{ inputs.source }}
+        IN_REF: ${{ inputs.ref }}
+        IN_BUDGET: ${{ inputs.budget }}
+        IN_JOBS: ${{ inputs.jobs }}
+        IN_BOOT: ${{ inputs.boot-timeout }}
+        IN_TARGETS: ${{ inputs.targets }}
+        IN_QUALIFY: ${{ inputs.qualify-only }}
+        IN_SMM: ${{ inputs.smm }}
+        IN_BENCH: ${{ inputs.bench }}
+        IN_OUT: ${{ inputs.out }}
+        IN_FAIL: ${{ inputs.fail-on-findings }}
+        WORKSPACE: ${{ github.workspace }}
+        FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
+        FIRNESS_CONTAINER_PREFIX: ci
+      run: |
+        set -uo pipefail
+
+        # The caller names `source` relative to their workspace, which is the natural thing
+        # to write after actions/checkout. The driver creates a git worktree of it and hands
+        # the path to docker, so it has to be absolute by the time it gets there.
+        case "$IN_SOURCE" in
+          /*) SOURCE="$IN_SOURCE" ;;
+          *)  SOURCE="$WORKSPACE/$IN_SOURCE" ;;
+        esac
+        if [ ! -d "$SOURCE/.git" ] && [ ! -f "$SOURCE/.git" ]; then
+          echo "::error::source '$IN_SOURCE' is not a git checkout (looked in $SOURCE)."
+          echo "FuzzUEr takes the ref from git history, so a tarball or an archive download"
+          echo "will not do -- use actions/checkout for the tree you want fuzzed."
+          exit 1
+        fi
+
+        # Default to whatever the caller already checked out. A detached HEAD from
+        # actions/checkout has no branch name, so resolve to the SHA rather than guessing.
+        REF="${IN_REF:-}"
+        if [ -z "$REF" ]; then
+          REF=$(git -C "$SOURCE" rev-parse HEAD)
+          echo "no ref given, using the checked out commit $REF"
+        fi
+
+        # Sized to the runner rather than fixed. A campaign is one QEMU plus a harness build,
+        # so a quarter of the cores keeps the box busy without making every boot compete for
+        # it -- and the driver's boot timeout scales with this number for the same reason.
+        JOBS="${IN_JOBS:-}"
+        if [ -z "$JOBS" ]; then
+          JOBS=$(( $(nproc) / 4 ))
+          [ "$JOBS" -lt 4 ] && JOBS=4
+        fi
+
+        OUT="${IN_OUT:-}"
+        if [ -z "$OUT" ]; then
+          SLUG=$(printf '%s' "$REF" | tr -c 'A-Za-z0-9._-' '-')
+          OUT="$PWD/results/fuzz-$SLUG"
+        fi
+
+        set -- --ref "$REF" --source "$SOURCE" --budget "${IN_BUDGET:-600}" \
+               --jobs "$JOBS" --out "$OUT"
+        [ -n "${IN_BOOT:-}" ]   && set -- "$@" --boot-timeout "$IN_BOOT"
+        [ "${IN_QUALIFY:-}" = 'true' ] && set -- "$@" --skip-fuzz
+        [ "${IN_SMM:-}" = 'true' ]     && set -- "$@" --smm
+        [ "${IN_BENCH:-}" = 'true' ]   && set -- "$@" --bench
+        # Unquoted on purpose: these are several target names, not one.
+        # shellcheck disable=SC2086
+        [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS
+
+        echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
+        python3 -u scripts/fuzz_edk2.py "$@"
+        rc=$?
+
+        echo "results=$OUT" >> "$GITHUB_OUTPUT"
+
+        # Read the counts back out of run.json rather than scraping stdout, so the step's
+        # outputs say the same thing the uploaded artifact does.
+        python3 - "$OUT" "$GITHUB_OUTPUT" <<'PY'
+        import json, os, sys
+        out, github_output = sys.argv[1], sys.argv[2]
+        passed = total = 0
+        candidates = ''
+        try:
+            run = json.load(open(os.path.join(out, 'run.json')))
+            for stage in run.get('stages', []):
+                if stage.get('ok') is None:      # deliberately skipped, not a result
+                    continue
+                total += 1
+                if stage.get('ok'):              # True or 'warn'
+                    passed += 1
+        except Exception:
+            pass
+        # From bugs.json, not run.json: run.json carries only the ref and the stage list,
+        # and triage's own detail line is prose. bugs.json['candidates'] is the list the
+        # report is built from, so counting it cannot disagree with bugs.md.
+        try:
+            bugs = json.load(open(os.path.join(out, 'bugs.json')))
+            found = bugs.get('candidates')
+            if isinstance(found, list):
+                candidates = str(len(found))
+            elif found is not None:
+                candidates = str(found)
+        except Exception:
+            pass
+        with open(github_output, 'a') as handle:
+            handle.write(f'stages={passed}/{total}\n')
+            handle.write(f'candidates={candidates}\n')
+        with open(os.path.join(out, '.candidates'), 'w') as handle:
+            handle.write(candidates or '0')
+        PY
+
+        # The heredoc above left the count in a file so this does not have to parse
+        # run.json a second time, nor read back from $GITHUB_OUTPUT, which is write-only
+        # within the step that appends to it.
+        if [ "${IN_FAIL:-}" = 'true' ] && [ "$rc" -eq 0 ]; then
+          n=$(cat "$OUT/.candidates" 2>/dev/null || echo 0)
+          if [ "${n:-0}" -gt 0 ]; then
+            echo "::error::triage reported $n candidate bug(s); see the artifact's bugs.md"
+            rc=1
+          fi
+        fi
+        exit $rc
+
+    - name: Summarise
+      if: always()
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        OUT: ${{ steps.run.outputs.results }}
+      run: |
+        set -uo pipefail
+        python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+        import json, os
+        out = os.environ.get('OUT', '')
+        path = os.path.join(out, 'run.json')
+        if not os.path.isfile(path):
+            print('### FuzzUEr\n\nThe run produced no `run.json`, so it stopped before the '
+                  'first stage reported. The step log is the only record.')
+            raise SystemExit
+        run = json.load(open(path))
+        print(f"### FuzzUEr — `{run.get('ref', '?')}`\n")
+        print('| stage | result | detail |')
+        print('|---|---|---|')
+        mark = {True: 'pass', 'warn': 'warn', False: 'FAIL', None: 'skipped'}
+        for stage in run.get('stages', []):
+            ok = stage.get('ok')
+            print(f"| {stage.get('name','')} | {mark.get(ok, ok)} "
+                  f"| {str(stage.get('detail',''))[:140]} |")
+        n = None
+        try:
+            found = json.load(open(os.path.join(out, 'bugs.json'))).get('candidates')
+            n = len(found) if isinstance(found, list) else found
+        except Exception:
+            pass
+        if n is not None:
+            print(f"\n{n} candidate bug(s) attributed to firmware code. "
+                  f"`bugs.md` in the artifact has the table; a candidate is something to "
+                  f"read, not yet a confirmed defect.")
+        PY
