@@ -1,0 +1,111 @@
+# The fast checks, on every push. Seconds, not hours: nothing here builds firmware or fuzzes.
+#
+# It exists for two reasons. The first is the ordinary one -- a syntax error in a driver
+# script or a drifted sanitizer copy should not wait for someone to run a sweep. The second
+# is that it is the only thing that exercises the self-hosted runner on a normal day: the
+# fuzzing workflows are workflow_dispatch, so without this a runner can sit broken or
+# unregistered for a week and the first sign of it is a sweep that never starts.
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # The failure this catches is silent and expensive: a shallow or partial submodule
+      # fetch leaves a submodule on its branch tip rather than the commit this repo records,
+      # and the run then builds code nobody asked for. Seen for real -- a --depth=1 clone put
+      # firness 40 commits off and the SMI fix simply was not there.
+      - name: Submodules are at the commits this repo records
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          for m in firness uefi_asan tsffs eval_source/edk2; do
+            [ -e "$m/.git" ] || { echo "::error::$m is not checked out"; rc=1; continue; }
+            want=$(git ls-tree HEAD "$m" | awk '{print $3}')
+            have=$(git -C "$m" rev-parse HEAD)
+            if [ "$want" != "$have" ]; then
+              echo "::error::$m is at ${have:0:12}, this repo records ${want:0:12}"
+              rc=1
+            else
+              echo "  ok $m ${have:0:12}"
+            fi
+          done
+          exit $rc
+
+      - name: The two copies of the sanitizer agree
+        shell: bash
+        run: python3 scripts/asan_sync_check.py --quiet
+
+      - name: Every driver script parses
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          for f in scripts/*.py; do
+            python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$f" \
+              || { echo "::error file=$f::does not parse"; rc=1; }
+          done
+          for f in scripts/*.sh; do
+            bash -n "$f" || { echo "::error file=$f::shell syntax error"; rc=1; }
+          done
+          exit $rc
+
+      # A workflow or the action failing to parse is the one error that cannot report
+      # itself: GitHub refuses the file and the run never appears.
+      - name: The workflows and the action parse
+        shell: bash
+        run: |
+          set -uo pipefail
+          python3 - <<'PY'
+          import glob, sys
+          try:
+              import yaml
+          except ImportError:
+              print('PyYAML absent on this runner; skipping the YAML parse')
+              sys.exit(0)
+          bad = 0
+          for f in ['action.yml'] + sorted(glob.glob('.github/workflows/*.yml')):
+              try:
+                  yaml.safe_load(open(f))
+                  print('  ok', f)
+              except Exception as exc:
+                  print(f'::error file={f}::{exc}')
+                  bad = 1
+          sys.exit(bad)
+          PY
+
+      # Not a build, just the question "could this runner build at all" -- the images are
+      # what every later stage needs, and a runner missing them fails a sweep an hour in.
+      - name: The runner has what a sweep needs
+        shell: bash
+        run: |
+          set -uo pipefail
+          docker version --format '  docker {{.Server.Version}}' || {
+            echo "::error::this runner cannot talk to docker"; exit 1; }
+          missing=''
+          for img in fuzzuer-base:latest fuzzuer-ci:latest; do
+            docker image inspect "$img" >/dev/null 2>&1 \
+              && echo "  image $img present" \
+              || missing="$missing $img"
+          done
+          if [ -n "$missing" ]; then
+            echo "::warning::this runner is missing:$missing -- run scripts/bootstrap_runner.sh on it"
+          fi
+          docker ps --format '{{.Names}}' | grep -qx fwbuild-stack \
+            && echo '  builder container up' \
+            || echo '::warning::fwbuild-stack is not running; fuzz_edk2.py will refuse to start'
