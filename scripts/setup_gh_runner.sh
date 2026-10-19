@@ -20,10 +20,43 @@
 set -euo pipefail
 
 TOKEN="${1:-${RUNNER_TOKEN:-}}"
-REPO_URL="${2:-https://github.com/BreakingBoot/FuzzUEr}"
+
+# Default to the repository this checkout belongs to, not a fixed one. A registration token
+# is scoped to a single repository, so pointing a fork's runner at someone else's URL fails
+# inside config.sh with "Invalid configuration provided for url" -- which reads as a bad
+# token rather than a wrong target. SSH remotes are rewritten to https because config.sh
+# wants a web URL.
+default_repo_url() {
+    local origin
+    origin=$(git -C "$(dirname "$0")/.." remote get-url origin 2>/dev/null) || origin=''
+    # git@host:owner/repo -> https://host/owner/repo. Strip the user, turn the single
+    # host/path colon into a slash, and only then add the scheme: prefixing first makes
+    # "https:" the first colon in the string and the replacement mangles that instead.
+    case "$origin" in
+        git@*:*)
+            origin="${origin#git@}"
+            origin="https://${origin/://}"
+            ;;
+    esac
+    origin="${origin%.git}"
+    if [ -n "$origin" ]; then
+        printf '%s' "$origin"
+    else
+        # No origin: a tarball or a detached copy. There is nothing to infer, so say what to
+        # pass rather than guessing a repository.
+        printf ''
+    fi
+}
+REPO_URL="${2:-$(default_repo_url)}"
 RUNNER_VERSION="${RUNNER_VERSION:-2.319.1}"
 RUNNER_DIR="${RUNNER_DIR:-$HOME/actions-runner}"
 LABELS="${RUNNER_LABELS:-self-hosted,linux,x64}"
+
+if [ -z "$REPO_URL" ]; then
+    echo "this checkout has no git remote, so the repository to register against cannot" >&2
+    echo "be inferred. Pass it: $0 <registration-token> https://github.com/<owner>/<repo>" >&2
+    exit 1
+fi
 
 if [ -z "$TOKEN" ]; then
     echo "usage: $0 <registration-token> [repo-url]" >&2
