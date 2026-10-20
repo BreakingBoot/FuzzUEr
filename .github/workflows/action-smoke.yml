@@ -66,6 +66,35 @@ jobs:
             || echo "::warning::candidates is '${CANDIDATES}'; a qualify run should leave it empty"
           exit $rc
 
+      # The pipeline writes into its own checkout: a git worktree at
+      # eval_source/edk2-<ref>, an imgstage/ holding a copy of the tree, and tens of GB
+      # under results/. In a GitHub workspace that is the same directory the NEXT job has
+      # to check out, and actions/checkout cleaning it left the workspace without a .git
+      # and missing two submodules -- which failed the following Checks run for reasons
+      # that had nothing to do with the commit. Hand the workspace back the way it was
+      # found.
+      - name: Put the workspace back
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          for sub in eval_source/edk2 firness uefi_asan tsffs; do
+            [ -e "$sub/.git" ] || continue
+            # a registration outliving its directory is what breaks the next fetch
+            git -C "$sub" worktree prune 2>/dev/null || true
+            for wt in $(git -C "$sub" worktree list --porcelain 2>/dev/null \
+                        | awk '/^worktree /{print $2}'); do
+              case "$wt" in
+                "$GITHUB_WORKSPACE"/*) git -C "$sub" worktree remove --force "$wt" \
+                                         2>/dev/null || true ;;
+              esac
+            done
+          done
+          rm -rf imgstage eval_source/edk2-* || true
+          # results/ is the artifact, so it goes only after the upload step below has run;
+          # that step is next and reads from the path the action reported.
+          echo "workspace returned: $(du -sh . 2>/dev/null | cut -f1)"
+
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -74,3 +103,8 @@ jobs:
             ${{ steps.fuzz.outputs.results }}/run.json
             ${{ steps.fuzz.outputs.results }}/*.log
           if-no-files-found: warn
+
+      - name: Drop the results now they are uploaded
+        if: always()
+        shell: bash
+        run: rm -rf results || true
