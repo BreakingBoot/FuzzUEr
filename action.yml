@@ -58,6 +58,12 @@ inputs:
                   something to read, and a sweep that goes red on one stops reporting the rest'
     required: false
     default: 'false'
+  token:
+    description: 'Token used to clone this action''s own repository when GitHub delivered it
+                  as an archive -- which it does for any `uses: owner/FuzzUEr@ref`. Only
+                  needed when FuzzUEr itself is private; a public one clones without it'
+    required: false
+    default: ''
   bootstrap:
     description: 'Build the images if the runner lacks them. Idempotent, and seconds on a warm
                   runner -- but hours on a cold one, so it can be turned off for a runner you
@@ -83,35 +89,82 @@ runs:
     # firness, uefi_asan, tsffs -- are the harness generator, the sanitizer and the Simics
     # backend. Without this the images build with an empty /workspace/harness_generator and
     # every campaign fails inside the container with nothing pointing back at the checkout.
-    - name: Submodules of the action's own checkout
+    # Where the pipeline is run FROM. Normally that is the action's own directory, but a
+    # `uses: owner/FuzzUEr@ref` is delivered as an ARCHIVE: no .git, and the submodule
+    # directories -- the harness generator, the sanitizer, the Simics backend and the edk2
+    # the port is taken from -- arrive empty. An archive also carries no gitlink SHAs, so
+    # there is nothing to recover them from in place. Clone this action's own repository
+    # instead, at the ref the caller asked for, and work there.
+    - name: Resolve a usable checkout of this action
+      id: home
       shell: bash
-      working-directory: ${{ github.action_path }}
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        ACTION_REPO: ${{ github.action_repository }}
+        ACTION_REF: ${{ github.action_ref }}
+        IN_TOKEN: ${{ inputs.token }}
+        RUNNER_TEMP_DIR: ${{ runner.temp }}
       run: |
-        set -euo pipefail
-        if [ -d .git ] || [ -f .git ]; then
-          git submodule update --init --depth=1 firness uefi_asan tsffs
-        else
-          # A tarball download rather than a clone: nothing to init, and the submodule
-          # directories are empty. Say so here instead of failing later inside Docker.
-          for m in firness uefi_asan tsffs; do
-            [ -n "$(ls -A "$m" 2>/dev/null || true)" ] || {
-              echo "::error::$m is empty and this checkout is not a git repository."
-              echo "Check FuzzUEr out with actions/checkout and submodules: recursive."
-              exit 1
-            }
+        set -uo pipefail
+        complete() {
+          # Every submodule the pipeline needs, non-empty.
+          for m in firness uefi_asan tsffs eval_source/edk2; do
+            [ -n "$(ls -A "$1/$m" 2>/dev/null || true)" ] || return 1
           done
+          return 0
+        }
+
+        HOME_DIR="$ACTION_PATH"
+        if [ -e "$ACTION_PATH/.git" ]; then
+          git -C "$ACTION_PATH" submodule update --init --depth=1 \
+              firness uefi_asan tsffs eval_source/edk2 || true
         fi
+
+        if ! complete "$HOME_DIR"; then
+          if [ -z "${ACTION_REPO:-}" ]; then
+            echo "::error::this action's submodules are empty and GitHub did not say which"
+            echo "repository it came from, so they cannot be fetched. Check FuzzUEr out with"
+            echo "actions/checkout and submodules: recursive, then use it by path."
+            exit 1
+          fi
+          # Not runner.temp: that is wiped between jobs, and this is a ~24 GB recursive
+          # clone. Keyed by repository and ref so two callers on different refs do not
+          # fight over one directory.
+          slug=$(printf '%s@%s' "$ACTION_REPO" "${ACTION_REF:-HEAD}" | tr -c 'A-Za-z0-9._-' '-')
+          HOME_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/fuzzuer-action/$slug"
+          # Reused across jobs on a self-hosted runner: the submodules are a 24 GB fetch and
+          # paying it once per job would dominate every run.
+          if complete "$HOME_DIR"; then
+            echo "reusing $HOME_DIR"
+            git -C "$HOME_DIR" fetch -q --depth=1 origin "${ACTION_REF:-HEAD}" 2>/dev/null || true
+            git -C "$HOME_DIR" checkout -q FETCH_HEAD 2>/dev/null || true
+            git -C "$HOME_DIR" submodule update --init --recursive -q 2>/dev/null || true
+          else
+            rm -rf "$HOME_DIR"; mkdir -p "$(dirname "$HOME_DIR")"
+            url="https://github.com/$ACTION_REPO.git"
+            [ -n "${IN_TOKEN:-}" ] && url="https://x-access-token:$IN_TOKEN@github.com/$ACTION_REPO.git"
+            echo "cloning $ACTION_REPO at ${ACTION_REF:-default} (submodules included)"
+            git clone -q --recurse-submodules --shallow-submodules \
+                --branch "${ACTION_REF:-HEAD}" --depth 1 "$url" "$HOME_DIR" \
+              || git clone -q --recurse-submodules --shallow-submodules "$url" "$HOME_DIR" \
+              || { echo "::error::could not clone \$ACTION_REPO -- pass the 'token' input if it is private"; exit 1; }
+          fi
+          complete "$HOME_DIR" || {
+            echo "::error::cloned $ACTION_REPO but its submodules are still empty"; exit 1; }
+        fi
+        echo "home=$HOME_DIR" >> "$GITHUB_OUTPUT"
+        echo "running from $HOME_DIR"
 
     - name: Bootstrap the runner
       if: inputs.bootstrap == 'true'
       shell: bash
-      working-directory: ${{ github.action_path }}
+      working-directory: ${{ steps.home.outputs.home }}
       run: scripts/bootstrap_runner.sh
 
     - name: Fuzz
       id: run
       shell: bash
-      working-directory: ${{ github.action_path }}
+      working-directory: ${{ steps.home.outputs.home }}
       env:
         # Through the environment, never interpolated into the script body: an input is
         # whatever the caller typed, and a ref containing $(...) or a quote would otherwise
@@ -237,7 +290,7 @@ runs:
     - name: Summarise
       if: always()
       shell: bash
-      working-directory: ${{ github.action_path }}
+      working-directory: ${{ steps.home.outputs.home }}
       env:
         OUT: ${{ steps.run.outputs.results }}
       run: |
