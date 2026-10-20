@@ -181,6 +181,7 @@ runs:
         IN_OUT: ${{ inputs.out }}
         IN_FAIL: ${{ inputs.fail-on-findings }}
         WORKSPACE: ${{ github.workspace }}
+        RUNNER_TEMP_DIR: ${{ runner.temp }}
         FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
         FIRNESS_CONTAINER_PREFIX: ci
       run: |
@@ -217,14 +218,21 @@ runs:
           [ "$JOBS" -lt 4 ] && JOBS=4
         fi
 
+        # Outside the workspace by default. The pipeline writes a git worktree, a docker
+        # build context and its artifacts; putting any of that in the directory
+        # actions/checkout owns left the next job unable to check out at all -- it ended up
+        # with no .git. RUNNER_TEMP_DIR is the runner's own scratch and is not the
+        # workspace.
+        SCRATCH="${RUNNER_TEMP_DIR:-$PWD}/fuzzuer-run"
+        mkdir -p "$SCRATCH"
         OUT="${IN_OUT:-}"
         if [ -z "$OUT" ]; then
           SLUG=$(printf '%s' "$REF" | tr -c 'A-Za-z0-9._-' '-')
-          OUT="$PWD/results/fuzz-$SLUG"
+          OUT="$SCRATCH/results/fuzz-$SLUG"
         fi
 
         set -- --ref "$REF" --source "$SOURCE" --budget "${IN_BUDGET:-600}" \
-               --jobs "$JOBS" --out "$OUT"
+               --jobs "$JOBS" --out "$OUT" --work "$SCRATCH"
         [ -n "${IN_BOOT:-}" ]   && set -- "$@" --boot-timeout "$IN_BOOT"
         [ "${IN_QUALIFY:-}" = 'true' ] && set -- "$@" --skip-fuzz
         [ "${IN_SMM:-}" = 'true' ]     && set -- "$@" --smm
