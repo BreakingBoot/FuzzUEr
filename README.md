@@ -576,15 +576,16 @@ python3 scripts/bench_cases.py --code OVMF_CODE.fd --vars OVMF_VARS.fd \
     --app SanBenchDrive.efi --out cases --roms /workspace/qemu_fw
 ```
 
-Ten of ten are detected. The eleventh, `boot-service-after-exit`, needs the runtime
-phase and an application under BDS is by definition before it -- it is reported "not
-attempted" rather than counted as a miss, because a benchmark that hides its own gaps is
+Eleven of eleven scorable classes are detected, measured rather than asserted --
+`results/bench-scoreboard.md` is the run. The twelfth, `boot-service-after-exit`, needs the
+runtime phase and an application under BDS is by definition before it, so it is reported
+"not scorable here" rather than counted as a miss: a benchmark that hides its own gaps is
 worth less than one that names them.
 
-The script boots twelve times, not eleven: besides the rows above it runs a `control` case
-on correct code, which passes by staying silent. It is not in the table because it is not a
-bug class, but it is the row that makes the other ten mean something -- a sanitizer that
-reports on the control is reporting on anything. The remaining blind spot is stack memory: the build
+The eleven include a `control` case on correct code, which passes by staying **silent**. It
+is not in the table above because it is not a bug class, but it is the one that makes the
+other ten mean anything -- a runtime that reports on the control is reporting on everything,
+and ten detections would look identical. The remaining blind spot is stack memory: the build
 carries `-mllvm -asan-stack=0` because enabling stack instrumentation faults the boot in
 CpuDxe, so a stack overread of any shape is invisible.
 
