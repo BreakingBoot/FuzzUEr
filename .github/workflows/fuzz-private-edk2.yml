@@ -45,7 +45,8 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write        # the findings branch
+  pull-requests: write   # and the PR that carries it
 
 jobs:
   fuzz:
@@ -101,8 +102,80 @@ jobs:
             ${{ steps.fuzz.outputs.results }}/bugs.md
             ${{ steps.fuzz.outputs.results }}/bugs.json
             ${{ steps.fuzz.outputs.results }}/presence.csv
+            ${{ steps.fuzz.outputs.results }}/bench_cases.log
             ${{ steps.fuzz.outputs.results }}/*.log
             ${{ steps.fuzz.outputs.results }}/campaigns/*/crashes.csv
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/log.json
             ${{ steps.fuzz.outputs.results }}/campaigns/*/run.log
             ${{ steps.fuzz.outputs.results }}/campaigns/*/fuzz.txt
+            ${{ steps.fuzz.outputs.results }}/reproducers/**
           if-no-files-found: warn
+
+      # Only when triage actually attributed something to firmware code. A sweep produces
+      # CANDIDATES, and most are not defects -- one sweep here gave 25 clusters of which 24
+      # were pattern locations in the harness's own buffer. A PR per candidate would be
+      # noise, and noise gets filtered, which is worse than silence. So: one PR when the
+      # count is non-zero, carrying the report and the inputs that reproduce it, and nothing
+      # at all for a clean run.
+      - name: Open a PR when there are candidates
+        if: steps.fuzz.outputs.candidates != '' && steps.fuzz.outputs.candidates != '0'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          N: ${{ steps.fuzz.outputs.candidates }}
+          BUGS: ${{ steps.fuzz.outputs.bugs }}
+          REPRO: ${{ steps.fuzz.outputs.reproducers }}
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+          TARGET_REPO: ${{ github.event.inputs.repository }}
+          TARGET_REF: ${{ github.event.inputs.ref }}
+        run: |
+          set -uo pipefail
+          branch="fuzz-findings/${GITHUB_RUN_ID}"
+          dest="results/findings/${GITHUB_RUN_ID}"
+          mkdir -p "$dest"
+          [ -n "${BUGS:-}" ] && [ -f "$BUGS" ] && cp "$BUGS" "$dest/bugs.md"
+          for f in bugs.json run.json presence.csv; do
+            [ -f "${RESULTS:-}/$f" ] && cp "$RESULTS/$f" "$dest/"
+          done
+          # Reproducers only if small. A sweep can leave thousands of inputs; a PR is for
+          # reading, and the run artifact already carries the full set either way.
+          if [ -n "${REPRO:-}" ] && [ -d "$REPRO" ]; then
+            size=$(du -sk "$REPRO" | cut -f1)
+            if [ "$size" -le 2048 ]; then
+              cp -a "$REPRO" "$dest/reproducers"
+            else
+              echo "${size}KB of reproducers -- see the run artifact" > "$dest/reproducers.txt"
+            fi
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add "$dest"
+          git commit -q -m "Fuzzing findings from run ${GITHUB_RUN_ID}" || {
+            echo "::warning::nothing to commit, so no PR"; exit 0; }
+          git push -q origin "$branch" || {
+            echo "::error::could not push $branch"; exit 1; }
+
+          {
+            echo "Triage attributed **$N** candidate(s) to firmware code."
+            echo
+            echo "- target: \`${TARGET_REPO:-this repository}\` at \`${TARGET_REF:-HEAD}\`"
+            echo "- report: \`$dest/bugs.md\`"
+            echo "- every reproducer input: the \`fuzzuer-${GITHUB_RUN_ID}\` artifact"
+            echo
+            echo "A candidate is something to read, not a confirmed defect. Before acting:"
+            echo
+            echo "1. check the **module** column -- a report against the harness says nothing"
+            echo "   about the firmware;"
+            echo "2. check whether it is **input driven** -- \`bugs.md\` separates reports a"
+            echo "   testcase provoked from ones that fire on every boot, and both can be real;"
+            echo "3. one site with thousands of hits is a loop or a scanner, not that many bugs."
+            echo
+            echo "Opened automatically because the count was non-zero. A clean run opens nothing."
+          } > /tmp/pr-body.md
+
+          gh pr create --title "Fuzzing findings: $N candidate(s)" \
+            --body-file /tmp/pr-body.md --head "$branch" \
+            --base "${GITHUB_REF_NAME:-main}" \
+            || echo "::warning::branch $branch is pushed but the PR could not be opened"
