@@ -173,6 +173,13 @@ def sh_log(argv, path, timeout=None):
 # builds the harness with GenFw; without it every campaign stops at "Unable to find the
 # real GenFw".
 IMAGE_DOCKERFILE = """FROM {base}
+# bash, not the default /bin/sh. edk2's edksetup.sh is a bash script, and on an older tree it
+# uses the bash-only "function Name()" form -- upstream made it POSIX later. Sourced under
+# dash that is a SYNTAX error, and a syntax error in a sourced script aborts the whole shell
+# at once: the step died with code 2 and printed nothing, not even the failure handler two
+# lines below it, so the build looked like it had vanished. Conf was left holding only
+# ReadMe.txt and `build` never reached PATH, which is the visible half of the same thing.
+SHELL ["/bin/bash", "-c"]
 RUN rm -rf /workspace/tmp/edk2
 COPY ./edk2 /workspace/tmp/edk2
 COPY ./qemu_fw /workspace/qemu_fw
@@ -184,11 +191,13 @@ COPY ./scripts /workspace/scripts/
 COPY ./scripts/firness.py /workspace/
 COPY ./harness_generator /workspace/harness_generator
 COPY ./HarnessHelpers /workspace/HarnessHelpers
-# -j8, and -j1 if that still loses: BaseTools generates VfrCompile's parser with antlr
+# --cores, and -j1 if that still loses: BaseTools generates VfrCompile's parser with antlr
 # without declaring every dependency, so a wide -j reads half-written headers. Same race
 # as the firmware build stage, and it fails here as an opaque "The command ... returned a
-# non-zero code" from docker build.
-RUN {{ make -C /workspace/tmp/edk2/BaseTools -j8 \\
+# non-zero code" from docker build -- which is why --cores is small by default rather than
+# nproc. The LLVM and QEMU builds in bootstrap_runner.sh stay wide on purpose: ninja
+# declares its dependencies, so those scale instead of racing.
+RUN {{ make -C /workspace/tmp/edk2/BaseTools -j{cores} \\
      || make -C /workspace/tmp/edk2/BaseTools -j1 ; }} >/tmp/basetools.log 2>&1 \\
     && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/GenFw \\
     && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/VfrCompile
@@ -210,7 +219,7 @@ RUN cd /workspace/tmp/edk2 \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
        -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench} \\
        -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE \\
-       -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
+       -D FD_SIZE_IN_KB=8192 -n {cores} >/tmp/anabuild.log 2>&1 \\
        || {{ echo '=== the analysis build failed; its last 60 lines: ==='; \\
              tail -60 /tmp/anabuild.log; exit 1; }} \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
@@ -297,6 +306,14 @@ def main():
                              'every member hides a fault behind a condition an input '
                              'has to satisfy, so what a sweep finds among them is a '
                              'measurement of the fuzzer rather than of the firmware')
+    parser.add_argument('--cores', type=int, default=0,
+                        help='parallel jobs for every firmware build. Default: a quarter of '
+                             'the machine, capped at 8. Wide parallelism is where the edk2 '
+                             'build becomes unreliable rather than fast -- BaseTools races '
+                             'at high -j and the analysis build has been seen hang at '
+                             'nproc on a 72-core box -- and the campaigns are what should '
+                             'have the cores, not one build. Raise it if you are building '
+                             'and not fuzzing')
     parser.add_argument('--smi', action='store_true',
                         help='also fuzz the SMI handlers the discover stage finds, not just '
                              'the protocols. Implies --smm: the handlers answer an SMM core, '
@@ -344,6 +361,9 @@ def main():
     #
     # =TRUE is kept because it is explicit and costs nothing; the gates no longer need it.
     bench_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE' if args.bench else ''
+    # Small on purpose, and the same number for every build in the run so a failure is
+    # reproducible. os.cpu_count() can be None, hence the or 4.
+    cores = args.cores if args.cores > 0 else max(1, min(8, (os.cpu_count() or 4) // 4))
     # SMM_REQUIRE is what builds the SMM core and its handlers; STANDALONE_MM_ENABLE only
     # chooses WHICH core, and does nothing by itself because the DSC nests it inside
     # !if $(SMM_REQUIRE) == TRUE. Asking for the model without the foundation is a mistake
@@ -583,7 +603,7 @@ def main():
                   f'-x BaseTools/Source/C/bin/GenFw || '
                   f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
-                  f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 -n "$(nproc)"')
+                  f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 -n {cores}')
         done = docker(args.builder, script, timeout=7200)
         text = done.stdout + done.stderr
         open(os.path.join(out, logname), 'w').write(text)
@@ -744,7 +764,7 @@ def main():
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
             IMAGE_DOCKERFILE.format(base=args.base_image,
-                                                   bench=bench_defines))
+                                    bench=bench_defines, cores=cores))
         # Not -q. Quiet mode prints the image id and throws the build away, so a failed
         # image build left only its last line -- truncated to 110 characters in run.json --
         # and nothing to diagnose from. The image build runs a full harness build inside the
