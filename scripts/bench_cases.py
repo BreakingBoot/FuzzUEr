@@ -46,6 +46,11 @@ CASES = [
     ('boot-service-after-exit', None,                        'needs the runtime phase'),
     ('variable-size-trusted',   'asan',                      None),
     ('use-after-free',          'asan',                      None),
+    # The only case whose verdict depends on stack instrumentation being on. The compiler
+    # writes a frame's redzones inline, so this reports only when SanBenchDxe was built
+    # WITHOUT -mllvm -asan-stack=0 -- and every other case here passes either way, so a
+    # green board without this row says nothing about the stack at all.
+    ('stack-buffer-overflow',   'asan',                      None),
     ('double-free',             'double-free',               None),
     ('size-overflow',           'asan',                      None),
 ]
@@ -139,6 +144,16 @@ def score_one(args, case, expect, unreachable, work):
         after = from_line_start(serial, serial.index(marker))
     elif case == 'control' and 'control' in serial:
         after = from_line_start(serial, serial.index('control'))
+    else:
+        # The case never announced itself, so it never ran -- an exerciser too old to know
+        # the name says "no such case" and carries on. Falling through to the whole log here
+        # is what made that a PASS: every boot carries the HiiDatabase null-pointer reports,
+        # and an 'asan' expectation matches the first sanitizer line it finds whatever
+        # produced it. A case that did not run scored exactly like one that was caught.
+        return dict(case=case, verdict='NOT RUN',
+                    detail='the exerciser never announced this case -- it is not in the '
+                           'SanBenchDrive that booted, so nothing was measured',
+                    reports=[])
 
     reports = [line.strip() for line in after.splitlines()
                if REPORT.search(line) and NARRATION not in line]
@@ -226,7 +241,10 @@ def main():
     for case, _expect, _unreachable in wanted:
         row = results[case]
         print('%-24s %-8s %s' % (case, row['verdict'], row['detail']))
-        if row['verdict'] in ('PASS', 'MISS', 'WRONG'):
+        # NOT RUN counts in the denominator. It is a non-detection, not an exemption:
+        # leaving it out would shrink the total and print "11 of 11" for a board where one
+        # case was never exercised, which is the dishonest shape this file exists to avoid.
+        if row['verdict'] in ('PASS', 'MISS', 'WRONG', 'NOT RUN'):
             scored += 1
             if row['verdict'] == 'PASS':
                 detected += 1
@@ -237,6 +255,11 @@ def main():
     if skipped:
         print('not scorable here: %s' % ', '.join(sorted(skipped)))
     print('logs under %s' % args.out)
+
+    stale = [r['case'] for r in results.values() if r['verdict'] == 'NOT RUN']
+    if stale:
+        print('NOT RUN: %s -- the SanBenchDrive in this firmware predates these cases. '
+              'Rebuild it; a missing case is not a passing one.' % ', '.join(sorted(stale)))
 
     # A control that reports, or a boot that never happened, invalidates the run rather
     # than costing it a point -- so those fail the exit status while a MISS does not.
