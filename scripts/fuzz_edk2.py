@@ -230,6 +230,12 @@ RUN {{ make -C /workspace/tmp/edk2/BaseTools -j{cores} \\
     && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/GenFw \\
     && test -x /workspace/tmp/edk2/BaseTools/Source/C/bin/VfrCompile
 # The compilation database firness analyses, built once here instead of once per campaign.
+# It carries the SMM choice too, and has to: SMI handler registrations live in
+# DXE_SMM_DRIVER modules, so a database built without SMM_REQUIRE contains none of them. The
+# C++ analyser then writes a null smi-function-guid-map.json and the generator dies in
+# load_smi_data with "'NoneType' object has no attribute 'items'" -- after a container, a
+# full analysis and ten minutes. That is why --smi needs --smm all the way down, not just in
+# the firmware the campaign boots.
 # It describes the tree, not the protocol, so every campaign was paying for the same
 # instrumented build of the whole of OVMF under bear -- minutes each, times as many
 # protocols as the version has.
@@ -245,7 +251,7 @@ RUN cd /workspace/tmp/edk2 \\
     && . ./edksetup.sh >/dev/null 2>&1 \\
     && bear --output /workspace/tmp/compile_commands.json -- \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
-       -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench} \\
+       -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench}{smm} \\
        -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE \\
        -D FD_SIZE_IN_KB=8192 -n {cores} >/tmp/anabuild.log 2>&1 \\
        || {{ echo '=== the analysis build failed; its last 60 lines: ==='; \\
@@ -433,6 +439,27 @@ def main():
     os.makedirs(os.path.dirname(tree), exist_ok=True)
     run = Run(args.ref, out)
     run.base_image = args.base_image
+
+    # Several stages hand `out` and `work` to "docker run -v". On this host a bind mount
+    # from /tmp silently yields an EMPTY directory inside the container, so the detect probe
+    # reports "--code, --vars, --selftest given but not on disk" for files that are plainly
+    # there, and a campaign writes its results into nowhere. Checked here, once, because the
+    # symptom points at the wrong thing every time.
+    for name, path in (('--out', out), ('--work', work)):
+        os.makedirs(path, exist_ok=True)
+        probe = os.path.join(path, '.mount-probe')
+        with open(probe, 'w') as handle:
+            handle.write('probe')
+        seen = sh(['docker', 'run', '--rm', '-v', f'{path}:/probe',
+                   '--entrypoint', 'sh', args.base_image, '-c',
+                   'test -f /probe/.mount-probe && echo VISIBLE'], timeout=120)
+        os.remove(probe)
+        if 'VISIBLE' not in seen.stdout:
+            sys.exit(f'{name} {path} cannot be bind mounted into a container: a file written '
+                     f'there is not visible inside one. On this host that is what any path '
+                     f'under /tmp does. Use a path under the repository or the runner, and '
+                     f'note the failure it would otherwise cause is reported as missing '
+                     f'files rather than as a mount problem.')
     run.evalset = ''
     run.target_count = 0
     image_tag = f'fuzzuer-{slug.lower()}:latest'
@@ -814,8 +841,8 @@ def main():
             shutil.copytree(src_dir, os.path.join(stage, name),
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
-            IMAGE_DOCKERFILE.format(base=args.base_image,
-                                    bench=bench_defines, cores=cores))
+            IMAGE_DOCKERFILE.format(base=args.base_image, bench=bench_defines,
+                                    smm=smm_defines, cores=cores))
         # Not -q. Quiet mode prints the image id and throws the build away, so a failed
         # image build left only its last line -- truncated to 110 characters in run.json --
         # and nothing to diagnose from. The image build runs a full harness build inside the
