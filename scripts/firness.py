@@ -143,7 +143,7 @@ def compile_ovmf(src, capture_db=False):
 
 
 # Run bear on the entire simics code base to get the compilation database
-def get_compilation_database(src, dst, backend='tsffs'):
+def get_compilation_database(src, dst, backend='qemu'):
     # Analyse the platform that will be booted. Simics boots BoardX58Ich10 out of
     # edk2-platforms; QEMU boots OVMF. The base image carries the whole Simics platform
     # stack, so "is edk2-platforms present" is not the question -- it always is, and
@@ -1957,9 +1957,11 @@ def main():
                              'HARNESS_START before giving up (default: 2700)')
     parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
     parser.add_argument('--smi', action='store_true', help='Run the SMI fuzzer')
-    parser.add_argument('--backend', type=str, default='tsffs',
+    parser.add_argument('--backend', type=str, default='qemu',
                         choices=['tsffs', 'qemu', 'nyx', 'none'],
-                        help='Fuzzer the generated harness targets (default: tsffs)')
+                        help='Fuzzer the generated harness targets. QEMU by default: it '
+                             'needs no licence, so it is the one a fresh checkout can '
+                             'actually run. tsffs needs the Simics packages')
     parser.add_argument('--reproduce', action='store_true',
                         help='Replay a saved test case under reproduce.simics instead of fuzzing')
     parser.add_argument('--testcase', type=str,

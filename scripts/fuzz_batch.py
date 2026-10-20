@@ -410,8 +410,9 @@ def main():
     parser.add_argument('--image', type=str, default=DEFAULT_IMAGE)
     parser.add_argument('--cpus', type=str, default='',
                         help='Per-container cpu limit, e.g. 2 -- leaves the box usable by others')
-    parser.add_argument('--backend', type=str, default='tsffs',
-                        choices=['tsffs', 'qemu', 'nyx', 'none'])
+    parser.add_argument('--backend', type=str, default='qemu',
+                        choices=['tsffs', 'qemu', 'nyx', 'none'],
+                        help='QEMU by default -- it needs no licence. tsffs needs Simics')
     parser.add_argument('--smi', action='store_true',
                         help='Fuzz SMI handlers rather than protocols. The request file '
                              'lists handler names and the cache must hold a '

@@ -75,7 +75,7 @@ def library_gaps(harness_dir, roots):
     return unmapped, absent
 
 
-def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False, backend='tsffs'):
+def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False, backend='qemu'):
     # the generator writes libmap.json back next to the databases, so it needs its own
     # copy of the analysis rather than the shared cache
     work = os.path.join(out_dir, 'analysis')
@@ -107,7 +107,7 @@ def run_generator(cache_dir, input_file, edk2_dir, out_dir, smi=False, backend='
 
 # a syntax-only check on the generated C. this catches the "expected expression" and
 # "unknown type name" classes without paying for a full edk2 build
-def syntax_check(harness_dir, edk2_dir, backend='tsffs'):
+def syntax_check(harness_dir, edk2_dir, backend='qemu'):
     # all three sources, not just the generated harness: FirnessMain.c is what includes
     # the backend header, so compiling only FirnessHarnesses.c hides a missing helper
     sources = [os.path.join(harness_dir, name) for name
@@ -187,9 +187,9 @@ def main():
     parser.add_argument('--generator', type=str, help='Path to harness_generator/main.py')
     parser.add_argument('--cc', type=str, default='clang', help='Compiler to check the generated C with')
     parser.add_argument('--helpers', type=str, help='Directory holding FirnessHelpers.h')
-    parser.add_argument('--backend', type=str, default='tsffs',
+    parser.add_argument('--backend', type=str, default='qemu',
                         choices=['tsffs', 'qemu', 'nyx', 'none'],
-                        help='Fuzzer the harness is built against')
+                        help='Fuzzer the harness is built against, QEMU by default')
     parser.add_argument('--smi', action='store_true',
                         help='Generate SMI handler harnesses rather than protocol ones')
     args = parser.parse_args()
