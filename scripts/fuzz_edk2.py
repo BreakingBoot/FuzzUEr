@@ -104,6 +104,12 @@ class Run:
 
     def save(self):
         os.makedirs(self.out, exist_ok=True)
+        # Before run.json, because the containers that boot QEMU run as root and leave their
+        # captures owned by root. In CI the job's cleanup runs as the runner user and then
+        # cannot delete its own output, so the scratch grows by one detect_capture per run
+        # with nothing able to reclaim it.
+        if getattr(self, 'base_image', ''):
+            reown(self.out, self.base_image)
         with open(os.path.join(self.out, 'run.json'), 'w') as handle:
             json.dump({'ref': self.ref,
                        'stages': [{'name': s.name, 'ok': s.ok, 'detail': s.detail,
@@ -116,6 +122,28 @@ def sh(cmd, cwd=None, timeout=None, env=None):
     merged.update(env or {})
     return subprocess.run(cmd, shell=isinstance(cmd, str), cwd=cwd, env=merged,
                           capture_output=True, text=True, timeout=timeout)
+
+
+def reown(path, image):
+    """Give a directory a container wrote back to the user running this.
+
+    The detect probe and the benchmark run as root -- they boot QEMU and poke at firmware
+    images -- and everything they leave under the results directory is then root owned. From
+    a shell that is untidy; in CI it is a leak, because the job's own cleanup runs as the
+    runner user and cannot remove its own run's output. The scratch then grows by a
+    detect_capture every run and nothing on the runner can reclaim it.
+
+    Done from inside a container because that is the only side of the mount with the
+    privilege to do it. Failure is not fatal: the artifacts are already written and readable,
+    this only decides who may delete them.
+    """
+    if not os.path.isdir(path):
+        return
+    # The pipeline's own image, not a new one: it is already on the runner, so this adds
+    # no pull and cannot fail for want of a registry.
+    sh(['docker', 'run', '--rm', '-v', f'{os.path.abspath(path)}:/fix',
+        '--entrypoint', 'sh', image, '-c',
+        f'chown -R {os.getuid()}:{os.getgid()} /fix'], timeout=300)
 
 
 def docker(container, script, timeout=None):
@@ -404,6 +432,7 @@ def main():
     tree = os.path.join(work, 'eval_source', f'edk2-{slug}')
     os.makedirs(os.path.dirname(tree), exist_ok=True)
     run = Run(args.ref, out)
+    run.base_image = args.base_image
     run.evalset = ''
     run.target_count = 0
     image_tag = f'fuzzuer-{slug.lower()}:latest'
