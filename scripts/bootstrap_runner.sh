@@ -26,6 +26,10 @@ FORCE="${BOOTSTRAP_FORCE:-}"
 # LLVM 15 builds and the QEMU build run 4-way whatever the machine has -- and those are the
 # bulk of the "hours, not minutes" first run. Everything else here already sizes itself by
 # nproc.
+#
+# Wide is right HERE and wrong for the firmware: these are ninja builds, which declare their
+# dependencies and scale. The edk2 builds in fuzz_edk2.py race at high -j, so those take
+# --cores and default small. Set NJOBS to cap this one on a shared machine.
 NJOBS="${NJOBS:-$(nproc)}"
 echo "building with NJOBS=$NJOBS"
 
