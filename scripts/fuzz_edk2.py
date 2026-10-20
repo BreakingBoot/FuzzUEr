@@ -211,6 +211,8 @@ RUN cd /workspace/tmp/edk2 \\
        -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench} \\
        -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE \\
        -D FD_SIZE_IN_KB=8192 -n "$(nproc)" >/tmp/anabuild.log 2>&1 \\
+       || {{ echo '=== the analysis build failed; its last 60 lines: ==='; \\
+             tail -60 /tmp/anabuild.log; exit 1; }} \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
 # The firmware the fuzzer boots has to be the build those .debug files describe, and it
 # was not. qemu_fw copied in above is the build stage's, built at
@@ -743,11 +745,17 @@ def main():
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
             IMAGE_DOCKERFILE.format(base=args.base_image,
                                                    bench=bench_defines))
-        built = sh(['docker', 'build', '-q', '-t', image_tag,
+        # Not -q. Quiet mode prints the image id and throws the build away, so a failed
+        # image build left only its last line -- truncated to 110 characters in run.json --
+        # and nothing to diagnose from. The image build runs a full harness build inside the
+        # container, which is exactly the kind of failure that needs its output.
+        built = sh(['docker', 'build', '-t', image_tag,
                     '-f', os.path.join(stage, 'Dockerfile'), stage], timeout=5400)
+        open(os.path.join(out, 'image.log'), 'w').write(built.stdout + built.stderr)
         if built.returncode:
             tail = (built.stdout + built.stderr).strip().splitlines()
-            return False, (tail[-1][:110] if tail else 'docker build failed')
+            return False, ((tail[-1][:110] if tail else 'docker build failed')
+                           + ' -- full output in image.log')
         return True, f'{image_tag} carries this tree'
 
     def detects():
@@ -768,7 +776,17 @@ def main():
         """
         # ASAN_FUZZER defaults to qemu inside the DSC, so omitting it changes
         # nothing; the DSC's own comment names -D ASAN_FUZZER=none for this.
-        ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none' + smm_defines,
+        #
+        # bench_defines belongs here too, and leaving it out made the scoreboard
+        # unscorable. This build REPLACES the firmware the benchmark is then booted
+        # against, so without SAN_BENCH the SanBenchDxe driver is not in it -- while
+        # SanBenchDrive.efi survives in the shared Build tree from the campaign build and
+        # is still found. The application therefore boots, finds no protocol to call, and
+        # every one of the twelve classes reports UNBUILT: "0 of 0 scorable classes
+        # detected", which reads as a benchmark with nothing in it rather than as a probe
+        # built without the drivers.
+        ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none'
+                                   + bench_defines + smm_defines,
                                    'detect-build.log')
         if not ok_:
             return False, f'the check build failed: {text}'
