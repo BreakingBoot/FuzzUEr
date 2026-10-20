@@ -72,6 +72,12 @@ inputs:
     default: 'true'
 
 outputs:
+  bugs:
+    description: 'The triaged report, bugs.md, or empty when triage did not run'
+    value: ${{ steps.run.outputs.bugs }}
+  reproducers:
+    description: 'Directory holding the inputs that triggered a finding, or empty'
+    value: ${{ steps.run.outputs.reproducers }}
   results:
     description: 'Directory holding run.json, bugs.md and the per-campaign logs'
     value: ${{ steps.run.outputs.results }}
@@ -246,6 +252,30 @@ runs:
         rc=$?
 
         echo "results=$OUT" >> "$GITHUB_OUTPUT"
+        [ -f "$OUT/bugs.md" ] && echo "bugs=$OUT/bugs.md" >> "$GITHUB_OUTPUT" \
+                             || echo "bugs=" >> "$GITHUB_OUTPUT"
+        # The inputs that actually triggered a finding. A campaign keeps them under
+        # qemu/crashes, and until now nothing published them: the report said "a finding at
+        # this site" and the bytes that reproduce it stayed on the runner. One sweep had 801
+        # of them for a single protocol, so they are collected rather than globbed into the
+        # upload step.
+        REPRO="$OUT/reproducers"
+        found=0
+        for c in "$OUT"/campaigns/*/qemu/crashes; do
+          [ -d "$c" ] || continue
+          n=$(ls -A "$c" 2>/dev/null | wc -l)
+          [ "$n" -eq 0 ] && continue
+          name=$(basename "$(dirname "$(dirname "$c")")")
+          mkdir -p "$REPRO/$name"
+          cp -a "$c"/. "$REPRO/$name"/ 2>/dev/null || true
+          found=$((found + n))
+        done
+        if [ "$found" -gt 0 ]; then
+          echo "reproducers=$REPRO" >> "$GITHUB_OUTPUT"
+          echo "collected $found reproducer input(s) under $REPRO"
+        else
+          echo "reproducers=" >> "$GITHUB_OUTPUT"
+        fi
 
         # Read the counts back out of run.json rather than scraping stdout, so the step's
         # outputs say the same thing the uploaded artifact does.
