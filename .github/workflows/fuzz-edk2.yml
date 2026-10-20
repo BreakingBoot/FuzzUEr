@@ -173,12 +173,12 @@ jobs:
             results/fuzz-*/run.json
             results/fuzz-*/bugs.md
             results/fuzz-*/bugs.json
-            results/fuzz-*/build.log
-            results/fuzz-*/detect-build.log
-            results/fuzz-*/detect_check.log
-            results/fuzz-*/fuzz.log
-            results/fuzz-*/triage.log
+            results/fuzz-*/presence.csv
+            results/fuzz-*/bench_cases.log
+            results/fuzz-*/*.log
             results/fuzz-*/campaigns/*/crashes.csv
             results/fuzz-*/campaigns/*/log.json
             results/fuzz-*/campaigns/*/run.log
             results/fuzz-*/campaigns/*/fuzz.txt
+            results/fuzz-*/reproducers/**
+          if-no-files-found: warn

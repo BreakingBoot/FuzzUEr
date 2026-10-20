@@ -104,7 +104,16 @@ jobs:
           name: action-smoke-${{ github.run_id }}
           path: |
             ${{ steps.fuzz.outputs.results }}/run.json
+            ${{ steps.fuzz.outputs.results }}/bugs.md
+            ${{ steps.fuzz.outputs.results }}/bugs.json
+            ${{ steps.fuzz.outputs.results }}/presence.csv
+            ${{ steps.fuzz.outputs.results }}/bench_cases.log
             ${{ steps.fuzz.outputs.results }}/*.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/crashes.csv
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/log.json
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/run.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/fuzz.txt
+            ${{ steps.fuzz.outputs.results }}/reproducers/**
           if-no-files-found: warn
 
       - name: Drop the run's scratch now the results are uploaded
