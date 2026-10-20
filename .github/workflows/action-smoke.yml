@@ -90,10 +90,13 @@ jobs:
               esac
             done
           done
-          rm -rf imgstage eval_source/edk2-* || true
-          # results/ is the artifact, so it goes only after the upload step below has run;
-          # that step is next and reads from the path the action reported.
-          echo "workspace returned: $(du -sh . 2>/dev/null | cut -f1)"
+          # NOTHING is deleted from the workspace here. The pipeline keeps its worktree
+          # and its build context under --work, which the action points outside the
+          # workspace, so there is nothing of its making left to remove. An earlier version
+          # of this step ran `rm -rf eval_source/edk2-*`, which matches the edk2-non-osi and
+          # edk2-platforms SUBMODULES -- it would have deleted two real checkouts to tidy
+          # up files that are no longer there.
+          echo "workspace size: $(du -sh . 2>/dev/null | cut -f1)"
 
       - if: always()
         uses: actions/upload-artifact@v4
@@ -104,7 +107,15 @@ jobs:
             ${{ steps.fuzz.outputs.results }}/*.log
           if-no-files-found: warn
 
-      - name: Drop the results now they are uploaded
+      - name: Drop the run's scratch now the results are uploaded
         if: always()
         shell: bash
-        run: rm -rf results || true
+        env:
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+        run: |
+          set -uo pipefail
+          # Under runner.temp, not the workspace -- see --work. Tens of GB per run, so it
+          # does not get to accumulate.
+          scratch="${RUNNER_TEMP:-}/fuzzuer-run"
+          [ -n "${RUNNER_TEMP:-}" ] && [ -d "$scratch" ] && rm -rf "$scratch" || true
+          echo "dropped $scratch"
