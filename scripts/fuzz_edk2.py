@@ -289,6 +289,13 @@ def main():
     parser.add_argument('--targets', nargs='*', default=None,
                         help='specific targets; default is everything discovered')
     parser.add_argument('--out', default='', help='where the artifacts go')
+    parser.add_argument('--work', default='',
+                        help='where this run keeps its own scratch: the git worktree of the '
+                             'ref and the docker build context for the campaign image. '
+                             'Defaults to this repository, which is fine from a shell and '
+                             'wrong inside CI -- there the repository is the workspace '
+                             'actions/checkout owns, and a pipeline writing into it leaves '
+                             'a tree the next job cannot check out')
     parser.add_argument('--builder', default='fwbuild-stack',
                         help='container holding the toolchain')
     parser.add_argument('--port-base', default='',
@@ -388,7 +395,14 @@ def main():
     # explicit --out could trip it -- and when it did, it failed the run at the detects
     # stage, after the image had already been rebuilt.
     out = os.path.abspath(args.out or os.path.join(REPO, 'results', f'fuzz-{slug}'))
-    tree = os.path.join(REPO, 'eval_source', f'edk2-{slug}')
+    work = os.path.abspath(args.work) if args.work else REPO
+    os.makedirs(work, exist_ok=True)
+    # Both of these used to be unconditionally inside REPO. In CI that is the checkout, and
+    # a worktree plus a build context left there is what broke the following job: its
+    # actions/checkout could neither clean nor re-clone, and the workspace ended up with no
+    # .git at all.
+    tree = os.path.join(work, 'eval_source', f'edk2-{slug}')
+    os.makedirs(os.path.dirname(tree), exist_ok=True)
     run = Run(args.ref, out)
     run.evalset = ''
     run.target_count = 0
@@ -741,7 +755,7 @@ def main():
         whichever ref the matrix happened to name.
         """
         dest = in_builder()
-        stage = os.path.join(REPO, 'imgstage', slug)
+        stage = os.path.join(work, 'imgstage', slug)
         shutil.rmtree(stage, ignore_errors=True)
         os.makedirs(os.path.join(stage, 'qemu_fw'))
         os.makedirs(os.path.join(stage, 'edk2'))
