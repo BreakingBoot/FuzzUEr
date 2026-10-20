@@ -414,6 +414,14 @@ def main():
         if os.path.isdir(tree):
             sh(['git', '-C', args.source, 'worktree', 'remove', '--force', tree])
             shutil.rmtree(tree, ignore_errors=True)
+        # A registration can outlive its directory, and then "worktree add" refuses the
+        # path while nothing on disk explains why. That is the normal state in CI:
+        # actions/checkout cleans the workspace between runs, which deletes the worktree
+        # and leaves the record in .git/modules/<sub>/worktrees -- git calls it "prunable".
+        # The removal above only runs when the directory is still there, so without this a
+        # second run in the same workspace always failed at fetch with a bare
+        # "fatal: '<path>'" and a stage that had worked by hand every time.
+        sh(['git', '-C', args.source, 'worktree', 'prune'])
         got = sh(['git', '-C', args.source, 'rev-parse', '--verify', f'{args.ref}^{{commit}}'])
         if got.returncode:
             # Whichever remote this checkout actually has. Fetching from a hardcoded
