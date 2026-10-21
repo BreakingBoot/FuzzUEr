@@ -173,6 +173,34 @@ confirmed defect, and a sweep that goes red on the first one stops reporting the
 
 ---
 
+## Findings come back as a PR, in your repository
+
+When triage attributes candidates to firmware code, the action opens a pull request **in the
+repository whose tree was fuzzed** -- the checkout `source` points at. Not upstream edk2, and
+not FuzzUEr: the findings are about your firmware, and a candidate is not a confirmed defect
+that upstream asked for. Pointing `source` at a tianocore remote is refused outright, with
+the findings left in the artifact.
+
+The PR carries `bugs.md`, `bugs.json`, `run.json`, `presence.csv` and -- when they come to
+under 2 MB -- the reproducer inputs, under `fuzzuer-findings/<run id>/`. Its body states the
+count and the three checks to apply before acting on a row.
+
+**A clean run opens nothing.** That gate is deliberate: a sweep produces candidates, and in
+one sweep here 24 of 25 clusters were pattern locations in the harness's own buffer rather
+than defects. A PR per candidate is noise, and noise gets filtered, which is worse than
+silence.
+
+Two knobs:
+
+| input | default | |
+|---|---|---|
+| `open-pr` | `true` | set `false` to leave findings in the artifact only |
+| `findings-token` | the job token | needed when `source` is a *different* repository: `Contents: write` and `Pull requests: write` on that one |
+
+Shape A (dispatch from FuzzUEr) passes `secrets.EDK2_TOKEN` for this, so the same secret that
+reads a private tree also carries the findings back to it. Shape B needs nothing extra when
+the workflow runs in the edk2 repository itself -- the job token already writes there.
+
 ## What you get
 
 The step writes a stage table into the job summary, and the artifact holds:

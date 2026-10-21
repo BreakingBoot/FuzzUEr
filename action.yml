@@ -64,6 +64,20 @@ inputs:
                   needed when FuzzUEr itself is private; a public one clones without it'
     required: false
     default: ''
+  open-pr:
+    description: 'When triage attributes candidates to firmware code, open a pull request
+                  carrying the report and the reproducers. It goes to the repository whose
+                  tree was fuzzed -- the one `source` points at -- never upstream edk2 and
+                  never FuzzUEr. Needs findings-token when that is not this repository'
+    required: false
+    default: 'true'
+  findings-token:
+    description: 'Token used to push the findings branch and open the PR. Defaults to the
+                  job token, which is right when `source` is this repository. Fuzzing
+                  somebody else''s tree needs one with Contents: write and Pull requests:
+                  write on THAT repository'
+    required: false
+    default: ''
   bootstrap:
     description: 'Build the images if the runner lacks them. Idempotent, and seconds on a warm
                   runner -- but hours on a cold one, so it can be turned off for a runner you
@@ -81,6 +95,9 @@ outputs:
   results:
     description: 'Directory holding run.json, bugs.md and the per-campaign logs'
     value: ${{ steps.run.outputs.results }}
+  pull-request:
+    description: 'URL of the PR opened for the findings, or empty'
+    value: ${{ steps.pr.outputs.url }}
   candidates:
     description: 'Candidate bugs triage attributed to firmware code'
     value: ${{ steps.run.outputs.candidates }}
@@ -252,6 +269,7 @@ runs:
         rc=$?
 
         echo "results=$OUT" >> "$GITHUB_OUTPUT"
+        echo "source-path=$SOURCE" >> "$GITHUB_OUTPUT"
         [ -f "$OUT/bugs.md" ] && echo "bugs=$OUT/bugs.md" >> "$GITHUB_OUTPUT" \
                              || echo "bugs=" >> "$GITHUB_OUTPUT"
         # The inputs that actually triggered a finding. A campaign keeps them under
@@ -324,6 +342,100 @@ runs:
           fi
         fi
         exit $rc
+
+
+    # The PR goes to the repository whose TREE WAS FUZZED -- the checkout `source` points
+    # at -- and nowhere else. Not upstream edk2: a candidate is not a confirmed defect and
+    # upstream did not ask for it. Not FuzzUEr either: the findings are about the caller's
+    # firmware, not about the tool, and an earlier version of this opened them against the
+    # tool because it ran git in the wrong directory.
+    - name: Open a PR for the findings
+      id: pr
+      if: always() && inputs.open-pr == 'true' && steps.run.outputs.candidates != '' && steps.run.outputs.candidates != '0'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.findings-token != '' && inputs.findings-token || github.token }}
+        SRC: ${{ steps.run.outputs.source-path }}
+        RESULTS: ${{ steps.run.outputs.results }}
+        BUGS: ${{ steps.run.outputs.bugs }}
+        REPRO: ${{ steps.run.outputs.reproducers }}
+        N: ${{ steps.run.outputs.candidates }}
+        REF_FUZZED: ${{ inputs.ref }}
+      run: |
+        set -uo pipefail
+        # Written once, at whichever exit is taken. Appending a placeholder up front and
+        # then the real value leaves two url= lines and leans on last-one-wins, which is
+        # not a thing to make a published output depend on.
+        emit() { echo "url=${1:-}" >> "$GITHUB_OUTPUT"; }
+        [ -d "${SRC:-}/.git" ] || [ -f "${SRC:-}/.git" ] || {
+          echo "::warning::$SRC is not a git checkout, so there is nowhere to open a PR"
+          emit; exit 0; }
+
+        remote=$(git -C "$SRC" remote get-url origin 2>/dev/null) || remote=''
+        [ -n "$remote" ] || {
+          echo "::warning::the fuzzed tree has no origin; findings stay in the artifact"
+          emit; exit 0; }
+        # Refuse to push findings at upstream. The tool is pointed at forks and platform
+        # branches; a candidate list is not something to send tianocore unasked.
+        case "$remote" in
+          *tianocore/edk2*|*git.tianocore*)
+            echo "::warning::$remote is upstream edk2 -- not opening a PR there. The"
+            echo "findings are in the run artifact; disclose deliberately if they hold up."
+            emit; exit 0 ;;
+        esac
+
+        branch="fuzzuer-findings/${GITHUB_RUN_ID}"
+        dest="fuzzuer-findings/${GITHUB_RUN_ID}"
+        cd "$SRC"
+        base=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+        [ "$base" = "HEAD" ] && base="${REF_FUZZED:-}"
+        mkdir -p "$dest"
+        [ -n "${BUGS:-}" ] && [ -f "$BUGS" ] && cp "$BUGS" "$dest/bugs.md"
+        for f in bugs.json run.json presence.csv; do
+          [ -f "${RESULTS:-}/$f" ] && cp "$RESULTS/$f" "$dest/"
+        done
+        # Reproducers only when small. A sweep can leave thousands; the PR is for reading
+        # and the run artifact carries every one of them regardless.
+        if [ -n "${REPRO:-}" ] && [ -d "$REPRO" ]; then
+          kb=$(du -sk "$REPRO" | cut -f1)
+          if [ "$kb" -le 2048 ]; then cp -a "$REPRO" "$dest/reproducers"
+          else echo "${kb}KB of reproducer inputs -- see the run artifact" > "$dest/reproducers.txt"
+          fi
+        fi
+
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -q -b "$branch" 2>/dev/null || git checkout -q "$branch"
+        git add "$dest"
+        git commit -q -m "Fuzzing findings from run ${GITHUB_RUN_ID}" || {
+          echo "::warning::nothing to commit, so no PR"; emit; exit 0; }
+        git push -q origin "$branch" || {
+          echo "::warning::could not push $branch to $remote -- findings-token needs"
+          echo "Contents: write on that repository. The artifact still has everything."
+          emit; exit 0; }
+
+        {
+          echo "Triage attributed **$N** candidate(s) to firmware code in this tree."
+          echo
+          echo "- report: \`$dest/bugs.md\`"
+          echo "- every reproducer input: the run $GITHUB_RUN_ID artifact"
+          echo
+          echo "A candidate is something to read, not a confirmed defect. Before acting:"
+          echo
+          echo "1. check the **module** column -- a report against the harness says nothing"
+          echo "   about your firmware;"
+          echo "2. check whether it is **input driven** -- \`bugs.md\` separates reports a"
+          echo "   testcase provoked from ones that fire on every boot; both can be real;"
+          echo "3. one site with thousands of hits is a loop or a scanner, not that many bugs."
+          echo
+          echo "Opened because the count was non-zero. A clean run opens nothing."
+        } > "$RUNNER_TEMP/pr-body.md"
+
+        url=$(gh pr create --title "Fuzzing findings: $N candidate(s)" \
+                --body-file "$RUNNER_TEMP/pr-body.md" \
+                --head "$branch" --base "${base:-main}" 2>&1) \
+          && { emit "$url"; echo "opened $url"; } \
+          || { emit; echo "::warning::branch $branch is pushed; the PR could not be opened: $url"; }
 
     - name: Summarise
       if: always()
