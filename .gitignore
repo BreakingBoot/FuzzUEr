@@ -10,6 +10,7 @@ eval_source/absorbtest4/
 eval_source/v8check/
 eval_source/anacache/
 eval_source/anacache_new/
+eval_source/anacache_prev/
 eval_source/anafix/
 eval_source/anatime/
 eval_source/arpcheck/
@@ -27,6 +28,7 @@ eval_source/dbg/
 eval_source/dhcptest/
 eval_source/dptest/
 eval_source/evalset/
+eval_source/fixtest/
 eval_source/firness_output/
 eval_source/gatetest/
 eval_source/gcheck/
