@@ -112,14 +112,17 @@ jobs:
         with:
           path: edk2
           fetch-depth: 0          # the ref is resolved out of git history
-          submodules: recursive   # edk2 vendors its dependencies
+          # No submodules: FuzzUEr makes a worktree of the ref and inits them itself,
+          # non-recursively. Do NOT use `recursive` on an edk2 -- it descends into
+          # OpenSSL's own submodules (fuzz-corpora, krb5, tlsfuzzer) and the job dies in
+          # checkout, gigabytes later, before any fuzzing.
 
       # FuzzUEr itself, as a directory you can call as an action
       - uses: actions/checkout@v4
         with:
           repository: <you>/FuzzUEr
           path: fuzzuer
-          submodules: recursive   # without these the images build empty
+          submodules: true        # NOT recursive: one of them is an edk2, see above
           token: ${{ secrets.FUZZUER_TOKEN }}   # only if FuzzUEr is private
 
       - id: fuzz
@@ -277,7 +280,7 @@ a number that looks like a result and is not one. The stage name tells you where
 | stage | what it failing means |
 |---|---|
 | `fetch` | the ref is not in the checkout and could not be fetched. `fetch-depth: 0`? |
-| `submodules` | edk2 vendors its dependencies and some are missing. `submodules: recursive` |
+| `submodules` | edk2 vendors its dependencies and some are missing. The pipeline inits them itself; if this fails the tree has no git history to init from |
 | `port` | the sanitizer integration did not apply to your tree. The detail counts what merged |
 | `vendor` | your branch ships something that breaks `AutoGen` — an unresolvable library class |
 | `build` | ordinary edk2 build failure, in `build.log` |

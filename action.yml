@@ -147,7 +147,8 @@ runs:
           if [ -z "${ACTION_REPO:-}" ]; then
             echo "::error::this action's submodules are empty and GitHub did not say which"
             echo "repository it came from, so they cannot be fetched. Check FuzzUEr out with"
-            echo "actions/checkout and submodules: recursive, then use it by path."
+            echo "actions/checkout and submodules: true -- not recursive, which walks"
+            echo "into OpenSSL's corpora -- then use it by path."
             exit 1
           fi
           # Not runner.temp: that is wiped between jobs, and this is a ~24 GB recursive
