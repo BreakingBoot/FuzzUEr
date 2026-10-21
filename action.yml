@@ -269,6 +269,21 @@ runs:
         python3 -u scripts/fuzz_edk2.py "$@"
         rc=$?
 
+        # Each stage writes its own log into the results directory. Until now a failure
+        # said only that the pipeline exited non-zero and left the reason in a file the
+        # caller had to download the artifact to read -- no help at all when the run died
+        # before the upload step. Print the stage table and the log tails here so the job
+        # log explains itself.
+        if [ "$rc" -ne 0 ]; then
+          echo "=== the pipeline exited $rc ==="
+          python3 -c "import json,sys; r=json.load(open(sys.argv[1]+'/run.json')); print(chr(10).join('  %-6s %-14s %s' % (('skip' if s.get('ok') is None else ('ok' if s.get('ok') is True else ('warn' if s.get('ok')=='warn' else 'FAIL'))), s.get('name','?'), s.get('detail','')) for s in r.get('stages',[])))" "$OUT" 2>/dev/null || echo '  (the run wrote no run.json -- it failed before the first stage)'
+          for l in "$OUT"/*.log; do
+            [ -f "$l" ] || continue
+            echo "--- $(basename "$l") ($(wc -l < "$l") lines, last 40) ---"
+            tail -40 "$l"
+          done
+        fi
+
         echo "results=$OUT" >> "$GITHUB_OUTPUT"
         echo "source-path=$SOURCE" >> "$GITHUB_OUTPUT"
         [ -f "$OUT/bugs.md" ] && echo "bugs=$OUT/bugs.md" >> "$GITHUB_OUTPUT" \
