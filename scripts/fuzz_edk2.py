@@ -566,6 +566,11 @@ def main():
             argv += ['--base', args.port_base]
         done = sh(argv, timeout=1800)
         text = done.stdout + done.stderr
+        # Kept, not discarded. The detail line below carries parsed counts, so a tool that
+        # fell over before printing any left "? clean, -1 failed" and nothing anywhere
+        # said why -- three CI runs failed here before the reason (a shallow reference
+        # checkout with no port base) could be read at all.
+        open(os.path.join(out, 'port.log'), 'w').write(text)
         clean = re.search(r'merged cleanly\s+(\d+)', text)
         fixed = re.search(r'conflicts resolved\s+(\d+)', text)
         left = re.search(r'conflicts REMAINING\s+(\d+)', text)
@@ -575,6 +580,13 @@ def main():
         detail = (f'{clean.group(1) if clean else "?"} clean, '
                   f'{fixed.group(1) if fixed else "?"} resolved, {nleft} unresolved, '
                   f'{nfail} failed')
+        if nfail == -1 and nleft == -1:
+            # No counts at all means it did not get as far as applying anything, so the
+            # counts are not the story -- what it said is.
+            said = [line.strip() for line in text.splitlines() if line.strip()]
+            why = said[-1][:100] if said else f'it printed nothing'
+            return False, (f'apply_asan reported no counts (exit {done.returncode}): '
+                           f'{why} -- see port.log')
         if nfail != 0 or nleft != 0:
             return False, detail + ' -- the port did not land'
         # a marker left anywhere makes the build fail somewhere else entirely
