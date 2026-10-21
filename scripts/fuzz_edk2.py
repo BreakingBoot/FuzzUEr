@@ -445,6 +445,12 @@ def main():
     # reports "--code, --vars, --selftest given but not on disk" for files that are plainly
     # there, and a campaign writes its results into nowhere. Checked here, once, because the
     # symptom points at the wrong thing every time.
+    # Before the probe, not after: the probe runs a container from this image, so a host
+    # that simply has not been bootstrapped yet would otherwise be reported as a bind mount
+    # failure -- blaming the path, and sending the reader to /tmp, for a missing image.
+    if sh(['docker', 'image', 'inspect', args.base_image]).returncode:
+        sys.exit(f'{args.base_image} is not present, so nothing can run in a container yet '
+                 f'-- run scripts/bootstrap_runner.sh')
     for name, path in (('--out', out), ('--work', work)):
         os.makedirs(path, exist_ok=True)
         probe = os.path.join(path, '.mount-probe')
