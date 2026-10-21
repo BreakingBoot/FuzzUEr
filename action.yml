@@ -266,8 +266,13 @@ runs:
         [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS
 
         echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
-        python3 -u scripts/fuzz_edk2.py "$@"
-        rc=$?
+        # Tee'd into the results directory, not just the console. The driver's narration --
+        # which stage it reached, which target it was on, what the build said -- lived only
+        # in the step log, so reading it needed the job log, and a run that died before the
+        # upload step left no copy at all. In the results it travels with the artifact.
+        mkdir -p "$OUT"
+        python3 -u scripts/fuzz_edk2.py "$@" 2>&1 | tee "$OUT/pipeline.log"
+        rc=${PIPESTATUS[0]}
 
         # Each stage writes its own log into the results directory. Until now a failure
         # said only that the pipeline exited non-zero and left the reason in a file the
