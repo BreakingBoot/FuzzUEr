@@ -431,11 +431,37 @@ runs:
           echo "Opened because the count was non-zero. A clean run opens nothing."
         } > "$RUNNER_TEMP/pr-body.md"
 
-        url=$(gh pr create --title "Fuzzing findings: $N candidate(s)" \
-                --body-file "$RUNNER_TEMP/pr-body.md" \
-                --head "$branch" --base "${base:-main}" 2>&1) \
-          && { emit "$url"; echo "opened $url"; } \
-          || { emit; echo "::warning::branch $branch is pushed; the PR could not be opened: $url"; }
+        # curl against the REST API, not `gh`. The CLI is absent on the self-hosted runner
+        # this was built against, and a runner that cannot open the PR would otherwise push
+        # the branch and report success with nothing to show. curl and python3 are already
+        # needed by everything above this line.
+        slug=$(printf '%s' "$remote" | sed -e 's#^git@[^:]*:##' \
+                 -e 's#^https\{0,1\}://[^/]*/##' -e 's#\.git$##')
+        payload=$(python3 - "$N" "$branch" "${base:-main}" "$RUNNER_TEMP/pr-body.md" <<'PYJSON'
+        import json, sys
+        n, head, base, body_file = sys.argv[1:5]
+        print(json.dumps({"title": "Fuzzing findings: %s candidate(s)" % n,
+                          "body": open(body_file).read(),
+                          "head": head, "base": base}))
+        PYJSON
+        )
+        resp=$(printf '%s' "$payload" | curl -sS -X POST \
+                 -H "Authorization: Bearer $GH_TOKEN" \
+                 -H "Accept: application/vnd.github+json" \
+                 -H "X-GitHub-Api-Version: 2022-11-28" \
+                 --data-binary @- "https://api.github.com/repos/$slug/pulls" 2>&1)
+        # -c, not a heredoc: a heredoc feeds the PROGRAM on stdin, which is the same
+        # channel the response is piped in on. They collide, sys.stdin comes up empty, and
+        # every reply -- success included -- reads as unparseable, so the step reports "no
+        # PR opened" for a PR it just created.
+        url=$(printf '%s' "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("html_url") or "")' 2>/dev/null || true)
+        if [ -n "${url:-}" ]; then
+          emit "$url"; echo "opened $url"
+        else
+          emit
+          why=$(printf '%s' "$resp" | python3 -c 'import json,sys; d=json.load(sys.stdin); e="; ".join(x.get("message","") for x in d.get("errors",[]) if x.get("message")); print((d.get("message","") + (" -- " + e if e else "")) or "no html_url returned")' 2>/dev/null || echo "unparseable response")
+          echo "::warning::branch $branch is pushed to $slug but no PR was opened: $why"
+        fi
 
     - name: Summarise
       if: always()
