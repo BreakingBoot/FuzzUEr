@@ -18,6 +18,22 @@ cd "$(dirname "$0")/.."
 REPO="$PWD"
 
 have_image() { docker image inspect "$1" >/dev/null 2>&1; }
+
+# True when $1 (an image) is older than $2 (a file it was built from).
+#
+# fuzzuer-ci bakes in qemustage/firness_qemu, and the only test for rebuilding it was
+# whether the image existed at all. So a change to the fuzzer -- rebuilt, re-staged, the
+# binary on disk plainly new -- never reached a campaign: the image kept the copy it was
+# built with, the campaign images inherit from it, and the run behaved exactly as it had
+# before. That cost a full SMM investigation twice over, the second time with the fix
+# sitting on disk unused.
+older_than() {
+    local built file
+    built=$(docker image inspect -f '{{.Created}}' "$1" 2>/dev/null) || return 1
+    built=$(date -d "$built" +%s 2>/dev/null) || return 1
+    file=$(stat -c %Y "$2" 2>/dev/null) || return 1
+    [ "$file" -gt "$built" ]
+}
 say() { printf '\n=== %s ===\n' "$*"; }
 
 FORCE="${BOOTSTRAP_FORCE:-}"
@@ -104,9 +120,13 @@ fi
 
 # --- the campaign base image ------------------------------------------------------------
 say 'fuzzuer-ci'
-if have_image fuzzuer-ci:latest && [ -z "$FORCE" ]; then
+if have_image fuzzuer-ci:latest && [ -z "$FORCE" ] \
+        && ! older_than fuzzuer-ci:latest qemustage/firness_qemu; then
     echo '  present'
 else
+    if older_than fuzzuer-ci:latest qemustage/firness_qemu; then
+        echo '  the staged fuzzer is newer than the image; rebuilding so campaigns get it'
+    fi
     docker build -t fuzzuer-ci:latest -f ci.Dockerfile "$REPO"
 fi
 
