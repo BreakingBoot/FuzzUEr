@@ -305,6 +305,110 @@ NETWORK_DEFINES = (
     ' -D NETWORK_HTTP_BOOT_ENABLE=TRUE'
 )
 
+DXE_FV_PCDS = 'PcdOvmfDxeMemFvBase|gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvSize'
+
+
+def build_error(text):
+    """The line that actually explains a failed build.
+
+    Picking the first line containing 'error' reported the compiler COMMAND LINE, because
+    it carries -Werror: a firmware volume that overflowed by 1.6 MB was reported as
+    '"/workspace/llvm-15.0.7/build/bin/clang" -MMD -MF ...', which says nothing. GenFv's
+    own complaint, and build.py's numbered errors, come first now, and a GenFv line is
+    paired with the line under it, where the sizes are.
+    """
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if re.search(r'GenFv: ERROR', line):
+            detail = lines[index + 1].strip() if index + 1 < len(lines) else ''
+            return (line.strip() + ' -- ' + detail).strip(' -')
+    for pattern in (r'^\s*:?\s*error \d+:', r'error \d+:', r': (fatal )?error:'):
+        for line in lines:
+            if re.search(pattern, line) and not line.lstrip().startswith('"'):
+                return line.strip()
+    for line in lines:
+        if 'error' in line.lower() and len(line) < 200 \
+                and not line.lstrip().startswith('"'):
+            return line.strip()
+    return ''
+
+
+def grow_dxe_fv(tree, required, block=0x10000, headroom=0x80000):
+    """Make DXEFV big enough for `required` bytes, and the volume holding it match.
+
+    The port sizes the volumes for the configuration it was written against. Turning SMM
+    on adds PiSmmCpuDxeSmm, PiSmmCore, VariableSmm and the rest, all instrumented, and
+    GenFv stops with 'the required fv image size 0x25ab378 exceeds the set fv image size
+    0x2400000' -- 1.6 MB short. Rather than carry a constant that is wrong for the next
+    configuration, take GenFv's own number: it says exactly what it needed.
+
+    DXEFV is the last region in [FD.MEMFD], so growing it grows the FD by the same amount;
+    NumBlocks has to follow or GenFd rejects the arithmetic. Returns a description, or ''
+    when the layout is not the one this understands -- in which case nothing is touched,
+    because a half-edited FDF fails somewhere that looks unrelated.
+    """
+    for rel in ('OvmfPkg/OvmfPkgX64.fdf', 'OvmfPkg/Include/Fdf/MemFd.fdf.inc'):
+        path = os.path.join(tree, rel)
+        if not os.path.isfile(path):
+            continue
+        lines = open(path, newline='').read().split('\n')
+        where = next((i for i, l in enumerate(lines) if DXE_FV_PCDS in l), -1)
+        if where < 1:
+            continue
+        region = re.match(r'^(0x[0-9A-Fa-f]+)\|(0x[0-9A-Fa-f]+)\s*$',
+                          lines[where - 1].strip())
+        if not region:
+            return ''
+        base, old = int(region.group(1), 16), int(region.group(2), 16)
+        # Only safe while nothing sits above it; otherwise growing it would run into the
+        # next region and GenFds would report an overlap somewhere else entirely.
+        for line in lines:
+            other = re.match(r'^(0x[0-9A-Fa-f]+)\|(0x[0-9A-Fa-f]+)\s*$', line.strip())
+            if other and int(other.group(1), 16) > base:
+                return ''
+        # Only this FD's own header lines. Every numeric Size in the file matched at
+        # first, which happens to be harmless in the layout this was written against --
+        # MEMFD is the only block with literal sizes there -- and would silently resize an
+        # unrelated FD in any layout that is not. The block runs from its section header,
+        # or the start of an include that has none, to the next one.
+        start = 0
+        for index in range(where, -1, -1):
+            if lines[index].lstrip().startswith('['):
+                start = index
+                break
+        stop = len(lines)
+        for index in range(where + 1, len(lines)):
+            if lines[index].lstrip().startswith('['):
+                stop = index
+                break
+        inside = range(start, stop)
+        for index in inside:
+            found = re.match(r'^\s*BlockSize\s*=\s*0x([0-9A-Fa-f]+)\s*$', lines[index])
+            if found:
+                block = int(found.group(1), 16)
+                break
+
+        new = ((required + headroom + block - 1) // block) * block
+        if new <= old:
+            return ''
+        lines[where - 1] = f'0x{base:X}|0x{new:X}'
+        grown = new - old
+        for index in inside:
+            size = re.match(r'^(\s*Size\s*=\s*)0x([0-9A-Fa-f]+)\s*$', lines[index])
+            if size:
+                lines[index] = f'{size.group(1)}0x{int(size.group(2), 16) + grown:X}'
+                continue
+            blocks = re.match(r'^(\s*NumBlocks\s*=\s*)0x([0-9A-Fa-f]+)\s*$',
+                              lines[index])
+            if blocks:
+                lines[index] = (f'{blocks.group(1)}'
+                                f'0x{int(blocks.group(2), 16) + grown // block:X}')
+        open(path, 'w', newline='').write('\n'.join(lines))
+        return (f'{rel}: DXEFV 0x{old:X} -> 0x{new:X} for a volume needing '
+                f'0x{required:X}')
+    return ''
+
+
 def main():
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, _stop_child)
@@ -708,15 +812,32 @@ def main():
             return False, ('BaseTools did not build: '
                            + (why[0][:90] if why else 'see the log'))
         if '- Done -' not in text:
-            why = [l for l in text.splitlines() if 'error' in l.lower()][:1]
-            return False, (why[0][:110] if why else 'build did not finish')
+            return False, (build_error(text)[:160] or 'build did not finish')
         return True, text
 
     def build():
-        ok_, text = build_firmware(
-            '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE'
-            + bench_defines + smm_defines,
-            'build.log')
+        defines = ('-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE'
+                   + bench_defines + smm_defines)
+        ok_, text = build_firmware(defines, 'build.log')
+        # A volume that overflowed is the one build failure the pipeline can fix by
+        # itself, and it has to: the port sizes the volumes for its own configuration, so
+        # turning SMM on made every build fail at GenFv with the volume 1.6 MB short.
+        # GenFv states what it needed, so there is nothing to guess at.
+        if not ok_:
+            short = re.search(r'required fv image size 0x([0-9A-Fa-f]+) exceeds the set '
+                              r'fv image size 0x([0-9A-Fa-f]+)', text)
+            if short:
+                grew = grow_dxe_fv(tree, int(short.group(1), 16))
+                if grew:
+                    print(f'  the firmware volume was too small; {grew}')
+                    ok_sync, _ = sync()
+                    if ok_sync:
+                        ok_, text = build_firmware(defines, 'build.log')
+                else:
+                    return False, (f'the firmware volume needs 0x{short.group(1)} and is '
+                                   f'0x{short.group(2)}, and this [FD.MEMFD] layout is '
+                                   f'not one the resize understands -- enlarge DXEFV by '
+                                   f'hand')
         if not ok_:
             return False, text
         fill = re.search(r'FVMAIN_COMPACT \[(\d+)%Full\]', text)
