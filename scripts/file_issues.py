@@ -63,7 +63,12 @@ def why(payload):
         return 'unparseable response'
     extra = '; '.join(e.get('message', '') for e in payload.get('errors', [])
                       if e.get('message'))
-    return (payload.get('message', '') + (f' -- {extra}' if extra else '')) or 'no detail'
+    said = (payload.get('message', '') + (f' -- {extra}' if extra else '')) or 'no detail'
+    # 410 on this endpoint means one thing only, and the bare "Issues are disabled"
+    # does not say where to turn them on.
+    if 'disabled' in said.lower():
+        said += ' (Settings -> General -> Features -> Issues; off by default on a fork)'
+    return said
 
 
 def already_filed(token, slug, dry=False):
@@ -179,6 +184,21 @@ def main():
     cands.sort(key=lambda c: (-(c.get('severity') or 0), -(c.get('hits') or 0)))
     run_url = f'{args.server}/{args.slug}/actions/runs/{args.run_id}'
     artifact = f'fuzzuer-{args.run_id}'
+
+    # Before anything else, because GitHub turns Issues OFF by default on a FORK and a
+    # fork is exactly what this tool is pointed at. Without this check every POST comes
+    # back 410 and the run reports "could not file" eight times for a setting nobody
+    # thought to look at -- while the listing above still answers 200 with an empty array,
+    # so nothing earlier gives it away.
+    status, repo = call(token, 'GET', f'/repos/{args.slug}')
+    if status == 200 and repo.get('has_issues') is False:
+        print(f'::warning::{args.slug} has Issues disabled, so none can be filed there. '
+              f'GitHub disables Issues by default on a fork: turn it on under Settings -> '
+              f'General -> Features -> Issues. The findings are in the run artifact '
+              f'meanwhile, and re-running after enabling it files them.')
+        return 0
+    if status not in (200, 0):
+        print(f'::warning::cannot read {args.slug} ({status}): {why(repo)}')
 
     seen, listed = already_filed(token, args.slug, args.dry_run)
     if not listed:

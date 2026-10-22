@@ -424,10 +424,15 @@ runs:
                  -e 's#^https\{0,1\}://[^/]*/##' -e 's#\.git$##')
         ref="${REF_FUZZED:-}"
         [ -n "$ref" ] || ref=$(git -C "$SRC" rev-parse HEAD 2>/dev/null) || ref='?'
+        # Tee'd into the results, like the driver's own narration. A filing that goes
+        # nowhere is the failure most likely to pass unnoticed -- the step still succeeds,
+        # because findings in the artifact beat a red job -- and the reason sat only in a
+        # step log that the runner does not keep on disk.
         python3 scripts/file_issues.py \
           --bugs "$RESULTS/bugs.json" --slug "$slug" --ref "$ref" \
           --run-id "${GITHUB_RUN_ID:-}" --server "${GITHUB_SERVER_URL:-https://github.com}" \
-          --max-issues "${MAX_ISSUES:-50}"
+          --max-issues "${MAX_ISSUES:-50}" 2>&1 | tee "$RESULTS/issues.log"
+        exit "${PIPESTATUS[0]}"
 
     - name: Summarise
       if: always()
