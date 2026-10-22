@@ -74,9 +74,10 @@ inputs:
     required: false
     default: 'true'
   max-issues:
-    description: 'Stop after this many NEW issues in one run, worst severity first, and say
-                  in the run issue what was left out. A wide sweep can attribute hundreds
-                  of candidates, and filing all of them is not a usable inbox. 0: no limit'
+    description: 'Stop after this many NEW issues in one run, worst severity first, and
+                  warn in the job log about what was left out. A wide sweep can attribute
+                  hundreds of candidates, and filing all of them is not a usable inbox.
+                  0: no limit'
     required: false
     default: '50'
   findings-token:
@@ -103,15 +104,15 @@ outputs:
   results:
     description: 'Directory holding run.json, bugs.md and the per-campaign logs'
     value: ${{ steps.run.outputs.results }}
-  run-issue:
-    description: 'URL of the issue opened for this run, or empty'
-    value: ${{ steps.issues.outputs.run-issue }}
   issues:
     description: 'Space separated URLs of the issues filed for this run''s candidates'
     value: ${{ steps.issues.outputs.issues }}
   issues-filed:
     description: 'How many issues this run filed, not counting ones already open'
     value: ${{ steps.issues.outputs.issues-filed }}
+  issues-tracked:
+    description: 'How many of this run''s candidates already had an issue'
+    value: ${{ steps.issues.outputs.issues-tracked }}
   candidates:
     description: 'Candidate bugs triage attributed to firmware code'
     value: ${{ steps.run.outputs.candidates }}
@@ -385,11 +386,16 @@ runs:
     # the caller's firmware, not about the tool, and an earlier version of this opened
     # them against the tool because it ran git in the wrong directory.
     #
-    # One issue per candidate, plus one for the run. A pull request was the wrong shape:
-    # nothing in a findings report is a change to merge, and eight unrelated reports
-    # behind one review get read, or ignored, together. The filing is idempotent -- each
-    # issue carries its candidate's fingerprint, so a schedule does not re-file what is
-    # already open.
+    # One issue per candidate and nothing else -- no issue collecting them all, which
+    # only duplicates what they say and goes stale as they are closed. A pull request was
+    # the wrong shape too: nothing in a findings report is a change to merge, and several
+    # unrelated reports behind one review get read, or ignored, together.
+    #
+    # Each issue carries the code at the crash line, how a testcase reached it, the serial
+    # log where it reported and the bytes that did it, and links the harness, the inputs
+    # and the logs -- pushed to a branch of their own, since an issue cannot hold a file.
+    # The filing is idempotent: each one carries its candidate's fingerprint, so a
+    # schedule does not re-file what is already open.
     - name: Open issues for the findings
       id: issues
       if: always() && inputs.open-issues == 'true' && steps.run.outputs.candidates != '' && steps.run.outputs.candidates != '0'
@@ -429,7 +435,8 @@ runs:
         # because findings in the artifact beat a red job -- and the reason sat only in a
         # step log that the runner does not keep on disk.
         python3 scripts/file_issues.py \
-          --bugs "$RESULTS/bugs.json" --slug "$slug" --ref "$ref" \
+          --bugs "$RESULTS/bugs.json" --results "$RESULTS" --source "$SRC" \
+          --slug "$slug" --ref "$ref" \
           --run-id "${GITHUB_RUN_ID:-}" --server "${GITHUB_SERVER_URL:-https://github.com}" \
           --max-issues "${MAX_ISSUES:-50}" 2>&1 | tee "$RESULTS/issues.log"
         exit "${PIPESTATUS[0]}"

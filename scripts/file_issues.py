@@ -16,14 +16,18 @@ defect already open.
 import argparse
 import json
 import os
+import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.request
 
+import issue_evidence as ev
+
 API = 'https://api.github.com'
+EVIDENCE_BRANCH = 'fuzzuer-evidence'
 MARK = 'fuzzuer-fingerprint:'
 LABEL_FINDING = 'fuzzuer-finding'
-LABEL_RUN = 'fuzzuer-run'
 
 
 def call(token, method, path, body=None, dry=False):
@@ -115,41 +119,192 @@ def source_of(cand):
     return (cand.get('site') or '?').split(':')[0]
 
 
-def body_for(cand, ref, run_id, run_url, artifact):
-    reached = ', '.join(cand.get('protocols') or []) or 'not attributed to a protocol'
-    rows = [
-        ('module', f"`{cand.get('module') or '(unattributed)'}`"),
-        ('bug type', cand.get('class', '?')),
-        ('source', f'`{source_of(cand)}`'),
-        ('site', f"`{cand.get('site', '?')}`"),
-        ('reports at this site', str(cand.get('hits', '?'))),
-        ('reached by', reached),
-        ('detail', cand.get('detail', '')),
-    ]
-    out = ['| | |', '|---|---|']
-    out += [f'| {k} | {v} |' for k, v in rows]
-    out += [
-        '',
-        f'Found by FuzzUEr fuzzing `{ref}` in [run {run_id}]({run_url}).',
-        '',
-        f'The reproducer inputs are in that run\'s `{artifact}` artifact, under '
-        '`reproducers/<protocol>/`, together with the full `bugs.md` and the stage logs.',
-        '',
-        '### Read this before acting',
-        '',
-        'A candidate is something to read, not a confirmed defect.',
-        '',
-        '- The **module** is what matters. A report against the harness, or against a '
-        'library the firmware never calls, says nothing about this firmware.',
-        '- **Reports are not bugs.** The count above is how often this site reported, not '
-        'how many defects are here: one site with thousands of hits is a loop or a '
-        'scanner, not thousands of problems.',
-        '- The offset in `site` moves with every build, so this issue is keyed to '
-        'module + bug type + source instead. A later run that finds the same site again '
-        'adds nothing here.',
-        '',
-        f'<!-- {MARK} {cand.get("id", "")} -->',
-    ]
+def git(repo, *args, env=None):
+    return subprocess.run(['git', '-C', repo, *args], capture_output=True, text=True,
+                          env=env)
+
+
+def push_evidence(source, slug, token, run_id, files, server):
+    """Commit the harness, the inputs and the logs to a branch, and return its blob base.
+
+    An issue cannot hold a file, so the evidence has to live somewhere a link can point at.
+    It goes on a branch of its own, built with plumbing -- hash-object, update-index,
+    commit-tree -- so the caller's working tree and checked-out branch are never touched.
+    Each run adds a directory; nothing is ever rewritten.
+
+    Returns '' when it cannot push, which is not fatal: the issues then carry the inline
+    excerpts and the artifact, and say the links are missing.
+    """
+    if not files or not token:
+        return ''
+    url = f'https://x-access-token:{token}@github.com/{slug}.git'
+    index = os.path.join(tempfile.mkdtemp(), 'index')
+    env = dict(os.environ, GIT_INDEX_FILE=index,
+               GIT_AUTHOR_NAME='github-actions[bot]',
+               GIT_AUTHOR_EMAIL='github-actions[bot]@users.noreply.github.com',
+               GIT_COMMITTER_NAME='github-actions[bot]',
+               GIT_COMMITTER_EMAIL='github-actions[bot]@users.noreply.github.com')
+    # Whatever is already on the branch, so earlier runs are kept. The URL carries the
+    # token, so nothing here echoes the command.
+    parent = ''
+    if git(source, 'fetch', '--depth=1', url, EVIDENCE_BRANCH, env=env).returncode == 0:
+        parent = git(source, 'rev-parse', 'FETCH_HEAD', env=env).stdout.strip()
+    if parent:
+        git(source, 'read-tree', parent, env=env)
+    else:
+        git(source, 'read-tree', '--empty', env=env)
+    staged = 0
+    for published, local in sorted(files.items()):
+        blob = git(source, 'hash-object', '-w', '--', local, env=env)
+        if blob.returncode or not blob.stdout.strip():
+            continue
+        if git(source, 'update-index', '--add', '--cacheinfo',
+               f'100644,{blob.stdout.strip()},{published}', env=env).returncode == 0:
+            staged += 1
+    if not staged:
+        return ''
+    tree = git(source, 'write-tree', env=env).stdout.strip()
+    if not tree:
+        return ''
+    args = ['commit-tree', tree, '-m', f'Evidence for fuzzing run {run_id}']
+    if parent:
+        args += ['-p', parent]
+    commit = git(source, *args, env=env).stdout.strip()
+    if not commit:
+        return ''
+    pushed = git(source, 'push', url, f'{commit}:refs/heads/{EVIDENCE_BRANCH}', env=env)
+    if pushed.returncode:
+        # The remote's own words, minus the URL, which has the token in it.
+        said = (pushed.stderr or '').replace(url, '<remote>').strip().splitlines()
+        print(f'::warning::could not push the evidence branch: '
+              f'{said[-1][:120] if said else "no detail"} -- the token needs Contents: '
+              f'write. The issues will carry the inline excerpts only.')
+        return ''
+    print(f'pushed {staged} evidence file(s) to {EVIDENCE_BRANCH}')
+    return f'{server}/{slug}/blob/{EVIDENCE_BRANCH}'
+
+
+def collect_evidence(results, campaigns):
+    """published path -> local file, for every campaign that produced a finding."""
+    files = {}
+    for campaign in sorted(campaigns):
+        base = os.path.join(results, 'campaigns', campaign)
+        for name in ('FirnessHarnesses.c', 'FirnessHarnesses.h', 'FirnessHarnesses.inf'):
+            local = os.path.join(base, 'Firness', name)
+            if os.path.isfile(local):
+                files[f'{{run}}/{campaign}/harness/{name}'] = local
+        for name in ('fuzz.txt', 'crashes.csv', 'run.log'):
+            local = os.path.join(base, name)
+            if os.path.isfile(local):
+                files[f'{{run}}/{campaign}/crash/{name}'] = local
+        for local in ev.inputs_for(results, campaign, most=8):
+            files[f'{{run}}/{campaign}/inputs/{os.path.basename(local)}'] = local
+    return files
+
+
+def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
+    """Everything known about one site, derived from the run -- never per bug class."""
+    rows = ev.rows_for(cand, ev.crash_rows(results))
+    first = rows[0] if rows else {}
+    campaign = (cand.get('protocols') or [first.get('_campaign', '')])[0]
+    recorded = first.get('File') or ''
+    rel = ev.resolve(source, recorded) if source else None
+    line = first.get('Line') or (cand.get('site') or ':').split(':')[-1]
+    phase = (first.get('Phase') or '?').strip()
+    at_boot = (first.get('AtBoot') or '').strip()
+
+    out = ['| | |', '|---|---|',
+           f"| module | `{cand.get('module') or '(unattributed)'}` |",
+           f"| bug type | {cand.get('class', '?')} |",
+           f"| reported by | `{first.get('Asan Msg') or cand.get('class', '?')}` |",
+           f"| site | `{cand.get('site', '?')}` |"]
+    if rel:
+        out.append(f'| source | `{rel}` line {line} |')
+    out += [f"| reports at this site | {cand.get('hits', '?')} |",
+            f"| phase | {'on every boot' if at_boot else phase} |",
+            f"| reached by | {', '.join(cand.get('protocols') or []) or 'not attributed'} |",
+            f"| detail | {first.get('Message') or cand.get('detail', '')} |", '']
+
+    # --- the code -------------------------------------------------------------------
+    out += ['### The code at that line', '']
+    text = ev.snippet(source, rel, line) if (source and rel) else None
+    if text:
+        lang = 'c' if rel.endswith(('.c', '.h')) else ''
+        out += [f'`{rel}`:', '', f'```{lang}', text, '```', '']
+    elif recorded and '/' in recorded:
+        out += [f'The build recorded `{recorded}`, which is not in this tree at any '
+                f'matching path -- the file is generated, or came from a submodule the '
+                f'checkout does not have.', '']
+    else:
+        out += [f'No source line to show: the report names `{recorded or "?"}`, which is '
+                f'the instrumentation reporting against itself rather than a file in this '
+                f'tree. The address and the instruction pointer in `detail` are what '
+                f'locate it -- resolve the ip against the build\'s DEBUG directory.', '']
+
+    # --- how a testcase got there ---------------------------------------------------
+    entries = ev.harness_entries(results, campaign) if campaign else []
+    out += ['### How a testcase reached it', '']
+    if at_boot:
+        out += ['This one fires **on a plain boot**, with no testcase involved. It is not '
+                'reached through the harness at all, so there is no input to replay.', '']
+    else:
+        out += [f'The fuzzer drove the `{campaign}` harness, which is generated against '
+                f'that protocol and takes the testcase as its arguments. '
+                + (f'It exposes {len(entries)} entry point(s) -- '
+                   + ', '.join(f'`{e}`' for e in entries) + ' -- and the fuzzer picks '
+                   'among them, so the input below reached one of these and not '
+                   'necessarily the same one each time: which entry a given report came '
+                   'through is not recorded.'
+                   if entries else 'Its entry points could not be read back.'), '']
+    if rows:
+        out += [f'{len(rows)} raw report row(s) carry this site; the campaign recorded '
+                f'`{first.get("ErrorType") or "?"}`.', '']
+
+    # --- the log --------------------------------------------------------------------
+    excerpt = ev.log_excerpt(results, campaign, rows) if campaign else None
+    if excerpt:
+        out += ['<details><summary>The serial log where it reported</summary>', '',
+                '```', excerpt, '```', '', '</details>', '']
+
+    # --- the bytes ------------------------------------------------------------------
+    found = ev.inputs_for(results, campaign) if campaign else []
+    if found and not at_boot:
+        dump = ev.hexdump(found[0])
+        if dump:
+            out += [f'<details><summary>A crashing input for this harness '
+                    f'({os.path.getsize(found[0])} bytes)</summary>', '',
+                    '```', dump, '```', '', '</details>', '']
+
+    # --- links ----------------------------------------------------------------------
+    out += ['### Files', '']
+    if base and campaign:
+        where = f'{base}/{run_id}/{campaign}'
+        out += [f'- harness: [`FirnessHarnesses.c`]({where}/harness/FirnessHarnesses.c)'
+                f' — the generated driver the testcase was fed to',
+                f'- crash log: [`fuzz.txt`]({where}/crash/fuzz.txt),'
+                f' [`crashes.csv`]({where}/crash/crashes.csv)']
+        if found:
+            out.append('- inputs: ' + ', '.join(
+                f'[`{os.path.basename(f)}`]({where}/inputs/{os.path.basename(f)})'
+                for f in found))
+    else:
+        out += ['The harness, the inputs and the logs are in the run artifact '
+                f'`{artifact}` -- they could not be published to a branch, so there is '
+                'nothing to link here.']
+    out += [f'- run: [{run_id}]({run_url}) on `{ref}`',
+            f'- everything else: the `{artifact}` artifact', '']
+
+    out += ['### Read this before acting', '',
+            'A candidate is something to read, not a confirmed defect.', '',
+            '- The **module** is what matters. A report against the harness, or against '
+            'a library the firmware never calls, says nothing about this firmware.',
+            '- **Reports are not bugs.** The count above is how often this site '
+            'reported, not how many defects are here: one site with thousands of hits is '
+            'a loop or a scanner, not thousands of problems.',
+            '- The offset in `site` moves with every build, so this issue is keyed to '
+            'module + bug type + source instead. A later run that finds the same site '
+            'again adds nothing here.', '',
+            f'<!-- {MARK} {cand.get("id", "")} -->']
     return '\n'.join(out)
 
 
@@ -158,6 +313,13 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--bugs', required=True, help='bugs.json from the run')
     ap.add_argument('--slug', required=True, help='owner/repo to file against')
+    ap.add_argument('--results', default='',
+                    help='the run results directory, for the campaigns (default: the '
+                         'directory holding --bugs)')
+    ap.add_argument('--source', default='',
+                    help='the fuzzed checkout, read to quote the code at each site')
+    ap.add_argument('--no-evidence', action='store_true',
+                    help='do not push the harness, inputs and logs to a branch')
     ap.add_argument('--ref', default='', help='the ref that was fuzzed')
     ap.add_argument('--run-id', default='', help='the Actions run id')
     ap.add_argument('--server', default='https://github.com')
@@ -184,6 +346,7 @@ def main():
     cands.sort(key=lambda c: (-(c.get('severity') or 0), -(c.get('hits') or 0)))
     run_url = f'{args.server}/{args.slug}/actions/runs/{args.run_id}'
     artifact = f'fuzzuer-{args.run_id}'
+    results = args.results or os.path.dirname(os.path.abspath(args.bugs))
 
     # Before anything else, because GitHub turns Issues OFF by default on a FORK and a
     # fork is exactly what this tool is pointed at. Without this check every POST comes
@@ -209,10 +372,17 @@ def main():
         return 0
     print(f'{len(cands)} candidate(s); {len(seen)} fingerprint(s) already filed')
 
-    for label, colour, desc in ((LABEL_FINDING, 'B60205', 'A site FuzzUEr attributed to firmware code'),
-                                (LABEL_RUN, '0E8A16', 'One FuzzUEr run')):
-        call(token, 'POST', f'/repos/{args.slug}/labels',
-             {'name': label, 'color': colour, 'description': desc}, args.dry_run)
+    call(token, 'POST', f'/repos/{args.slug}/labels',
+         {'name': LABEL_FINDING, 'color': 'B60205',
+          'description': 'A site FuzzUEr attributed to firmware code'}, args.dry_run)
+
+    base = ''
+    if not args.no_evidence and not args.dry_run and args.source:
+        campaigns = {c for cand in cands for c in (cand.get('protocols') or [])}
+        files = {k.replace('{run}', str(args.run_id)): v
+                 for k, v in collect_evidence(results, campaigns).items()}
+        base = push_evidence(args.source, args.slug, token, args.run_id, files,
+                             args.server)
 
     filed, skipped, failed, capped = [], [], 0, 0
     for cand in cands:
@@ -227,7 +397,8 @@ def main():
                  f" in {source_of(cand)}")
         status, resp = call(token, 'POST', f'/repos/{args.slug}/issues',
                             {'title': title[:250],
-                             'body': body_for(cand, args.ref, args.run_id, run_url, artifact),
+                             'body': body_for(cand, args.ref, args.run_id, run_url,
+                                              artifact, args.source, results, base),
                              'labels': [LABEL_FINDING]}, args.dry_run)
         if args.dry_run:
             print(f'  would file: {title}')
@@ -245,50 +416,25 @@ def main():
               '`permissions: issues: write`, or a findings-token with Issues: write')
         return 0
 
-    # One issue for the run itself, so the per-finding issues have somewhere to be read
-    # together and a clean run still leaves a record of what was fuzzed.
-    lines = [f'FuzzUEr fuzzed `{args.ref}` in [run {args.run_id}]({run_url}).', '',
-             f'{len(cands)} candidate(s) attributed to firmware code: '
-             f'{len(filed)} newly filed, {len(skipped)} already tracked.', '']
-    if filed:
-        lines += ['### Filed by this run', '']
-        lines += [f"- #{r.get('number')} — `{c.get('module') or '(unattributed)'}` "
-                  f"{c.get('class','?')} in `{source_of(c)}` "
-                  f"({c.get('hits','?')} report(s))"
-                  for c, r in filed] + ['']
-    if skipped:
-        lines += ['### Already tracked', '']
-        lines += [f"- #{r.get('number')} — `{c.get('module') or '(unattributed)'}` "
-                  f"{c.get('class','?')} in `{source_of(c)}` "
-                  f"(seen again: {c.get('hits','?')} report(s))"
-                  for c, r in skipped] + ['']
+    # No issue for the run as a whole. One was filed at first, listing every finding,
+    # and it is the wrong unit: it duplicates what the per-site issues already say,
+    # becomes stale the moment one of them is closed, and files a fresh copy of itself on
+    # every run -- the one thing in here that is guaranteed to be noise. What the run did
+    # is in the artifact and in the job summary.
+    print(f'{len(filed)} filed, {len(skipped)} already tracked'
+          + (f', {capped} over the cap' if capped else '')
+          + (f', {failed} failed' if failed else ''))
     if capped:
-        lines += [f'### {capped} candidate(s) not filed', '',
-                  f'`max-issues` is {args.max_issues}. The ones left out are the '
-                  f'lowest severity of the run; all of them are in `bugs.md` in the '
-                  f'`{artifact}` artifact.', '']
-    lines += [f'Everything else the run produced -- `bugs.md`, every reproducer input, '
-              f'the per-stage logs -- is in the `{artifact}` artifact.']
-    status, resp = call(token, 'POST', f'/repos/{args.slug}/issues',
-                        {'title': f'FuzzUEr run {args.run_id}: '
-                                  f'{len(cands)} candidate(s)',
-                         'body': '\n'.join(lines),
-                         'labels': [LABEL_RUN]}, args.dry_run)
-    summary = ''
-    if args.dry_run:
-        print('  would file the run summary issue')
-    elif status == 201:
-        summary = resp.get('html_url', '')
-        print(f"  filed #{resp.get('number')} (run summary) {summary}")
-    else:
-        print(f'::warning::could not file the run summary ({status}): {why(resp)}')
+        print(f'::warning::{capped} candidate(s) were not filed: max-issues is '
+              f'{args.max_issues}. They are the lowest severity of the run and all of '
+              f'them are in bugs.md in the {artifact} artifact.')
 
     out = os.environ.get('GITHUB_OUTPUT')
     if out:
         with open(out, 'a') as handle:
-            handle.write(f'run-issue={summary}\n')
             handle.write('issues=' + ' '.join(r.get('html_url', '') for _, r in filed) + '\n')
             handle.write(f'issues-filed={len(filed)}\n')
+            handle.write(f'issues-tracked={len(skipped)}\n')
     return 0
 
 

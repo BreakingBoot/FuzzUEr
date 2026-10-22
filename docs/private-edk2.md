@@ -179,17 +179,37 @@ confirmed defect, and a sweep that goes red on the first one stops reporting the
 ## Findings come back as issues, in your repository
 
 When triage attributes candidates to firmware code, the action files **one issue per
-candidate, plus one for the run**, in the repository whose tree was fuzzed -- the checkout
-`source` points at. Not upstream edk2, and not FuzzUEr: the findings are about your firmware,
-and a candidate is not a confirmed defect that upstream asked for. Pointing `source` at a
-tianocore remote is refused outright, with the findings left in the artifact.
+candidate** in the repository whose tree was fuzzed -- the checkout `source` points at. Not
+upstream edk2, and not FuzzUEr: the findings are about your firmware, and a candidate is not
+a confirmed defect that upstream asked for. Pointing `source` at a tianocore remote is
+refused outright, with the findings left in the artifact.
 
-Issues, not a pull request. Nothing in a findings report is a change to merge, and putting
-several unrelated reports behind one review means they get read, or ignored, together. An
-issue each is what you can assign, close and argue with on its own. Each one names the
-module, bug class, site, how many reports came from it, which protocol reached it, and the
-three checks to apply before acting on it; the run issue links them and says what was left
-out. The reproducer inputs and the full `bugs.md` stay in the run artifact.
+One issue per site and nothing else: no issue collecting them all, which only duplicates
+what they say and goes stale as they are closed. Issues rather than a pull request, because
+nothing in a findings report is a change to merge, and several unrelated reports behind one
+review get read, or ignored, together.
+
+Each issue is written to be read without opening anything else, and all of it is derived
+from the run rather than written per bug class:
+
+| | |
+|---|---|
+| the code | the lines around the crash site, with the line marked, quoted out of the tree that was fuzzed |
+| how it was reached | which protocol's harness the fuzzer drove and which entry points that harness exposes |
+| the report | the serial log where it fired, anchored on the instruction pointer |
+| the bytes | a hexdump of a crashing input for that harness |
+| the files | links to the harness, every kept input, `fuzz.txt` and `crashes.csv` |
+
+A site with no real source file -- the sanitizer's own outline instrumentation, or FWSAN,
+which report against themselves -- says so instead of quoting a misleading snippet, and
+names the instruction pointer to resolve against the build's DEBUG directory.
+
+Those links point at a branch called `fuzzuer-evidence`, which the action pushes to the
+fuzzed repository: a directory per run, holding the harness, the inputs and the logs. An
+issue cannot hold a file, so there has to be somewhere for a link to point. Nothing is ever
+rewritten -- each run adds a directory -- and the branch is built with git plumbing, so your
+working tree and checked-out branch are untouched. If the push fails the issues still get
+filed, carrying the inline excerpts and naming the artifact instead.
 
 **Re-running files nothing already open.** Every issue carries its candidate's fingerprint --
 module, bug class and source, which is bugs.json's own `id` -- in an HTML comment, and the
@@ -206,11 +226,11 @@ Three knobs:
 | input | default | |
 |---|---|---|
 | `open-issues` | `true` | set `false` to leave findings in the artifact only |
-| `max-issues` | `50` | stop after this many new issues, worst severity first; the run issue says what was left out. `0`: no limit |
-| `findings-token` | the job token | needed when `source` is a *different* repository: `Issues: write` on that one |
+| `max-issues` | `50` | stop after this many new issues, worst severity first; the rest are named in the job log and stay in the artifact. `0`: no limit |
+| `findings-token` | the job token | needed when `source` is a *different* repository: `Issues: write` and `Contents: write` on that one |
 
-With the job token, the workflow needs `permissions: issues: write` -- and no longer needs
-`contents: write`, since nothing is pushed to a branch any more. Shape A (dispatch from
+With the job token, the workflow needs `permissions: issues: write` to file, and
+`contents: write` to push the evidence branch the issues link into. Shape A (dispatch from
 FuzzUEr) passes `secrets.EDK2_TOKEN`, so the same secret that reads a private tree also
 carries the findings back to it. Shape B needs nothing extra when the workflow runs in the
 edk2 repository itself.
