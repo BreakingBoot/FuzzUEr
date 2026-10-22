@@ -253,12 +253,14 @@ def main():
     if filed:
         lines += ['### Filed by this run', '']
         lines += [f"- #{r.get('number')} — `{c.get('module') or '(unattributed)'}` "
-                  f"{c.get('class','?')} ({c.get('hits','?')} report(s))"
+                  f"{c.get('class','?')} in `{source_of(c)}` "
+                  f"({c.get('hits','?')} report(s))"
                   for c, r in filed] + ['']
     if skipped:
         lines += ['### Already tracked', '']
         lines += [f"- #{r.get('number')} — `{c.get('module') or '(unattributed)'}` "
-                  f"{c.get('class','?')} (seen again: {c.get('hits','?')} report(s))"
+                  f"{c.get('class','?')} in `{source_of(c)}` "
+                  f"(seen again: {c.get('hits','?')} report(s))"
                   for c, r in skipped] + ['']
     if capped:
         lines += [f'### {capped} candidate(s) not filed', '',
