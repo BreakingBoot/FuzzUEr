@@ -92,6 +92,9 @@ def running(names, keep=False):
     return [n for n in names if n in alive]
 
 
+_ANNOUNCED = False
+
+
 def launch(protocol, args):
     out = os.path.join(args.output, protocol)
     os.makedirs(out, exist_ok=True)
@@ -210,8 +213,17 @@ def launch(protocol, args):
     # that differ rather than re-running ones that do not.
     #
     env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=6,sleep=off')
+    # Said out loud, once. Every configuration question about a campaign -- which machine,
+    # which icount, which backend -- is answered by this list, and none of it was recorded
+    # anywhere: a run whose guest was missing SMM looked exactly like a run whose boot was
+    # slow, and there was no way to tell from the logs which one it had been.
     for name_, value in sorted(env.items()):
         argv += ['-e', f'{name_}={value}']
+    global _ANNOUNCED
+    if not _ANNOUNCED:
+        _ANNOUNCED = True
+        print('  campaign environment: '
+              + (', '.join(f'{k}={v}' for k, v in sorted(env.items())) or '(none)'))
     argv += [args.image, 'bash', '-c', command]
     if args.dry_run:
         print('  would run:', ' '.join(argv[:8]), '...', command)

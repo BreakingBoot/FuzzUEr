@@ -1147,6 +1147,23 @@ def main():
 
     def fuzz():
         scale_boot_timeout()
+        # Said before the budget is spent, not after. An SMM_REQUIRE image needs the
+        # secure pflash variable store to be WRITABLE -- that is where SMM-protected
+        # variables live, and the detect probe attaches it writable, which is why the same
+        # firmware boots to BDS there in about 360s. The campaign cannot: QEMU refuses to
+        # snapshot a writable pflash ("Device 'pflash1' is writable but does not support
+        # snapshots") and without a snapshot the fuzzer stops after one testcase, so both
+        # images are opened read-only on purpose.
+        #
+        # With SMM in the image the campaign boot therefore stops in early DXE -- measured,
+        # 56 module constructors and no harness -- and firness reports it as a boot that
+        # needed longer, which it is not. Raising the limit to 3600s changed nothing.
+        if args.smm:
+            print('  NOTE: this image requires SMM, and the campaign opens the variable '
+                  'store read-only because a writable pflash cannot be snapshotted. On '
+                  'the evidence so far such a boot does not reach the harness, however '
+                  'long it is given; the detect stage above is what validates an SMM '
+                  'build. --smi is the path meant for exercising SMM itself.')
         if args.skip_fuzz:
             return None, 'not run: --skip-fuzz'
         campaigns = os.path.join(out, 'campaigns')
