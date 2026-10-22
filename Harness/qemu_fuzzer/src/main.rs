@@ -85,12 +85,30 @@ fn qemu_bios_dir() -> String {
 /// snapshotted, and the snapshot is what every iteration after the first restores from.
 /// scripts/make_esp.sh builds the image.
 ///
-/// Both OVMF pflash images are opened read-only. That is not a detail: QEMU refuses to
-/// snapshot a writable pflash ("Device 'pflash1' is writable but does not support
-/// snapshots"), and without a snapshot the emulator cannot restore between iterations,
-/// so every run ends after one testcase. The harness is reached over the removable media
-/// path, which needs no boot option in the variable store, so nothing here depends on
-/// the variables surviving.
+/// The OVMF code image is opened read-only. The variable store is too, EXCEPT on a
+/// machine with SMM, and that exception is load-bearing.
+///
+/// The blanket read-only came from QemuSnapshotManager, which calls QEMU's
+/// save_snapshot/load_snapshot: that path serialises block devices and refuses a writable
+/// pflash with "Device 'pflash1' is writable but does not support snapshots". This fuzzer
+/// has not used it for a long time -- FastSnapshotManager restores the RAM pages an
+/// iteration dirtied and does not touch block devices -- so the constraint went away and
+/// the comment outlived it.
+///
+/// An SMM_REQUIRE image keeps its variables in the secure pflash and writes to them while
+/// the variable drivers come up. Opened read-only it stops in early DXE: measured on the
+/// same firmware, same machine, same globals, 56 module constructors and 476 serial lines
+/// against 108 constructors and 4998 lines reaching BdsDxe when the store is writable.
+/// Every SMM campaign spent its whole budget there and reported it as a boot that needed
+/// longer, which no amount of time would have fixed.
+///
+/// Left read-only without SMM: that path is the one 243 campaigns were measured on, and a
+/// writable device is one more thing for an iteration to carry between testcases. With
+/// SMM the store can be written DURING fuzzing, and FastSnapshotManager will not roll
+/// that back -- worth watching in edges_stability, and still better than never booting.
+///
+/// The harness is reached over the removable media path, which needs no boot option in
+/// the variable store, so nothing here depends on the variables surviving.
 fn qemu_args() -> Vec<String> {
     let ovmf_code = env_or("FIRNESS_OVMF_CODE", "/usr/share/OVMF/OVMF_CODE.fd");
     let ovmf_vars = env_or("FIRNESS_OVMF_VARS", "/tmp/firness_vars.fd");
@@ -119,7 +137,8 @@ fn qemu_args() -> Vec<String> {
         "-drive",
         &format!("if=pflash,format=raw,unit=0,readonly=on,file={ovmf_code}"),
         "-drive",
-        &format!("if=pflash,format=raw,unit=1,readonly=on,file={ovmf_vars}"),
+        &format!("if=pflash,format=raw,unit=1{},file={ovmf_vars}",
+                 if machine.contains("smm=on") { "" } else { ",readonly=on" }),
         "-drive",
         &format!("file={esp},format=qcow2,if=ide"),
         "-L",
