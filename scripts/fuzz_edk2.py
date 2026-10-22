@@ -1136,7 +1136,14 @@ def main():
             return
         slower = max(1.0, measured / 90.0)
         want = max(900, int(90 * args.jobs * slower))
-        capped = min(want, 3600)
+        # 7200, not 3600. The first cap was a guess and it truncated the model's own
+        # answer: an SMM boot measures 371s solo and the model asked for 6669s, so 3600s
+        # cut it off within sight of the harness -- 4680 serial lines, the console already
+        # in text mode, the same point a plain QEMU boot reaches in under 420s. The
+        # campaign runs under icount, which is an order of magnitude slower, and that is
+        # what the measurement is for. Still capped, so firmware that will never arrive
+        # fails in two hours rather than never.
+        capped = min(want, 7200)
         if capped <= args.boot_timeout:
             return
         print(f'  the probe booted this firmware in {measured:.0f}s, {slower:.1f}x the '
