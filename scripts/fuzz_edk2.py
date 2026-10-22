@@ -1149,21 +1149,21 @@ def main():
         scale_boot_timeout()
         # Said before the budget is spent, not after. An SMM_REQUIRE image needs the
         # secure pflash variable store to be WRITABLE -- that is where SMM-protected
-        # variables live, and the detect probe attaches it writable, which is why the same
-        # firmware boots to BDS there in about 360s. The campaign cannot: QEMU refuses to
-        # snapshot a writable pflash ("Device 'pflash1' is writable but does not support
-        # snapshots") and without a snapshot the fuzzer stops after one testcase, so both
-        # images are opened read-only on purpose.
+        # variables live -- and the campaign used to open it read-only, which stopped the
+        # boot in early DXE at 56 module constructors while firness reported a boot that
+        # needed longer. It was not: 1620s and 3600s failed identically, and the detect
+        # probe booted the same firmware to BDS in 365s with the store writable.
         #
-        # With SMM in the image the campaign boot therefore stops in early DXE -- measured,
-        # 56 module constructors and no harness -- and firness reports it as a boot that
-        # needed longer, which it is not. Raising the limit to 3600s changed nothing.
+        # The fuzzer now opens it writable on an SMM machine. What remains is a real
+        # caveat rather than a blocker, so it is stated rather than hidden.
         if args.smm:
-            print('  NOTE: this image requires SMM, and the campaign opens the variable '
-                  'store read-only because a writable pflash cannot be snapshotted. On '
-                  'the evidence so far such a boot does not reach the harness, however '
-                  'long it is given; the detect stage above is what validates an SMM '
-                  'build. --smi is the path meant for exercising SMM itself.')
+            print('  NOTE: this image requires SMM, so the campaign guest runs '
+                  '"q35,smm=on" and opens the variable store for WRITING -- an '
+                  'SMM_REQUIRE image writes to the secure pflash while its variable '
+                  'drivers come up, and read-only stopped the boot in early DXE at 56 '
+                  'module constructors. The cost is that a variable written during '
+                  'fuzzing is not rolled back between iterations, because the snapshot '
+                  'restores RAM and not block devices: watch edges_stability.')
         if args.skip_fuzz:
             return None, 'not run: --skip-fuzz'
         campaigns = os.path.join(out, 'campaigns')
