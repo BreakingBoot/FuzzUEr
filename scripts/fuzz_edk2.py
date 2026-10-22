@@ -467,10 +467,11 @@ def main():
     parser.add_argument('--smm', action='store_true',
                         help='build with SMM_REQUIRE=TRUE, which is what puts an SMM core '
                              'and its handlers in the image. Without it the firmware has no '
-                             'SMM at all -- measured, 0 SMM modules -- even though the guest '
-                             'already runs with "q35,smm=on", so an SMI harness has nothing '
-                             'to talk to. Costs a larger FV and a slower boot, so it is off '
-                             'by default')
+                             'SMM at all -- measured, 0 SMM modules -- so an SMI harness has '
+                             'nothing to talk to. This also switches the campaign guest to '
+                             '"q35,smm=on", which it does NOT run by default whatever an '
+                             'earlier version of this text claimed. Costs a larger FV and a '
+                             'much slower boot, so it is off by default')
     parser.add_argument('--standalone-mm', action='store_true',
                         help='with --smm, use the StandaloneMM model rather than PiSmmCore, '
                              'which is what installs EFI_MM_COMMUNICATION3_PROTOCOL. Inert '
@@ -526,6 +527,17 @@ def main():
                  'nothing and the run would look like a plain one.')
     smm_defines = (' -D SMM_REQUIRE=TRUE' if args.smm else '') + \
                   (' -D STANDALONE_MM_ENABLE=TRUE' if args.standalone_mm else '')
+
+    # The machine has to offer SMM to firmware built to require it. The campaign fuzzer
+    # defaults to a plain "q35" and only takes "q35,smm=on" from this variable, which
+    # nothing set: an SMM_REQUIRE image therefore booted on a machine with no SMRAM, got
+    # through 56 module constructors in 3600s and never reached the harness -- 0 of 4
+    # campaigns, 0 iterations, reported as a boot that needed longer. The same firmware
+    # boots to BDS in 369s on a machine that has SMM, which is how the detect probe
+    # passed while every campaign failed. fuzz_batch passes FIRNESS_* through to the
+    # campaign containers, so setting it here reaches them.
+    if args.smm:
+        os.environ.setdefault('FIRNESS_QEMU_MACHINE', 'q35,smm=on')
 
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)
     # Absolute, because several stages hand this to "docker run -v", and a relative
