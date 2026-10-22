@@ -488,6 +488,7 @@ def main():
     # in the previous run, which reads as a regression and is not one. 90s a job puts the
     # limit at roughly twice the p99 at the parallelism that produced it, and leaves the
     # old 900s floor for small runs. An explicit --boot-timeout still wins.
+    boot_timeout_given = bool(args.boot_timeout)
     if not args.boot_timeout:
         args.boot_timeout = max(900, 90 * args.jobs)
 
@@ -1050,6 +1051,7 @@ def main():
         if 'SanBenchDrive.efi' in found:
             sh(['docker', 'cp', f'{args.builder}:{found["SanBenchDrive.efi"]}',
                 os.path.join(probe, 'SanBenchDrive.efi')], timeout=900)
+        began = time.monotonic()
         done = sh(['docker', 'run', '--rm', '-v', f'{REPO}:/repo:ro',
                    '-v', f'{probe}:/fw:ro', '-v', f'{os.path.abspath(out)}:/out',
                    '--entrypoint', 'bash', args.base_image, '-lc',
@@ -1063,6 +1065,7 @@ def main():
                    # "the self test never ran" even though the log shows it reaching BDS.
                    + ('--smm --timeout 300 ' if args.smm else '') +
                    '--keep /out/detect_capture'], timeout=1800)
+        run.probe_boot = time.monotonic() - began
         text = done.stdout + done.stderr
         open(os.path.join(out, 'detect_check.log'), 'w').write(text)
         said = [l for l in text.splitlines() if 'asan detection classes' in l]
@@ -1101,7 +1104,37 @@ def main():
                            f'{", ".join(missed[:6])} regressed')
         return True, f'{detail}; benchmark {verdict[0].strip()}'
 
+    def scale_boot_timeout():
+        """Carry the probe's measured boot into the campaigns' limit.
+
+        The 90s-a-job model was fitted over 243 campaigns of NON-SMM firmware, where a
+        solo boot fits in about 90s -- which is why the detect probe's own default was 90s
+        too. Building with SMM boots far more code: the probe had to be given 300s, and
+        every campaign then spent its whole budget without reaching the harness, 0 of 4,
+        because the campaign limit had not learned the same lesson.
+
+        So keep the fitted model and scale it by how much slower this configuration's boot
+        actually is. The probe is one solo boot of the very firmware the campaigns boot,
+        so it is the right measurement and it has already been taken by the time this
+        runs. Capped, because a campaign that will never reach the harness should fail in
+        an hour rather than hold a slot all day -- and the cap is announced, not silent.
+        """
+        measured = getattr(run, 'probe_boot', 0)
+        if boot_timeout_given or measured <= 0:
+            return
+        slower = max(1.0, measured / 90.0)
+        want = max(900, int(90 * args.jobs * slower))
+        capped = min(want, 3600)
+        if capped <= args.boot_timeout:
+            return
+        print(f'  the probe booted this firmware in {measured:.0f}s, {slower:.1f}x the '
+              f'90s the boot limit assumes; raising it from {args.boot_timeout}s to '
+              f'{capped}s'
+              + (f' (capped from {want}s)' if capped < want else ''))
+        args.boot_timeout = capped
+
     def fuzz():
+        scale_boot_timeout()
         if args.skip_fuzz:
             return None, 'not run: --skip-fuzz'
         campaigns = os.path.join(out, 'campaigns')
