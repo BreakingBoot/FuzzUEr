@@ -16,6 +16,7 @@ defect already open.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,23 @@ import urllib.error
 import urllib.request
 
 import issue_evidence as ev
+
+# Two parts of a triage key are not stable between runs, and both filed the same bug twice
+# before this was handled.
+#
+# The `~N` on a source is POSITIONAL. bug_report.py splits a module's reports into runs of
+# nearby lines and keys them `fwsan~0`, `fwsan~1` ... -- by enumerate() order, over lines
+# whose offsets move with every build -- and it drops the suffix entirely when a run finds
+# only one. So one site is `fwsan~1` in a run that finds three and plain `fwsan` in a run
+# that finds one.
+#
+# The MODULE comes back empty whenever no map covers the report's address, so the same site
+# is `SmbiosDxe.efi|...` on one run and `|...` on the next.
+#
+# Both are therefore matched loosely: the suffix is stripped, a missing module matches a
+# present one, and sibling sites are told apart by COUNT -- a key with three issues already
+# filed accounts for three candidates, and only a fourth is new.
+TILDE = re.compile(r'~\d+$')
 
 API = 'https://api.github.com'
 EVIDENCE_BRANCH = 'fuzzuer-evidence'
@@ -76,7 +94,10 @@ def why(payload):
 
 
 def already_filed(token, slug, dry=False):
-    """Fingerprint -> issue, for every issue this tool has filed before.
+    """Canonical key -> the issues filed under it, for everything filed before.
+
+    A list per key, not one issue: sibling sites in the same module, class and file share
+    a canonical key, and each issue already filed accounts for one of them.
 
     Open AND closed: a closed issue means someone has already looked, and re-filing it
     because the next run saw the same site again is the one behaviour that would make this
@@ -99,10 +120,67 @@ def already_filed(token, slug, dry=False):
                 continue
             for line in (issue.get('body') or '').splitlines():
                 if MARK in line:
-                    seen[line.split(MARK, 1)[1].strip().rstrip('->').strip()] = issue
+                    key = canon(line.split(MARK, 1)[1].strip().rstrip('->').strip())
+                    # A list, not one issue: several sibling sites share a canonical key
+                    # and each one filed accounts for one candidate.
+                    seen.setdefault(key, []).append(issue)
                     break
         page += 1
     return seen, True
+
+
+def canon(fingerprint):
+    """A triage key reduced to what is actually stable across runs."""
+    parts = (fingerprint or '').split('|')
+    while len(parts) < 3:
+        parts.append('')
+    return f'{parts[0]}|{parts[1]}|{TILDE.sub("", parts[2])}'
+
+
+def canon_of(cand):
+    return canon(cand.get('id') or
+                 f"{cand.get('module', '')}|{cand.get('class', '')}|{source_of(cand)}")
+
+
+class Ledger:
+    """Which filed issues can account for which candidates.
+
+    Keyed on the canonical key, and matched by count rather than identity, because the
+    sibling sites under one key cannot be told apart by anything that survives a rebuild.
+    """
+
+    def __init__(self, filed):
+        self.filed = filed                      # canonical key -> [issue, ...]
+        self.used = {}
+        self.by_rest = {}
+        for key in filed:
+            self.by_rest.setdefault(key.split('|', 1)[1], []).append(key)
+
+    def take_exact(self, key):
+        """An issue filed under this very key, or None. Consumes a slot."""
+        seen = self.used.get(key, 0)
+        if seen < len(self.filed.get(key, [])):
+            self.used[key] = seen + 1
+            return self.filed[key][seen]
+        return None
+
+    def take(self, key):
+        """As take_exact, falling back to a key that differs only in attribution."""
+        held = self.take_exact(key)
+        if held is not None:
+            return held, False
+        module, rest = key.split('|', 1)
+        # An unattributed key has nothing to distinguish it from any other module's site
+        # in the same file and class, so prefer one that is also unattributed and only
+        # then an attributed sibling. Two DIFFERENT modules reporting the same class from
+        # the same file are two bugs, never one.
+        options = [o for o in self.by_rest.get(rest, [])
+                   if o != key and (not module or not o.split('|', 1)[0])]
+        for option in sorted(options, key=lambda o: bool(o.split('|', 1)[0])):
+            held = self.take_exact(option)
+            if held is not None:
+                return held, True
+        return None, False
 
 
 def source_of(cand):
@@ -304,7 +382,7 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
             '- The offset in `site` moves with every build, so this issue is keyed to '
             'module + bug type + source instead. A later run that finds the same site '
             'again adds nothing here.', '',
-            f'<!-- {MARK} {cand.get("id", "")} -->']
+            f'<!-- {MARK} {canon_of(cand)} -->']
     return '\n'.join(out)
 
 
@@ -363,14 +441,17 @@ def main():
     if status not in (200, 0):
         print(f'::warning::cannot read {args.slug} ({status}): {why(repo)}')
 
-    seen, listed = already_filed(token, args.slug, args.dry_run)
+    filed_by_key, listed = already_filed(token, args.slug, args.dry_run)
     if not listed:
         # Filing on top of a list that failed to load would duplicate everything already
         # open, which is worse than filing nothing.
         print('::warning::could not read the existing issues, so nothing was filed -- '
               'the token needs Issues: read/write on this repository')
         return 0
-    print(f'{len(cands)} candidate(s); {len(seen)} fingerprint(s) already filed')
+    ledger = Ledger(filed_by_key)
+    print(f'{len(cands)} candidate(s); '
+          f'{sum(len(v) for v in filed_by_key.values())} issue(s) already filed over '
+          f'{len(filed_by_key)} distinct site key(s)')
 
     call(token, 'POST', f'/repos/{args.slug}/labels',
          {'name': LABEL_FINDING, 'color': 'B60205',
@@ -384,11 +465,30 @@ def main():
         base = push_evidence(args.source, args.slug, token, args.run_id, files,
                              args.server)
 
+    # Attributed candidates first, against their exact key only. Otherwise an
+    # unattributed candidate -- which matches any module's site in the same file and class
+    # -- can consume a slot belonging to a sibling that knows its own module, and that
+    # sibling is then filed again as if it were new.
+    held_by = {}
+    for index, cand in enumerate(cands):
+        if (cand.get('module') or '').strip():
+            found = ledger.take_exact(canon_of(cand))
+            if found is not None:
+                held_by[index] = (found, False)
+    for index, cand in enumerate(cands):
+        if index not in held_by:
+            found, loose = ledger.take(canon_of(cand))
+            if found is not None:
+                held_by[index] = (found, loose)
+
     filed, skipped, failed, capped = [], [], 0, 0
-    for cand in cands:
-        fp = cand.get('id', '')
-        if fp and fp in seen:
-            skipped.append((cand, seen[fp]))
+    for index, cand in enumerate(cands):
+        held, loose = held_by.get(index, (None, False))
+        if held is not None:
+            if loose:
+                print(f"  #{held.get('number')} already covers {cand.get('site')} "
+                      f"(matched without the module: attribution differed between runs)")
+            skipped.append((cand, held))
             continue
         if args.max_issues and len(filed) >= args.max_issues:
             capped += 1
