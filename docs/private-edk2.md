@@ -176,33 +176,44 @@ confirmed defect, and a sweep that goes red on the first one stops reporting the
 
 ---
 
-## Findings come back as a PR, in your repository
+## Findings come back as issues, in your repository
 
-When triage attributes candidates to firmware code, the action opens a pull request **in the
-repository whose tree was fuzzed** -- the checkout `source` points at. Not upstream edk2, and
-not FuzzUEr: the findings are about your firmware, and a candidate is not a confirmed defect
-that upstream asked for. Pointing `source` at a tianocore remote is refused outright, with
-the findings left in the artifact.
+When triage attributes candidates to firmware code, the action files **one issue per
+candidate, plus one for the run**, in the repository whose tree was fuzzed -- the checkout
+`source` points at. Not upstream edk2, and not FuzzUEr: the findings are about your firmware,
+and a candidate is not a confirmed defect that upstream asked for. Pointing `source` at a
+tianocore remote is refused outright, with the findings left in the artifact.
 
-The PR carries `bugs.md`, `bugs.json`, `run.json`, `presence.csv` and -- when they come to
-under 2 MB -- the reproducer inputs, under `fuzzuer-findings/<run id>/`. Its body states the
-count and the three checks to apply before acting on a row.
+Issues, not a pull request. Nothing in a findings report is a change to merge, and putting
+several unrelated reports behind one review means they get read, or ignored, together. An
+issue each is what you can assign, close and argue with on its own. Each one names the
+module, bug class, site, how many reports came from it, which protocol reached it, and the
+three checks to apply before acting on it; the run issue links them and says what was left
+out. The reproducer inputs and the full `bugs.md` stay in the run artifact.
 
-**A clean run opens nothing.** That gate is deliberate: a sweep produces candidates, and in
+**Re-running files nothing already open.** Every issue carries its candidate's fingerprint --
+module, bug class and source, which is bugs.json's own `id` -- in an HTML comment, and the
+next run skips what it finds there, open or closed. Without that a weekly schedule would file
+the same eight issues every week. The offset in `site` is deliberately *not* part of the
+fingerprint: it moves with every build.
+
+**A clean run files nothing.** That gate is deliberate: a sweep produces candidates, and in
 one sweep here 24 of 25 clusters were pattern locations in the harness's own buffer rather
-than defects. A PR per candidate is noise, and noise gets filtered, which is worse than
-silence.
+than defects.
 
-Two knobs:
+Three knobs:
 
 | input | default | |
 |---|---|---|
-| `open-pr` | `true` | set `false` to leave findings in the artifact only |
-| `findings-token` | the job token | needed when `source` is a *different* repository: `Contents: write` and `Pull requests: write` on that one |
+| `open-issues` | `true` | set `false` to leave findings in the artifact only |
+| `max-issues` | `50` | stop after this many new issues, worst severity first; the run issue says what was left out. `0`: no limit |
+| `findings-token` | the job token | needed when `source` is a *different* repository: `Issues: write` on that one |
 
-Shape A (dispatch from FuzzUEr) passes `secrets.EDK2_TOKEN` for this, so the same secret that
-reads a private tree also carries the findings back to it. Shape B needs nothing extra when
-the workflow runs in the edk2 repository itself -- the job token already writes there.
+With the job token, the workflow needs `permissions: issues: write` -- and no longer needs
+`contents: write`, since nothing is pushed to a branch any more. Shape A (dispatch from
+FuzzUEr) passes `secrets.EDK2_TOKEN`, so the same secret that reads a private tree also
+carries the findings back to it. Shape B needs nothing extra when the workflow runs in the
+edk2 repository itself.
 
 ## What you get
 

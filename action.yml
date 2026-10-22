@@ -64,18 +64,26 @@ inputs:
                   needed when FuzzUEr itself is private; a public one clones without it'
     required: false
     default: ''
-  open-pr:
-    description: 'When triage attributes candidates to firmware code, open a pull request
-                  carrying the report and the reproducers. It goes to the repository whose
-                  tree was fuzzed -- the one `source` points at -- never upstream edk2 and
-                  never FuzzUEr. Needs findings-token when that is not this repository'
+  open-issues:
+    description: 'When triage attributes candidates to firmware code, file one issue per
+                  candidate plus one for the run. They go to the repository whose tree was
+                  fuzzed -- the one `source` points at -- never upstream edk2 and never
+                  FuzzUEr. Re-running files nothing already open: each issue carries its
+                  candidate''s fingerprint. Needs findings-token when the fuzzed tree is
+                  not this repository'
     required: false
     default: 'true'
+  max-issues:
+    description: 'Stop after this many NEW issues in one run, worst severity first, and say
+                  in the run issue what was left out. A wide sweep can attribute hundreds
+                  of candidates, and filing all of them is not a usable inbox. 0: no limit'
+    required: false
+    default: '50'
   findings-token:
-    description: 'Token used to push the findings branch and open the PR. Defaults to the
-                  job token, which is right when `source` is this repository. Fuzzing
-                  somebody else''s tree needs one with Contents: write and Pull requests:
-                  write on THAT repository'
+    description: 'Token used to file the issues. Defaults to the job token, which is right
+                  when `source` is this repository -- the workflow then needs
+                  `permissions: issues: write`. Fuzzing somebody else''s tree needs a token
+                  with Issues: write on THAT repository'
     required: false
     default: ''
   bootstrap:
@@ -95,9 +103,15 @@ outputs:
   results:
     description: 'Directory holding run.json, bugs.md and the per-campaign logs'
     value: ${{ steps.run.outputs.results }}
-  pull-request:
-    description: 'URL of the PR opened for the findings, or empty'
-    value: ${{ steps.pr.outputs.url }}
+  run-issue:
+    description: 'URL of the issue opened for this run, or empty'
+    value: ${{ steps.issues.outputs.run-issue }}
+  issues:
+    description: 'Space separated URLs of the issues filed for this run''s candidates'
+    value: ${{ steps.issues.outputs.issues }}
+  issues-filed:
+    description: 'How many issues this run filed, not counting ones already open'
+    value: ${{ steps.issues.outputs.issues-filed }}
   candidates:
     description: 'Candidate bugs triage attributed to firmware code'
     value: ${{ steps.run.outputs.candidates }}
@@ -365,124 +379,55 @@ runs:
         exit $rc
 
 
-    # The PR goes to the repository whose TREE WAS FUZZED -- the checkout `source` points
-    # at -- and nowhere else. Not upstream edk2: a candidate is not a confirmed defect and
-    # upstream did not ask for it. Not FuzzUEr either: the findings are about the caller's
-    # firmware, not about the tool, and an earlier version of this opened them against the
-    # tool because it ran git in the wrong directory.
-    - name: Open a PR for the findings
-      id: pr
-      if: always() && inputs.open-pr == 'true' && steps.run.outputs.candidates != '' && steps.run.outputs.candidates != '0'
+    # The issues go to the repository whose TREE WAS FUZZED -- the checkout `source`
+    # points at -- and nowhere else. Not upstream edk2: a candidate is not a confirmed
+    # defect and upstream did not ask for it. Not FuzzUEr either: the findings are about
+    # the caller's firmware, not about the tool, and an earlier version of this opened
+    # them against the tool because it ran git in the wrong directory.
+    #
+    # One issue per candidate, plus one for the run. A pull request was the wrong shape:
+    # nothing in a findings report is a change to merge, and eight unrelated reports
+    # behind one review get read, or ignored, together. The filing is idempotent -- each
+    # issue carries its candidate's fingerprint, so a schedule does not re-file what is
+    # already open.
+    - name: Open issues for the findings
+      id: issues
+      if: always() && inputs.open-issues == 'true' && steps.run.outputs.candidates != '' && steps.run.outputs.candidates != '0'
       shell: bash
+      working-directory: ${{ steps.home.outputs.home }}
       env:
         GH_TOKEN: ${{ inputs.findings-token != '' && inputs.findings-token || github.token }}
         SRC: ${{ steps.run.outputs.source-path }}
         RESULTS: ${{ steps.run.outputs.results }}
-        BUGS: ${{ steps.run.outputs.bugs }}
-        REPRO: ${{ steps.run.outputs.reproducers }}
-        N: ${{ steps.run.outputs.candidates }}
         REF_FUZZED: ${{ inputs.ref }}
+        MAX_ISSUES: ${{ inputs.max-issues }}
       run: |
         set -uo pipefail
-        # Written once, at whichever exit is taken. Appending a placeholder up front and
-        # then the real value leaves two url= lines and leans on last-one-wins, which is
-        # not a thing to make a published output depend on.
-        emit() { echo "url=${1:-}" >> "$GITHUB_OUTPUT"; }
         [ -d "${SRC:-}/.git" ] || [ -f "${SRC:-}/.git" ] || {
-          echo "::warning::$SRC is not a git checkout, so there is nowhere to open a PR"
-          emit; exit 0; }
+          echo "::warning::$SRC is not a git checkout, so there is nowhere to file issues"
+          exit 0; }
 
         remote=$(git -C "$SRC" remote get-url origin 2>/dev/null) || remote=''
         [ -n "$remote" ] || {
           echo "::warning::the fuzzed tree has no origin; findings stay in the artifact"
-          emit; exit 0; }
-        # Refuse to push findings at upstream. The tool is pointed at forks and platform
-        # branches; a candidate list is not something to send tianocore unasked.
+          exit 0; }
+        # Refuse to file at upstream. The tool is pointed at forks and platform branches;
+        # a candidate list is not something to send tianocore unasked.
         case "$remote" in
           *tianocore/edk2*|*git.tianocore*)
-            echo "::warning::$remote is upstream edk2 -- not opening a PR there. The"
+            echo "::warning::$remote is upstream edk2 -- not filing issues there. The"
             echo "findings are in the run artifact; disclose deliberately if they hold up."
-            emit; exit 0 ;;
+            exit 0 ;;
         esac
 
-        branch="fuzzuer-findings/${GITHUB_RUN_ID}"
-        dest="fuzzuer-findings/${GITHUB_RUN_ID}"
-        cd "$SRC"
-        base=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-        [ "$base" = "HEAD" ] && base="${REF_FUZZED:-}"
-        mkdir -p "$dest"
-        [ -n "${BUGS:-}" ] && [ -f "$BUGS" ] && cp "$BUGS" "$dest/bugs.md"
-        for f in bugs.json run.json presence.csv; do
-          [ -f "${RESULTS:-}/$f" ] && cp "$RESULTS/$f" "$dest/"
-        done
-        # Reproducers only when small. A sweep can leave thousands; the PR is for reading
-        # and the run artifact carries every one of them regardless.
-        if [ -n "${REPRO:-}" ] && [ -d "$REPRO" ]; then
-          kb=$(du -sk "$REPRO" | cut -f1)
-          if [ "$kb" -le 2048 ]; then cp -a "$REPRO" "$dest/reproducers"
-          else echo "${kb}KB of reproducer inputs -- see the run artifact" > "$dest/reproducers.txt"
-          fi
-        fi
-
-        git config user.name  "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout -q -b "$branch" 2>/dev/null || git checkout -q "$branch"
-        git add "$dest"
-        git commit -q -m "Fuzzing findings from run ${GITHUB_RUN_ID}" || {
-          echo "::warning::nothing to commit, so no PR"; emit; exit 0; }
-        git push -q origin "$branch" || {
-          echo "::warning::could not push $branch to $remote -- findings-token needs"
-          echo "Contents: write on that repository. The artifact still has everything."
-          emit; exit 0; }
-
-        {
-          echo "Triage attributed **$N** candidate(s) to firmware code in this tree."
-          echo
-          echo "- report: \`$dest/bugs.md\`"
-          echo "- every reproducer input: the run $GITHUB_RUN_ID artifact"
-          echo
-          echo "A candidate is something to read, not a confirmed defect. Before acting:"
-          echo
-          echo "1. check the **module** column -- a report against the harness says nothing"
-          echo "   about your firmware;"
-          echo "2. check whether it is **input driven** -- \`bugs.md\` separates reports a"
-          echo "   testcase provoked from ones that fire on every boot; both can be real;"
-          echo "3. one site with thousands of hits is a loop or a scanner, not that many bugs."
-          echo
-          echo "Opened because the count was non-zero. A clean run opens nothing."
-        } > "$RUNNER_TEMP/pr-body.md"
-
-        # curl against the REST API, not `gh`. The CLI is absent on the self-hosted runner
-        # this was built against, and a runner that cannot open the PR would otherwise push
-        # the branch and report success with nothing to show. curl and python3 are already
-        # needed by everything above this line.
         slug=$(printf '%s' "$remote" | sed -e 's#^git@[^:]*:##' \
                  -e 's#^https\{0,1\}://[^/]*/##' -e 's#\.git$##')
-        payload=$(python3 - "$N" "$branch" "${base:-main}" "$RUNNER_TEMP/pr-body.md" <<'PYJSON'
-        import json, sys
-        n, head, base, body_file = sys.argv[1:5]
-        print(json.dumps({"title": "Fuzzing findings: %s candidate(s)" % n,
-                          "body": open(body_file).read(),
-                          "head": head, "base": base}))
-        PYJSON
-        )
-        resp=$(printf '%s' "$payload" | curl -sS -X POST \
-                 -H "Authorization: Bearer $GH_TOKEN" \
-                 -H "Accept: application/vnd.github+json" \
-                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                 --data-binary @- "https://api.github.com/repos/$slug/pulls" 2>&1)
-        # -c, not a heredoc: a heredoc feeds the PROGRAM on stdin, which is the same
-        # channel the response is piped in on. They collide, sys.stdin comes up empty, and
-        # every reply -- success included -- reads as unparseable, so the step reports "no
-        # PR opened" for a PR it just created.
-        url=$(printf '%s' "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("html_url") or "")' 2>/dev/null || true)
-        if [ -n "${url:-}" ]; then
-          emit "$url"; echo "opened $url"
-        else
-          emit
-          why=$(printf '%s' "$resp" | python3 -c 'import json,sys; d=json.load(sys.stdin); e="; ".join(x.get("message","") for x in d.get("errors",[]) if x.get("message")); print((d.get("message","") + (" -- " + e if e else "")) or "no html_url returned")' 2>/dev/null || echo "unparseable response")
-          echo "::warning::branch $branch is pushed to $slug but no PR was opened: $why"
-        fi
+        ref="${REF_FUZZED:-}"
+        [ -n "$ref" ] || ref=$(git -C "$SRC" rev-parse HEAD 2>/dev/null) || ref='?'
+        python3 scripts/file_issues.py \
+          --bugs "$RESULTS/bugs.json" --slug "$slug" --ref "$ref" \
+          --run-id "${GITHUB_RUN_ID:-}" --server "${GITHUB_SERVER_URL:-https://github.com}" \
+          --max-issues "${MAX_ISSUES:-50}"
 
     - name: Summarise
       if: always()

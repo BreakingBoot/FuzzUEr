@@ -45,7 +45,7 @@ on:
         default: false
 
 permissions:
-  contents: read   # nothing is written to THIS repository; the PR goes to the fuzzed one
+  contents: read   # nothing is written to THIS repository; the issues go to the fuzzed one
 
 jobs:
   fuzz:
@@ -89,8 +89,8 @@ jobs:
           targets: ${{ github.event.inputs.targets }}
           qualify-only: ${{ github.event.inputs.qualify_only }}
           smm: ${{ github.event.inputs.smm }}
-          # The PR lands in the repository being fuzzed, not in FuzzUEr, so it needs a
-          # token with write access THERE. Without one the findings stay in the artifact
+          # The issues land in the repository being fuzzed, not in FuzzUEr, so this needs
+          # a token with Issues: write THERE. Without one the findings stay in the artifact
           # and the action says so rather than failing.
           findings-token: ${{ secrets.EDK2_TOKEN }}
 

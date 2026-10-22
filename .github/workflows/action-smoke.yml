@@ -37,6 +37,10 @@ jobs:
           source: eval_source/edk2
           qualify-only: true
           bootstrap: true
+          # This is a smoke test of the action's own plumbing, and the tree it fuzzes
+          # belongs to another repository. Filing findings at that repository because
+          # FuzzUEr's CI ran is not something a smoke test should do.
+          open-issues: false
 
       - name: The action reported what it should
         shell: bash
