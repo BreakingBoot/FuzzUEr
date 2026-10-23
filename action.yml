@@ -221,11 +221,17 @@ runs:
         IN_FAIL: ${{ inputs.fail-on-findings }}
         WORKSPACE: ${{ github.workspace }}
         RUNNER_TEMP_DIR: ${{ runner.temp }}
-        # Not set here. fuzz_batch defaults it to shift=6,sleep=off, and that default
-        # is measured: over seven campaigns on three protocols a fixed shift beat "auto"
-        # on corpus, edges, stability AND executions, because auto recalibrates the
-        # instruction-to-time ratio as it runs and spends exploration doing it. Pinning
-        # "auto" here quietly overrode that on every CI run.
+        # shift=auto, overriding fuzz_batch's shift=6. Not an oversight, and not left
+        # alone out of caution: it was removed on the grounds that fuzz_batch's default
+        # was the measured one, and the run that followed argued the other way --
+        # 46095 iterations and 4684 edges across three campaigns at "auto" against 5030
+        # and 3539 across two at shift=6. That comparison is confounded, because a
+        # different set of campaigns reached the harness in each run, so it does not
+        # settle the question either; it only fails to support changing this. The
+        # per-protocol measurements behind shift=6 (corpus 49->100, edges 1468->1528 on
+        # EfiDevicePathFromText, n=3) were controlled and this is not, so deciding needs
+        # controlled repeats per protocol rather than one CI run each.
+        FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
         FIRNESS_CONTAINER_PREFIX: ci
       run: |
         set -uo pipefail
