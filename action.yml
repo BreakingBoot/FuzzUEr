@@ -221,7 +221,11 @@ runs:
         IN_FAIL: ${{ inputs.fail-on-findings }}
         WORKSPACE: ${{ github.workspace }}
         RUNNER_TEMP_DIR: ${{ runner.temp }}
-        FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
+        # Not set here. fuzz_batch defaults it to shift=6,sleep=off, and that default
+        # is measured: over seven campaigns on three protocols a fixed shift beat "auto"
+        # on corpus, edges, stability AND executions, because auto recalibrates the
+        # instruction-to-time ratio as it runs and spends exploration doing it. Pinning
+        # "auto" here quietly overrode that on every CI run.
         FIRNESS_CONTAINER_PREFIX: ci
       run: |
         set -uo pipefail

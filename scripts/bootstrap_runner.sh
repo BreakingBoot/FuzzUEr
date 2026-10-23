@@ -28,12 +28,21 @@ have_image() { docker image inspect "$1" >/dev/null 2>&1; }
 # before. That cost a full SMM investigation twice over, the second time with the fix
 # sitting on disk unused.
 older_than() {
-    local built file
+    local built path
     built=$(docker image inspect -f '{{.Created}}' "$1" 2>/dev/null) || return 1
     built=$(date -d "$built" +%s 2>/dev/null) || return 1
-    file=$(stat -c %Y "$2" 2>/dev/null) || return 1
-    [ "$file" -gt "$built" ]
+    shift
+    # Every COPY source, not just the fuzzer: ci.Dockerfile bakes in the scripts, the
+    # sanitizer and the harness generator as well, so a change to any of them is just as
+    # invisible to a campaign as a change to the binary was.
+    for path in "$@"; do
+        [ -e "$path" ] || continue
+        [ -n "$(find "$path" -newermt "@$built" -print -quit 2>/dev/null)" ] && return 0
+    done
+    return 1
 }
+
+CI_IMAGE_INPUTS="qemustage/firness_qemu scripts uefi_asan firness/harness_generator firness/HarnessHelpers ci.Dockerfile"
 say() { printf '\n=== %s ===\n' "$*"; }
 
 FORCE="${BOOTSTRAP_FORCE:-}"
@@ -120,12 +129,14 @@ fi
 
 # --- the campaign base image ------------------------------------------------------------
 say 'fuzzuer-ci'
+# shellcheck disable=SC2086
 if have_image fuzzuer-ci:latest && [ -z "$FORCE" ] \
-        && ! older_than fuzzuer-ci:latest qemustage/firness_qemu; then
+        && ! older_than fuzzuer-ci:latest $CI_IMAGE_INPUTS; then
     echo '  present'
 else
-    if older_than fuzzuer-ci:latest qemustage/firness_qemu; then
-        echo '  the staged fuzzer is newer than the image; rebuilding so campaigns get it'
+    # shellcheck disable=SC2086
+    if older_than fuzzuer-ci:latest $CI_IMAGE_INPUTS; then
+        echo '  an input is newer than the image; rebuilding so campaigns get it'
     fi
     docker build -t fuzzuer-ci:latest -f ci.Dockerfile "$REPO"
 fi

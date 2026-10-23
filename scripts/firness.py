@@ -892,6 +892,24 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
             print(f'++++ The boot did not reach the harness within {boot_timeout}s. The '
                   f'protocol may not be installed, or the boot needs longer under this '
                   f'much parallelism -- raise --boot-timeout. ++++')
+            # The serial log is not where the boot narrates itself. OVMF writes DEBUG to
+            # the ISA debug port, and only AsanLib's own SerialOutput reaches serial -- so
+            # a boot that stops after the console switch looks, on serial, like a boot
+            # that stopped dead, while the debug port shows it reaching BDS and failing at
+            # a named step. Days went into "the boot never gets anywhere" that the next
+            # twenty lines would have answered, so print them rather than naming three
+            # guesses above.
+            debugcon = environment.get('FIRNESS_DEBUGCON', '')
+            if debugcon and os.path.isfile(debugcon):
+                try:
+                    tail = open(debugcon, errors='replace').read().splitlines()[-20:]
+                except OSError:
+                    tail = []
+                if tail:
+                    print(f'++++ the last {len(tail)} line(s) the guest put on the debug '
+                          f'port, which is where OVMF narrates the boot ++++')
+                    for line in tail:
+                        print(f'    | {line[:160]}')
         try:
             process.wait(timeout=timeout if reached else 5)
         except subprocess.TimeoutExpired:
