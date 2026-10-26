@@ -166,7 +166,42 @@ protocols — which is exactly what qualify checks.
 | `smm` | `false` | see below |
 | `fail-on-findings` | `false` | fail the step when triage reports candidates |
 
-Outputs: `results` (the directory), `candidates`, `stages`.
+### Adapting it to your codebase
+
+A platform branch is not stock OVMF, and the knobs below are there so the action fits one
+without a change here. Everything is optional; the defaults are what the pipeline uses on
+stock edk2.
+
+| input | default | |
+|---|---|---|
+| `extra-defines` | — | extra `-D` macros, one per line or space separated |
+| `extra-pcds` | — | extra `--pcd` overrides, `TokenSpaceGuid.PcdName=Value` |
+| `port-from` | the bundled port | a tree that carries its own sanitizer port |
+| `port-base` | the port's own base | the commit the port's patches were written against |
+| `cores` | a quarter of the box, max 8 | cores per firmware build |
+| `smi` | `false` | also fuzz the SMI handlers; implies `smm` |
+| `standalone-mm` | `false` | with `smm`, the StandaloneMM model rather than PiSmmCore |
+| `bench` | `false` | build the SanBench drivers, which measure the fuzzer |
+
+`extra-defines` and `extra-pcds` are passed **last**, after the defines and PCDs the action
+sets itself. edk2 keeps command line macros in a dict and applies `--pcd` in order, so last
+wins: these override ours rather than only adding to them. Both are checked for form before
+anything is fetched or built, because edk2 rejects a malformed macro name only once
+`build.py` is running — several minutes of fetch, submodules, port and BaseTools later.
+
+```yaml
+          extra-defines: |
+            TPM2_ENABLE=TRUE
+            SECURE_BOOT_ENABLE=TRUE
+          extra-pcds: |
+            gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange=FALSE
+```
+
+Quoting survives, so a value with a space in it (`Some.Pcd=L"two words"`) arrives as one
+token.
+
+Outputs: `results` (the directory), `bugs`, `reproducers`, `candidates`, `stages`, and from
+the filing step `issues`, `issues-filed` and `issues-tracked`.
 
 `candidates` is **empty**, not `0`, on a `qualify-only` run — triage did not run, and "0
 candidates" would read as a clean sweep when nothing was fuzzed at all.

@@ -38,6 +38,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -459,6 +460,22 @@ def main():
                              'nproc on a 72-core box -- and the campaigns are what should '
                              'have the cores, not one build. Raise it if you are building '
                              'and not fuzzing')
+    parser.add_argument('--extra-defines', action='append', default=[], metavar='FOO=BAR',
+                        help='extra -D macros for every firmware build, repeatable and '
+                             'space separated. Quoting is respected, so a value with a '
+                             'space in it survives. These go LAST on the build command '
+                             'line, after every define the pipeline sets itself: edk2 '
+                             'keeps command line macros in a dict, so last wins and a '
+                             'codebase can override one of ours (FD_SIZE_IN_KB, say) '
+                             'rather than only add to it')
+    parser.add_argument('--extra-pcds', action='append', default=[],
+                        metavar='Space.Pcd=Value',
+                        help='extra --pcd overrides for every firmware build, same form '
+                             'and same last-wins ordering as --extra-defines. Needed '
+                             'because a per-codebase build knob is as often a PCD as a '
+                             'macro: the warm reset that blocked every SMM campaign was '
+                             'fixed by exactly one of these, and a consumer should not '
+                             'have to wait for this script to learn the next one')
     parser.add_argument('--smi', action='store_true',
                         help='also fuzz the SMI handlers the discover stage finds, not just '
                              'the protocols. Implies --smm: the handlers answer an SMM core, '
@@ -508,6 +525,42 @@ def main():
     #
     # =TRUE is kept because it is explicit and costs nothing; the gates no longer need it.
     bench_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE' if args.bench else ''
+    # Passthroughs for a build knob this driver does not model. Flattened through shlex
+    # rather than str.split so that Foo.Pcd=L"two words" arrives as one token, and the
+    # leading -D or --pcd is accepted-and-dropped because that is how anyone who has read
+    # a build command will write it.
+    def build_knobs(values, flag):
+        out_ = []
+        for v in values or []:
+            for tok in shlex.split(v):
+                if tok and tok not in ('-D', '--pcd'):
+                    out_.append(tok)
+        return out_
+
+    # Both are checked here, before anything is fetched, ported or built. edk2 does reject
+    # a malformed macro name itself, but only once build.py is running -- which on this
+    # pipeline is several minutes of fetch, submodules, port and BaseTools later.
+    extra_defines = ''
+    for tok in build_knobs(args.extra_defines, '-D'):
+        name = tok.split('=', 1)[0]
+        if not re.fullmatch(r'[A-Z][A-Z0-9_]*', name):
+            sys.exit(f'--extra-defines {tok}: edk2 requires a macro name matching '
+                     f'[A-Z][A-Z0-9_]*. build.py would stop at "The macro name must be '
+                     f'in the pattern", but only after the tree was already built up to '
+                     f'that point.')
+        extra_defines += f' -D {tok}'
+
+    extra_pcds = ''
+    for tok in build_knobs(args.extra_pcds, '--pcd'):
+        if '=' not in tok or '.' not in tok.split('=', 1)[0]:
+            sys.exit(f'--extra-pcds {tok}: expected TokenSpaceGuid.PcdName=Value. edk2 '
+                     f'takes a name it cannot resolve as "PCD is not in the DSC" or, '
+                     f'worse, applies nothing and builds a firmware that merely looks '
+                     f'configured, so the form is required up front.')
+        extra_pcds += f' --pcd {tok}'
+    if extra_defines or extra_pcds:
+        print(f'per-codebase build knobs:{extra_defines}{extra_pcds}')
+
     # Small on purpose, and the same number for every build in the run so a failure is
     # reproducible. os.cpu_count() can be None, hence the or 4.
     cores = args.cores if args.cores > 0 else max(1, min(8, (os.cpu_count() or 4) // 4))
@@ -834,6 +887,11 @@ def main():
                   # already says FALSE, so this only ever agrees with it.
                   f'--pcd gEfiMdeModulePkgTokenSpaceGuid.'
                   f'PcdResetOnMemoryTypeInformationChange=FALSE '
+                  # Last, so --extra-defines/--extra-pcds can override any of the above
+                  # and not merely add to it. Every build in the run gets them, including
+                  # the detect probe, because a knob a codebase needs to build at all is
+                  # not optional for one of the builds.
+                  f'{extra_defines}{extra_pcds} '
                   f'-n {cores}')
         done = docker(args.builder, script, timeout=7200)
         text = done.stdout + done.stderr

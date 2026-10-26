@@ -72,6 +72,21 @@ inputs:
                   it on a dedicated runner, lower it when sharing with other jobs'
     required: false
     default: ''
+  extra-defines:
+    description: 'Extra -D macros for every firmware build, one per line or space
+                  separated -- TPM2_ENABLE=TRUE, SECURE_BOOT_ENABLE=TRUE. Passed last, so
+                  these override the defines the action sets itself rather than only
+                  adding to them'
+    required: false
+    default: ''
+  extra-pcds:
+    description: 'Extra --pcd overrides for every firmware build, same form:
+                  TokenSpaceGuid.PcdName=Value, one per line. A per-codebase build knob is
+                  as often a PCD as a macro -- the warm reset that blocked SMM campaigns
+                  was fixed by exactly one of these -- so a codebase should not have to
+                  wait for this action to learn the next one'
+    required: false
+    default: ''
   bench:
     description: 'Also build the SanBench drivers, which measure the fuzzer rather than your firmware'
     required: false
@@ -248,6 +263,8 @@ runs:
         IN_PORT_FROM: ${{ inputs.port-from }}
         IN_PORT_BASE: ${{ inputs.port-base }}
         IN_CORES: ${{ inputs.cores }}
+        IN_EXTRA_DEFINES: ${{ inputs.extra-defines }}
+        IN_EXTRA_PCDS: ${{ inputs.extra-pcds }}
         IN_BENCH: ${{ inputs.bench }}
         IN_OUT: ${{ inputs.out }}
         IN_FAIL: ${{ inputs.fail-on-findings }}
@@ -327,6 +344,12 @@ runs:
         [ -n "${IN_PORT_FROM:-}" ] && set -- "$@" --port-from "$IN_PORT_FROM"
         [ -n "${IN_PORT_BASE:-}" ] && set -- "$@" --port-base "$IN_PORT_BASE"
         [ -n "${IN_CORES:-}" ]     && set -- "$@" --cores "$IN_CORES"
+        # Quoted, and passed whole even when the input is several lines: the driver
+        # splits each value with shlex, so one argument carries a multi-line YAML block
+        # and a value with a space in it both survive. Splitting here in the shell would
+        # lose the quoting that makes Pcd=L"two words" a single token.
+        [ -n "${IN_EXTRA_DEFINES:-}" ] && set -- "$@" --extra-defines "$IN_EXTRA_DEFINES"
+        [ -n "${IN_EXTRA_PCDS:-}" ]    && set -- "$@" --extra-pcds "$IN_EXTRA_PCDS"
         # Unquoted on purpose: these are several target names, not one.
         # shellcheck disable=SC2086
         [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS
