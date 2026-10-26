@@ -118,6 +118,15 @@ def already_filed(token, slug, dry=False):
         for issue in body:
             if 'pull_request' in issue:       # the issues endpoint returns PRs too
                 continue
+            # Trust the issue, not the filter. Asking for ?labels=<name> after that label
+            # has been deleted keeps answering with the issues that USED to carry it --
+            # measured: 24 returned while the label was 404 and every one of those issues
+            # reported labels: []. Counting them would make the filer believe a cleared
+            # repository was fully tracked and file nothing, which looks exactly like the
+            # dedupe misfiring.
+            if not any(l.get('name') == LABEL_FINDING
+                       for l in (issue.get('labels') or [])):
+                continue
             for line in (issue.get('body') or '').splitlines():
                 if MARK in line:
                     key = canon(line.split(MARK, 1)[1].strip().rstrip('->').strip())
