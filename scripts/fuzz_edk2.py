@@ -816,7 +816,25 @@ def main():
                   f'-x BaseTools/Source/C/bin/GenFw || '
                   f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
-                  f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 -n {cores}')
+                  f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 '
+                  # A fuzzer cannot survive a guest reset, and with SMM the firmware takes
+                  # one. OvmfPkgX64.dsc forces this PCD FALSE only inside
+                  # "!if $(SMM_REQUIRE) == FALSE", so an SMM build keeps MdeModulePkg's
+                  # default of TRUE: BDS sees the Memory Type Information differ, writes it
+                  # and warm-resets so the new map takes effect --
+                  #   Memory Type Information settings change.
+                  #   ...Warm Reset!!!
+                  # libafl_qemu then dies on "Unhandled QEMU shutdown cause: GuestReset"
+                  # and the campaign ends before the harness, which is why ONLY SMM
+                  # campaigns failed. Without SMM the variable store is opened read-only,
+                  # the write cannot happen, and the question never arises.
+                  #
+                  # The reset is a memory layout optimisation for the NEXT boot, and a
+                  # campaign boots once. Passed for every build: without SMM the DSC
+                  # already says FALSE, so this only ever agrees with it.
+                  f'--pcd gEfiMdeModulePkgTokenSpaceGuid.'
+                  f'PcdResetOnMemoryTypeInformationChange=FALSE '
+                  f'-n {cores}')
         done = docker(args.builder, script, timeout=7200)
         text = done.stdout + done.stderr
         open(os.path.join(out, logname), 'w').write(text)

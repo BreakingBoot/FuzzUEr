@@ -45,6 +45,33 @@ inputs:
     description: 'Build with SMM_REQUIRE=TRUE so the image has an SMM core for SMI handlers'
     required: false
     default: 'false'
+  smi:
+    description: 'Also fuzz the SMI handlers the discover stage finds, not just the
+                  protocols. Implies smm, since the handlers need an SMM core to answer'
+    required: false
+    default: 'false'
+  standalone-mm:
+    description: 'With smm, use the StandaloneMM model rather than PiSmmCore. Inert on a
+                  tree whose DSC has no StandaloneMM components'
+    required: false
+    default: 'false'
+  port-from:
+    description: 'The tree the sanitizer integration is TAKEN FROM -- not the tree being
+                  fuzzed. Leave empty to use the one FuzzUEr carries. Set it only when
+                  your codebase carries its own port: pointing it at a vendor tree that
+                  has none makes every file fail to apply'
+    required: false
+    default: ''
+  port-base:
+    description: 'The commit that port sits on top of. Derived automatically; set it when
+                  your port''s history makes the derivation wrong'
+    required: false
+    default: ''
+  cores:
+    description: 'Cores per build. Defaults to a quarter of the box, capped at 8 -- raise
+                  it on a dedicated runner, lower it when sharing with other jobs'
+    required: false
+    default: ''
   bench:
     description: 'Also build the SanBench drivers, which measure the fuzzer rather than your firmware'
     required: false
@@ -216,6 +243,11 @@ runs:
         IN_TARGETS: ${{ inputs.targets }}
         IN_QUALIFY: ${{ inputs.qualify-only }}
         IN_SMM: ${{ inputs.smm }}
+        IN_SMI: ${{ inputs.smi }}
+        IN_STANDALONE_MM: ${{ inputs.standalone-mm }}
+        IN_PORT_FROM: ${{ inputs.port-from }}
+        IN_PORT_BASE: ${{ inputs.port-base }}
+        IN_CORES: ${{ inputs.cores }}
         IN_BENCH: ${{ inputs.bench }}
         IN_OUT: ${{ inputs.out }}
         IN_FAIL: ${{ inputs.fail-on-findings }}
@@ -285,7 +317,16 @@ runs:
         [ -n "${IN_BOOT:-}" ]   && set -- "$@" --boot-timeout "$IN_BOOT"
         [ "${IN_QUALIFY:-}" = 'true' ] && set -- "$@" --skip-fuzz
         [ "${IN_SMM:-}" = 'true' ]     && set -- "$@" --smm
+        [ "${IN_SMI:-}" = 'true' ]     && set -- "$@" --smi
+        [ "${IN_STANDALONE_MM:-}" = 'true' ] && set -- "$@" --standalone-mm
         [ "${IN_BENCH:-}" = 'true' ]   && set -- "$@" --bench
+        # Per-codebase knobs the driver has always had and this action never passed on.
+        # port-from matters most: a vendor tree that carries its own sanitizer port needs
+        # to be named here, and pointing it at one that does not have a port makes every
+        # file fail to apply rather than failing with anything about the port.
+        [ -n "${IN_PORT_FROM:-}" ] && set -- "$@" --port-from "$IN_PORT_FROM"
+        [ -n "${IN_PORT_BASE:-}" ] && set -- "$@" --port-base "$IN_PORT_BASE"
+        [ -n "${IN_CORES:-}" ]     && set -- "$@" --cores "$IN_CORES"
         # Unquoted on purpose: these are several target names, not one.
         # shellcheck disable=SC2086
         [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS
