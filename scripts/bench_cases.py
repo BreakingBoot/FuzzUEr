@@ -65,9 +65,18 @@ CASES = [
 #
 # "ASAN MEMORY ACCESS check fail" is deliberately NOT an alternative here: __ubsan_handle_*
 # shares that prefix, so it would credit every boot's HII UB to whatever case was running.
+#
+# The class names are matched as a family rather than listed heap-first. Only the heap ones
+# were here, so a real stack detection scored MISS: the sanitizer said
+# "bug_descr=stack-buffer-overflow in file: .../CopyMemWrapper.c" and nothing in this
+# pattern could see it, which left the one case that answers "is stack instrumentation
+# actually on" permanently unscorable. The exerciser's own "expect <case>" line also names
+# a class, and the NARRATION filter at the call site is what keeps that from scoring itself.
 REPORT = re.compile(
-    r'(ERROR: AddressSanitizer|FWSAN:|heap-buffer-overflow|heap-buffer-underflow|'
-    r'use-after-free|double-free|stale-protocol-interface|asan[-_](load|store)|'
+    r'(ERROR: AddressSanitizer|FWSAN:|'
+    r'(heap|stack|global|container|intra-object)[a-z-]*-(overflow|underflow)|'
+    r'use-after-free|use-after-return|use-after-scope|double-free|'
+    r'stale-protocol-interface|asan[-_](load|store)|'
     r'__asan_report|CPU Exception|runtime error)', re.I)
 
 NARRATION = 'SanBenchDrive:'
