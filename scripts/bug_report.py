@@ -669,22 +669,34 @@ def symbolise_offset(module, site, build_dirs):
     return answer
 
 
+def cluster_source(cluster, build_dirs):
+    """Where a reader can open this cluster's code, as a repo-relative path.
+
+    The markdown table and the JSON payload both need this, and the JSON one is what
+    file_issues.py builds an issue body from. Only the table computed it, so a CPU
+    exception was named in the table -- "CoreInsertEventTimer -- Core/Dxe/Event/Timer.c:54"
+    -- and then filed as an issue that said "No source line to show" and told the reader to
+    symbolise an offset this function had already symbolised. One definition, both callers.
+    """
+    if cluster.klass.startswith('cpu-exception'):
+        # the fault comes from the exception handler, which knows the address and
+        # nothing else; the .debug beside the build knows the rest
+        return (symbolise_offset(cluster.module, cluster.site, build_dirs)
+                or 'no source -- symbolise the offset')
+    where = cluster.reports[0].path or ''
+    # the repo-relative path is what a reader can actually open
+    for marker in ('/edk2/', '/edk2-platforms/'):
+        if marker in where:
+            return where.split(marker, 1)[1]
+    return where
+
+
 def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()):
     """One row per bug, with enough beside it to act on without rerunning anything."""
     def line(cluster, reason, verdict):
         detail = cluster.detail() or ''
         note = reason or VERDICT_NOTE.get(verdict, '')
-        where = cluster.reports[0].path or ''
-        # the repo-relative path is what a reader can actually open
-        for marker in ('/edk2/', '/edk2-platforms/'):
-            if marker in where:
-                where = where.split(marker, 1)[1]
-                break
-        if cluster.klass.startswith('cpu-exception'):
-            # the fault comes from the exception handler, which knows the address and
-            # nothing else; the .debug beside the build knows the rest
-            where = (symbolise_offset(cluster.module, cluster.site, build_dirs)
-                     or 'no source -- symbolise the offset')
+        where = cluster_source(cluster, build_dirs)
         protocols = ', '.join(sorted(cluster.protocols)[:4])
         if len(cluster.protocols) > 4:
             protocols += f' +{len(cluster.protocols) - 4}'
@@ -795,7 +807,18 @@ def main():
     print(f'  candidates            {len(buckets["candidate"]):4}')
 
     def cluster_id(cluster):
-        return f'{cluster.module}|{cluster.klass}|{cluster.key[2]}'
+        # The fingerprint is what stops a weekly run refiling an issue already open, so
+        # nothing in it may move between builds. A CPU exception's key IS the offset --
+        # its report carries no source file at all -- so the id contained "+0x30d63" and
+        # would have filed a fresh issue for the same fault every build. Key it on the
+        # source the .debug resolves the offset to, and keep the offset only when nothing
+        # resolved it, where an unstable id is still better than lumping faults together.
+        part = cluster.key[2]
+        if OFFSET.match(str(part).strip()):
+            path = cluster_source(cluster, args.build).split(' -- ')[-1].strip()
+            if '/' in path:
+                part = os.path.basename(path).split(':')[0]
+        return f'{cluster.module}|{cluster.klass}|{part}'
 
     print('\n=== candidate bugs, most severe first ===')
     candidates = sorted(buckets['candidate'],
@@ -855,7 +878,8 @@ def main():
             'candidates': [
                 {'id': cluster_id(c), 'module': c.module, 'site': c.site,
                  'class': c.klass, 'hits': c.hits, 'severity': c.severity(),
-                 'detail': c.detail(), 'protocols': sorted(c.protocols)}
+                 'detail': c.detail(), 'protocols': sorted(c.protocols),
+                 'source': cluster_source(c, args.build)}
                 for c, _ in candidates],
             'ubiquitous': [
                 {'id': cluster_id(c), 'module': c.module, 'site': c.site,

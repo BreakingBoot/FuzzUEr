@@ -289,6 +289,21 @@ def collect_evidence(results, campaigns):
     return files
 
 
+def named_source(named):
+    """('path', 'line') out of triage's "Function -- path:line:col", else (None, None).
+
+    symbolise_offset strips trailing ":0" components, so the tail is any of path,
+    path:line, or path:line:col -- take the first numeric component as the line and
+    nothing on faith.
+    """
+    path = (named or '').split(' -- ')[-1].strip()
+    bits = path.split(':')
+    if not bits or not bits[0] or '/' not in bits[0]:
+        return None, None
+    line = bits[1] if len(bits) > 1 and bits[1].isdigit() else None
+    return bits[0], line
+
+
 def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
     """Everything known about one site, derived from the run -- never per bug class."""
     rows = ev.rows_for(cand, ev.crash_rows(results))
@@ -297,6 +312,17 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
     recorded = first.get('File') or ''
     rel = ev.resolve(source, recorded) if source else None
     line = first.get('Line') or (cand.get('site') or ':').split(':')[-1]
+    # A CPU exception's row has no File: the handler knows the faulting address and
+    # nothing else. Triage resolved it against the build's .debug and persisted it, so
+    # read that rather than printing "no source line to show" about a site we did name.
+    function = ''
+    if not rel:
+        path, found_line = named_source(cand.get('source'))
+        resolved = ev.resolve(source, path) if (source and path) else None
+        if resolved:
+            rel, function = resolved, (cand.get('source') or '').split(' -- ')[0]
+            if found_line:
+                line = found_line
     phase = (first.get('Phase') or '?').strip()
     at_boot = (first.get('AtBoot') or '').strip()
 
@@ -307,6 +333,8 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
            f"| site | `{cand.get('site', '?')}` |"]
     if rel:
         out.append(f'| source | `{rel}` line {line} |')
+    if function:
+        out.append(f'| function | `{function}` |')
     out += [f"| reports at this site | {cand.get('hits', '?')} |",
             f"| phase | {'on every boot' if at_boot else phase} |",
             f"| reached by | {', '.join(cand.get('protocols') or []) or 'not attributed'} |",
@@ -323,10 +351,16 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
                 f'matching path -- the file is generated, or came from a submodule the '
                 f'checkout does not have.', '']
     else:
-        out += [f'No source line to show: the report names `{recorded or "?"}`, which is '
-                f'the instrumentation reporting against itself rather than a file in this '
-                f'tree. The address and the instruction pointer in `detail` are what '
-                f'locate it -- resolve the ip against the build\'s DEBUG directory.', '']
+        named = cand.get('source') or ''
+        if named and 'symbolise' not in named:
+            out += [f'The build resolved this site to `{named}`, but that path is not in '
+                    f'this tree at any matching depth, so there is no file to quote.', '']
+        else:
+            out += [f'No source line to show: the report names `{recorded or "?"}`, which '
+                    f'is the instrumentation reporting against itself rather than a file '
+                    f'in this tree. The address and the instruction pointer in `detail` '
+                    f'are what locate it -- resolve the ip against the build\'s DEBUG '
+                    f'directory.', '']
 
     # --- how a testcase got there ---------------------------------------------------
     entries = ev.harness_entries(results, campaign) if campaign else []
