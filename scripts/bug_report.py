@@ -390,9 +390,17 @@ def load(root, build_dirs=()):
         serial = os.path.join(root, protocol, 'fuzz.txt')
         if not os.path.isfile(path):
             continue
-        imap = resolve_modules.map_from_logs([serial], build_dirs)
+        # The dispatch narration is NOT in fuzz.txt and never was. OVMF sends DEBUG to
+        # the ISA debug port, which the campaign captures separately, so fuzz.txt holds
+        # AsanLib's own SerialOutput and nothing else -- measured across four CI runs,
+        # 0 load lines in every fuzz.txt and 95 in every debugcon.log beside it. Reading
+        # only fuzz.txt is what left the image map empty and every finding unattributed;
+        # no build flag was needed to produce the lines, only the right file.
+        debugcon = os.path.join(root, protocol, 'qemu', 'debugcon.log')
+        maps = [serial, debugcon]
+        imap = resolve_modules.map_from_logs(maps, build_dirs)
         smap = resolve_modules.source_map(build_dirs) if build_dirs else None
-        calibrate([serial], build_dirs)
+        calibrate(maps, build_dirs)
 
         def locate(report):
             """Fill in the source for a report that only has an ip.
@@ -450,13 +458,20 @@ def load(root, build_dirs=()):
         collected = []
         with open(path, newline='') as handle:
             for row in csv.DictReader(handle):
-                collected.append(locate(attribute(Report(row, protocol))))
+                collected.append(attribute(Report(row, protocol)))
                 rows += 1
         # Only the sanitizer's own rows are merged. A guest fault is a separate observation
         # of the machine, not a second row for one access, and nothing measured says an
         # exception at the same ip is the same event.
+        #
+        # Merge BEFORE locating. merge_by_ip pairs a report that names a source with its
+        # twin that names a marker, so it can only see the pair while the marker is still
+        # there -- locating first gives the twin a real path, the pair stops looking like
+        # one, and both survive as separate candidates for one access. Measured on run
+        # 40532555997: locate-then-merge gave 5 candidates with UefiDriverModel.c:731
+        # twice, merge-then-locate gives 4.
         for report in merge_by_ip(collected):
-            groups[report.group_key()].append(report)
+            groups[locate(report).group_key()].append(report)
         for report in guest_faults(protocol, serial):
             rows += 1
             groups[report.group_key()].append(report)
