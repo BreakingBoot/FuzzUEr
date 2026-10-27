@@ -323,6 +323,52 @@ def guest_faults(protocol, path):
     return rows
 
 
+# Which of two rows for ONE access keeps its label. A named sanitizer class beats the bare
+# access helper, which beats a crash the firmware could not classify at all. This is not a
+# severity order -- Report.severity above is -- it only breaks the tie in merge_by_ip.
+def class_rank(asan):
+    name = (asan or '').lower()
+    if not name or 'unknown-crash' in name:
+        return 0
+    if name.startswith('__asan_load') or name.startswith('__asan_store'):
+        return 1
+    return 2
+
+
+def merge_by_ip(reports):
+    """One access, one report.
+
+    The sanitizer writes two rows for the same access: the access check names the source
+    file and line, while the typed report names "asan-outline-instrumentation" and puts the
+    ip where a line number would go. They carry the same ip, so they are the same
+    instruction and the same defect.
+
+    Filing both is what put eight unattributable issues beside eight real ones on run
+    40332735518 -- half of everything open, each saying "No source line to show" -- and no
+    fingerprint could catch it, because module, class and file all differ between twins.
+
+    The row that knows the source is the one kept. It adopts the other's class when that
+    class is the more specific of the two, so a stack-buffer-overflow still reads as one
+    and arrives with a file and a line instead of an address.
+    """
+    located = {}
+    for report in reports:
+        if report.ip and '/' in report.path:
+            located.setdefault(report.ip, report)
+    kept = []
+    for report in reports:
+        twin = located.get(report.ip) if report.ip and '/' not in report.path else None
+        if twin is None or twin is report:
+            kept.append(report)
+            continue
+        if class_rank(report.asan) > class_rank(twin.asan):
+            # the message comes too: it carries address, size and is_write, which is where
+            # bug_type() reads the (read)/(write) direction from, and the ip is in both
+            twin.asan, twin.message = report.asan, report.message
+        twin.count += report.count
+    return kept
+
+
 def load(root, build_dirs=()):
     """Read every crashes.csv, then merge reports that sit close together.
 
@@ -363,11 +409,16 @@ def load(root, build_dirs=()):
                     report.module = f'{owner}.efi'
             return report
 
+        collected = []
         with open(path, newline='') as handle:
             for row in csv.DictReader(handle):
-                report = attribute(Report(row, protocol))
+                collected.append(attribute(Report(row, protocol)))
                 rows += 1
-                groups[report.group_key()].append(report)
+        # Only the sanitizer's own rows are merged. A guest fault is a separate observation
+        # of the machine, not a second row for one access, and nothing measured says an
+        # exception at the same ip is the same event.
+        for report in merge_by_ip(collected):
+            groups[report.group_key()].append(report)
         for report in guest_faults(protocol, serial):
             rows += 1
             groups[report.group_key()].append(report)
