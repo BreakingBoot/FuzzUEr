@@ -870,12 +870,6 @@ def main():
                   f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
                   f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 '
-                  # The DXE dispatch narration is the only record of where each image
-                  # was loaded, and without it no sanitizer ip can be turned back into a
-                  # driver, let alone a source line -- every finding stays unattributed.
-                  # Measured against the same tree without it: same 116s boot, 186s
-                  # against 188s for the detect stage, so it is not paid for in time.
-                  f'-D DEBUG_ON_SERIAL_PORT=TRUE '
                   # A fuzzer cannot survive a guest reset, and with SMM the firmware takes
                   # one. OvmfPkgX64.dsc forces this PCD FALSE only inside
                   # "!if $(SMM_REQUIRE) == FALSE", so an SMM build keeps MdeModulePkg's
