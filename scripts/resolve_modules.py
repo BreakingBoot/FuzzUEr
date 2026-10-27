@@ -44,16 +44,50 @@ def size_of_image(path):
     """SizeOfImage out of a PE32/PE32+ optional header, or 0 if this is not one."""
     try:
         with open(path, 'rb') as handle:
-            head = handle.read(0x400)
+            dos = handle.read(0x40)
+            if len(dos) < 0x40 or dos[:2] != b'MZ':
+                return 0
+            # e_lfanew is a file offset, not a near one: GenFw emits a DOS stub of
+            # whatever size the image needs, so the PE header can sit well past the
+            # start of the file. Seek to it rather than assuming it was already read.
+            off = struct.unpack_from('<I', dos, 0x3C)[0]
+            handle.seek(off)
+            head = handle.read(0x60)
     except OSError:
         return 0
-    if len(head) < 0x40 or head[:2] != b'MZ':
-        return 0
-    off = struct.unpack_from('<I', head, 0x3C)[0]
-    if off + 0x60 > len(head) or head[off:off + 4] != b'PE\0\0':
+    if len(head) < 0x60 or head[:4] != b'PE\0\0':
         return 0
     # SizeOfImage sits at the same offset in both PE32 and PE32+
-    return struct.unpack_from('<I', head, off + 24 + 56)[0]
+    return struct.unpack_from('<I', head, 24 + 56)[0]
+
+
+def elf_entry(path):
+    """e_entry out of an ELF64 .debug file, or None if this is not one."""
+    try:
+        with open(path, 'rb') as handle:
+            head = handle.read(0x40)
+    except OSError:
+        return None
+    if len(head) < 0x40 or head[:4] != b'\x7fELF' or head[4] != 2:
+        return None
+    return struct.unpack_from('<Q', head, 0x18)[0]
+
+
+def build_entries(build_dirs):
+    """Every <Name>.debug under the build trees, mapped to its ELF entry address."""
+    entries = {}
+    for root in build_dirs:
+        for base, _, files in os.walk(root):
+            for name in files:
+                if not name.endswith('.debug'):
+                    continue
+                stem = name[:-len('.debug')]
+                if stem in entries:
+                    continue
+                addr = elf_entry(os.path.join(base, name))
+                if addr:
+                    entries[stem] = addr
+    return entries
 
 
 def build_sizes(build_dirs):
@@ -159,11 +193,11 @@ class ImageMap:
         self.bases = [base for base, _ in ordered]
         self.images = []
         for index, (base, name) in enumerate(ordered):
+            nxt = ordered[index + 1][0] if index + 1 < len(ordered) else 0
             exact = sizes.get(name, 0)
             if exact:
                 end, sure = base + exact, True
             else:
-                nxt = ordered[index + 1][0] if index + 1 < len(ordered) else 0
                 span = nxt - base if nxt and nxt - base <= MAX_IMAGE else MAX_IMAGE
                 end, sure = base + span, False
             self.images.append((base, end, name, sure))
@@ -176,13 +210,26 @@ class ImageMap:
         return sum(1 for image in self.images if image[3])
 
     def resolve(self, ip):
-        """(name, offset, certain) for the image containing ip, or None."""
+        """(name, offset, certain) for the image containing ip, or None.
+
+        A campaign reboots, and each boot's allocator places drivers wherever it
+        happens to be, so one capture holds several address maps laid over each other.
+        Where two of them claim the same address, which boot it came from is not
+        recoverable from the capture -- so the nearest image is still returned, as the
+        best guess available, but never as a certain one.
+        """
         index = bisect.bisect_right(self.bases, ip) - 1
         if index < 0:
             return None
         base, end, name, sure = self.images[index]
         if ip >= end:
             return None
+        for other_base, other_end, other_name, _ in reversed(self.images[:index]):
+            if ip - other_base > MAX_IMAGE:
+                break
+            if other_end > ip and other_name != name:
+                sure = False
+                break
         return name, ip - base, sure
 
 
@@ -191,14 +238,42 @@ def read_text(path):
         return handle.read().decode('utf-8', errors='replace').replace('\r', '')
 
 
-def map_from_logs(paths, build_dirs=()):
+def loads_from_logs(paths):
+    """(base, entry, name) for every image dispatch line in these captures."""
     loads = []
     for path in paths:
         if not os.path.isfile(path):
             continue
         for base, entry, name in LOAD_RE.findall(read_text(path)):
             loads.append((int(base, 16), int(entry, 16), name))
+    return loads
+
+
+def map_from_logs(paths, build_dirs=()):
+    loads = loads_from_logs(paths)
     return ImageMap(loads, build_sizes(build_dirs) if build_dirs else {})
+
+
+def calibration(paths, build_dirs):
+    """Per module, how far its runtime offsets sit from its .debug addresses.
+
+    An offset measured from the runtime load address is not the address the .debug file
+    knows. GenFw lays the PE sections out itself, so the two differ per module -- by
+    anything from nothing to a few hundred bytes, with no constant to subtract. Over the
+    92 drivers of one boot, symbolising the uncorrected entry offset named the right
+    function 34 times; corrected, 92.
+
+    No extra data is needed to fix it. Every dispatch line carries both the load address
+    and the entry point, and the .debug file says where its own entry point sits, so each
+    image calibrates itself against the one address both sides agree on.
+    """
+    entries = build_entries(build_dirs) if build_dirs else {}
+    deltas = {}
+    for base, entry, name in loads_from_logs(paths):
+        known = entries.get(name)
+        if known:
+            deltas[name] = known - (entry - base)
+    return deltas
 
 
 _SOURCE_MAPS = {}

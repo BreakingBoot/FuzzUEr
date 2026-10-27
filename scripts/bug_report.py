@@ -392,6 +392,44 @@ def load(root, build_dirs=()):
             continue
         imap = resolve_modules.map_from_logs([serial], build_dirs)
         smap = resolve_modules.source_map(build_dirs) if build_dirs else None
+        calibrate([serial], build_dirs)
+
+        def locate(report):
+            """Fill in the source for a report that only has an ip.
+
+            A sanitizer handler is an outline call with no source position of its own, so
+            AsanLib writes a marker where the file goes -- "fwsan",
+            "asan-outline-instrumentation" -- and says as much in its own comment. The ip
+            it carries is the caller's, and every piece needed to turn that into a line
+            already existed: the image map places the ip in a module and
+            symbolise_offset() resolves the offset against that module's .debug, which is
+            why triage runs inside the campaign image.
+
+            The one missing piece was the map. It is built from "Loading driver at" lines,
+            which only exist when the firmware was built with -D DEBUG_ON_SERIAL_PORT --
+            four scripts here document that dependency and nothing supplied it, so every
+            fwsan finding arrived as "fwsan:<ip>" with no file. This is inert on a capture
+            with no image loads, which is what makes it safe to run unconditionally.
+
+            Only a certain base is used. An uncertain one would name a line in the wrong
+            function with full confidence, which is worse than naming none.
+            """
+            if '/' in report.path or not report.ip or not len(imap) or not build_dirs:
+                return report
+            try:
+                found = imap.resolve(int(report.ip, 16))
+            except ValueError:
+                return report
+            if not found or not found[2]:
+                return report
+            name, offset = found[0], found[1]
+            answer = symbolise_offset(f'{name}.efi', f'+{offset:#x}', build_dirs)
+            where = answer.split(' -- ', 1)[1] if ' -- ' in answer else ''
+            if ':' in where:
+                path, _, line = where.rpartition(':')
+                if path and line.isdigit():
+                    report.path, report.line = path, line
+            return report
 
         def attribute(report):
             if report.module:
@@ -412,7 +450,7 @@ def load(root, build_dirs=()):
         collected = []
         with open(path, newline='') as handle:
             for row in csv.DictReader(handle):
-                collected.append(attribute(Report(row, protocol)))
+                collected.append(locate(attribute(Report(row, protocol))))
                 rows += 1
         # Only the sanitizer's own rows are merged. A guest fault is a separate observation
         # of the machine, not a second row for one access, and nothing measured says an
@@ -555,6 +593,21 @@ def _debug_index(build_dirs):
     return _DEBUG_INDEX
 
 
+_CALIBRATION = {}
+
+
+def calibrate(serial_logs, build_dirs):
+    """Learn the runtime-to-.debug offset for every module this boot dispatched.
+
+    Both kinds of site reach symbolise_offset as an offset from the image's load
+    address: the exception handler measures it that way, and an ASan ip resolves to it.
+    Neither is the address the .debug file knows, so the delta is applied in the one
+    place both of them pass through.
+    """
+    if build_dirs:
+        _CALIBRATION.update(resolve_modules.calibration(serial_logs, build_dirs))
+
+
 def symbolise_offset(module, site, build_dirs):
     """"Function -- path:line" for "+0xNNN" in module, or '' when it cannot be resolved.
 
@@ -565,17 +618,23 @@ def symbolise_offset(module, site, build_dirs):
     found = OFFSET.match((site or '').strip())
     if not found or not module or not build_dirs:
         return ''
-    key = (module, site)
+    name = module[:-len('.efi')] if module.endswith('.efi') else module
+    # the delta belongs in the key: the same offset in the same module resolves
+    # differently once that module has been calibrated
+    key = (module, site, _CALIBRATION.get(name, 0))
     if key in _OFFSET_CACHE:
         return _OFFSET_CACHE[key]
-    name = module[:-len('.efi')] if module.endswith('.efi') else module
     debug = _debug_index(build_dirs).get(name)
     answer = ''
     if debug:
+        # Uncalibrated, the offset still names a function -- just the wrong one, most of
+        # the time. 0 is the honest default: without a dispatch line for this module
+        # there is nothing to calibrate against.
+        address = int(found.group(1), 16) + _CALIBRATION.get(name, 0)
         for tool in SYMBOLIZERS:
             try:
                 done = subprocess.run(
-                    _symbolizer_argv(tool, debug, hex(int(found.group(1), 16))),
+                    _symbolizer_argv(tool, debug, hex(address)),
                     capture_output=True, text=True, timeout=30)
             except (OSError, subprocess.SubprocessError):
                 continue
