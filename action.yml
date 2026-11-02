@@ -11,7 +11,20 @@
 # Needs a self-hosted Linux x64 runner: this builds LLVM-instrumented OVMF and a QEMU that
 # libafl compiles from source, which does not fit a hosted runner's disk or job timeout.
 name: FuzzUEr
-description: Fuzz an EDK2 tree's protocol and SMI handlers under AddressSanitizer
+description: >-
+  Build OVMF X64 from an EDK2 tree (OvmfPkg/OvmfPkgX64.dsc, -a X64 -t CLANGSAN) and fuzz its
+  protocol and SMI handlers under AddressSanitizer. Needs a dedicated self-hosted Linux x64
+  runner; no other platform DSC, architecture or toolchain is built.
+
+# What the Marketplace listing shows. Without a `branding:` key the action cannot be listed
+# at all -- GitHub rejects the publish rather than picking a default, and it says so only at
+# publish time, which is the one place nobody is looking. `shield` is in the Feather subset
+# GitHub accepts and `purple` is in its colour set; anything outside either is also a
+# publish-time rejection, so do not swap them for a nicer-sounding name without checking
+# https://docs.github.com/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions#branding
+branding:
+  icon: shield
+  color: purple
 
 inputs:
   source:
@@ -194,6 +207,76 @@ runs:
           return 0
         }
 
+        # `uses: owner/FuzzUEr@<sha>` -- a full commit SHA, which is the form GitHub's own
+        # hardening guidance tells callers to pin to -- cannot be cloned directly.
+        # `git clone --branch` takes a branch or a tag only, and answers
+        # "fatal: Remote branch <sha> not found in upstream origin" for a commit. So the
+        # clone below falls back to a plain clone, and for a SHA the fallback is ALWAYS what
+        # runs -- and a plain clone takes the DEFAULT BRANCH. A workflow pinned to a reviewed
+        # commit therefore fuzzed whatever happened to be on main, and nothing in the run
+        # said so: the only check afterwards was that the submodules were non-empty, which
+        # main satisfies perfectly well. The reuse path had the same hole from the other
+        # end -- fetch, checkout and submodule update were each `|| true`, so a cache that
+        # could not be refreshed ran last month's code under this month's ref.
+        #
+        # So move to the ref explicitly, on both paths, and then ASSERT that is where we
+        # landed. The assertion is the part that matters. Every failure above was a step
+        # that did not do what it was asked and then said nothing about it.
+        pin_to_ref() {
+          local dir=$1 ref=${2:-HEAD} head want
+          # stderr is deliberately NOT swallowed here: git's own message says whether the
+          # ref is missing or the credentials are, and hiding it is how this stayed hidden.
+          if ! git -C "$dir" fetch -q --depth=1 origin "$ref"; then
+            echo "::error::$ACTION_REPO has no fetchable ref '$ref', so this run cannot be"
+            echo "pinned to it and will not proceed on whatever the default branch holds."
+            echo "A commit must be the FULL 40 characters -- git cannot fetch an abbreviated"
+            echo "one, it answers \"couldn't find remote ref\" -- and a private repository"
+            echo "needs the 'token' input."
+            return 1
+          fi
+          git -C "$dir" checkout -q --detach FETCH_HEAD || {
+            echo "::error::fetched $ref from $ACTION_REPO but could not check it out"
+            echo "($dir may be a stale cache with local state; delete it and re-run)"
+            return 1; }
+          # HEAD moved, so the gitlinks moved with it, and until this runs the submodules
+          # are at the commits some OTHER ref recorded -- the exact failure checks.yml's
+          # first step exists to catch, except here nobody is looking.
+          git -C "$dir" submodule update --init --recursive --depth=1 -q || {
+            echo "::error::could not take $dir's submodules to the commits $ref records"
+            return 1; }
+
+          # Unconditionally, and before the assertion decides whether it applies: the
+          # original defect here was a step that moved nowhere and said nothing, so the one
+          # thing every path owes the log is which commit the run is actually on.
+          head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
+          echo "  $ACTION_REPO is at $head (asked for $ref)"
+
+          # Only a commit can be compared against HEAD: a branch or a tag resolves to a
+          # commit that is not its own name, so asserting equality there would fail every
+          # tagged release. Shape alone does not settle it either -- `abcdef1` is a legal
+          # BRANCH name -- so when a ref looks like a SHA, ask the remote whether it is
+          # also a ref name, and only assert when it is not.
+          case "$ref" in
+            HEAD|*[!0-9A-Fa-f]*) return 0 ;;
+          esac
+          { [ ${#ref} -ge 7 ] && [ ${#ref} -le 40 ]; } || return 0
+          if [ -n "$(git -C "$dir" ls-remote origin \
+                       "refs/heads/$ref" "refs/tags/$ref" 2>/dev/null)" ]; then
+            echo "  ($ref is a branch or tag name there, not a commit, so HEAD is not"
+            echo "  expected to equal it)"
+            return 0
+          fi
+          want=$(printf '%s' "$ref" | tr 'A-Z' 'a-z')
+          case "$(printf '%s' "$head" | tr 'A-Z' 'a-z')" in
+            "$want"*) ;;
+            *) echo "::error::asked for $ACTION_REPO at $ref and HEAD is $head. That is the"
+               echo "silent de-pin this assertion exists for -- nothing in this run came"
+               echo "from the commit the workflow named, so do not trust its result."
+               return 1 ;;
+          esac
+          return 0
+        }
+
         HOME_DIR="$ACTION_PATH"
         if [ -e "$ACTION_PATH/.git" ]; then
           git -C "$ACTION_PATH" submodule update --init --depth=1 \
@@ -213,23 +296,32 @@ runs:
           # fight over one directory.
           slug=$(printf '%s@%s' "$ACTION_REPO" "${ACTION_REF:-HEAD}" | tr -c 'A-Za-z0-9._-' '-')
           HOME_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/fuzzuer-action/$slug"
+          # Hoisted above the branch because the reuse path needs it too: see below.
+          url="https://github.com/$ACTION_REPO.git"
+          [ -n "${IN_TOKEN:-}" ] && url="https://x-access-token:$IN_TOKEN@github.com/$ACTION_REPO.git"
           # Reused across jobs on a self-hosted runner: the submodules are a 24 GB fetch and
           # paying it once per job would dominate every run.
           if complete "$HOME_DIR"; then
             echo "reusing $HOME_DIR"
-            git -C "$HOME_DIR" fetch -q --depth=1 origin "${ACTION_REF:-HEAD}" 2>/dev/null || true
-            git -C "$HOME_DIR" checkout -q FETCH_HEAD 2>/dev/null || true
-            git -C "$HOME_DIR" submodule update --init --recursive -q 2>/dev/null || true
+            # The cached clone's origin still carries whatever token created it, and that
+            # token died with that job. Point it at this job's URL before fetching, or the
+            # refresh fails for a reason that has nothing to do with the ref -- which is
+            # tolerable while the failure is ignored and is not once it is fatal.
+            git -C "$HOME_DIR" remote set-url origin "$url" 2>/dev/null || true
           else
             rm -rf "$HOME_DIR"; mkdir -p "$(dirname "$HOME_DIR")"
-            url="https://github.com/$ACTION_REPO.git"
-            [ -n "${IN_TOKEN:-}" ] && url="https://x-access-token:$IN_TOKEN@github.com/$ACTION_REPO.git"
             echo "cloning $ACTION_REPO at ${ACTION_REF:-default} (submodules included)"
+            # The --branch form is kept because it is the cheap path for a branch or a tag:
+            # one shallow clone and the submodules come with it. It simply cannot express a
+            # commit, which is what pin_to_ref below is for.
             git clone -q --recurse-submodules --shallow-submodules \
                 --branch "${ACTION_REF:-HEAD}" --depth 1 "$url" "$HOME_DIR" \
               || git clone -q --recurse-submodules --shallow-submodules "$url" "$HOME_DIR" \
-              || { echo "::error::could not clone \$ACTION_REPO -- pass the 'token' input if it is private"; exit 1; }
+              || { echo "::error::could not clone $ACTION_REPO -- pass the 'token' input if it is private"; exit 1; }
           fi
+          # Both paths land here, and both need it: a fresh clone may have fallen back to
+          # the default branch, and a reused one may be a month behind.
+          pin_to_ref "$HOME_DIR" "${ACTION_REF:-HEAD}" || exit 1
           complete "$HOME_DIR" || {
             echo "::error::cloned $ACTION_REPO but its submodules are still empty"; exit 1; }
         fi
@@ -493,15 +585,78 @@ runs:
           exit 0; }
         # Refuse to file at upstream. The tool is pointed at forks and platform branches;
         # a candidate list is not something to send tianocore unasked.
-        case "$remote" in
-          *tianocore/edk2*|*git.tianocore*)
-            echo "::warning::$remote is upstream edk2 -- not filing issues there. The"
-            echo "findings are in the run artifact; disclose deliberately if they hold up."
-            exit 0 ;;
+        #
+        # The remote is NORMALISED before it is matched, because the earlier version of
+        # this matched `*tianocore/edk2*` against the raw string and three ordinary ways of
+        # writing the same remote walked straight past it:
+        #
+        #   https://github.com/TianoCore/edk2.git   -- owner and repo names on GitHub are
+        #   git@github.com:TIANOCORE/edk2.git          case-INSENSITIVE, so all three of
+        #   https://github.com/tianocore//edk2.git     these resolve to upstream
+        #
+        # and it keyed on a repository NAME rather than on the ORG, so any tianocore
+        # repository whose name does not begin `edk2` -- `containers`, `tianocore.github.io`
+        # and, of all of them, `full-disclosure` -- went through untouched. The edk2-*
+        # repositories were caught, but only because `*tianocore/edk2*` is a substring
+        # match that happens to cover them, which is luck and not a rule.
+        #
+        # So: lowercase it, drop the scheme and any credentials, turn the
+        # scp-form colon into a slash, collapse repeated slashes, drop `.git`, and then ask
+        # about the HOST and the OWNER segment specifically.
+        #
+        # Matching the owner segment and not the whole string also stops the guard being
+        # wrong in the other direction: `github.com/my-tianocore-fork/edk2` and
+        # `github.com/acme/tianocore-edk2` are somebody's fork, which is exactly what this
+        # tool is for, and the old substring match would have refused both.
+        canon_remote() {
+          # Case is PRESERVED here: the slug built from this ends up in issue links. The
+          # match below lowercases its own copy.
+          #
+          # A URL and an scp-form remote are normalised SEPARATELY because the colon means
+          # different things in them, and treating both the same way is itself a bypass:
+          # `ssh://git@ssh.github.com:443/tianocore/edk2.git` -- GitHub's own documented
+          # remote for networks that block port 22 -- has a PORT after the host, and
+          # turning that colon into a slash makes `443` the owner segment and tianocore
+          # just another directory in the path. Measured, before this was split in two: it
+          # came out as `443/tianocore/edk2` and was allowed through.
+          #
+          # In scp form there is no port to confuse it with -- `git@host:path` cannot carry
+          # one -- so there the colon is always the separator, and a first path segment
+          # that happens to be digits is an owner.
+          case "$1" in
+            *://*) printf '%s' "$1" \
+                     | sed -e 's#^[A-Za-z0-9+.-]*://##' \
+                           -e 's#^[^/]*@##' \
+                           -e 's#^\([^/:]*\):[0-9]\{1,5\}#\1#' ;;
+            *)     printf '%s' "$1" \
+                     | sed -e 's#^[^/]*@##' \
+                           -e 's#^\([^/:]*\):#\1/#' ;;
+          esac \
+            | sed -e 's#/\{2,\}#/#g' \
+                  -e 's#/*$##' -e 's#\.git$##' -e 's#/*$##'
+        }
+        canon=$(canon_remote "$remote")
+        lower=$(printf '%s' "$canon" | tr 'A-Z' 'a-z')
+        host=${lower%%/*}
+        rest=${lower#*/}
+        owner=${rest%%/*}
+        upstream=''
+        case "$host" in
+          tianocore.org|*.tianocore.org) upstream="its host is $host" ;;
         esac
+        [ "$owner" = tianocore ] && upstream="the tianocore org owns it"
+        if [ -n "$upstream" ]; then
+          echo "::warning::$remote is upstream edk2 ($upstream) -- not filing issues"
+          echo "there. The findings are in the run artifact; disclose deliberately if they"
+          echo "hold up."
+          exit 0
+        fi
 
-        slug=$(printf '%s' "$remote" | sed -e 's#^git@[^:]*:##' \
-                 -e 's#^https\{0,1\}://[^/]*/##' -e 's#\.git$##')
+        # From the normalised form rather than from the raw remote, so that the slug the
+        # filer is handed agrees with the string this step just cleared. The old sed also
+        # knew only about `git@host:` and `http(s)://`, so an `ssh://` remote produced a
+        # slug with the scheme still on the front of it.
+        slug=${canon#*/}
         ref="${REF_FUZZED:-}"
         [ -n "$ref" ] || ref=$(git -C "$SRC" rev-parse HEAD 2>/dev/null) || ref='?'
         # Tee'd into the results, like the driver's own narration. A filing that goes

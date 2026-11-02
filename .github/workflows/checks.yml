@@ -59,6 +59,15 @@ jobs:
         shell: bash
         run: python3 scripts/asan_sync_check.py --quiet
 
+      # Findings must never reach upstream tianocore. The guard used to be one shell
+      # `case` in action.yml, and a case-variant owner walked straight through it --
+      # GitHub owner names are case-insensitive, so TianoCore/edk2 resolves upstream.
+      # This slices the live guard out of action.yml rather than copying it, so the test
+      # cannot keep passing while the file it checks drifts away from it.
+      - name: Findings cannot be filed upstream
+        shell: bash
+        run: python3 scripts/upstream_guard_check.py
+
       - name: Every driver script parses
         shell: bash
         run: |

@@ -47,6 +47,98 @@ EVIDENCE_BRANCH = 'fuzzuer-evidence'
 MARK = 'fuzzuer-fingerprint:'
 LABEL_FINDING = 'fuzzuer-finding'
 
+# The one rule in this tool that has no exception: a fuzzing finding is never filed at, and
+# nothing is ever pushed to, upstream edk2. A candidate list is not a disclosure, and
+# sending one unasked is not ours to do.
+#
+# This check is DELIBERATELY REDUNDANT. action.yml has its own, and that one used to be the
+# whole of the enforcement -- a single shell `case` in a YAML file, bypassed by anything the
+# pattern did not literally spell: `TianoCore/edk2` (GitHub owner and repo names are
+# case-insensitive), `tianocore//edk2`, and any tianocore repository whose name does not
+# begin `edk2`, `tianocore/full-disclosure` among them. Nothing downstream looked at --slug
+# at all: it went straight into the issues endpoint and into the force-push URL in
+# push_evidence.
+#
+# One enforcement point for a rule like this is one typo away from being none, and this
+# script is also run by hand, where there is no YAML in the path at all. So the slug is
+# checked here as well, before the POST and before the push, and the two checks agree on
+# what counts as upstream: the tianocore ORG on any host, or a tianocore.org host.
+#
+# Keyed on the ORG, not on a repository name, in both directions. `tianocore/edk2-platforms`
+# is upstream and must be refused; `my-tianocore-fork/edk2` and `acme/tianocore-edk2` are
+# somebody's fork, which is the whole point of this tool, and must not be.
+UPSTREAM_ORGS = ('tianocore',)
+UPSTREAM_HOSTS = ('tianocore.org',)
+SCHEME = re.compile(r'^[A-Za-z0-9+.-]*://')
+
+
+def canon_slug(slug):
+    """A slug reduced to what identifies the repository, however it was written.
+
+    Accepts what action.yml hands over (`owner/repo`) and also a whole remote URL, because
+    this script is run by hand too and `--slug https://github.com/Owner/repo.git` is the
+    obvious thing to type. Lowercased, since GitHub resolves owner and repo names without
+    regard to case -- that was the bypass -- and with the scheme, any credentials, repeated
+    slashes and a trailing `.git` taken off.
+
+    A URL and an scp-form remote are handled separately, because the colon means something
+    different in each and treating both alike is its own bypass:
+    `ssh://git@ssh.github.com:443/tianocore/edk2.git` -- the remote GitHub documents for
+    networks that block port 22 -- has a PORT there, and turning that colon into a
+    separator makes `443` the owner and tianocore a mere directory. In scp form,
+    `git@host:path`, no port is possible, so the colon is always the separator and a
+    numeric first segment is an owner.
+    """
+    text = (slug or '').strip().lower()
+    if '://' in text:
+        text = SCHEME.sub('', text)
+        text = re.sub(r'^[^/]*@', '', text)        # user:token@host
+        text = re.sub(r'^([^/:]*):[0-9]{1,5}', r'\1', text)  # host:port -> host
+    else:
+        text = re.sub(r'^[^/]*@', '', text)        # scp-form git@host
+        text = re.sub(r'^([^/:]*):', r'\1/', text)  # host:owner -> host/owner
+    text = re.sub(r'/{2,}', '/', text)             # tianocore//edk2 -> tianocore/edk2
+    return re.sub(r'/+$', '', re.sub(r'\.git$', '', re.sub(r'/+$', '', text)))
+
+
+def upstream_reason(slug):
+    """Why this slug is upstream edk2, in words, or '' when it is not.
+
+    The first segment is a HOST when it has a dot in it: GitHub owner names are
+    alphanumeric and hyphens only, so no owner can be mistaken for one. Repository names
+    *can* contain dots, which is why only the first segment is tested.
+    """
+    parts = [p for p in canon_slug(slug).split('/') if p]
+    host = parts.pop(0) if parts and ('.' in parts[0] or parts[0] == 'localhost') else ''
+    owner = parts[0] if parts else ''
+    if host and (host in UPSTREAM_HOSTS
+                 or any(host.endswith('.' + h) for h in UPSTREAM_HOSTS)):
+        return f'{host} is an upstream edk2 host'
+    if owner in UPSTREAM_ORGS:
+        return f'the {owner} org owns it'
+    return ''
+
+
+def refuse_upstream(slug, what):
+    """Stop the process rather than touch upstream edk2 with it.
+
+    It exits instead of returning a status because one of its two callers -- push_evidence
+    -- reports every other failure by returning '' and carrying on, which is right for a
+    push that did not work and exactly wrong here: a run must not quietly continue after
+    being pointed at upstream. Non-zero, so the step that invoked it goes red; the warning
+    the action prints when ITS check fires is a deliberate `exit 0`, because findings in
+    the artifact beat a failed job, but by the time control is here that check has been
+    bypassed and silence is no longer the safe answer.
+    """
+    reason = upstream_reason(slug)
+    if not reason:
+        return
+    print(f'::error::refusing to {what} at {slug}: {reason}, and fuzzing findings are '
+          f'never sent to upstream edk2. If this is a fork, give --slug the fork; if it '
+          f'is really upstream, the findings are in the run artifact and disclosing them '
+          f'is a decision for a person, not for a scheduled job.')
+    sys.exit(3)
+
 
 def call(token, method, path, body=None, dry=False):
     """One REST call. Returns (status, parsed-body-or-None)."""
@@ -222,6 +314,10 @@ def push_evidence(source, slug, token, run_id, files, server):
     Returns '' when it cannot push, which is not fatal: the issues then carry the inline
     excerpts and the artifact, and say the links are missing.
     """
+    # Before the early return and before the URL is built, because this is the one failure
+    # here that must not be shrugged off: everything else in this function degrades to
+    # "no links in the issue", and a force-push to upstream does not degrade to anything.
+    refuse_upstream(slug, 'push an evidence branch')
     if not files or not token:
         return ''
     url = f'https://x-access-token:{token}@github.com/{slug}.git'
@@ -449,6 +545,11 @@ def main():
     ap.add_argument('--dry-run', action='store_true',
                     help='say what would be filed; make no changes')
     args = ap.parse_args()
+
+    # First, ahead of the token check and of every request: --dry-run is no exemption,
+    # since a dry run that says "would file 8 issues at tianocore/edk2" is a sentence
+    # nobody should ever have to read and argue with.
+    refuse_upstream(args.slug, 'file issues')
 
     token = os.environ.get('GH_TOKEN', '')
     if not token and not args.dry_run:
