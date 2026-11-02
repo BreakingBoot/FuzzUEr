@@ -116,7 +116,8 @@ cat <<'DONE'
 
 === next ===
   1. scripts/bootstrap_runner.sh          builds the images the sweep needs (slow, once)
-  2. Run the workflow manually with qualify_only = true first. Ten stages, minutes, and
+  2. Run the workflow manually with qualify_only = true first. Eleven of the pipeline's
+     thirteen stages run -- fuzz and triage are skipped -- so it takes minutes, and
      it exercises everything except the fuzzing -- far better than discovering a problem
      seventeen hours into a full sweep.
   3. The schedule (Sundays 03:00 UTC) then needs nothing further.
