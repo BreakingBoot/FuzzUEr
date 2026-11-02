@@ -34,18 +34,32 @@ jobs:
     runs-on: [self-hosted, linux, x64]
     timeout-minutes: 90
     steps:
-      # The tree under test. Only this -- the action is NOT checked out, which is the whole
-      # point: it has to arrive the way it arrives for anybody else.
+      # The tree under test, and the ONLY checkout here -- the action is deliberately not
+      # checked out, because it has to arrive the way it arrives for anybody else.
+      #
+      # A clean upstream release. The first version of this test pointed at
+      # cglosner/edk2@simics-working -- the fork that already carries the sanitizer port --
+      # and then asked the action to apply the port to it, which is not what a consumer
+      # does and not something the port is built to survive. Full depth because the driver
+      # resolves the ref out of git history.
       - uses: actions/checkout@v4
         with:
-          repository: cglosner/edk2
-          ref: simics-working
+          repository: tianocore/edk2
+          ref: edk2-stable202608
           path: tree
-          fetch-depth: 1
+          fetch-depth: 0
+
+      # Out of RUNNER_TEMP, which the runner wipes at job end. Without this a failure
+      # inside the action leaves nothing to read back, which is exactly where the first two
+      # attempts at this test left me.
+      - name: Where to keep the results
+        id: where
+        run: echo "out=$HOME/fuzzuer-uses-out/$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
 
       - id: fuzz
         uses: BreakingBoot/FuzzUEr@main
         with:
+          out: ${{ steps.where.outputs.out }}
           source: tree
           qualify-only: true
           bootstrap: true
@@ -61,21 +75,40 @@ jobs:
         run: |
           set -uo pipefail
           echo "  results = ${RESULTS:-<empty>}"
-          echo "  stages  = ${STAGES:-<empty>}"
-          rc=0
-          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; rc=1; }
-          [ -f "${RESULTS:-}/run.json" ] \
-            || { echo "::error::no run.json under ${RESULTS:-<empty>}"; rc=1; }
-          # The failure this test exists to catch is the submodule one, and it does not look
-          # like a download problem: the action runs, and then a stage fails because firness
-          # or uefi_asan is an empty directory. Naming it here is what separates "uses:
-          # cannot work" from "a stage regressed", which is the confusion that left three
-          # documents disagreeing for months.
-          case "${STAGES:-}" in
-            *submodules*FAIL*|*port*FAIL*)
-              echo "::error::a stage that reads a submodule failed -- the archive arrived"
-              echo "::error::without submodule contents and action.yml's self-clone did not"
-              echo "::error::repair it. That is the uses: path, not a driver regression."
-              rc=1 ;;
-          esac
-          exit $rc
+          echo "  stages  = ${STAGES:-<empty>}   (passed/total)"
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; exit 1; }
+          # Against run.json, not the `stages` output. That output is a count -- "11/11" --
+          # so matching it for stage names, which an earlier version of this did, could
+          # never fire however broken the run was.
+          python3 - "$RESULTS" <<'PY'
+          import json, os, sys
+          root = sys.argv[1]
+          try:
+              run = json.load(open(os.path.join(root, 'run.json')))
+          except OSError as exc:
+              sys.exit(f'::error::cannot read run.json: {exc} -- the action failed before '
+                       f'the driver ran, so the fault is in its own setup steps, not a stage')
+          for s in run.get('stages', []):
+              print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:76]}")
+          bad = [s['name'] for s in run.get('stages', []) if not s['ok']]
+          # The failure this test exists to catch names itself: an archive arrives without
+          # submodule contents, and the stages that read one are the first to notice.
+          for name in ('submodules', 'port'):
+              if name in bad:
+                  print(f"::error::the '{name}' stage failed. An archive carries no submodule")
+                  print("::error::contents and this action clones its own repository to repair")
+                  print("::error::that -- so this is the uses: path, not a driver regression.")
+          if bad:
+              sys.exit(f"::error::stage(s) failed: {', '.join(bad)}")
+          print('  consumed as a published action: OK')
+          PY
+
+      - name: Keep the run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uses-smoke-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: |
+            ${{ steps.where.outputs.out }}/pipeline.log
+            ${{ steps.where.outputs.out }}/run.json
