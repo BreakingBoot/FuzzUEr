@@ -90,7 +90,13 @@ jobs:
                        f'the driver ran, so the fault is in its own setup steps, not a stage')
           for s in run.get('stages', []):
               print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:76]}")
-          bad = [s['name'] for s in run.get('stages', []) if not s['ok']]
+          # ok is True, False, or None for a stage that did not run. `not s['ok']` counts
+          # None as a failure, and this test asks for qualify-only -- which SKIPS fuzz and
+          # triage by design -- so the whole pipeline passed and the gate failed anyway.
+          bad = [s['name'] for s in run.get('stages', []) if s['ok'] is False]
+          skipped = [s['name'] for s in run.get('stages', []) if s['ok'] is None]
+          if skipped:
+              print(f"  skipped (expected under qualify-only): {', '.join(skipped)}")
           # The failure this test exists to catch names itself: an archive arrives without
           # submodule contents, and the stages that read one are the first to notice.
           for name in ('submodules', 'port'):

@@ -103,15 +103,22 @@ jobs:
           stages = {s['name']: s for s in run.get('stages', [])}
           for s in run.get('stages', []):
               print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:78]}")
-          bad = [n for n, s in stages.items() if not s['ok']]
+          # ok is True, False, or None for a stage that did not run; only False is a
+          # failure. A None matters here for a different reason, handled just below.
+          bad = [n for n, s in stages.items() if s['ok'] is False]
           if bad:
               sys.exit(f"::error::stage(s) failed: {', '.join(bad)}")
           # End to end means the last two ran. They are exactly the ones qualify-only
           # skips, and they are where a release that moved under the port shows up: the
           # build can succeed and the firmware still never reach a harness.
-          missing = [n for n in ('fuzz', 'triage') if n not in stages]
+          # Absent OR skipped. A qualify-only run records both with ok=None and the detail
+          # "not run: --skip-fuzz", so checking only for absence would pass a run that
+          # never fuzzed anything -- which is the one thing this gate exists to rule out.
+          missing = [n for n in ('fuzz', 'triage')
+                     if n not in stages or stages[n]['ok'] is not True]
           if missing:
-              sys.exit(f"::error::never reached {', '.join(missing)} -- not an end-to-end run")
+              sys.exit(f"::error::{', '.join(missing)} did not run -- this gate is for an "
+                       f"end-to-end run, and a qualify-only one skips exactly these")
           detail = stages['fuzz'].get('detail', '')
           hit = re.search(r'(\d+)/(\d+) campaign\(s\) fuzzed the harness', detail)
           if hit and hit.group(1) == '0':
