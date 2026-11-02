@@ -199,9 +199,20 @@ runs:
         RUNNER_TEMP_DIR: ${{ runner.temp }}
       run: |
         set -uo pipefail
+        # The four the pipeline reads, and the only four worth fetching. This repository
+        # declares EIGHT submodules, and the two places below that populated them asked for
+        # all of them recursively -- which also pulls edk2's own fourteen, edk2-non-osi's
+        # ~218 MB of Intel binaries, edk2-platforms, FSP and qemu. That is the 24 GB this
+        # file's own comments quote, and asking for it is what made `uses:` fail: the first
+        # real consumption of this action spent its whole job on submodules nothing reads
+        # and then died. Nothing here needs the other four, and nothing needs recursion --
+        # eval_source/edk2 is read with `git show HEAD:<path>` by the port, and the tree
+        # being fuzzed has its submodules populated by the driver's own `submodules` stage.
+        NEEDED='firness uefi_asan tsffs eval_source/edk2'
+
         complete() {
           # Every submodule the pipeline needs, non-empty.
-          for m in firness uefi_asan tsffs eval_source/edk2; do
+          for m in $NEEDED; do
             [ -n "$(ls -A "$1/$m" 2>/dev/null || true)" ] || return 1
           done
           return 0
@@ -241,7 +252,8 @@ runs:
           # HEAD moved, so the gitlinks moved with it, and until this runs the submodules
           # are at the commits some OTHER ref recorded -- the exact failure checks.yml's
           # first step exists to catch, except here nobody is looking.
-          git -C "$dir" submodule update --init --recursive --depth=1 -q || {
+          # shellcheck disable=SC2086
+          git -C "$dir" submodule update --init --depth=1 -q -- $NEEDED || {
             echo "::error::could not take $dir's submodules to the commits $ref records"
             return 1; }
 
@@ -299,8 +311,8 @@ runs:
           # Hoisted above the branch because the reuse path needs it too: see below.
           url="https://github.com/$ACTION_REPO.git"
           [ -n "${IN_TOKEN:-}" ] && url="https://x-access-token:$IN_TOKEN@github.com/$ACTION_REPO.git"
-          # Reused across jobs on a self-hosted runner: the submodules are a 24 GB fetch and
-          # paying it once per job would dominate every run.
+          # Reused across jobs on a self-hosted runner: even the four submodules this needs
+          # are a large fetch, and paying it once per job would dominate every run.
           if complete "$HOME_DIR"; then
             echo "reusing $HOME_DIR"
             # The cached clone's origin still carries whatever token created it, and that
@@ -310,13 +322,15 @@ runs:
             git -C "$HOME_DIR" remote set-url origin "$url" 2>/dev/null || true
           else
             rm -rf "$HOME_DIR"; mkdir -p "$(dirname "$HOME_DIR")"
-            echo "cloning $ACTION_REPO at ${ACTION_REF:-default} (submodules included)"
-            # The --branch form is kept because it is the cheap path for a branch or a tag:
-            # one shallow clone and the submodules come with it. It simply cannot express a
-            # commit, which is what pin_to_ref below is for.
-            git clone -q --recurse-submodules --shallow-submodules \
+            echo "cloning $ACTION_REPO at ${ACTION_REF:-default}"
+            # No submodules on the clone. pin_to_ref has to run afterwards regardless --
+            # moving HEAD moves the gitlinks -- so fetching them here would fetch them
+            # twice, and --recurse-submodules has no way to say "only these four".
+            # The --branch form is kept because it is the cheap path for a branch or a tag;
+            # it simply cannot express a commit, which is what pin_to_ref is for.
+            git clone -q --no-recurse-submodules \
                 --branch "${ACTION_REF:-HEAD}" --depth 1 "$url" "$HOME_DIR" \
-              || git clone -q --recurse-submodules --shallow-submodules "$url" "$HOME_DIR" \
+              || git clone -q --no-recurse-submodules "$url" "$HOME_DIR" \
               || { echo "::error::could not clone $ACTION_REPO -- pass the 'token' input if it is private"; exit 1; }
           fi
           # Both paths land here, and both need it: a fresh clone may have fallen back to

@@ -10,19 +10,19 @@
 [submodule "eval_source/edk2"]
 	path = eval_source/edk2
 	url = https://github.com/cglosner/edk2.git
-	branch = simics-sanitizer
+	branch = simics-working
 [submodule "eval_source/edk2-non-osi"]
 	path = eval_source/edk2-non-osi
 	url = https://github.com/cglosner/edk2-non-osi
-	branch = simics-sanitizer
+	branch = master
 [submodule "eval_source/edk2-platforms"]
 	path = eval_source/edk2-platforms
 	url = https://github.com/cglosner/edk2-platforms
-	branch = simics-sanitizer
+	branch = simics-working
 [submodule "eval_source/FSP"]
 	path = eval_source/FSP
 	url = https://github.com/cglosner/FSP
-	branch = simics-sanitizer
+	branch = master
 [submodule "qemu"]
 	path = qemu
 	url = https://github.com/AFLplusplus/qemu-libafl-bridge

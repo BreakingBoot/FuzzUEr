@@ -55,6 +55,40 @@ jobs:
           done
           exit $rc
 
+      # A submodule's `branch =` is what `git submodule update --remote` follows. All four
+      # eval_source entries declared simics-sanitizer while their gitlinks sat on
+      # simics-working or master -- 61 commits apart for edk2, with the gitlink not even
+      # reachable from the declared branch, so a --remote update silently replaced the
+      # sanitizer port with a version missing every recent fix. The gitlink assertion above
+      # cannot see this: both sides were self-consistent, and only the declaration was wrong.
+      - name: Each submodule's declared branch contains its gitlink
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          while read -r key path; do
+            name=${key#submodule.}; name=${name%.path}
+            decl=$(git config -f .gitmodules --get "submodule.$name.branch" || true)
+            [ -n "$decl" ] || { echo "  -- $path declares no branch"; continue; }
+            [ -e "$path/.git" ] || { echo "  -- $path is not checked out"; continue; }
+            want=$(git ls-tree HEAD "$path" | awk '{print $3}')
+            # Needs history to answer. A shallow submodule checkout cannot, and saying so
+            # is better than passing silently on a question we did not ask.
+            if ! git -C "$path" rev-parse --quiet --verify "origin/$decl^{commit}" >/dev/null; then
+              echo "::warning::$path has no origin/$decl locally; cannot verify containment"
+              continue
+            fi
+            if git -C "$path" merge-base --is-ancestor "$want" "origin/$decl" 2>/dev/null; then
+              echo "  ok $path ${want:0:12} is on $decl"
+            else
+              echo "::error::$path records ${want:0:12}, which is NOT on its declared"
+              echo "::error::branch '$decl' -- a submodule update --remote would move this"
+              echo "::error::tree to different code. Fix .gitmodules or move the gitlink."
+              rc=1
+            fi
+          done < <(git config -f .gitmodules --get-regexp 'submodule\..*\.path')
+          exit $rc
+
       - name: The two copies of the sanitizer agree
         shell: bash
         run: python3 scripts/asan_sync_check.py --quiet
