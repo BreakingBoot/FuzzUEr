@@ -15,12 +15,17 @@
 # That is why `permissions:` below grants issues: write and contents: write. Set
 # `open-issues: false` to leave every finding in the artifact instead.
 #
-# WHY FuzzUEr IS CHECKED OUT RATHER THAN REFERENCED. `uses: <owner>/FuzzUEr@<sha>` does
-# work -- the action notices it was delivered as an archive, which carries no submodule
-# contents, and clones its own repository (submodules included) into ~/.cache before doing
-# anything else. The cost is that first clone: FuzzUEr's submodules are a ~24 GB fetch, and
-# it is cached per repository-and-ref rather than per job. Checking it out here instead
-# keeps the fetch where you can see it, and pins the version that ran.
+# REFERENCING IT INSTEAD. `uses: BreakingBoot/FuzzUEr@v1` works, and is the shorter way to
+# write this -- the action notices it was delivered as an archive, which carries no
+# submodule contents, and clones its own repository into ~/.cache before doing anything
+# else. Measured on a cold cache: 28 seconds and 240 MB, because it takes only the four
+# submodules the pipeline reads rather than all eight recursively. An earlier version of
+# this comment put that cost at ~24 GB, which is what the old recursive fetch really cost
+# and why the referenced form appeared not to work at all.
+#
+# This example keeps the explicit checkout for one reason that still holds: it pins the
+# version that ran where you can see it, in your own workflow file. cglosner/edk2's
+# .github/workflows/fuzzuer.yml is the same thing written the short way, against @v1.
 #
 # An earlier version of this comment blamed the archive download itself -- a 100 second
 # HttpClient timeout in the runner. That was measured and is not true: the tarball is small
