@@ -12,7 +12,10 @@ name: Action smoke
 
 on:
   push:
-    branches: ['ci-**']
+    # The two dedicated workflows own their own prefixes. Without the exclusions a branch
+    # pushed to run ONE of them runs this as well, and each is a firmware build on the same
+    # runner -- so a targeted test silently costs two builds and queues behind itself.
+    branches: ['ci-**', '!ci-uses-**', '!ci-stable-**']
   workflow_dispatch:
 
 permissions:
