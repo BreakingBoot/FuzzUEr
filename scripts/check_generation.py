@@ -202,10 +202,16 @@ def main():
     names = ([args.protocol] if args.protocol
              else sorted(d for d in os.listdir(args.cache) if os.path.isdir(os.path.join(args.cache, d))))
     tally = {}
+    # Counted, because the work list is built from two directories that are mounted in by
+    # path. A typo in either yields an empty list, every protocol is skipped for want of
+    # an input file, and the run prints nothing and exits 0 -- a mount mistake reported as
+    # a clean check. The floor below is what turns that back into a failure.
+    skipped = []
     for name in names:
         cache_dir = os.path.join(args.cache, name)
         input_file = os.path.join(args.inputs, name + '.txt')
         if not os.path.isfile(input_file):
+            skipped.append(name)
             continue
         state = analysis_state(cache_dir)
         if state != 'READY':
@@ -260,7 +266,17 @@ def main():
             print(f'  {name}: unmapped library class(es): {", ".join(unmapped)}')
         if absent:
             print(f'  {name}: dsc points at missing inf(s): {", ".join(absent)}')
-    return 0 if not (tally.get('SYNTAX_FAIL') or tally.get('GEN_FAIL')) else 1
+    checked = sum(len(v) for v in tally.values())
+    print(f'  checked {checked} of {len(names)} ({len(skipped)} without an input spec)')
+    if not checked:
+        print('nothing was checked -- is --cache or --inputs pointing at the right tree?')
+        return 1
+    # LIB_GAP belongs in the failing set. It is the one check here that predicts the
+    # failure the compile cannot see -- an unmapped library class links nowhere -- and it
+    # was computed, printed, and then dropped from the status, so verify_all.sh reported
+    # every stage passed with the gap on screen.
+    return 0 if not (tally.get('SYNTAX_FAIL') or tally.get('GEN_FAIL')
+                     or tally.get('LIB_GAP')) else 1
 
 
 if __name__ == '__main__':
