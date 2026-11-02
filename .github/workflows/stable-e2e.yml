@@ -54,9 +54,17 @@ jobs:
       - name: Make the upstream releases reachable
         run: git -C eval_source/edk2 fetch --tags --depth=1 tianocore
 
+      # Out of RUNNER_TEMP. The action defaults there and the runner wipes it when the job
+      # ends, so the first run of this gate failed its own assertion and left nothing to
+      # read back -- the board, the log and bugs.json had all gone with the directory.
+      - name: Where to keep the results
+        id: where
+        run: echo "out=$HOME/fuzzuer-stable-out/$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
+
       - id: fuzz
         uses: ./
         with:
+          out: ${{ steps.where.outputs.out }}
           source: eval_source/edk2
           ref: ${{ github.event.inputs.ref || env.STABLE_REF }}
           # Four protocols that have historically produced work on every version, so a
@@ -76,40 +84,45 @@ jobs:
           RESULTS: ${{ steps.fuzz.outputs.results }}
           STAGES: ${{ steps.fuzz.outputs.stages }}
           CANDIDATES: ${{ steps.fuzz.outputs.candidates }}
-          BUGS: ${{ steps.fuzz.outputs.bugs }}
         run: |
           set -uo pipefail
-          echo "  stages     = ${STAGES:-<empty>}"
+          echo "  stages     = ${STAGES:-<empty>}   (passed/total)"
           echo "  candidates = ${CANDIDATES:-<empty>}"
-          rc=0
-          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; rc=1; }
-          [ -f "${RESULTS:-}/run.json" ] \
-            || { echo "::error::no run.json under ${RESULTS:-<empty>}"; rc=1; }
-
-          # End to end means the last two stages ran. They are the ones a qualify run skips,
-          # and they are where a release that moved under the port shows up -- the build can
-          # succeed and the firmware still never reach a harness.
-          case "${STAGES:-}" in
-            *fuzz*|*triage*) : ;;
-            *) echo "::error::stages do not mention fuzz or triage: ${STAGES:-<empty>}"; rc=1 ;;
-          esac
-          case "${STAGES:-}" in
-            *FAIL*) echo "::error::a stage failed: ${STAGES}"; rc=1 ;;
-          esac
-          [ -f "${BUGS:-}" ] || { echo "::error::triage wrote no bugs.json"; rc=1; }
-
-          # A campaign that fuzzed nothing is the failure this gate exists to catch, and it
-          # does not look like one: every stage passes and the report is simply empty. The
-          # driver's own fuzz-stage detail says how many campaigns reached the harness.
-          if [ -f "${RESULTS:-}/pipeline.log" ]; then
-            if grep -aqE '0/[0-9]+ campaign\(s\) fuzzed the harness' "${RESULTS}/pipeline.log"; then
-              echo "::error::no campaign reached the harness on $STABLE_REF -- the port"
-              echo "::error::applied and the firmware built, but nothing was actually fuzzed"
-              rc=1
-            fi
-            grep -aoE '\[(PASS|FAIL|WARN|SKIP)\] +[a-z]+ +[^|]{0,70}' "${RESULTS}/pipeline.log" | tail -14
-          fi
-          exit $rc
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; exit 1; }
+          # run.json is the authoritative record: a list of {name, ok, detail} per stage.
+          # The `stages` OUTPUT is a count -- "13/13" -- and an earlier version of this
+          # gate pattern-matched it for the words "fuzz" and "triage", which a count can
+          # never contain, so the gate failed on a run that had actually passed.
+          python3 - "$RESULTS" <<'PY'
+          import json, os, re, sys
+          root = sys.argv[1]
+          try:
+              run = json.load(open(os.path.join(root, 'run.json')))
+          except OSError as exc:
+              sys.exit(f'::error::cannot read run.json: {exc}')
+          stages = {s['name']: s for s in run.get('stages', [])}
+          for s in run.get('stages', []):
+              print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:78]}")
+          bad = [n for n, s in stages.items() if not s['ok']]
+          if bad:
+              sys.exit(f"::error::stage(s) failed: {', '.join(bad)}")
+          # End to end means the last two ran. They are exactly the ones qualify-only
+          # skips, and they are where a release that moved under the port shows up: the
+          # build can succeed and the firmware still never reach a harness.
+          missing = [n for n in ('fuzz', 'triage') if n not in stages]
+          if missing:
+              sys.exit(f"::error::never reached {', '.join(missing)} -- not an end-to-end run")
+          detail = stages['fuzz'].get('detail', '')
+          hit = re.search(r'(\d+)/(\d+) campaign\(s\) fuzzed the harness', detail)
+          if hit and hit.group(1) == '0':
+              sys.exit('::error::no campaign reached the harness: the port applied and the '
+                       'firmware built, but nothing was fuzzed. Every stage still passes '
+                       'and the report is simply empty, which is why this is asserted.')
+          if not os.path.isfile(os.path.join(root, 'bugs.json')):
+              sys.exit('::error::triage wrote no bugs.json')
+          print(f"  fuzz: {detail[:100]}")
+          print('  end-to-end on a clean upstream release: OK')
+          PY
 
       - name: Keep the run
         if: always()
