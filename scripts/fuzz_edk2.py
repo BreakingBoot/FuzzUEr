@@ -1111,8 +1111,18 @@ def main():
         # every one of the twelve classes reports UNBUILT: "0 of 0 scorable classes
         # detected", which reads as a benchmark with nothing in it rather than as a probe
         # built without the drivers.
+        #
+        # The probe asks for them unconditionally rather than following --bench. The
+        # scoreboard is the most capable ground truth here -- eleven classes, four of them
+        # visible only to a firmware-specific check -- and it was reachable only by
+        # passing a flag that action.yml defaults to false and that no workflow sets, so
+        # it had never run in CI. Three workflows upload a bench_cases.log that nothing
+        # wrote. Both modules are gated by SAN_BENCH/FW_SAN in the DSC and the FDF alike,
+        # and this build replaces only the probe firmware, never the campaign image, so
+        # asking for them here cannot put a positive control in front of the fuzzer.
+        probe_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE'
         ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none'
-                                   + bench_defines + smm_defines,
+                                   + probe_defines + smm_defines,
                                    'detect-build.log')
         if not ok_:
             return False, f'the check build failed: {text}'
@@ -1171,7 +1181,10 @@ def main():
         # already built, one boot per class, and fail the stage on a class that regressed.
         bench_app = os.path.join(probe, 'SanBenchDrive.efi')
         if not os.path.isfile(bench_app):
-            return True, detail + ' (benchmark drivers absent: pass --bench to score them)'
+            # Reachable only if the probe build dropped a module it was asked for, which
+            # is worth saying out loud -- returning a pass here is what let the benchmark
+            # go unscored for as long as it did.
+            return WARN, detail + ' -- the probe carries no SanBenchDrive.efi to score'
         scored = sh(['docker', 'run', '--rm', '-v', f'{REPO}:/repo:ro',
                      '-v', f'{probe}:/fw:ro', '-v', f'{os.path.abspath(out)}:/out',
                      '--entrypoint', 'bash', args.base_image, '-lc',

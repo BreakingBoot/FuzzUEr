@@ -42,7 +42,12 @@ CASES = [
     ('tlv-overread',            'asan',                      None),
     ('foreign-pointer',         'foreign-region',            None),
     ('double-fetch',            'double-fetch',              None),
-    ('stale-interface',         'asan',                      None),
+    # Names the class rather than accepting any sanitizer line. FwSanDxe prints
+    # "FWSAN: interface uninstalled, storage poisoned" on every SUCCESSFUL poison, which
+    # satisfied a bare 'asan' expectation -- the recorded scoreboard in
+    # results/bench-final/ scores this row PASS against exactly that status line, so the
+    # case could not fail. The real detection is a load through the poisoned interface.
+    ('stale-interface',         'stale-protocol-interface',  None),
     ('boot-service-after-exit', None,                        'needs the runtime phase'),
     ('variable-size-trusted',   'asan',                      None),
     ('use-after-free',          'asan',                      None),
@@ -73,7 +78,13 @@ CASES = [
 # actually on" permanently unscorable. The exerciser's own "expect <case>" line also names
 # a class, and the NARRATION filter at the call site is what keeps that from scoring itself.
 REPORT = re.compile(
-    r'(ERROR: AddressSanitizer|FWSAN:|'
+    r'(ERROR: AddressSanitizer|'
+    # FWSAN lines come in two kinds on the same wire. A report names a class and
+    # separates it with " -- " ("FWSAN: double-fetch -- untrusted word read
+    # twice"); the two informational ones do not ("firmware sanitizer armed",
+    # "interface uninstalled, storage poisoned"). Requiring the separator is what
+    # keeps a setup message from scoring as a detection.
+    r'FWSAN: [a-z][a-z-]* [a-z ]*-- |'
     r'(heap|stack|global|container|intra-object)[a-z-]*-(overflow|underflow)|'
     r'use-after-free|use-after-return|use-after-scope|double-free|'
     r'stale-protocol-interface|asan[-_](load|store)|'
