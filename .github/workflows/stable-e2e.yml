@@ -1,0 +1,125 @@
+# Run the whole pipeline against a pinned upstream stable release of edk2.
+#
+# Everything else here fuzzes this repository's own edk2 fork, which already carries the
+# sanitizer port. That is the convenient tree and the wrong one to prove anything with: the
+# port is already applied, so the `port` stage has nothing to do, and a release that broke
+# it would look fine. This checks the thing a consumer actually does -- take a clean
+# tianocore release and apply the port to it -- and runs every stage, fuzzing and triage
+# included, rather than stopping at `qualify-only`.
+#
+# One release, pinned. The weekly sweep in fuzz-edk2.yml covers four of them and takes
+# about sixteen hours; this is the gate you want before tagging, so it is scoped to finish
+# in well under an hour.
+#
+# Push a branch whose name starts with "ci-stable-" to run it, or dispatch it.
+name: Stable release end-to-end
+
+on:
+  push:
+    branches: ['ci-stable-**']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'An upstream edk2 ref to fuzz instead of the pinned release'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  # Bump this deliberately. The README's version table records which releases have been
+  # verified, and a tag that is not in it has not been through this.
+  STABLE_REF: edk2-stable202608
+
+jobs:
+  end-to-end:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # Builds the images and, the part this workflow depends on, adds the `tianocore`
+      # remote to eval_source/edk2. Warm runner: seconds. Cold: hours.
+      - name: Bootstrap the runner
+        run: scripts/bootstrap_runner.sh
+
+      # The driver resolves a ref out of whichever remotes the source checkout has, so the
+      # release has to be fetchable before it can be named. cglosner/edk2 carries no
+      # upstream tags of its own -- `git ls-remote --tags origin 'edk2-stable*'` on it is
+      # empty -- which is why this fetches from tianocore rather than assuming.
+      - name: Make the upstream releases reachable
+        run: git -C eval_source/edk2 fetch --tags --depth=1 tianocore
+
+      - id: fuzz
+        uses: ./
+        with:
+          source: eval_source/edk2
+          ref: ${{ github.event.inputs.ref || env.STABLE_REF }}
+          # Four protocols that have historically produced work on every version, so a
+          # green run means the pipeline carried a testcase all the way to a report rather
+          # than that nothing was tried.
+          targets: EfiAcpiTable EfiHiiFont EfiSmbios EdkiiFormBrowserEx
+          budget: '300'
+          jobs: '4'
+          # A gate, not a bug hunt. Findings here are against UPSTREAM code and would be
+          # filed into this repository, which is not where anyone would look for them; the
+          # consumer-side path that does file is proven by examples/fuzzuer.yml.
+          open-issues: false
+
+      - name: Every stage ran and the pipeline reached triage
+        shell: bash
+        env:
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+          STAGES: ${{ steps.fuzz.outputs.stages }}
+          CANDIDATES: ${{ steps.fuzz.outputs.candidates }}
+          BUGS: ${{ steps.fuzz.outputs.bugs }}
+        run: |
+          set -uo pipefail
+          echo "  stages     = ${STAGES:-<empty>}"
+          echo "  candidates = ${CANDIDATES:-<empty>}"
+          rc=0
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; rc=1; }
+          [ -f "${RESULTS:-}/run.json" ] \
+            || { echo "::error::no run.json under ${RESULTS:-<empty>}"; rc=1; }
+
+          # End to end means the last two stages ran. They are the ones a qualify run skips,
+          # and they are where a release that moved under the port shows up -- the build can
+          # succeed and the firmware still never reach a harness.
+          case "${STAGES:-}" in
+            *fuzz*|*triage*) : ;;
+            *) echo "::error::stages do not mention fuzz or triage: ${STAGES:-<empty>}"; rc=1 ;;
+          esac
+          case "${STAGES:-}" in
+            *FAIL*) echo "::error::a stage failed: ${STAGES}"; rc=1 ;;
+          esac
+          [ -f "${BUGS:-}" ] || { echo "::error::triage wrote no bugs.json"; rc=1; }
+
+          # A campaign that fuzzed nothing is the failure this gate exists to catch, and it
+          # does not look like one: every stage passes and the report is simply empty. The
+          # driver's own fuzz-stage detail says how many campaigns reached the harness.
+          if [ -f "${RESULTS:-}/pipeline.log" ]; then
+            if grep -aqE '0/[0-9]+ campaign\(s\) fuzzed the harness' "${RESULTS}/pipeline.log"; then
+              echo "::error::no campaign reached the harness on $STABLE_REF -- the port"
+              echo "::error::applied and the firmware built, but nothing was actually fuzzed"
+              rc=1
+            fi
+            grep -aoE '\[(PASS|FAIL|WARN|SKIP)\] +[a-z]+ +[^|]{0,70}' "${RESULTS}/pipeline.log" | tail -14
+          fi
+          exit $rc
+
+      - name: Keep the run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stable-e2e-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: |
+            ${{ steps.fuzz.outputs.results }}/pipeline.log
+            ${{ steps.fuzz.outputs.results }}/bugs.md
+            ${{ steps.fuzz.outputs.results }}/bugs.json
+            ${{ steps.fuzz.outputs.results }}/run.json
+            ${{ steps.fuzz.outputs.results }}/bench_cases.log
