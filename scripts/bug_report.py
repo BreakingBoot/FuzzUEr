@@ -437,6 +437,16 @@ def load(root, build_dirs=()):
                 path, _, line = where.rpartition(':')
                 if path and line.isdigit():
                     report.path, report.line = path, line
+                    # Take the module from the map that produced the path. A marker row
+                    # arrives with Module already filled by the firmware, and that answer
+                    # and this one are separate lookups that can disagree: the same
+                    # EfiHiiFont site was filed as DxeCore.efi on one run and
+                    # HiiDatabase.efi on the next, while BOTH runs symbolised it to
+                    # HiiDatabaseDxe/Font.c:1106 -- a file no DxeCore image contains. The
+                    # candidate then showed one source's module beside the other's path.
+                    # This branch has already required a base the map is certain of, so
+                    # prefer it and keep the pair consistent.
+                    report.module = f'{name}.efi'
             return report
 
         def attribute(report):
