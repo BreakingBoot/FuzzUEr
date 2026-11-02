@@ -1,0 +1,240 @@
+# Fuzz this edk2 with FuzzUEr, and bring the findings back here as issues.
+#
+# This is the consumer side of the action: FuzzUEr lives in another repository and nothing
+# of it is vendored here. Copy this file into your own edk2 repository as
+# .github/workflows/fuzzuer.yml, change the `repository:` below to wherever FuzzUEr lives,
+# and read the two warnings before you run it.
+#
+# WHAT IT BUILDS. One platform: OVMF X64, from OvmfPkg/OvmfPkgX64.dsc at -a X64 -t CLANGSAN.
+# No other DSC, architecture or toolchain. If your tree's OvmfPkgX64.dsc does not build,
+# this action has nothing to fuzz, whatever else the tree ships.
+#
+# WHAT IT WRITES BACK, BY DEFAULT. `open-issues` defaults to true, so when triage
+# attributes a candidate to firmware code the action files one issue per candidate in THIS
+# repository and pushes a `fuzzuer-evidence` branch here for the issues to link into.
+# That is why `permissions:` below grants issues: write and contents: write. Set
+# `open-issues: false` to leave every finding in the artifact instead.
+#
+# WHY FuzzUEr IS CHECKED OUT RATHER THAN REFERENCED. `uses: <owner>/FuzzUEr@<sha>` does
+# work -- the action notices it was delivered as an archive, which carries no submodule
+# contents, and clones its own repository (submodules included) into ~/.cache before doing
+# anything else. The cost is that first clone: FuzzUEr's submodules are a ~24 GB fetch, and
+# it is cached per repository-and-ref rather than per job. Checking it out here instead
+# keeps the fetch where you can see it, and pins the version that ran.
+#
+# An earlier version of this comment blamed the archive download itself -- a 100 second
+# HttpClient timeout in the runner. That was measured and is not true: the tarball is small
+# and arrives in about a second. The real problem was always the empty submodules, and
+# action.yml handles it.
+#
+# RUNNER. Needs a SELF-HOSTED Linux x64 runner registered against THIS repository, or
+# against the organisation that owns it. A repository-scoped runner serves only its own
+# repository, so one registered for the FuzzUEr repo will not pick this up -- the job sits
+# in Queued and nothing explains why. A hosted runner cannot do this at all: the first run
+# builds LLVM 15 from source, installs Intel Simics and builds a QEMU through libafl.
+name: FuzzUEr
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag, branch or SHA of THIS repo to fuzz (blank: the pushed commit)'
+        required: false
+        default: ''
+      targets:
+        description: 'Space separated protocol names (blank: everything discovered)'
+        required: false
+        default: 'EfiAcpiTable EfiHiiFont EfiSmbios EdkiiFormBrowserEx'
+      budget:
+        description: 'Seconds of fuzzing per target'
+        required: false
+        default: '300'
+      qualify_only:
+        description: 'Every stage except the fuzzing -- minutes, not hours'
+        type: boolean
+        required: false
+        default: false
+      smm:
+        description: 'Build with SMM so SMI handlers have a core to answer'
+        type: boolean
+        required: false
+        default: false
+  # Pushing this branch runs it. Change the branch to whatever you use for CI work;
+  # a branch that mirrors upstream byte for byte is better left alone.
+  push:
+    branches: ['fuzzuer-ci']
+  # Weekly, on the day least likely to collide with anything else.
+  #
+  # NOTE: this fires only when the workflow is on the repository's DEFAULT branch.
+  # GitHub ignores `schedule` on every other branch, silently -- no run, no warning, no
+  # entry in the Actions list. Put this file on your default branch to get the weekly
+  # sweep; on a side branch you get dispatch and push only.
+  schedule:
+    - cron: '0 4 * * 0'
+
+permissions:
+  # The action files the findings issues in THIS repository -- the one whose tree it fuzzed
+  # -- so the job token needs to write issues here. No PAT is involved: FuzzUEr never files
+  # against its own repo, and it refuses outright to file findings at anything the
+  # tianocore organisation owns.
+  #
+  # Issues also have to be ENABLED on the repository. GitHub turns them off by default on a
+  # fork, which is exactly what this tool gets pointed at; without them every filing comes
+  # back 410 and the action says so rather than failing the job.
+  #
+  # contents: write is for the fuzzuer-evidence branch, which carries the harness, the
+  # inputs and the logs that each issue links to -- an issue cannot hold a file. Nothing is
+  # pushed to any branch that already exists.
+  contents: write
+  issues: write
+
+jobs:
+  fuzz:
+    runs-on: [self-hosted, linux, x64]
+    # A qualify run is minutes. A real sweep is per-target, so a couple of hundred protocols
+    # at any useful budget is the better part of a day; the ceiling has to cover the slow
+    # case or the job is killed with a partial report already written, which reads as
+    # incomplete rather than as cut short.
+    timeout-minutes: 720
+    steps:
+      # The tree under test. Full depth because the pipeline resolves the ref out of git
+      # history and makes a worktree of it.
+      #
+      # No submodules here on purpose. FuzzUEr makes a git worktree of the ref and runs
+      # `git submodule update --init --depth=1` on it itself, non-recursively, which is
+      # exactly what an OVMF build needs.
+      #
+      # `submodules: recursive` is actively wrong for edk2: it descends into OpenSSL's own
+      # submodules -- fuzz-corpora, krb5, oqs-provider, pkcs11-provider, tlsfuzzer -- which
+      # are gigabytes that no firmware build touches, and the job dies in checkout long
+      # before any fuzzing. Even `submodules: true` is unnecessary work here.
+      - name: Check out this edk2
+        uses: actions/checkout@v4
+        with:
+          path: edk2
+          fetch-depth: 0
+
+      # Cloned, not downloaded as an archive -- see the note at the top.
+      #
+      # submodules: true, NOT recursive. FuzzUEr's own submodules are what the action needs
+      # (the harness generator, the sanitizer, the edk2 the port is lifted from), but one of
+      # them IS an edk2, so recursing walks into OpenSSL's corpora for the same reason as
+      # above. The action initialises anything deeper itself if it needs it.
+      #
+      # fetch-depth: 0, not 1. actions/checkout fetches submodules shallowly when the parent
+      # is shallow, and a shallow submodule fetch can leave a submodule on its branch tip
+      # rather than on the commit FuzzUEr records -- so the job builds code nobody asked
+      # for, silently. Seen for real in FuzzUEr's own CI: a --depth=1 clone put the harness
+      # generator 40 commits off and the fix under test simply was not there. FuzzUEr has a
+      # check for exactly this (.github/workflows/checks.yml, "Submodules are at the commits
+      # this repo records"); a consumer has no such check, so do not go shallow here.
+      - name: Check out FuzzUEr
+        uses: actions/checkout@v4
+        with:
+          repository: BreakingBoot/FuzzUEr      # change to wherever FuzzUEr lives
+          ref: main                             # or a tag, or a full 40-character SHA
+          path: fuzzuer
+          submodules: true
+          fetch-depth: 0
+          # token: ${{ secrets.FUZZUER_TOKEN }}  # only if FuzzUEr is private
+
+      # The action keeps its results under the runner's own temp by default
+      # ($RUNNER_TEMP/fuzzuer-run/results/fuzz-<ref>), and the runner wipes that when the
+      # job ends -- so a failed run leaves nothing on the box to read and the only copy is
+      # an artifact that needs a token to download. Pointing `out` at the runner's home,
+      # keyed by run id, keeps a copy. Leave this step out and leave `out` unset if the
+      # artifact is enough for you.
+      - name: Where to keep the results
+        id: where
+        shell: bash
+        run: echo "out=$HOME/fuzzuer-out/$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Fuzz it
+        id: fuzz
+        uses: ./fuzzuer
+        with:
+          source: edk2
+          # The fallback matters: on a push or the schedule there are no inputs, and an
+          # EMPTY targets means every protocol discovered -- around 245 of them, which at
+          # any useful budget is the better part of a day. A named handful keeps an
+          # unattended trigger to something that finishes; widen it deliberately.
+          targets: ${{ github.event.inputs.targets || 'EfiAcpiTable EfiHiiFont EfiSmbios EdkiiFormBrowserEx' }}
+          budget: ${{ github.event.inputs.budget || '300' }}
+          qualify-only: ${{ github.event.inputs.qualify_only || 'false' }}
+          # Off by default. An SMM build is validated as far as the detect stage --
+          # it builds, instruments its modules and boots -- but a campaign cannot fuzz
+          # it yet: the variable store has to be writable for an SMM_REQUIRE image and
+          # read-only for the snapshot the fuzzer restores from. Leaving this on made
+          # every scheduled run fail at the fuzz stage after about 75 minutes.
+          smm: ${{ github.event.inputs.smm || 'false' }}
+          # The edk2 under test. Empty means the commit this workflow was pushed on, which
+          # is the normal case; a SHA here fuzzes that version instead, which is how the
+          # port's adaptation to an older tree gets exercised. The input has to be
+          # DECLARED above for this to ever be non-empty -- an undeclared
+          # github.event.inputs.<name> is just an empty string, with no error anywhere.
+          ref: ${{ github.event.inputs.ref || '' }}
+          # File the findings here when triage attributes candidates to firmware code: one
+          # issue per candidate, and nothing else -- no issue collecting them all, which
+          # would only duplicate what they say and go stale as they are closed. A clean run
+          # files nothing, which is the point: a sweep yields candidates and most are not
+          # defects. Re-running files nothing already open, so the weekly cron does not
+          # repeat itself.
+          open-issues: true
+          out: ${{ steps.where.outputs.out }}
+
+      - name: Say where the results are
+        if: always()
+        shell: bash
+        env:
+          OUT: ${{ steps.where.outputs.out }}
+        run: |
+          echo "results kept at $OUT"
+          ls -la "$OUT" 2>/dev/null | head -20 || echo "(the run created nothing there)"
+
+      # Always, including on failure: a run that fell over at a stage is exactly when the
+      # logs are worth having.
+      - name: Upload everything the run produced
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzzuer-${{ github.run_id }}
+          path: |
+            ${{ steps.fuzz.outputs.results }}/pipeline.log
+            ${{ steps.fuzz.outputs.results }}/run.json
+            ${{ steps.fuzz.outputs.results }}/bugs.md
+            ${{ steps.fuzz.outputs.results }}/bugs.json
+            ${{ steps.fuzz.outputs.results }}/presence.csv
+            ${{ steps.fuzz.outputs.results }}/bench_cases.log
+            ${{ steps.fuzz.outputs.results }}/*.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/crashes.csv
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/log.json
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/run.log
+            ${{ steps.fuzz.outputs.results }}/campaigns/*/fuzz.txt
+            ${{ steps.fuzz.outputs.results }}/reproducers/**
+          if-no-files-found: warn
+
+      - name: What the run concluded
+        if: always()
+        shell: bash
+        env:
+          STAGES: ${{ steps.fuzz.outputs.stages }}
+          CANDIDATES: ${{ steps.fuzz.outputs.candidates }}
+          FILED: ${{ steps.fuzz.outputs.issues-filed }}
+          TRACKED: ${{ steps.fuzz.outputs.issues-tracked }}
+          ISSUES: ${{ steps.fuzz.outputs.issues }}
+        run: |
+          {
+            echo "### FuzzUEr"
+            echo
+            echo "- stages passed: \`${STAGES:-unknown}\`"
+            echo "- candidates: \`${CANDIDATES:-none (triage did not run)}\`"
+            echo "- issues filed: \`${FILED:-0}\`, already tracked: \`${TRACKED:-0}\`"
+            if [ -n "${ISSUES:-}" ]; then
+              for u in $ISSUES; do echo "  - $u"; done
+            else
+              echo "- nothing filed: either no candidate was attributed to firmware code,"
+              echo "  every one already had an issue, Issues are disabled on this"
+              echo "  repository, or the token could not write them."
+              echo "  The artifact has everything either way."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

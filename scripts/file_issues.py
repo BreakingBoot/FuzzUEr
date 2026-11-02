@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""File one issue per triage candidate, plus one issue for the run.
+"""File one issue per triage candidate.
 
 A pull request was the wrong shape for this. The findings are not a change to the tree --
 nothing in them is something to merge -- and putting eight unrelated reports behind one

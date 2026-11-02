@@ -7,7 +7,10 @@
 #
 # Private repositories need a token, because the job's built-in GITHUB_TOKEN is scoped to
 # THIS repository and cannot read another one. Make a fine-grained PAT with
-# "Contents: read" on the edk2 repository and store it as the secret EDK2_TOKEN. A public
+# "Contents: write" AND "Issues: write" on the edk2 repository and store it as the secret
+# EDK2_TOKEN. Read-only is not enough: the same secret is passed as findings-token, which
+# files the issues and pushes the fuzzuer-evidence branch, so a Contents-read token fuzzes
+# fine and then loses every finding at the last step. A public
 # edk2 needs no secret at all.
 name: Fuzz a private EDK2
 

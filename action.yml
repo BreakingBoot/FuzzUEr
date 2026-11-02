@@ -105,7 +105,7 @@ inputs:
     required: false
     default: 'false'
   out:
-    description: 'Where the artifacts go. Default: <action>/results/fuzz-<ref>'
+    description: 'Where the artifacts go. Default: $RUNNER_TEMP/fuzzuer-run/results/fuzz-<ref>'
     required: false
     default: ''
   fail-on-findings:
@@ -121,7 +121,7 @@ inputs:
     default: ''
   open-issues:
     description: 'When triage attributes candidates to firmware code, file one issue per
-                  candidate plus one for the run. They go to the repository whose tree was
+                  candidate. They go to the repository whose tree was
                   fuzzed -- the one `source` points at -- never upstream edk2 and never
                   FuzzUEr. Re-running files nothing already open: each issue carries its
                   candidate''s fingerprint. Needs findings-token when the fuzzed tree is

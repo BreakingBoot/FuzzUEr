@@ -1,6 +1,207 @@
 # FuzzUEr
 
-This is the tool is designed for setting up and Fuzzing the EDK2 firmware. The tool is designed to work with [TSFFS](https://github.com/intel/tsffs).
+FuzzUEr generates a UEFI harness for an EDK2 tree, builds that tree's OVMF with
+AddressSanitizer, fuzzes the protocol and SMI handlers behind it, and triages what reports.
+It ships as a GitHub Action so an edk2 project can run that in its own CI, and as a set of
+scripts for doing the same thing at a terminal. The fuzzing backend is either
+[TSFFS](https://github.com/intel/tsffs) on Simics or LibAFL-QEMU; the action always uses
+QEMU.
+
+## Read this before adopting it
+
+This is not a badge to add to a repository on a whim. It is an action for a project that
+already runs firmware CI on machines it controls.
+
+- **It needs a dedicated self-hosted Linux x64 runner.** A hosted runner has neither the
+  disk nor the job time for it. There is no hosted path.
+- **The first run on a cold machine is hours, not minutes.** It builds LLVM 15 from source,
+  installs Intel Simics and builds a QEMU through libafl. Later runs cost seconds, because
+  every bootstrap step checks for its own output before doing anything.
+- **The first checkout is a ~24 GB fetch**, and the machine wants ~100 GB free.
+- **It builds exactly one platform.** OVMF X64, from `OvmfPkg/OvmfPkgX64.dsc` at
+  `-a X64 -t CLANGSAN`. No other DSC, architecture or toolchain is built, whatever else your
+  tree ships. If your branch's `OvmfPkgX64.dsc` does not build, there is nothing here to
+  fuzz.
+- **It writes to your repository by default.** `open-issues` defaults to `true`: a candidate
+  triage attributes to firmware code is filed as an issue in the repository whose tree was
+  fuzzed, and a `fuzzuer-evidence` branch is pushed there for those issues to link into. So
+  the job needs `permissions: {issues: write, contents: write}`, and a token that can only
+  read will fuzz, report, and then fail to file in a step log while the job stays green. Set
+  `open-issues: false` to leave findings in the artifact only.
+- **A finding is a candidate, not a defect.** `results/findings.md` is the triage of one
+  sweep: **four** reports were defects in EDK2, and **one class of 24** was not -- unrelated
+  modules all reporting the same faulting address, which turned out to be the harness's own
+  argument buffer. `fail-on-findings` is off by default for that reason.
+  [SECURITY.md](SECURITY.md) says what a candidate is and is not.
+- **A full sweep of one tree is most of a working day.** Measured: 6.5 to 11.5 hours,
+  depending on parallelism. There is a `qualify-only` mode that is about eight minutes, and
+  it is what you should run first.
+
+If any of that is a surprise rather than a cost you were expecting, this is the wrong tool
+for the job you have.
+
+## Requirements
+
+| | | why |
+|---|---|---|
+| runner | self-hosted, Linux x64, labelled `self-hosted, linux, x64` | nothing else is built or tested. `scripts/setup_gh_runner.sh` registers one with those labels |
+| dedicated to this | one sweep, not shared with other jobs | campaigns compete for the box with each other already; the driver's boot timeout scales with `jobs` for that reason, and a campaign reporting zero executions is usually contention rather than a broken harness |
+| Docker | a daemon this user can talk to | every build and every campaign is a container. The user must be in the `docker` group; `checks.yml` fails the run on `docker version` rather than letting a sweep discover it an hour in |
+| `sudo` | once, at runner registration | `setup_gh_runner.sh` installs the runner as a systemd service. Without sudo it registers and then has no service, which looks like total failure |
+| cores | 16 or more | nothing enforces a count. `jobs` defaults to a quarter of the cores with a floor of 4, and `cores` (per firmware build) to a quarter capped at 8 -- below 16 the defaults stop telling machines apart. Every measurement in this README is from a 72-core runner |
+| RAM | ~2 GiB per concurrent campaign, and a bootstrap peak | each campaign boots one QEMU at `FIRNESS_MEMORY`, default 2048 MB, so the default `jobs` on a 72-core box is 18 guests and ~36 GiB of guest memory alone. The bootstrap is the other peak: it builds LLVM 15 at `NJOBS=$(nproc)` and clang/lld link steps want roughly 2 GB each, so set `NJOBS` lower on a smaller box rather than meeting the OOM killer |
+| disk | ~100 GB free | breakdown below |
+| first run | hours | LLVM 15 from source, the Simics packages, and QEMU through libafl |
+| `python3`, `git` | on the runner itself | the action runs `scripts/fuzz_edk2.py` directly, not inside a container. Standard library only; nothing to `pip install` |
+| an Intel Simics licence | only for the Simics/TSFFS backend | the action never starts Simics -- it fuzzes under QEMU -- but the base image installs Simics anyway and there is no build flag to skip it. See [THIRD-PARTY.md](THIRD-PARTY.md) |
+
+Where the ~100 GB goes, measured on this runner rather than estimated:
+
+| | |
+|---|---|
+| the recursive clone | ~24 GB. edk2 vendors OpenSSL, which vendors its own corpora |
+| `fuzzuer-base` (LLVM 15 and Simics) | 26.5 GB |
+| `fuzzuer-ci` and `fuzzuer-fuzzer` on top of it | ~4 GB more; most layers are shared with the base |
+| one campaign image **per ref fuzzed** | ~2.5 GB each on top of `fuzzuer-ci` |
+| a run's worktree, build output and results | single-digit GB |
+
+This README used to say ~100 GB in one place and ~60 GB in another. Neither was wrong: 60 GB
+was the Docker side once the clone existed. Budget 100 GB, and expect Docker to hold
+considerably more than that over time -- campaign containers are removed as they finish, but
+rebuilt images leave untagged layers behind that only `docker image prune` clears.
+
+### Register the runner where the job runs
+
+A repository-scoped runner serves **only** that repository. One registered against the
+FuzzUEr repository will not pick up a job in your edk2 repository: the job sits in `Queued`,
+nothing explains why, and there is no failed run to notice. Pass the repository URL
+explicitly:
+
+```bash
+scripts/setup_gh_runner.sh <registration-token> https://github.com/acme/edk2-platform
+```
+
+An **organisation** URL (`https://github.com/<org>`, no repository) registers one runner for
+every repository in the org, which is usually what you want for more than one edk2 tree. One
+extra step comes with it: org runners belong to a runner group, and a group can be limited to
+selected repositories, with the same silent `Queued` as the symptom. Check Organisation
+Settings -> Actions -> Runner groups.
+
+Either way, confirm `Settings -> Actions -> Runners` shows one **idle** before trusting a
+schedule. A workflow with no runner never starts and leaves no failed run behind.
+
+## Quickstart
+
+### In your own edk2 repository
+
+[`examples/fuzzuer.yml`](examples/fuzzuer.yml) is a complete working workflow -- dispatch
+inputs, a weekly schedule, the artifact upload and a job summary. Copy it into
+`.github/workflows/`, change the `repository:` to wherever FuzzUEr lives, and run it once by
+hand with `qualify_only` on. Cut down to the parts that matter:
+
+```yaml
+permissions:
+  issues: write       # the action files findings here
+  contents: write     # and pushes the fuzzuer-evidence branch they link into
+
+jobs:
+  fuzz:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 720
+    steps:
+      - uses: actions/checkout@v4            # your tree
+        with: {path: edk2, fetch-depth: 0}
+      - uses: actions/checkout@v4            # FuzzUEr, with its submodules
+        with: {repository: <you>/FuzzUEr, path: fuzzuer, submodules: true, fetch-depth: 0}
+      - id: fuzz
+        uses: ./fuzzuer
+        with:
+          source: edk2
+          qualify-only: true                 # every stage except the fuzzing: ~8 minutes
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: fuzzuer, path: "${{ steps.fuzz.outputs.results }}"}
+```
+
+`fetch-depth: 0` on both, and `submodules: true` rather than `recursive`, are both
+load-bearing -- [docs/private-edk2.md](docs/private-edk2.md) says why each one bites.
+
+[docs/private-edk2.md](docs/private-edk2.md) is the full walkthrough, including the other
+shape: a dispatch workflow run from FuzzUEr against a repository you name, which adds nothing
+at all to your edk2 repo.
+
+### On this repository, at a terminal
+
+```bash
+git clone --recurse-submodules <this repo> && cd FuzzUEr
+scripts/bootstrap_runner.sh                             # once per machine; hours when cold
+python3 scripts/fuzz_edk2.py --ref edk2-stable202511 --skip-fuzz
+```
+
+`--skip-fuzz` is the qualify form: it ports, builds, checks the instrumentation, discovers
+the targets and makes the sanitizer catch a planted error, without spending a fuzzing
+budget. Drop it for a real campaign.
+
+## Using it as an action
+
+### Inputs
+
+Required, and then the ones that change what a run means:
+
+| input | default | |
+|---|---|---|
+| `source` | — | **required**; path to your edk2 checkout, relative to the workspace or absolute. It has to be a git checkout: the ref is taken from git history, so a tarball will not do |
+| `ref` | the checked-out commit | tag, branch or SHA inside that checkout |
+| `budget` | `600` | seconds of fuzzing **per target**, counted from the harness being reached |
+| `qualify-only` | `false` | every stage except the fuzzing. Minutes instead of hours; run this first |
+| `targets` | everything discovered | space separated protocol names. Everything is 242 to 250 across the versions in the table below |
+| `jobs` | a quarter of the cores, floor 4 | targets fuzzed at once |
+| `boot-timeout` | scales with `jobs` | seconds a target may spend booting to the harness. Raise it before concluding a harness is broken |
+| `fail-on-findings` | `false` | fail the step when triage reports candidates. Off by default: a candidate is something to read, and a sweep that goes red on the first one stops reporting the rest |
+| `out` | `$RUNNER_TEMP/fuzzuer-run/results/fuzz-<ref>` | where the artifacts go. **Outside the workspace on purpose**: the pipeline writes a git worktree and a docker build context, and putting those where `actions/checkout` owns files left the next job unable to check out at all -- it ended up with no `.git`. The runner wipes `$RUNNER_TEMP` when the job ends, so set this if you want a copy on the box as well as in the artifact |
+| `token` | — | clones FuzzUEr's **own** repository when GitHub delivered the action as an archive, which it does for any `uses: owner/FuzzUEr@ref`. Needed only when FuzzUEr itself is private |
+| `bootstrap` | `true` | build the images if the runner lacks them. Idempotent, and seconds on a warm runner -- but **hours on a cold one**. Set `false` for a runner you prepared with `scripts/bootstrap_runner.sh` |
+| `open-issues` | `true` | file one issue per candidate in the fuzzed repository. See the warning at the top of this file |
+| `max-issues` | `50` | stop after this many new issues, worst severity first. `0`: no limit |
+| `findings-token` | the job token | needed when `source` is a *different* repository: `Issues: write` **and** `Contents: write` on that one |
+| `smm` | `false` | build with `SMM_REQUIRE=TRUE`, so the image has an SMM core for SMI handlers to answer |
+| `smi` | `false` | also fuzz the SMI handlers discovery found; implies `smm`. Not yet end to end -- see [SMI fuzzing](#smi-fuzzing) |
+| `standalone-mm` | `false` | with `smm`, the StandaloneMM model rather than `PiSmmCore` |
+| `bench` | `false` | build the SanBench drivers into the **campaign** firmware, so the benchmark's own protocols get fuzzed. The `detects` stage scores them on every run regardless -- see [Ground truth](#ground-truth-the-benchmark-drivers) |
+| `cores` | a quarter of the box, capped at 8 | cores per firmware build. Small on purpose: edk2 builds race at high `-j` |
+| `extra-defines` | — | extra `-D` macros for every firmware build, passed **last** so they override the action's own |
+| `extra-pcds` | — | extra `--pcd` overrides, same form and same precedence |
+| `port-from` | the bundled port | a tree that carries its own sanitizer port. Pointing this at a vendor tree that has none makes every file fail to apply |
+| `port-base` | derived | the commit the port's patches were written against |
+
+### Outputs
+
+All eight:
+
+| output | |
+|---|---|
+| `bugs` | path to `bugs.md`, the triaged table. Empty when triage did not run |
+| `reproducers` | directory of the inputs that triggered a finding, collected per protocol. Empty when there were none |
+| `results` | the directory holding `run.json`, `bugs.md`, `presence.csv` and the per-campaign logs. Point `upload-artifact` at this |
+| `issues` | space separated URLs of the issues this run filed |
+| `issues-filed` | how many it filed, not counting ones already open |
+| `issues-tracked` | how many of this run's candidates already had an issue |
+| `candidates` | candidate bugs triage attributed to firmware code. **Empty**, not `0`, on a `qualify-only` run: triage did not run, and "0 candidates" would read as a clean sweep when nothing was fuzzed |
+| `stages` | `passed/total`, counting only the stages that ran: `11/11` for `qualify-only`, `13/13` for a full run |
+
+### How long a run takes
+
+| what | how long |
+|---|---|
+| `qualify-only` on a warm runner | ~8 minutes, 11 stages. Measured on a branch of clean `edk2-stable202605` with one package added |
+| the action's defaults -- one tree, every target discovered, `budget: 600` | **6.5 to 11.5 hours.** `results/fuzz-master-fixed` is 243 targets in 6.5 h; `results/sweep-v2` is 245 in 10.9 h. Same runner, so the spread is parallelism and boot contention, not the budget |
+| one campaign, wall clock | 16 to 42 minutes in the sweeps stored under `results/`, against budgets of 600 to 900 seconds. The budget starts when the harness is *reached*, so the instrumented boot and the contention around it are on top of it |
+| the weekly four-version sweep in `fuzz-edk2.yml` | ~16 h, which is why its `timeout-minutes` is 1440 |
+| a cold runner, before any of the above | hours, once |
+
+`timeout-minutes` has to cover the slow case. A job killed mid-sweep has a partial report
+already written, which reads as merely incomplete rather than as cut short.
+
 
 ## Research Paper
 
@@ -50,9 +251,10 @@ docker build -t fuzzuer-image .
 docker run -it -v ./eval_source/:/input fuzzuer-image
 ```
 
-Budget ~100 GB of disk and expect the first build to take hours: it compiles LLVM 15 from
-source. `scripts/bootstrap_runner.sh` does the same work and is idempotent, so prefer it if
-you intend to run the pipeline rather than the container by hand.
+See [Requirements](#requirements) for what this costs: ~100 GB of disk and a first build of
+hours, because it compiles LLVM 15 from source and installs the Simics packages.
+`scripts/bootstrap_runner.sh` does the same work and is idempotent, so prefer it if you
+intend to run the pipeline rather than the container by hand.
 
 And then you can run everything with the helper script `firness.py`:
 
@@ -278,7 +480,7 @@ scripts/bootstrap_runner.sh                          # once per machine
 python3 scripts/fuzz_edk2.py --ref edk2-stable202511
 ```
 
-Eleven stages, each printing PASS or FAIL with what it saw. The run stops at the first
+Thirteen stages, each printing PASS or FAIL with what it saw. The run stops at the first
 failure, because every stage after one would report a number that looks like a result:
 
 | stage | what it answers |
@@ -287,6 +489,8 @@ failure, because every stage after one would report a number that looks like a r
 | `fetch` | is the ref real, and checked out |
 | `submodules` | edk2 vendors its dependencies; three separate build failures name none of them |
 | `port` | did the sanitizer integration apply, and how much of it merged cleanly |
+| `vendor` | defects the vendor branch ships, repaired and named -- a branch can leave a library class unresolvable for OvmfPkg and still ship, and that fails `AutoGen` before a line compiles |
+| `sync` | the ported tree is in the builder container, and it has an `OvmfPkg/OvmfPkgX64.dsc` to build |
 | `build` | did the firmware build |
 | `instrumented` | do modules actually carry `__asan_load`/`__asan_store` -- "applied" is not "instrumented" |
 | `discover` | protocols from headers, SMI handlers from registration call sites |
@@ -296,7 +500,9 @@ failure, because every stage after one would report a number that looks like a r
 | `triage` | cluster, separate the harness and the PCI hole from the firmware, name a driver |
 
 `--skip-fuzz` stops after `detects`, which is the useful form for asking "does this
-version port, build and report at all" without spending a fuzzing budget.
+version port, build and report at all" without spending a fuzzing budget. It reports 11
+stages rather than 13, because `fuzz` and `triage` are recorded as skipped rather than as
+passes -- a qualify run that claimed 13/13 would be claiming it fuzzed.
 
 Two stages exist because of what they caught. `image` is there because campaigns
 generate and build their harness from the tree inside the image: without a per-version
@@ -325,26 +531,39 @@ before trusting the weekly sweep.
 
 The first run on a cold machine builds LLVM 15 from source, installs the Simics packages,
 and builds QEMU through libafl -- hours, not minutes. Every bootstrap step checks for its
-own output first, so later runs cost seconds. Budget ~60 GB of disk for the images and one
-campaign image per version, and expect Docker to hold considerably more than that over
-time: campaign containers are removed as they finish, but rebuilt images leave untagged
-layers behind that only `docker image prune` clears.
+own output first, so later runs cost seconds. [Requirements](#requirements) has the disk
+breakdown; the short version is ~30 GB for the images, ~2.5 GB more per version fuzzed, and
+considerably more than that held by Docker over time, because campaign containers are
+removed as they finish but rebuilt images leave untagged layers that only
+`docker image prune` clears.
 
-Run it manually once with **qualify_only** before trusting a full sweep: ten stages, a few
-minutes, and it exercises everything except the fuzzing. A full matrix is ~17 hours.
+Run it manually once with **qualify_only** before trusting a full sweep: 11 stages, a few
+minutes, and it exercises everything except the fuzzing. The default four-version matrix is
+~16 hours at a 600-second budget, which is where `timeout-minutes: 1440` comes from -- the
+old 720 would have killed the job a third of the way through the second version, with the
+first version's report already written.
 
 ### On your own EDK2, in a private repository
 
-`docs/private-edk2.md` is the walkthrough: a dispatch workflow that reads a repository you
-name, or a workflow file for your own edk2 repo that calls this one as an action. Both go
-through the same `scripts/fuzz_edk2.py`, and neither writes to the tree under test -- the
-sanitizer port is applied to a throwaway worktree of your ref.
+[docs/private-edk2.md](docs/private-edk2.md) is the walkthrough, and it holds CI-critical
+detail this file only summarises: a dispatch workflow that reads a repository you name, or a
+workflow file for your own edk2 repo that calls this one as an action. Both go through the
+same `scripts/fuzz_edk2.py`, and neither writes to the *tree* under test -- the sanitizer
+port is applied to a throwaway worktree of your ref. The *repository*, as against the tree,
+does get written to by default: see `open-issues` above.
+[`examples/fuzzuer.yml`](examples/fuzzuer.yml) is the whole workflow, ready to copy.
 
 ```yaml
-- uses: ./fuzzuer            # after checking this repo out with submodules
-  with:
-    source: edk2             # your tree
-    qualify-only: true       # every stage except the fuzzing: ~8 minutes
+permissions:
+  issues: write              # open-issues defaults to true, and files them here
+  contents: write            # and pushes the fuzzuer-evidence branch they link into
+
+# ...
+    steps:
+      - uses: ./fuzzuer      # after checking this repo out with submodules, fetch-depth 0
+        with:
+          source: edk2       # your tree
+          qualify-only: true # every stage except the fuzzing: ~8 minutes
 ```
 
 Verified by fuzzing a branch of clean `edk2-stable202605` with one package added, through
@@ -366,6 +585,14 @@ what `git ls-remote https://github.com/tianocore/edk2.git` returns for that tag.
 one the port applies with nothing unresolved, the firmware builds, the built modules carry
 ASan checks, and the self test catches a double free, an overflow, an underflow, a
 use-after-free and a length-driven overread in that version's own firmware.
+
+Read the table below as a record of runs that happened, not as a guarantee that is
+maintained. The weekly sweep in `.github/workflows/fuzz-edk2.yml` re-tests four refs --
+`edk2-stable202502`, `edk2-stable202505`, `edk2-stable202511` and `master` -- because four
+at a 600-second budget is already ~16 hours. Every other row is a one-off that is not
+revisited, so a regression on, say, `edk2-stable202402` would not be caught here. If you
+care about a specific version, qualify it yourself: that is one command and about eight
+minutes.
 
 | version | port | instrumented | protocols found |
 | --- | --- | --- | --- |
@@ -543,7 +770,8 @@ A working image reports the overflow, the underflow and the use-after-free with 
 
 Nothing downstream means anything until a deliberate error has been seen caught, and a
 sanitizer that reports nothing looks exactly like firmware with no bugs in it. Two sets of
-drivers exist for that, built only when asked and never shipped.
+drivers exist for that. Both are gated behind `SAN_BENCH`/`FW_SAN` in the DSC and the FDF
+alike, so neither is in a firmware that was not asked for them.
 
 `AsanSelfTest` is the small one: five heap classes in a UEFI application, exercised on every
 pipeline run by the `detects` stage. It proves the shadow is mapped and the runtime reports.
@@ -589,8 +817,17 @@ and ten detections would look identical. The remaining blind spot is stack memor
 carries `-mllvm -asan-stack=0` because enabling stack instrumentation faults the boot in
 CpuDxe, so a stack overread of any shape is invisible.
 
-Pass `--bench` to `scripts/fuzz_edk2.py` to build these into the firmware and fuzz them, and
-the `detects` stage then scores all eleven and fails on any class that regresses.
+The `detects` stage scores all eleven on **every** run and fails the stage on a class that
+regressed. It did not always: the probe asked for these drivers only under `--bench`, which
+`action.yml` defaults to false and no workflow sets, so the most capable ground truth in the
+tree had never run in CI while three workflows uploaded a `bench_cases.log` nothing wrote.
+The probe now carries them unconditionally. That build replaces only the probe firmware, so
+it cannot put a positive control in front of the fuzzer.
+
+`--bench` (the action's `bench` input) is now about the *campaign* firmware: it builds these
+drivers into the image the fuzzer drives, so the benchmark's protocols are discovered and
+fuzzed like any other target. That is a different question from "does this build report",
+and it is still off by default.
 
 ## The firmware sanitizer
 
@@ -841,3 +1078,14 @@ a row there is a report and not a defect. `results/findings.md` is the hand-writ
 half: the reports that were read back to source, with the four that are defects in EDK2
 written up, and the 24 that are not recorded so they are not re-triaged. A defect that never
 trips a sanitizer -- a hang, say -- can only appear in that file.
+
+## Licence, security and third-party code
+
+| | |
+|---|---|
+| [LICENSE](LICENSE) | MIT, for this repository's own code. Note that its copyright line names no legal entity, which [THIRD-PARTY.md](THIRD-PARTY.md) flags as an open question |
+| [THIRD-PARTY.md](THIRD-PARTY.md) | the eight submodules and what they are licensed under, including the GPL-2.0 QEMU, the Intel binary-only material in `edk2-non-osi`, and the Simics licence this tool does not grant you |
+| [SECURITY.md](SECURITY.md) | how to report a vulnerability in FuzzUEr, and -- separately -- why a finding it produces is a candidate rather than a confirmed vulnerability |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | what this project treats as evidence for a change |
+| [docs/private-edk2.md](docs/private-edk2.md) | running it against your own edk2 in CI, in detail |
+| [examples/fuzzuer.yml](examples/fuzzuer.yml) | a complete consumer workflow, ready to copy |
