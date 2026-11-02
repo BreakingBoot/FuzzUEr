@@ -1,0 +1,81 @@
+# Can another repository consume this action the normal way -- `uses: owner/repo@ref`?
+#
+# Nothing has ever tested that path, and three places in this repository used to say it was
+# impossible: the consumer workflow and docs/private-edk2.md both claimed GitHub's action
+# download times out after 100 seconds, while action.yml carries seventy lines of fallback
+# written on the assumption that it works. The timeout claim was measured false -- the
+# repository's tarball is about 12 MB and arrives in roughly a second -- so the fallback is
+# the half that matters, and it had no cover at all.
+#
+# What makes `uses:` need a fallback is unrelated to download time: GitHub fetches a
+# referenced action as a repository ARCHIVE, and an archive carries no submodule contents.
+# This action needs four of them, so action.yml detects the empty directories and clones
+# its own repository at the ref it was referenced by. THIS workflow is the only thing that
+# exercises that clone.
+#
+# Deliberately referenced by `@main` rather than `./`: a local path is what action-smoke.yml
+# already covers, and a local path never produces an archive, so it can never reach the
+# code under test here.
+#
+# Costs a firmware build, so it is not on every push. Push a branch whose name starts with
+# "ci-uses-" to run it, or dispatch it.
+name: Consumed as an action
+
+on:
+  push:
+    branches: ['ci-uses-**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consumed:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 90
+    steps:
+      # The tree under test. Only this -- the action is NOT checked out, which is the whole
+      # point: it has to arrive the way it arrives for anybody else.
+      - uses: actions/checkout@v4
+        with:
+          repository: cglosner/edk2
+          ref: simics-working
+          path: tree
+          fetch-depth: 1
+
+      - id: fuzz
+        uses: BreakingBoot/FuzzUEr@main
+        with:
+          source: tree
+          qualify-only: true
+          bootstrap: true
+          # The tree being fuzzed belongs to another repository, and a smoke test must not
+          # file findings there because this repository's CI ran.
+          open-issues: false
+
+      - name: The action arrived complete and reported what it should
+        shell: bash
+        env:
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+          STAGES: ${{ steps.fuzz.outputs.stages }}
+        run: |
+          set -uo pipefail
+          echo "  results = ${RESULTS:-<empty>}"
+          echo "  stages  = ${STAGES:-<empty>}"
+          rc=0
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; rc=1; }
+          [ -f "${RESULTS:-}/run.json" ] \
+            || { echo "::error::no run.json under ${RESULTS:-<empty>}"; rc=1; }
+          # The failure this test exists to catch is the submodule one, and it does not look
+          # like a download problem: the action runs, and then a stage fails because firness
+          # or uefi_asan is an empty directory. Naming it here is what separates "uses:
+          # cannot work" from "a stage regressed", which is the confusion that left three
+          # documents disagreeing for months.
+          case "${STAGES:-}" in
+            *submodules*FAIL*|*port*FAIL*)
+              echo "::error::a stage that reads a submodule failed -- the archive arrived"
+              echo "::error::without submodule contents and action.yml's self-clone did not"
+              echo "::error::repair it. That is the uses: path, not a driver regression."
+              rc=1 ;;
+          esac
+          exit $rc
