@@ -507,19 +507,11 @@ runs:
         DEGRADED=''
         if [ "$rc" -eq 2 ]; then
           DEGRADED='true'
-          python3 - "$OUT" <<'PY'
-        import json, os, sys
-        try:
-            run = json.load(open(os.path.join(sys.argv[1], 'run.json')))
-        except Exception as exc:
-            print(f'::warning::this run is degraded but run.json is unreadable ({exc}), '
-                  f'so this cannot say which stage')
-        else:
-            for stage in run.get('stages', []):
-                if stage.get('ok') == 'warn':
-                    print(f"::warning::{stage.get('name', '?')} is degraded: "
-                          f"{stage.get('detail', '')}")
-        PY
+          # A script, not a heredoc here. Nothing in this repository could test a
+          # heredoc: the YAML parse takes its body as a string and the Python parse only
+          # reads scripts/*.py, so the branch that decides whether a consumer's weekly
+          # job goes red would have had no cover. degraded_report.py --selftest asserts it.
+          python3 scripts/degraded_report.py "$OUT"
           if [ "${IN_FAIL_DEGRADED:-}" = 'true' ]; then
             echo "::error::a stage is degraded and fail-on-degraded is set"
             rc=1

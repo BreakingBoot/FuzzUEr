@@ -115,6 +115,13 @@ jobs:
       # parse below accepts whatever they contain -- a heredoc body is just a string --
       # and the step above only reads scripts/*.py, so a typo in one surfaced as the job
       # it gates failing, an hour of firmware build later.
+      # The action reports a degraded run as warnings instead of failing the step. That
+      # branch only runs when the driver exits 2, which no cheap CI run produces, so it
+      # is asserted directly instead.
+      - name: A degraded run is reported, not hidden
+        shell: bash
+        run: python3 scripts/degraded_report.py --selftest
+
       - name: The Python embedded in the workflows parses
         shell: bash
         run: python3 scripts/embedded_python_check.py
