@@ -64,13 +64,21 @@ def selftest():
             bad = 1
         else:
             print(f'  [ok  ] {why}')
-    # The real file shape, read the way the action reads it.
+    # The real file shape, read the way the action reads it. A COMMITTED fixture, not a
+    # file under results/: results/ is gitignored, so pointing this at a recorded sweep
+    # made the case pass on the machine that had one and silently not exist on the
+    # runner -- five cases there, six here, and nothing saying so. A missing fixture is
+    # now a failure, because a vanishing assertion reads as coverage and is not.
     here = os.path.dirname(os.path.abspath(__file__))
-    probe = os.path.join(here, os.pardir, 'results', 'fuzz-master-icount', 'run.json')
-    if os.path.isfile(probe):
+    probe = os.path.join(here, 'testdata', 'degraded-sweep-run.json')
+    if not os.path.isfile(probe):
+        print(f'  [FAIL] the fixture {probe} is missing, so this case cannot run')
+        bad = 1
+    else:
         lines = annotations(json.load(open(probe, encoding='utf-8')))
-        if any('fuzz is degraded' in l for l in lines):
-            print('  [ok  ] a real recorded degraded sweep is reported')
+        if len(lines) == 1 and 'fuzz is degraded' in lines[0] and '224/243' in lines[0]:
+            print('  [ok  ] a real recorded 243-target sweep reports exactly its one '
+                  'degraded stage')
         else:
             print(f'  [FAIL] the recorded degraded sweep produced {lines}')
             bad = 1

@@ -1,0 +1,25 @@
+{
+  "ref": "master",
+  "stages": [
+    {
+      "name": "build",
+      "ok": true,
+      "detail": "firmware built, FV 59% full"
+    },
+    {
+      "name": "instrumented",
+      "ok": true,
+      "detail": "246/246 modules carry ASan checks"
+    },
+    {
+      "name": "fuzz",
+      "ok": "warn",
+      "detail": "224/243 campaign(s) fuzzed the harness (2075530 iteration(s)), edge stability median 100%, 4 not called anywhere in this build, 15 reached the harness but never came back out of the call (EdkiiPeCoffImageEmulator, EfiBdsArch, EfiConfigKeywordHandler, EfiCpuIo2, EfiDriverBinding...) -- the batch exited 1"
+    },
+    {
+      "name": "triage",
+      "ok": true,
+      "detail": "8 candidate(s) from 9 cluster(s)"
+    }
+  ]
+}
