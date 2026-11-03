@@ -867,12 +867,30 @@ def main():
                 print(f'  the port base blobs are missing and {src} is not a git '
                       f'checkout to fetch them from')
             else:
-                print(f'  this tree lacks the blobs for port base {base.group(1)[:12]}, '
-                      f'which is what a squashed or unrelated history means; fetching '
-                      f'them from {src}')
-                got = sh(['git', '-C', tree, 'fetch', '--no-tags', '--quiet', src,
-                          base.group(1)], timeout=1800)
-                if got.returncode:
+                # Resolved to a FULL object name first. `git fetch <url> <sha>` takes
+                # only a complete 40 character name, and apply_asan prints the base
+                # abbreviated to 12 -- so fetching what it printed fails with "couldn't
+                # find remote ref 1eeca0750af5", which reads as though the commit were
+                # missing from the source rather than merely abbreviated. Measured both
+                # ways: the 12 character form fails, the 40 character form fetches it.
+                seen = sh(['git', '-C', src, 'rev-parse',
+                           base.group(1) + '^{commit}'], timeout=60)
+                sha = seen.stdout.strip()
+                if seen.returncode or not sha:
+                    print(f'  port base {base.group(1)[:12]} is not in {src} either, so '
+                          f'there is nowhere to fetch it from')
+                    sha = ''
+                if sha:
+                    print(f'  this tree lacks the blobs for port base {sha[:12]}, which '
+                          f'is what a squashed or unrelated history means; fetching them '
+                          f'from {src}')
+                    got = sh(['git', '-C', tree, 'fetch', '--no-tags', '--quiet', src,
+                              sha], timeout=1800)
+                else:
+                    got = None
+                if got is None:
+                    pass
+                elif got.returncode:
                     why = (got.stderr or '').strip().splitlines()
                     print(f'  that fetch failed, so the port fails the same way: '
                           f'{why[-1][:120] if why else "no output"}')
