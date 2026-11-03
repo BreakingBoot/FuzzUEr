@@ -895,6 +895,21 @@ def main():
                     print(f'  that fetch failed, so the port fails the same way: '
                           f'{why[-1][:120] if why else "no output"}')
                 else:
+                    # The tree has to go back to clean first. The failed attempt applied
+                    # 28 of its 30 files before stopping, and apply_asan refuses to port
+                    # onto a tree with uncommitted changes -- so the retry did not retry
+                    # anything, it just failed differently, with
+                    # "M CryptoPkg/Library/BaseCryptLib/PeiCryptLib.inf".
+                    #
+                    # Safe because this IS a throwaway worktree of the ref, made by this
+                    # run: nothing of the caller's is in it, and the port's own output is
+                    # exactly what has to go. Deliberately WITHOUT
+                    # --recurse-submodules, and `clean -fd` rather than -ffd, so the
+                    # submodules survive -- they were just repaired, and re-cloning
+                    # OpenSSL costs minutes. Measured: clean afterwards, all 10 still
+                    # populated, the port's 94 copied files gone.
+                    sh(['git', '-C', tree, 'reset', '--hard', '--quiet'], timeout=600)
+                    sh(['git', '-C', tree, 'clean', '-fdq'], timeout=600)
                     # The counts below must come from the RETRY, not from the attempt that
                     # already failed: both texts contain a "merged cleanly" line and
                     # re.search takes the first, so parsing the concatenation would report
