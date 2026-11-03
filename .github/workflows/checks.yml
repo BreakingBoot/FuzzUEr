@@ -102,6 +102,23 @@ jobs:
         shell: bash
         run: python3 scripts/upstream_guard_check.py
 
+      # The policy that decides whether a multi-version sweep is red. It used to be an
+      # `|| rc=1` in fuzz-edk2.yml, which made the weekly sweep fail on every run it ever
+      # completed: a degraded stage exits non-zero and no full-size sweep has come back
+      # without one. The policy now lives in a script so that this can assert it, in both
+      # directions, including the exit codes the driver promises it.
+      - name: The sweep verdict policy holds
+        shell: bash
+        run: python3 scripts/sweep_verdict.py --selftest
+
+      # The gates in stable-e2e.yml and uses-smoke.yml are heredoc'd Python. The YAML
+      # parse below accepts whatever they contain -- a heredoc body is just a string --
+      # and the step above only reads scripts/*.py, so a typo in one surfaced as the job
+      # it gates failing, an hour of firmware build later.
+      - name: The Python embedded in the workflows parses
+        shell: bash
+        run: python3 scripts/embedded_python_check.py
+
       - name: Every driver script parses
         shell: bash
         run: |

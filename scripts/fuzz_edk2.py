@@ -29,8 +29,21 @@ looks like a result and is not one.
 A stage can also come back WARN: it did its job, but not for everything it was asked
 about -- a sweep where four campaigns of 243 lost their boot to a timeout. That does not
 stop the run, because the campaigns that did fuzz are what the run exists to report on,
-and throwing away their triage to punish the gap leaves nothing at all. A degraded run
-still exits non-zero.
+and throwing away their triage to punish the gap leaves nothing at all.
+
+The exit code says which of the three happened, because a caller cannot tell them apart
+from a bare non-zero and the difference decides whether a human needs to look:
+
+  0   every stage passed
+  2   degraded -- at least one WARN, no FAIL. The report stands; read it.
+  1   a stage FAILED, so the run stopped and the numbers after it do not exist
+
+2 rather than 1 for degraded is not cosmetic. Degraded used to exit 1, and no full-size
+sweep has ever come back without one: of the four recorded 243-to-245 target sweeps,
+three ended WARN and one FAILED. The weekly workflow was therefore red on every run it
+ever completed, including the two that fuzzed all four refs end to end -- so the signal
+that something needed looking at was permanently on, and the table it exists to produce
+went unread.
 """
 
 import argparse
@@ -101,7 +114,12 @@ class Run:
                   f'stands, but not every target was covered')
         else:
             print('  OK')
-        return 1 if failed or degraded else 0
+        # 1 for a failure, 2 for degraded, and the caller is expected to tell them apart:
+        # see the exit-code table at the top of this file. Both used to be 1, which made
+        # "a few campaigns of 243 timed out" indistinguishable from "the build broke".
+        if failed:
+            return 1
+        return 2 if degraded else 0
 
     def save(self):
         os.makedirs(self.out, exist_ok=True)

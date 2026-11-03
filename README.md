@@ -158,6 +158,7 @@ Required, and then the ones that change what a run means:
 | `jobs` | a quarter of the cores, floor 4 | targets fuzzed at once |
 | `boot-timeout` | scales with `jobs` | seconds a target may spend booting to the harness. Raise it before concluding a harness is broken |
 | `fail-on-findings` | `false` | fail the step when triage reports candidates. Off by default: a candidate is something to read, and a sweep that goes red on the first one stops reporting the rest |
+| `fail-on-degraded` | `false` | fail the step when a stage comes back **degraded** -- it did its job, but not for every target, such as a sweep where four campaigns of 243 lost their boot to a timeout. Off by default for the same reason as `fail-on-findings`, and a stronger one: no full-size sweep on record has ever come back without a degraded stage, so failing on it means a job that is red every week and a report nobody opens |
 | `out` | `$RUNNER_TEMP/fuzzuer-run/results/fuzz-<ref>` | where the artifacts go. **Outside the workspace on purpose**: the pipeline writes a git worktree and a docker build context, and putting those where `actions/checkout` owns files left the next job unable to check out at all -- it ended up with no `.git`. The runner wipes `$RUNNER_TEMP` when the job ends, so set this if you want a copy on the box as well as in the artifact |
 | `token` | — | clones FuzzUEr's **own** repository when GitHub delivered the action as an archive, which it does for any `uses: owner/FuzzUEr@ref`. Needed only when FuzzUEr itself is private |
 | `bootstrap` | `true` | build the images if the runner lacks them. Idempotent, and seconds on a warm runner -- but **hours on a cold one**. Set `false` for a runner you prepared with `scripts/bootstrap_runner.sh` |
@@ -188,6 +189,7 @@ All eight:
 | `issues-tracked` | how many of this run's candidates already had an issue |
 | `candidates` | candidate bugs triage attributed to firmware code. **Empty**, not `0`, on a `qualify-only` run: triage did not run, and "0 candidates" would read as a clean sweep when nothing was fuzzed |
 | `stages` | `passed/total`, counting only the stages that ran: `11/11` for `qualify-only`, `13/13` for a full run |
+| `degraded` | `true` when a stage did its job but not for every target; empty otherwise. The run also emits a `::warning::` naming the stage and what it saw |
 
 ### How long a run takes
 

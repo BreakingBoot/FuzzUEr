@@ -88,8 +88,10 @@ jobs:
           except OSError as exc:
               sys.exit(f'::error::cannot read run.json: {exc} -- the action failed before '
                        f'the driver ran, so the fault is in its own setup steps, not a stage')
+          mark = lambda ok: ('SKIP' if ok is None else 'PASS' if ok is True
+                             else 'WARN' if ok == 'warn' else 'FAIL')
           for s in run.get('stages', []):
-              print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:76]}")
+              print(f"  [{mark(s['ok'])}] {s['name']:<13} {s.get('detail','')[:76]}")
           # ok is True, False, or None for a stage that did not run. `not s['ok']` counts
           # None as a failure, and this test asks for qualify-only -- which SKIPS fuzz and
           # triage by design -- so the whole pipeline passed and the gate failed anyway.

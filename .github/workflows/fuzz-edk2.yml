@@ -35,6 +35,14 @@ on:
         default: false
   schedule:
     - cron: '0 3 * * 0'
+  # The sweep itself is hours, so it is not on every push. This prefix exists because
+  # nothing could reach this workflow without a token: it had no push trigger, and
+  # dispatching it needs the API. Both of its only two runs failed, and the verdict logic
+  # below could not be exercised at all. A push to "ci-sweep-**" runs one release
+  # qualify-only -- minutes -- which covers checkout, bootstrap, the loop, the ledger and
+  # the verdict, everything except the fuzzing budget.
+  push:
+    branches: ['ci-sweep-**']
 
 permissions:
   contents: read
@@ -69,6 +77,7 @@ jobs:
         env:
           FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
           FIRNESS_CONTAINER_PREFIX: ci
+          LEDGER: ${{ runner.temp }}/sweep.rc
           # Through the environment rather than interpolated into the script: an input is
           # whatever the person typed, and a ref like $(...) or a quote would otherwise be
           # pasted straight into the shell this step runs.
@@ -79,6 +88,14 @@ jobs:
           IN_QUALIFY: ${{ github.event.inputs.qualify_only }}
         run: |
           set -uo pipefail
+          # Deliberately NOT errexit. GitHub runs a `run:` step as `bash -e {0}`, so the
+          # default is on, and the whole point of the loop below is to carry on past a ref
+          # that failed and record what it did. With -e the first failure would abort the
+          # step, the later refs would never be tried, and the ledger would be short --
+          # which sweep_verdict.py cannot distinguish from a loop that never ran. The
+          # previous version worked around this with `|| rc=1` on the python call.
+          set +e
+          : > "$LEDGER"
           # An input's default applies to workflow_dispatch and to nothing else, so on the
           # weekly schedule every one of these arrives as an empty string -- and
           # "--budget ''" is not a small problem: argparse rejects it as "invalid int
@@ -86,9 +103,30 @@ jobs:
           # far as fetching a ref. The defaults belong here, where both triggers reach
           # them, and they match the ones declared on the inputs.
           REFS="${IN_REFS:-}"
-          if [ -z "$REFS" ]; then
-            REFS='edk2-stable202502 edk2-stable202505 edk2-stable202511 master'
+          QUALIFY=''
+          [ "${IN_QUALIFY:-}" = 'true' ] && QUALIFY='--skip-fuzz'
+          # Read out of the tree, not hardcoded. The list used to be literal and went five
+          # releases stale -- it still named edk2-stable202502/202505/202511 while this
+          # input's own description promised "the three newest stable tags", and it left
+          # out edk2-stable202608, the only release stable-e2e.yml has ever gated on.
+          # awk rather than head: head closes the pipe early, git dies of SIGPIPE and
+          # pipefail turns a correct answer into a non-zero status.
+          newest() {
+            git -C eval_source/edk2 tag -l 'edk2-stable*' --sort=-v:refname \
+              | grep -E '^edk2-stable[0-9]{6}(\.[0-9]+)?$' | awk "NR<=$1"
+          }
+          if [ "${GITHUB_EVENT_NAME:-}" = 'push' ]; then
+            # Branch-pushed: this is the control-flow test, not a sweep. One release and
+            # no fuzzing budget, because the point is to exercise the loop, the ledger and
+            # the verdict in minutes. Picking refs stays with dispatch and the schedule.
+            REFS="$(newest 1 | tr '\n' ' ')"
+            QUALIFY='--skip-fuzz'
+            echo "push-triggered: qualifying $REFS only"
+          elif [ -z "$REFS" ]; then
+            REFS="$(newest 3 | tr '\n' ' ')master"
           fi
+          [ -n "${REFS// /}" ] || { echo "::error::no ref to fuzz: the tree has no"; \
+            echo "::error::edk2-stable tag. Did the tag fetch step run?"; exit 1; }
           BUDGET="${IN_BUDGET:-600}"
           # Sized to the runner rather than fixed. A campaign is one QEMU plus a harness
           # build, so a quarter of the cores keeps the box busy without making every boot
@@ -101,25 +139,38 @@ jobs:
             [ "$JOBS" -lt 4 ] && JOBS=4
           fi
           echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
-          QUALIFY=''
-          [ "${IN_QUALIFY:-}" = 'true' ] && QUALIFY='--skip-fuzz'
           # Passed only when someone asked for one. The boot competes with every campaign
           # booting beside it, so the script's default scales with --jobs; sending a fixed
           # 900 here would pin it back and lose targets to a timeout at high parallelism,
           # which is exactly the failure that default exists to prevent.
           BOOT=''
           [ -n "${IN_BOOT_TIMEOUT:-}" ] && BOOT="--boot-timeout ${IN_BOOT_TIMEOUT}"
-          rc=0
           for ref in $REFS; do
             echo "::group::$ref"
             python3 scripts/fuzz_edk2.py --ref "$ref" \
               --budget "$BUDGET" \
               --jobs "$JOBS" \
               $BOOT \
-              $QUALIFY || rc=1
+              $QUALIFY
+            # Recorded, not acted on. The driver's exit code distinguishes degraded (2)
+            # from failed (1), and which of those fails this JOB is a policy -- it lives
+            # in scripts/sweep_verdict.py, where --selftest asserts it, rather than in
+            # this shell where nothing could.
+            printf '%s %s\n' "$ref" "$?" >> "$LEDGER"
             echo "::endgroup::"
           done
-          exit $rc
+          echo '--- ledger ---'
+          cat "$LEDGER"
+
+      # The gate. Not the step above: a sweep over several refs has more than two
+      # outcomes, and failing the job on any non-zero made this workflow red on every run
+      # it ever completed -- no full-size sweep has come back without at least one
+      # degraded stage, and `master` is in the default set precisely so upstream breakage
+      # shows up here.
+      - name: Did this sweep pass
+        if: always()
+        shell: bash
+        run: python3 scripts/sweep_verdict.py --ledger '${{ runner.temp }}/sweep.rc' --results results
 
       # One table, so a reader sees at a glance which versions the port applied to, which
       # built instrumented, and which the sanitizer actually reported on.

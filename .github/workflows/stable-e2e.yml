@@ -101,8 +101,10 @@ jobs:
           except OSError as exc:
               sys.exit(f'::error::cannot read run.json: {exc}')
           stages = {s['name']: s for s in run.get('stages', [])}
+          mark = lambda ok: ('SKIP' if ok is None else 'PASS' if ok is True
+                             else 'WARN' if ok == 'warn' else 'FAIL')
           for s in run.get('stages', []):
-              print(f"  [{'PASS' if s['ok'] else 'FAIL'}] {s['name']:<13} {s.get('detail','')[:78]}")
+              print(f"  [{mark(s['ok'])}] {s['name']:<13} {s.get('detail','')[:78]}")
           # ok is True, False, or None for a stage that did not run; only False is a
           # failure. A None matters here for a different reason, handled just below.
           bad = [n for n, s in stages.items() if s['ok'] is False]
@@ -114,8 +116,13 @@ jobs:
           # Absent OR skipped. A qualify-only run records both with ok=None and the detail
           # "not run: --skip-fuzz", so checking only for absence would pass a run that
           # never fuzzed anything -- which is the one thing this gate exists to rule out.
+          #
+          # WARN counts as ran. `ok is not True` rejected it, and WARN is what the fuzz
+          # stage returns when a few campaigns of many lost their boot -- the stage did
+          # run, its triage is the report, and this gate would have failed the first time
+          # one of the four targets here timed out. The False case is caught above.
           missing = [n for n in ('fuzz', 'triage')
-                     if n not in stages or stages[n]['ok'] is not True]
+                     if n not in stages or stages[n]['ok'] not in (True, 'warn')]
           if missing:
               sys.exit(f"::error::{', '.join(missing)} did not run -- this gate is for an "
                        f"end-to-end run, and a qualify-only one skips exactly these")

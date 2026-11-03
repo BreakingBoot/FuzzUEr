@@ -113,6 +113,15 @@ inputs:
                   something to read, and a sweep that goes red on one stops reporting the rest'
     required: false
     default: 'false'
+  fail-on-degraded:
+    description: 'Fail the step when a stage comes back degraded -- it did its job, but not
+                  for every target, such as a sweep where four campaigns of 243 lost their
+                  boot to a timeout. Default false, for the same reason as fail-on-findings:
+                  no full-size sweep on record has ever come back without one, so failing on
+                  it means a permanently red job and a report nobody reads. The degraded
+                  output and a warning annotation say it happened either way'
+    required: false
+    default: 'false'
   token:
     description: 'Token used to clone this action''s own repository when GitHub delivered it
                   as an archive -- which it does for any `uses: owner/FuzzUEr@ref`. Only
@@ -174,6 +183,10 @@ outputs:
   stages:
     description: 'passed/total stages'
     value: ${{ steps.run.outputs.stages }}
+  degraded:
+    description: '"true" when a stage did its job but not for every target -- read the
+                  warnings and the report. Empty otherwise'
+    value: ${{ steps.run.outputs.degraded }}
 
 runs:
   using: composite
@@ -374,6 +387,7 @@ runs:
         IN_BENCH: ${{ inputs.bench }}
         IN_OUT: ${{ inputs.out }}
         IN_FAIL: ${{ inputs.fail-on-findings }}
+        IN_FAIL_DEGRADED: ${{ inputs.fail-on-degraded }}
         WORKSPACE: ${{ github.workspace }}
         RUNNER_TEMP_DIR: ${{ runner.temp }}
         # shift=auto, overriding fuzz_batch's shift=6. Not an oversight, and not left
@@ -475,7 +489,7 @@ runs:
         # before the upload step. Print the stage table and the log tails here so the job
         # log explains itself.
         if [ "$rc" -ne 0 ]; then
-          echo "=== the pipeline exited $rc ==="
+          echo "=== the pipeline exited $rc (1 a stage failed, 2 degraded) ==="
           python3 -c "import json,sys; r=json.load(open(sys.argv[1]+'/run.json')); print(chr(10).join('  %-6s %-14s %s' % (('skip' if s.get('ok') is None else ('ok' if s.get('ok') is True else ('warn' if s.get('ok')=='warn' else 'FAIL'))), s.get('name','?'), s.get('detail','')) for s in r.get('stages',[])))" "$OUT" 2>/dev/null || echo '  (the run wrote no run.json -- it failed before the first stage)'
           for l in "$OUT"/*.log; do
             [ -f "$l" ] || continue
@@ -483,6 +497,39 @@ runs:
             tail -40 "$l"
           done
         fi
+
+        # Exit 2 is degraded, not failed: at least one stage did its job but not for
+        # every target, and nothing failed. That is the normal end of a large sweep -- of
+        # the four full-size sweeps on record, three ended this way -- and failing the
+        # step on it gives the caller a job that is red every single week, which is how a
+        # report stops being read. So it is reported as warnings and an output, and the
+        # caller can still opt into failing with fail-on-degraded.
+        DEGRADED=''
+        if [ "$rc" -eq 2 ]; then
+          DEGRADED='true'
+          python3 - "$OUT" <<'PY'
+        import json, os, sys
+        try:
+            run = json.load(open(os.path.join(sys.argv[1], 'run.json')))
+        except Exception as exc:
+            print(f'::warning::this run is degraded but run.json is unreadable ({exc}), '
+                  f'so this cannot say which stage')
+        else:
+            for stage in run.get('stages', []):
+                if stage.get('ok') == 'warn':
+                    print(f"::warning::{stage.get('name', '?')} is degraded: "
+                          f"{stage.get('detail', '')}")
+        PY
+          if [ "${IN_FAIL_DEGRADED:-}" = 'true' ]; then
+            echo "::error::a stage is degraded and fail-on-degraded is set"
+            rc=1
+          else
+            echo "degraded, not failed: the report stands. Set fail-on-degraded to make"
+            echo "this fail the step instead."
+            rc=0
+          fi
+        fi
+        echo "degraded=$DEGRADED" >> "$GITHUB_OUTPUT"
 
         echo "results=$OUT" >> "$GITHUB_OUTPUT"
         echo "source-path=$SOURCE" >> "$GITHUB_OUTPUT"

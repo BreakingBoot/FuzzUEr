@@ -15,6 +15,13 @@
 name: Fuzz a private EDK2
 
 on:
+  # This workflow had never run, not once, in any configuration. It was dispatch-only, and
+  # dispatching needs an API token, so neither its two checkouts nor the way it passes a
+  # token through to the action had ever been executed. A push to "ci-private-**" runs it
+  # against a PUBLIC upstream release qualify-only, which exercises everything except the
+  # one thing a public tree cannot: the PAT path for a private repository.
+  push:
+    branches: ['ci-private-**']
   workflow_dispatch:
     inputs:
       repository:
@@ -66,14 +73,54 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      # A push event carries no inputs -- `github.event.inputs.*` is empty for every one
+      # of them, including the ones declared `required: true` and the ones with defaults,
+      # because an input default applies to workflow_dispatch and nothing else. Left as
+      # they were, an empty `repository` makes actions/checkout take THIS repository and
+      # an empty `qualify_only` makes the action fuzz for hours. So the effective target
+      # is resolved once, here, and both later steps read it from these outputs.
+      - name: What to fuzz
+        id: what
+        shell: bash
+        env:
+          IN_REPO: ${{ github.event.inputs.repository }}
+          IN_REF: ${{ github.event.inputs.ref }}
+          IN_QUALIFY: ${{ github.event.inputs.qualify_only }}
+        run: |
+          set -uo pipefail
+          REPO="${IN_REPO:-}"
+          REF="${IN_REF:-}"
+          QUALIFY="${IN_QUALIFY:-}"
+          ISSUES='true'
+          if [ -z "$REPO" ]; then
+            # Branch-pushed: the self-test. A public upstream release, every stage except
+            # the fuzzing, and no issues -- a smoke test must not file findings into
+            # somebody else's repository because this repository's CI ran. The action
+            # refuses upstream outright, but relying on that would be testing the guard
+            # rather than this workflow.
+            REPO='tianocore/edk2'
+            REF='edk2-stable202608'
+            QUALIFY='true'
+            ISSUES='false'
+            echo "no inputs, so this is the ci-private-** self-test"
+          fi
+          # Matches the input's own declared default. Blank reaches the action as "not
+          # true", which is a full sweep.
+          [ -n "$QUALIFY" ] || QUALIFY='true'
+          echo "repository=$REPO" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF"         >> "$GITHUB_OUTPUT"
+          echo "qualify=$QUALIFY" >> "$GITHUB_OUTPUT"
+          echo "issues=$ISSUES"   >> "$GITHUB_OUTPUT"
+          echo "  $REPO @ ${REF:-<default branch>}  qualify-only=$QUALIFY  issues=$ISSUES"
+
       # The tree under test, kept out of the way of this repository's own files. Full depth
       # because the driver resolves the ref out of git history and makes a worktree of it;
       # a shallow clone has only one commit and any other ref then has to be fetched.
       - name: Check out the EDK2 tree
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.inputs.repository }}
-          ref: ${{ github.event.inputs.ref }}
+          repository: ${{ steps.what.outputs.repository }}
+          ref: ${{ steps.what.outputs.ref }}
           token: ${{ secrets.EDK2_TOKEN || github.token }}
           path: edk2-under-test
           submodules: recursive
@@ -86,12 +133,13 @@ jobs:
           source: edk2-under-test
           # Blank is honoured: the action falls back to the commit actions/checkout left
           # checked out, which is the right answer when the input named a branch.
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ steps.what.outputs.ref }}
           budget: ${{ github.event.inputs.budget }}
           jobs: ${{ github.event.inputs.jobs }}
           targets: ${{ github.event.inputs.targets }}
-          qualify-only: ${{ github.event.inputs.qualify_only }}
+          qualify-only: ${{ steps.what.outputs.qualify }}
           smm: ${{ github.event.inputs.smm }}
+          open-issues: ${{ steps.what.outputs.issues }}
           # The issues land in the repository being fuzzed, not in FuzzUEr, so this needs
           # a token with Issues: write THERE. Without one the findings stay in the artifact
           # and the action says so rather than failing.

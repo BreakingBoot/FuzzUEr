@@ -270,6 +270,7 @@ protocols — which is exactly what qualify checks.
 | `qualify-only` | `false` | every stage except the fuzzing |
 | `smm` | `false` | see below |
 | `fail-on-findings` | `false` | fail the step when triage reports candidates |
+| `fail-on-degraded` | `false` | fail the step when a stage ran but not for every target |
 | `boot-timeout` | scales with `jobs` | seconds a target may spend booting to the harness. Raise it before concluding a harness is broken |
 | `out` | `$RUNNER_TEMP/fuzzuer-run/results/fuzz-<ref>` | where the artifacts go. The default is **outside the workspace on purpose** -- the pipeline writes a worktree and a docker build context, and putting those where `actions/checkout` owns files left the next job unable to check out at all. The runner wipes `$RUNNER_TEMP` when the job ends, so set this if you want a copy on the box as well as in the artifact |
 | `token` | — | used to clone FuzzUEr's **own** repository when GitHub delivered it as an archive, i.e. for any `uses: owner/FuzzUEr@ref`. Only needed when FuzzUEr itself is private |
@@ -323,6 +324,7 @@ All eight, in the order `action.yml` declares them:
 | `issues-tracked` | how many of this run's candidates already had an issue |
 | `candidates` | candidate bugs triage attributed to firmware code |
 | `stages` | `passed/total`, counting only stages that ran |
+| `degraded` | `true` when a stage ran but not for every target |
 
 `candidates` is **empty**, not `0`, on a `qualify-only` run — triage did not run, and "0
 candidates" would read as a clean sweep when nothing was fuzzed at all. The three `issues-*`
