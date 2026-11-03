@@ -143,6 +143,67 @@ def sh(cmd, cwd=None, timeout=None, env=None):
                           capture_output=True, text=True, timeout=timeout)
 
 
+def submodules_off_commit(tree):
+    """Submodule paths whose checkout is NOT the commit the superproject records.
+
+    `git submodule status` marks those with a leading '+'. A leading '-' means not
+    initialised, which is a different thing and not a problem by itself: an uninitialised
+    submodule leaves the superproject clean, and a tree can carry one whose URL has died
+    without that affecting a build which does not use it.
+    """
+    got = sh(['git', '-C', tree, 'submodule', 'status'], timeout=300)
+    off = []
+    for line in got.stdout.splitlines():
+        if line[:1] == '+':
+            parts = line.split()
+            if len(parts) >= 2:
+                off.append(parts[1])
+    return off
+
+
+def repair_submodules(tree, report=print):
+    """Finish the checkout that an aborted `submodule update` left half done.
+
+    `git submodule update` clones every submodule first and checks each one out at the
+    commit the superproject records afterwards. When ONE submodule cannot be cloned the
+    whole operation aborts -- and the abort lands before that checkout pass, so every
+    submodule that cloned perfectly well is left sitting at its default branch tip instead
+    of the recorded commit. The superproject then reads as MODIFIED, and the port stage
+    refuses it saying only "has uncommitted changes" plus a list of paths: it names neither
+    submodules nor the one submodule that actually failed, so the cause ends up three
+    stages away from the message that reports it.
+
+    Measured on an edk2 whose UnitTestFrameworkPkg/Library/SubhookLib/subhook still points
+    at https://github.com/Zeex/subhook, which no longer resolves. `submodule update --init
+    --depth=1` exits 1, leaves 10 of the other 11 submodules off their recorded commit, and
+    the stage called it `PASS submodules 10/11 populated` because the exit code was thrown
+    away.
+
+    Re-running the update for exactly those paths completes the skipped checkout. It needs
+    no deeper fetch: the objects are already in each submodule and they stay shallow
+    afterwards, both measured, so this costs nothing on the network. An earlier version of
+    this ran `fetch --unshallow` first on the theory that a shallow clone could not contain
+    the recorded commit -- that theory was wrong, and it would have refetched the whole of
+    OpenSSL on every repair.
+
+    Returns the paths still wrong afterwards, so the caller can fail honestly rather than
+    leaving a later stage to fail for a reason it cannot explain.
+    """
+    off = submodules_off_commit(tree)
+    if not off:
+        return []
+    report(f'  {len(off)} submodule(s) cloned but were never checked out at the commit '
+           f'this tree records, which is what an aborted submodule update leaves behind; '
+           f'finishing them')
+    sh(['git', '-C', tree, 'submodule', 'update', '--init', '--force', '--'] + off,
+       timeout=3600)
+    still = submodules_off_commit(tree)
+    if still:
+        report(f'  {len(still)} still wrong: {", ".join(still[:3])}')
+    else:
+        report(f'  all {len(off)} now at their recorded commit(s)')
+    return still
+
 def reown(path, image):
     """Give a directory a container wrote back to the user running this.
 
@@ -719,7 +780,20 @@ def main():
         if not os.path.isfile(mods):
             return True, 'none declared'
         paths = re.findall(r'path\s*=\s*(\S+)', open(mods).read())
-        sh(['git', '-C', tree, 'submodule', 'update', '--init', '--depth=1'], timeout=3600)
+        # The exit code is READ. It used to be discarded, and that is how a git
+        # invocation which exited 1 -- aborting partway through, leaving 10 of 11
+        # submodules off their recorded commit -- was reported as `PASS 10/11 populated`,
+        # with the port stage three steps later as the first sign of trouble.
+        did = sh(['git', '-C', tree, 'submodule', 'update', '--init', '--depth=1'],
+                 timeout=3600)
+        if did.returncode:
+            blame = [l for l in (did.stderr or '').splitlines()
+                     if 'Failed to clone' in l or 'aborting' in l]
+            print(f'  git submodule update exited {did.returncode}'
+                  + (f': {blame[-1][:120]}' if blame else ''))
+        # Shallow because it is much cheaper, then the checkout finished for anything the
+        # abort skipped. See repair_submodules for what that failure actually looks like.
+        still_wrong = repair_submodules(tree)
         # isdir first: listdir on a path that is not there raises, and the stage then
         # fails with a FileNotFoundError naming a directory rather than saying which
         # submodule did not come down.
@@ -731,6 +805,13 @@ def main():
                   ('brotli', 'mipisyst', 'openssl', 'mbedtls'))]
         if needed:
             return False, f'{len(needed)} required submodule(s) empty: {needed[0]}'
+        # Said here rather than letting the port stage refuse the tree with a message that
+        # names neither submodules nor depth.
+        if still_wrong:
+            return False, (f'{len(still_wrong)} submodule(s) are not at the commit this '
+                           f'tree records, even after a full fetch '
+                           f'({", ".join(still_wrong[:3])}) -- the tree is dirty and the '
+                           f'port stage will refuse it')
         return True, f'{len(paths) - len(empty)}/{len(paths)} populated'
 
     def port():

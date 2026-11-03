@@ -133,6 +133,16 @@ jobs:
         shell: bash
         run: python3 scripts/degraded_path_check.py
 
+      # One unreachable submodule used to poison every other submodule in the tree:
+      # `git submodule update` aborts on the failure, the abort lands before the checkout
+      # pass, and the rest are left at their branch tip rather than the recorded commit.
+      # The tree then reads as dirty and the port stage refuses it, naming neither
+      # submodules nor the one that failed. Builds real repositories with a dead remote;
+      # needs no network.
+      - name: A dead submodule does not poison the others
+        shell: bash
+        run: python3 scripts/submodule_repair_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
