@@ -835,11 +835,57 @@ def main():
             argv += ['--base', args.port_base]
         done = sh(argv, timeout=1800)
         text = done.stdout + done.stderr
+        log = text
+        # A tree with no upstream history cannot 3-way merge. apply_asan rebases the port
+        # onto the target by applying each modified file against the version at the PORT
+        # BASE, and `git apply -3` needs that pre-image blob in the TARGET repository's
+        # object store. A squashed vendor import does not have it -- nor does anything
+        # else whose history was not inherited from the tree the port sits on -- and the
+        # failure reads per file as "repository lacks the necessary blob to perform 3-way
+        # merge", which says nothing about history or about where the blob could come
+        # from. Measured on an edk2 imported as 7 squashed commits: 28 files merged
+        # cleanly and the 2 that did not were the OVMF platform description and its FDF,
+        # so the run stopped at port and the firmware was never built.
+        #
+        # The port base is a commit in the tree the port is TAKEN FROM, which is on this
+        # filesystem, so this is a local fetch: no network, and it costs the blobs of one
+        # commit rather than a whole history.
+        if 'lacks the necessary blob' in text:
+            base = re.search(r'port base\s+([0-9a-f]{7,40})', text)
+            src = os.path.abspath(args.port_from
+                                  or os.path.join(REPO, 'eval_source', 'edk2'))
+            if not base:
+                print('  the port base blobs are missing and port.log does not name the '
+                      'base, so there is nothing to fetch')
+            elif not os.path.isdir(os.path.join(src, '.git')):
+                print(f'  the port base blobs are missing and {src} is not a checkout to '
+                      f'fetch them from')
+            else:
+                print(f'  this tree lacks the blobs for port base {base.group(1)[:12]}, '
+                      f'which is what a squashed or unrelated history means; fetching '
+                      f'them from {src}')
+                got = sh(['git', '-C', tree, 'fetch', '--no-tags', '--quiet', src,
+                          base.group(1)], timeout=1800)
+                if got.returncode:
+                    why = (got.stderr or '').strip().splitlines()
+                    print(f'  that fetch failed, so the port fails the same way: '
+                          f'{why[-1][:120] if why else "no output"}')
+                else:
+                    # The counts below must come from the RETRY, not from the attempt that
+                    # already failed: both texts contain a "merged cleanly" line and
+                    # re.search takes the first, so parsing the concatenation would report
+                    # the failure even when the retry applied everything.
+                    retried = sh(argv, timeout=1800)
+                    text = retried.stdout + retried.stderr
+                    log += ('\n=== retried after fetching the port base ===\n' + text)
+                    done = retried
         # Kept, not discarded. The detail line below carries parsed counts, so a tool that
         # fell over before printing any left "? clean, -1 failed" and nothing anywhere
         # said why -- three CI runs failed here before the reason (a shallow reference
         # checkout with no port base) could be read at all.
-        open(os.path.join(out, 'port.log'), 'w').write(text)
+        # The whole transcript, both attempts if there were two, while the counts above
+        # are parsed from the attempt that decided the outcome.
+        open(os.path.join(out, 'port.log'), 'w').write(log)
         clean = re.search(r'merged cleanly\s+(\d+)', text)
         fixed = re.search(r'conflicts resolved\s+(\d+)', text)
         left = re.search(r'conflicts REMAINING\s+(\d+)', text)
