@@ -11,10 +11,14 @@
 # Needs a self-hosted Linux x64 runner: this builds LLVM-instrumented OVMF and a QEMU that
 # libafl compiles from source, which does not fit a hosted runner's disk or job timeout.
 name: FuzzUEr
+# The Marketplace refuses a description of 125 characters or more, and says so only at
+# publish time. This one is 104. The detail that used to live here -- that the build is
+# OvmfPkg/OvmfPkgX64.dsc at -a X64 -t CLANGSAN and nothing else, and that SMI handlers are
+# discovered but not yet fuzzed -- is in the README and the release notes, where it has
+# room to be true rather than compressed into something misleading.
 description: >-
-  Build OVMF X64 from an EDK2 tree (OvmfPkg/OvmfPkgX64.dsc, -a X64 -t CLANGSAN) and fuzz its
-  protocol and SMI handlers under AddressSanitizer. Needs a dedicated self-hosted Linux x64
-  runner; no other platform DSC, architecture or toolchain is built.
+  Fuzz an EDK2 tree's UEFI protocol handlers under AddressSanitizer. Needs a self-hosted
+  Linux x64 runner.
 
 # What the Marketplace listing shows. Without a `branding:` key the action cannot be listed
 # at all -- GitHub rejects the publish rather than picking a default, and it says so only at
