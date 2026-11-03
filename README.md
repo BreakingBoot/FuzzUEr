@@ -171,6 +171,7 @@ Required, and then the ones that change what a run means:
 | `bench` | `false` | build the SanBench drivers into the **campaign** firmware, so the benchmark's own protocols get fuzzed. The `detects` stage scores them on every run regardless -- see [Ground truth](#ground-truth-the-benchmark-drivers) |
 | `cores` | a quarter of the box, capped at 8 | cores per firmware build. Small on purpose: edk2 builds race at high `-j` |
 | `extra-defines` | — | extra `-D` macros for every firmware build, passed **last** so they override the action's own |
+| `extra-build-options` | | `[BuildOptions]` lines appended to the platform DSC, one per line; an entry with no `=` becomes CLANGSAN `CC_FLAGS`. For a tree that needs a relaxation clang wants and GCC does not |
 | `extra-pcds` | — | extra `--pcd` overrides, same form and same precedence |
 | `port-from` | the bundled port | a tree that carries its own sanitizer port. Pointing this at a vendor tree that has none makes every file fail to apply |
 | `port-base` | derived | the commit the port's patches were written against |

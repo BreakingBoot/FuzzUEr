@@ -96,6 +96,15 @@ inputs:
                   adding to them'
     required: false
     default: ''
+  extra-build-options:
+    description: >-
+      tools_def style [BuildOptions] lines appended to the platform DSC, one per line. An
+      entry with no "=" is taken as compiler flags for CLANGSAN. This is how a tree that
+      needs a relaxation clang demands and GCC does not gets built: upstream
+      UefiPayloadPkg/PchSmiDispatchSmm trips -Wcast-calling-convention, which GCC does not
+      implement, so it builds everywhere else and fails here under -Werror
+    required: false
+    default: ''
   extra-pcds:
     description: 'Extra --pcd overrides for every firmware build, same form:
                   TokenSpaceGuid.PcdName=Value, one per line. A per-codebase build knob is
@@ -388,6 +397,7 @@ runs:
         IN_CORES: ${{ inputs.cores }}
         IN_EXTRA_DEFINES: ${{ inputs.extra-defines }}
         IN_EXTRA_PCDS: ${{ inputs.extra-pcds }}
+        IN_EXTRA_BUILD_OPTIONS: ${{ inputs.extra-build-options }}
         IN_BENCH: ${{ inputs.bench }}
         IN_OUT: ${{ inputs.out }}
         IN_FAIL: ${{ inputs.fail-on-findings }}
@@ -474,6 +484,8 @@ runs:
         # lose the quoting that makes Pcd=L"two words" a single token.
         [ -n "${IN_EXTRA_DEFINES:-}" ] && set -- "$@" --extra-defines "$IN_EXTRA_DEFINES"
         [ -n "${IN_EXTRA_PCDS:-}" ]    && set -- "$@" --extra-pcds "$IN_EXTRA_PCDS"
+        [ -n "${IN_EXTRA_BUILD_OPTIONS:-}" ] \
+          && set -- "$@" --extra-build-options "$IN_EXTRA_BUILD_OPTIONS"
         # Unquoted on purpose: these are several target names, not one.
         # shellcheck disable=SC2086
         [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS

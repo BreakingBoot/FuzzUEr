@@ -204,6 +204,53 @@ def repair_submodules(tree, report=print):
         report(f'  all {len(off)} now at their recorded commit(s)')
     return still
 
+def apply_build_options(tree, raw, dsc_rel='OvmfPkg/OvmfPkgX64.dsc', report=print):
+    """Append caller-supplied [BuildOptions] lines to the platform DSC being built.
+
+    This exists because FuzzUEr builds with clang and edk2 is built upstream with GCC,
+    and clang has warnings GCC does not. Upstream code that compiles cleanly under GCC5
+    then fails here under -Werror, and the tree is not at fault:
+    UefiPayloadPkg/PchSmiDispatchSmm/PchSmiDispatchSmm.c:411 trips
+    -Wcast-calling-convention, which GCC does not implement at all, and the same file
+    builds fine with the toolchain edk2 actually ships.
+
+    Suppressing such a warning in SAN_FLAGS for every tree was the alternative, and this
+    was preferred: the warning is real -- cdecl and ms_abi genuinely differ in argument
+    registers on x86-64 -- so a blanket suppression could hide a crash source, and in a
+    FUZZER that would surface later as a false finding. Per-caller keeps the shipped
+    toolchain strict and puts the relaxation next to the tree that needs it.
+
+    An entry containing '=' is taken as a complete tools_def style line. Anything else is
+    taken as compiler flags and attached to CLANGSAN's CC_FLAGS, which is what a caller
+    almost always means.
+
+    Appended AFTER the port has run. The port rewrites this DSC -- and dedup_sections
+    inside it finds the file's duplicated body by matching the longest repeated run of
+    section HEADERS, so adding a header before it runs re-aligns that search and drops
+    the wrong copy. A repeated [BuildOptions] section is legal in a DSC, so appending one
+    at the end here is safe once the port is done.
+    """
+    entries = [e.strip() for e in re.split(r'[\r\n]+', raw or '') if e.strip()]
+    if not entries:
+        return []
+    lines = []
+    for entry in entries:
+        if '=' in entry:
+            lines.append('  ' + entry)
+        else:
+            lines.append('  *_CLANGSAN_*_CC_FLAGS = ' + entry)
+    dsc = os.path.join(tree, dsc_rel)
+    if not os.path.isfile(dsc):
+        report(f'  cannot add build options: {dsc_rel} is not in this tree')
+        return []
+    with open(dsc, 'a', encoding='utf-8', errors='ignore') as handle:
+        handle.write('\n\n# Added by fuzz_edk2.py --extra-build-options\n'
+                     '[BuildOptions]\n' + '\n'.join(lines) + '\n')
+    for line in lines:
+        report(f'  build option:{line.rstrip()}')
+    return lines
+
+
 def reown(path, image):
     """Give a directory a container wrote back to the user running this.
 
@@ -547,6 +594,13 @@ def main():
                              'keeps command line macros in a dict, so last wins and a '
                              'codebase can override one of ours (FD_SIZE_IN_KB, say) '
                              'rather than only add to it')
+    parser.add_argument('--extra-build-options', default='',
+                        help='tools_def style [BuildOptions] lines appended to the '
+                             'platform DSC, one per line. An entry with no "=" is taken '
+                             'as compiler flags for CLANGSAN. Use it when your tree needs '
+                             'a relaxation clang demands and GCC does not -- upstream '
+                             'UefiPayloadPkg/PchSmiDispatchSmm trips '
+                             '-Wcast-calling-convention, which GCC does not have')
     parser.add_argument('--extra-pcds', action='append', default=[],
                         metavar='Space.Pcd=Value',
                         help='extra --pcd overrides for every firmware build, same form '
@@ -947,6 +1001,8 @@ def main():
         stray = sh(f"grep -rl '^<<<<<<< ' {tree} 2>/dev/null | head -3").stdout.strip()
         if stray:
             return False, f'conflict markers left in {stray.splitlines()[0]}'
+        # After the port, deliberately: see apply_build_options on why the order matters.
+        added = apply_build_options(tree, args.extra_build_options)
         return True, detail
 
     def vendor():
