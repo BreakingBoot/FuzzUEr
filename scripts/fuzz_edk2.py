@@ -252,28 +252,37 @@ def apply_build_options(tree, raw, dsc_rel='OvmfPkg/OvmfPkgX64.dsc', report=prin
 
 
 def sync_committed_conf(tree, report=print):
-    """Teach a tree's COMMITTED Conf/ about the toolchain the port just added.
+    """Refresh a tree's COMMITTED Conf/ from the templates the port just edited.
 
-    The port appends the CLANGSAN toolchain to BaseTools/Conf/tools_def.template, and
-    edksetup.sh copies a template to Conf/<name>.txt ONLY IF that file does not already
-    exist. A tree that commits a generated Conf/ therefore keeps a tools_def that predates
-    the port, and any build pointed at CONF_PATH=<tree>/Conf then fails with
+    edksetup.sh copies BaseTools/Conf/<name>.template to Conf/<name>.txt ONLY IF that
+    file does not already exist. A tree that commits a generated Conf/ therefore keeps a
+    tools_def predating the port, and any build pointed at CONF_PATH=<tree>/Conf fails
+    with
 
         build: : warning: Tool chain [CLANGSAN] is not defined
          : error 4000: Not available
             [CLANGSAN] not defined. No toolchain available for build!
 
-    This is not a rare shape. The EVAL-1 challenge tree commits Conf/tools_def.txt,
+    This is not a rare shape: the EVAL-1 challenge tree commits Conf/tools_def.txt,
     Conf/target.txt and Conf/.AutoGenIdFile.txt, and its tools_def.txt mentions CLANGSAN
-    zero times. The firmware build survived it because that path does not use the tree's
-    Conf; the campaign image's analysis build does, and died there -- after the firmware
-    had already built, which is the confusing part.
+    zero times. The firmware build survives it because that path does not use the tree's
+    Conf; the campaign image's analysis build does, and dies there -- three stages after
+    the real cause, with a working firmware already built.
 
-    The port's own lines are appended rather than the file being replaced, because a tree
-    that bothered to commit a tools_def may well have customised it, and overwriting would
-    silently drop that.
+    The file is REPLACED, not merged. The first version of this appended just the lines
+    mentioning CLANGSAN or SAN_FLAGS, which cannot work: those lines reference other
+    macros by DEF(), so a tree whose committed file predates them got
+
+        Conf/tools_def.txt(2245): error 5000: Macro or Environment has not been defined
+            CLANG38_IA32_ASLCC
+
+    Copying a dependent subset out of a file with internal references is the wrong model.
+    Replacing is also exactly what edksetup.sh would have done had the file been absent,
+    so this restores the intended semantics rather than inventing a merge. The previous
+    file is kept beside it as <name>.txt.preport, because a tree that bothered to commit
+    one may have customised it and that must not vanish silently.
     """
-    added = {}
+    done = {}
     for name in ('tools_def', 'build_rule'):
         live = os.path.join(tree, 'Conf', f'{name}.txt')
         template = os.path.join(tree, 'BaseTools', 'Conf', f'{name}.template')
@@ -281,26 +290,27 @@ def sync_committed_conf(tree, report=print):
             continue
         try:
             have = open(live, encoding='utf-8', errors='ignore').read()
-            want = open(template, encoding='utf-8', errors='ignore').read().splitlines()
+            want = open(template, encoding='utf-8', errors='ignore').read()
         except OSError as exc:
-            report(f'  cannot sync Conf/{name}.txt: {exc}')
+            report(f'  cannot refresh Conf/{name}.txt: {exc}')
             continue
-        # The port identifies its own additions the same way: by the toolchain tag and the
-        # sanitizer flag variable.
-        missing = [l for l in want
-                   if ('CLANGSAN' in l or 'SAN_FLAGS' in l or 'SANITIZER' in l)
-                   and l.strip() and l not in have]
-        if not missing:
+        if have == want:
             continue
-        with open(live, 'a', encoding='utf-8', errors='ignore') as handle:
-            handle.write(f'\n\n# Added by fuzz_edk2.py: this tree commits a generated '
-                         f'Conf/, which edksetup.sh will not refresh\n'
-                         + '\n'.join(missing) + '\n')
-        added[name] = len(missing)
-        report(f'  Conf/{name}.txt is committed in this tree and predates the port; '
-               f'added {len(missing)} line(s) it was missing')
-    return added
-
+        # Only when it actually lacks what the port added -- a tree whose committed Conf
+        # already knows the toolchain is left alone.
+        if 'CLANGSAN' in have:
+            continue
+        try:
+            shutil.copyfile(live, live + '.preport')
+            shutil.copyfile(template, live)
+        except OSError as exc:
+            report(f'  cannot refresh Conf/{name}.txt: {exc}')
+            continue
+        done[name] = True
+        report(f'  Conf/{name}.txt is committed in this tree and predates the port, and '
+               f'edksetup.sh will not refresh a file that exists; replaced it from the '
+               f'ported template (previous kept as {name}.txt.preport)')
+    return done
 
 def reown(path, image):
     """Give a directory a container wrote back to the user running this.
