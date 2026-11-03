@@ -122,6 +122,17 @@ jobs:
         shell: bash
         run: python3 scripts/degraded_report.py --selftest
 
+      # ...and whether anything ever CALLS that reporter. It did not: GitHub runs a
+      # composite `shell: bash` step as `bash -e -o pipefail`, the driver exits 2 for a
+      # degraded run, and errexit killed the Fuzz step at the driver's own pipeline --
+      # before rc was read, before the degraded branch, and before the issue-filing step
+      # that follows it. So a degraded run failed the job and filed nothing, with every
+      # stage passed or warned. The reporter's self test could not see this, because it
+      # tests what the reporter prints and not that it is reached.
+      - name: A degraded run reaches the reporter at all
+        shell: bash
+        run: python3 scripts/degraded_path_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have

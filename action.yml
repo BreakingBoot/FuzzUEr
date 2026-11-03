@@ -484,6 +484,17 @@ runs:
         # in the step log, so reading it needed the job log, and a run that died before the
         # upload step left no copy at all. In the results it travels with the artifact.
         mkdir -p "$OUT"
+        # NOT errexit from here to the end of the rc handling. GitHub runs a composite
+        # `shell: bash` step as `bash -e -o pipefail {0}`, so errexit is ON even though
+        # nothing in this body asks for it -- `set -uo pipefail` above does not turn it
+        # off. The driver exits 2 for a DEGRADED run (see its exit-code table), and under
+        # errexit that non-zero status kills the step right here, before `rc` is read and
+        # long before the degraded branch below. Measured on the first degraded run ever
+        # to reach a consumer: every stage passed or warned, the job went red anyway, and
+        # the issue-filing step never ran at all -- so a degraded run silently filed
+        # nothing. Nothing caught it because the reporter had a self test and its
+        # REACHABILITY did not; scripts/degraded_path_check.py now asserts that.
+        set +e
         python3 -u scripts/fuzz_edk2.py "$@" 2>&1 | tee "$OUT/pipeline.log"
         rc=${PIPESTATUS[0]}
 
@@ -515,7 +526,8 @@ runs:
           # heredoc: the YAML parse takes its body as a string and the Python parse only
           # reads scripts/*.py, so the branch that decides whether a consumer's weekly
           # job goes red would have had no cover. degraded_report.py --selftest asserts it.
-          python3 scripts/degraded_report.py "$OUT"
+          python3 scripts/degraded_report.py "$OUT" \
+            || echo "::warning::the degraded reporter failed; the run is still degraded"
           if [ "${IN_FAIL_DEGRADED:-}" = 'true' ]; then
             echo "::error::a stage is degraded and fail-on-degraded is set"
             rc=1
@@ -526,6 +538,9 @@ runs:
           fi
         fi
         echo "degraded=$DEGRADED" >> "$GITHUB_OUTPUT"
+        # rc is settled; the rest of this body can have its guard back. The step's verdict
+        # is the `exit $rc` at the end, not an accident of errexit.
+        set -e
 
         echo "results=$OUT" >> "$GITHUB_OUTPUT"
         echo "source-path=$SOURCE" >> "$GITHUB_OUTPUT"
