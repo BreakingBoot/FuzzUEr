@@ -857,9 +857,15 @@ def main():
             if not base:
                 print('  the port base blobs are missing and port.log does not name the '
                       'base, so there is nothing to fetch')
-            elif not os.path.isdir(os.path.join(src, '.git')):
-                print(f'  the port base blobs are missing and {src} is not a checkout to '
-                      f'fetch them from')
+            # Asked of git, not guessed from the filesystem. A SUBMODULE's `.git` is a
+            # 44 byte text file holding `gitdir: ...`, not a directory, and the port
+            # source normally IS a submodule -- so `os.path.isdir(src/'.git')` is False
+            # for exactly the common case and this fetch silently never ran. The shell
+            # side of this repository already knew: action-smoke.yml and checks.yml both
+            # test `-e "$sub/.git"`, not `-d`.
+            elif sh(['git', '-C', src, 'rev-parse', '--git-dir'], timeout=60).returncode:
+                print(f'  the port base blobs are missing and {src} is not a git '
+                      f'checkout to fetch them from')
             else:
                 print(f'  this tree lacks the blobs for port base {base.group(1)[:12]}, '
                       f'which is what a squashed or unrelated history means; fetching '
