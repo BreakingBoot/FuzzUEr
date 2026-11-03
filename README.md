@@ -482,8 +482,13 @@ scripts/bootstrap_runner.sh                          # once per machine
 python3 scripts/fuzz_edk2.py --ref edk2-stable202511
 ```
 
-Thirteen stages, each printing PASS or FAIL with what it saw. The run stops at the first
-failure, because every stage after one would report a number that looks like a result:
+Thirteen stages, each printing PASS, WARN or FAIL with what it saw. The run stops at the
+first failure, because every stage after one would report a number that looks like a
+result. WARN is the third outcome -- the stage did its job, but not for every target it
+was asked about, such as a sweep where four campaigns of 243 lost their boot to a timeout.
+That does not stop the run, because the campaigns that did fuzz are what it exists to
+report on. The exit code says which happened: **0** all passed, **2** degraded, **1** a
+stage failed.
 
 | stage | what it answers |
 | --- | --- |
