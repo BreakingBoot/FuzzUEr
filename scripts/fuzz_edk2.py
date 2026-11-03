@@ -251,6 +251,57 @@ def apply_build_options(tree, raw, dsc_rel='OvmfPkg/OvmfPkgX64.dsc', report=prin
     return lines
 
 
+def sync_committed_conf(tree, report=print):
+    """Teach a tree's COMMITTED Conf/ about the toolchain the port just added.
+
+    The port appends the CLANGSAN toolchain to BaseTools/Conf/tools_def.template, and
+    edksetup.sh copies a template to Conf/<name>.txt ONLY IF that file does not already
+    exist. A tree that commits a generated Conf/ therefore keeps a tools_def that predates
+    the port, and any build pointed at CONF_PATH=<tree>/Conf then fails with
+
+        build: : warning: Tool chain [CLANGSAN] is not defined
+         : error 4000: Not available
+            [CLANGSAN] not defined. No toolchain available for build!
+
+    This is not a rare shape. The EVAL-1 challenge tree commits Conf/tools_def.txt,
+    Conf/target.txt and Conf/.AutoGenIdFile.txt, and its tools_def.txt mentions CLANGSAN
+    zero times. The firmware build survived it because that path does not use the tree's
+    Conf; the campaign image's analysis build does, and died there -- after the firmware
+    had already built, which is the confusing part.
+
+    The port's own lines are appended rather than the file being replaced, because a tree
+    that bothered to commit a tools_def may well have customised it, and overwriting would
+    silently drop that.
+    """
+    added = {}
+    for name in ('tools_def', 'build_rule'):
+        live = os.path.join(tree, 'Conf', f'{name}.txt')
+        template = os.path.join(tree, 'BaseTools', 'Conf', f'{name}.template')
+        if not os.path.isfile(live) or not os.path.isfile(template):
+            continue
+        try:
+            have = open(live, encoding='utf-8', errors='ignore').read()
+            want = open(template, encoding='utf-8', errors='ignore').read().splitlines()
+        except OSError as exc:
+            report(f'  cannot sync Conf/{name}.txt: {exc}')
+            continue
+        # The port identifies its own additions the same way: by the toolchain tag and the
+        # sanitizer flag variable.
+        missing = [l for l in want
+                   if ('CLANGSAN' in l or 'SAN_FLAGS' in l or 'SANITIZER' in l)
+                   and l.strip() and l not in have]
+        if not missing:
+            continue
+        with open(live, 'a', encoding='utf-8', errors='ignore') as handle:
+            handle.write(f'\n\n# Added by fuzz_edk2.py: this tree commits a generated '
+                         f'Conf/, which edksetup.sh will not refresh\n'
+                         + '\n'.join(missing) + '\n')
+        added[name] = len(missing)
+        report(f'  Conf/{name}.txt is committed in this tree and predates the port; '
+               f'added {len(missing)} line(s) it was missing')
+    return added
+
+
 def reown(path, image):
     """Give a directory a container wrote back to the user running this.
 
@@ -1003,6 +1054,9 @@ def main():
             return False, f'conflict markers left in {stray.splitlines()[0]}'
         # After the port, deliberately: see apply_build_options on why the order matters.
         added = apply_build_options(tree, args.extra_build_options)
+        # Also after the port: it is the port that puts CLANGSAN in the template, and this
+        # copies what it added into a Conf/ the tree committed. See sync_committed_conf.
+        sync_committed_conf(tree)
         return True, detail
 
     def vendor():
