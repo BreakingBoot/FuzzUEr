@@ -122,6 +122,14 @@ jobs:
         shell: bash
         run: python3 scripts/degraded_report.py --selftest
 
+      # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
+      # the workflow rather than restated, because a restatement drifts -- and that gate
+      # has been wrong three times, every time by ACCEPTING a run it should have
+      # rejected, which is the direction no green CI run can reveal.
+      - name: The stable-release gate accepts and rejects the right runs
+        shell: bash
+        run: python3 scripts/e2e_gate_check.py
+
       - name: The Python embedded in the workflows parses
         shell: bash
         run: python3 scripts/embedded_python_check.py
