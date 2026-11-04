@@ -143,6 +143,15 @@ jobs:
         shell: bash
         run: python3 scripts/submodule_repair_check.py
 
+      # --extra-build-options has to turn a caller's entry into a line a DSC parser
+      # accepts. The first version asked whether the entry contained an '=' to tell a
+      # tools_def assignment from a flag list -- most compiler flags contain one, so
+      # `-fno-sanitize=pointer-overflow` went in verbatim and failed a firmware build
+      # with `error 3000`. A table of strings settles that in a second.
+      - name: Caller build options become valid DSC lines
+        shell: bash
+        run: python3 scripts/build_options_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have

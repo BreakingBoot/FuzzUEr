@@ -235,7 +235,14 @@ def apply_build_options(tree, raw, dsc_rel='OvmfPkg/OvmfPkgX64.dsc', report=prin
         return []
     lines = []
     for entry in entries:
-        if '=' in entry:
+        # "Contains '='" is NOT the test, though it was the first one here and it was
+        # wrong: most compiler flags contain one. `-fno-sanitize=pointer-overflow` was
+        # written out verbatim as though it were a complete tools_def assignment, and the
+        # DSC parser rejected the result with `error 3000`. What distinguishes the two is
+        # the LEFT of the first '=': a tools_def key is a single token, while a flag list
+        # has spaces in it or starts with a dash.
+        head = entry.split('=', 1)[0].strip() if '=' in entry else ''
+        if head and ' ' not in head and not head.startswith('-'):
             lines.append('  ' + entry)
         else:
             lines.append('  *_CLANGSAN_*_CC_FLAGS = ' + entry)
