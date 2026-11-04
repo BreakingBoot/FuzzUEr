@@ -885,14 +885,22 @@ the SMM Core private data and raises the SMI, which is what `SmmCommunicationCom
 does; a plain write to the command port dispatches on whatever the last DXE caller left
 behind.
 
-**Driving SMI handlers is not yet end to end.** `fuzz_edk2.py --smi` reaches the analyser,
-and the firmware built with `--smm` has a real SMM core, but the generator needs
-`smi-function-guid-map.json` and the C++ analyser builds that from the campaign image's
-compilation database. That database is baked once from a build with no SMM modules, so no
-handler registration is in it, the map comes back null, and the SMI harness does not
-generate. Protocol fuzzing is unaffected, and the discover stage now says this rather than
-letting the campaign fail ten minutes later inside the generator. The remaining step is to
-build the image's compilation database with `SMM_REQUIRE=TRUE`.
+**Driving SMI handlers is not yet end to end, but the harness generates.** It did not used
+to: the generator needs `smi-function-guid-map.json`, the C++ analyser builds that from the
+campaign image's compilation database, and that database was baked from a build with no SMM
+modules -- so no handler registration was in it and the map came back null. That was fixed
+by building the image's database with the SMM defines, and verified on an EVAL-1 tree,
+analyser plus generator with no boot: a map of 10 entries, `Generated Harness`, `Compiled
+Harness`. A null map still appears on a **protocol** run, where nothing asked for the SMI
+analysis; do not read one as the failure above.
+
+What remains is downstream of generation, and it is the same wall protocol targets hit on
+an SMM image: **no campaign on an `SMM_REQUIRE` build has reached a harness.** Measured 0
+of 4 campaigns and 0 iterations, with the guest stopping in late BDS right after
+`[Bds]UnregisterKeyNotify`, SMM itself healthy at 554 dispatches, and the same firmware
+booting past that point under the detect probe -- which is what rules out SMM, the disk and
+the boot order as the cause. So `--smi` will generate a harness and then report nothing
+until that is fixed.
 
 **Under QEMU an SMM core needs `fuzz_edk2.py --smm`.** `SMM_REQUIRE` defaults to FALSE in
 `OvmfPkgX64.dsc`, so a default build contains no SMM core and no handlers -- measured, zero

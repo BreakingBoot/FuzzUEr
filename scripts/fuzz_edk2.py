@@ -1321,21 +1321,31 @@ def main():
             if not handlers:
                 return False, ('--smi was asked for and discovery found no SMI handlers in '
                                'this tree, so there is nothing to fuzz')
-            # Two different discoveries have to agree before an SMI campaign can run, and
-            # they do not here. discover_smi.py scans SOURCE and finds handlers wherever
-            # they are written; the generator needs smi-function-guid-map.json, which the
-            # C++ analyser builds from the campaign image's COMPILATION DATABASE. Handler
-            # registrations live in DXE_SMM_DRIVER modules, and those are only compiled
-            # when SMM_REQUIRE=TRUE -- so an image whose database was built without SMM
-            # contains none of them, the analyser emits a null map, and the generator dies
-            # in load_smi_data with "'NoneType' object has no attribute 'items'" after
-            # spending a container, an analysis and ten minutes. Say so here instead.
+            # The SMI harness DOES generate. This note used to say the opposite --
+            # that the campaign image bakes its compilation database once from a build
+            # with no SMM modules, so the analyser sees no handler registration, the map
+            # comes back null and the generator dies in load_smi_data. That was true
+            # until 0d47e191 made the image's analysis build carry the SMM defines, and
+            # it has been wrong ever since while still being printed on every run.
+            #
+            # Verified on the EVAL-1 tree, analyser plus generator, no boot needed:
+            # smi-function-guid-map.json came back a dict of 10 entries and the run
+            # reported "Generated Harness" and "Compiled Harness". A null map still shows
+            # up on a PROTOCOL run, which is expected and harmless -- nothing asked for
+            # the SMI analysis there -- and mistaking one for the other is what kept the
+            # stale note alive.
+            #
+            # What is actually unresolved is further downstream: no campaign on an
+            # SMM_REQUIRE image has reached a harness. Measured 0/4 campaigns and 0
+            # iterations, the guest stopping after "[Bds]UnregisterKeyNotify" with SMM
+            # healthy (554 dispatches) and the same firmware booting past that point
+            # under the detect probe. So the SMI target will generate and then find
+            # nothing, for the same reason the protocol targets find nothing on an SMM
+            # image.
             return True, (f'{protos} protocols{scope}, {handlers} SMI handlers found in '
-                          f'source. NOTE: the campaign image bakes its compilation database '
-                          f'once and that build has no SMM modules, so the analyser cannot '
-                          f'see their registrations and the SMI harness will not generate. '
-                          f'Protocols will fuzz; the SMI target is expected to fail until '
-                          f'the image is built with SMM')
+                          f'source; the SMI harness generates. NOTE: no campaign on an '
+                          f'SMM image has reached a harness yet -- the boot stops in late '
+                          f'BDS -- so expect this target to generate and report nothing')
         # Said plainly, because the count on its own reads as though they were targets:
         # without --smi these are discovered and then left alone.
         return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
