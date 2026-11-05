@@ -1672,8 +1672,15 @@ def main():
         # args.jobs of them at once
         planned = len(args.targets) if args.targets else run.target_count
         rounds = max(1, -(-planned // max(1, args.jobs)))
+        # The boot allowance is a floor, not a wall: firness.py keeps waiting past it while
+        # the guest is still writing to serial or the debug port, up to FIRNESS_BOOT_EXTEND
+        # times the allowance. This timeout has to allow for that or it kills the campaign
+        # mid-extension and the log says "timed out" where it means "the boot was still
+        # going" -- the opposite of what the extension exists to report.
+        extend = max(1, int(os.environ.get('FIRNESS_BOOT_EXTEND', '3')))
         code = sh_log(argv, os.path.join(out, 'fuzz.log'),
-                      timeout=rounds * (args.budget + args.boot_timeout + 900) + 1800)
+                      timeout=rounds * (args.budget + args.boot_timeout * extend + 900)
+                      + 1800)
         made = [d for d in sorted(os.listdir(campaigns))
                 if os.path.isfile(os.path.join(campaigns, d, 'log.json'))] \
             if os.path.isdir(campaigns) else []
