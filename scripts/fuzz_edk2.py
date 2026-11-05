@@ -770,6 +770,9 @@ def main():
     # runs. Kept beside the extras below for the same reason.
     image_pcds = ('--pcd gEfiMdeModulePkgTokenSpaceGuid.'
                   'PcdResetOnMemoryTypeInformationChange=FALSE ')
+    # Filled in below once the caller's extras are parsed, because the firmware build's
+    # comment promises them to "every build in the run" and the image build is one.
+    image_extra = ''
     extra_pcds = ''
     for tok in build_knobs(args.extra_pcds, '--pcd'):
         if '=' not in tok or '.' not in tok.split('=', 1)[0]:
@@ -780,6 +783,12 @@ def main():
         extra_pcds += f' --pcd {tok}'
     if extra_defines or extra_pcds:
         print(f'per-codebase build knobs:{extra_defines}{extra_pcds}')
+    # The image build gets them too. Its command line is maintained separately from the
+    # firmware build's, which is exactly how PcdResetOnMemoryTypeInformationChange ended
+    # up set on the build nobody boots: see the note on IMAGE_DOCKERFILE. A caller's knob
+    # that reaches one build and not the other produces a campaign whose firmware is not
+    # the firmware the run validated.
+    image_extra = f'{extra_defines}{extra_pcds} '.lstrip()
 
     # Small on purpose, and the same number for every build in the run so a failure is
     # reproducible. os.cpu_count() can be None, hence the or 4.
@@ -1410,7 +1419,7 @@ def main():
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
             IMAGE_DOCKERFILE.format(base=args.base_image, bench=bench_defines,
-                                    pcds=image_pcds,
+                                    pcds=image_pcds + image_extra,
                                     smm=smm_defines, cores=cores))
         # Not -q. Quiet mode prints the image id and throws the build away, so a failed
         # image build left only its last line -- truncated to 110 characters in run.json --

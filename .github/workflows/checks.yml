@@ -152,6 +152,16 @@ jobs:
         shell: bash
         run: python3 scripts/build_options_check.py
 
+      # This pipeline builds OVMF twice -- once for the firmware, once under bear inside
+      # IMAGE_DOCKERFILE for the compilation database -- and it is the SECOND one whose
+      # image every campaign boots. PcdResetOnMemoryTypeInformationChange=FALSE was added
+      # to the first with a comment saying "Passed for every build", never reached the
+      # second, and so every SMM campaign warm-reset in BDS and reported 0 iterations. Six
+      # wrong theories before anyone compared the two command lines.
+      - name: Both OVMF builds agree on their overrides
+        shell: bash
+        run: python3 scripts/build_parity_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
