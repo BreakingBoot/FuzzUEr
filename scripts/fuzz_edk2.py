@@ -435,9 +435,22 @@ RUN {{ make -C /workspace/tmp/edk2/BaseTools -j{cores} \\
 # instrumented build of the whole of OVMF under bear -- minutes each, times as many
 # protocols as the version has.
 #
-# The defines are the firmware build's, exactly. The .debug files this leaves behind are
-# what turns an address in a sanitizer report back into a function and a line, and that
-# only holds while they are the same build as the image that is running.
+# The defines are the firmware build's, exactly -- and so are the PCDs, which they were
+# not. THIS is the firmware a campaign boots (see the copy into qemu_fw below), and it was
+# built without the --pcd overrides the firmware stage passes. One of those is
+# PcdResetOnMemoryTypeInformationChange=FALSE, which OvmfPkgX64.dsc forces only inside
+# "!if $(SMM_REQUIRE) == FALSE" -- so an SMM image built here kept MdeModulePkg's default
+# of TRUE, BDS wrote the changed Memory Type Information in EfiBootManagerBoot and
+# warm-reset, and the campaign ended before the harness. The fix for that was written for
+# the firmware stage and never reached the build that actually boots.
+#
+# Measured: swapping this image's OVMF for the detect probe's (same ESP, same harness, same
+# q35,smm=on, same fork) took the boot from stopping after "[Bds]UnregisterKeyNotify" to
+# opening BOOTX64.EFI and fuzzing 35 iterations over 2389 edges.
+#
+# The .debug files this leaves behind are what turns an address in a sanitizer report back
+# into a function and a line, and that only holds while they are the same build as the
+# image that is running.
 RUN cd /workspace/tmp/edk2 \\
     && export WORKSPACE=/workspace/tmp/edk2 \\
        EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools \\
@@ -448,7 +461,7 @@ RUN cd /workspace/tmp/edk2 \\
        build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc \\
        -D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE{bench}{smm} \\
        -D NETWORK_IP6_ENABLE=TRUE -D NETWORK_HTTP_BOOT_ENABLE=TRUE \\
-       -D FD_SIZE_IN_KB=8192 -n {cores} >/tmp/anabuild.log 2>&1 \\
+       -D FD_SIZE_IN_KB=8192 {pcds}-n {cores} >/tmp/anabuild.log 2>&1 \\
        || {{ echo '=== the analysis build failed; its last 60 lines: ==='; \\
              tail -60 /tmp/anabuild.log; exit 1; }} \\
     && python3 -c "import json,sys; d=json.load(open('/workspace/tmp/compile_commands.json')); print(len(d),'compile commands'); sys.exit(0 if d else 1)"
@@ -751,6 +764,12 @@ def main():
                      f'that point.')
         extra_defines += f' -D {tok}'
 
+    # Everything the ANALYSIS build in IMAGE_DOCKERFILE needs that is not a -D macro. The
+    # campaign boots that build's OVMF, so a PCD the firmware stage sets and this one does
+    # not is a difference between the firmware that was validated and the firmware that
+    # runs. Kept beside the extras below for the same reason.
+    image_pcds = ('--pcd gEfiMdeModulePkgTokenSpaceGuid.'
+                  'PcdResetOnMemoryTypeInformationChange=FALSE ')
     extra_pcds = ''
     for tok in build_knobs(args.extra_pcds, '--pcd'):
         if '=' not in tok or '.' not in tok.split('=', 1)[0]:
@@ -1391,6 +1410,7 @@ def main():
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         open(os.path.join(stage, 'Dockerfile'), 'w').write(
             IMAGE_DOCKERFILE.format(base=args.base_image, bench=bench_defines,
+                                    pcds=image_pcds,
                                     smm=smm_defines, cores=cores))
         # Not -q. Quiet mode prints the image id and throws the build away, so a failed
         # image build left only its last line -- truncated to 110 characters in run.json --
