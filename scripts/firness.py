@@ -756,8 +756,28 @@ def qemu_bios_dir():
     return ''
 
 
-def wait_for_qemu_harness(process, serial, raw, boot_timeout):
-    """Block until the guest reaches the harness, or give up.
+HARNESS_MARKER = b'FIRNESS: fuzzing starts'
+
+
+def guest_narrated(paths):
+    """How many bytes the GUEST has produced so far, across the logs it writes.
+
+    Deliberately not run.txt. LibAFL's broker prints a heartbeat into that file every
+    30 seconds whether the guest moves or not, so counting it makes every boot look like
+    it is making progress and the stall check in wait_for_qemu_harness never fires.
+    """
+    total = 0
+    for path in paths:
+        try:
+            total += os.path.getsize(path)
+        except OSError:
+            pass
+    return total
+
+
+def wait_for_qemu_harness(process, serial, raw, boot_timeout, debugcon='',
+                          stall_grace=120, extend_max=3, tick=2.0):
+    """Block until the guest reaches the harness, or give up. Returns (reached, why).
 
     The boot is not free and it is not fuzzing. An instrumented OVMF emits megabytes of
     serial before the harness runs, every byte an emulated 16550 write, and under a
@@ -766,20 +786,72 @@ def wait_for_qemu_harness(process, serial, raw, boot_timeout):
     from a target that cannot be fuzzed at all -- 19 protocols that are installed on the
     firmware did exactly that in one sweep. The Simics path has always waited for the boot
     separately; this is the same allowance for QEMU.
+
+    The allowance is a floor, not a wall. It used to be a wall, and the wall landed in the
+    worst possible place on the first SMM tree ever fuzzed: all four campaigns were killed
+    at 5865s **sixteen debug-port lines short of "[Bds]Booting"**, each one at the identical
+    line, while the detect probe booted the same firmware all the way through. The run
+    reported "0/4 campaigns fuzzed the harness" and advised raising --boot-timeout, which
+    is the one thing the log could not tell anyone was the answer -- a boot that is 16 lines
+    from the harness and a boot that stopped dead in early DXE produce the same verdict.
+
+    So the clock now only decides when to START ASKING whether the guest is still moving.
+    Past the allowance, a guest that narrated within stall_grace seconds keeps its slot, up
+    to extend_max times the allowance; one that has gone quiet is given up on at once, which
+    is what a protocol that is not installed looks like -- the guest reaches the shell and
+    sits there -- so the common failure costs nothing extra. The ceiling is still a ceiling:
+    firmware that narrates forever (an ASan report storm will) must not hold a slot all day.
+
+    Returns (False, why) rather than bare False so the caller can say which of the two it
+    was, because that is the whole difference between "too slow" and "stuck".
+
+    tick is the poll interval, a parameter only so the self-check can drive this in
+    milliseconds rather than taking a minute per case.
     """
-    deadline = time.time() + boot_timeout
-    while time.time() < deadline:
+    began = time.time()
+    soft = began + boot_timeout
+    ceiling = began + boot_timeout * max(1, extend_max)
+    narrates = [path for path in (serial, debugcon) if path]
+    seen = guest_narrated(narrates)
+    moved = began
+    announced = False
+    while True:
+        now = time.time()
         if process.poll() is not None:
-            return False
+            return False, 'the fuzzer exited before the harness came up'
         for path in (serial, raw):
             try:
                 with open(path, 'rb') as handle:
-                    if b'FIRNESS: fuzzing starts' in handle.read():
-                        return True
+                    if HARNESS_MARKER in handle.read():
+                        return True, ''
             except OSError:
                 pass
-        time.sleep(2)
-    return False
+        size = guest_narrated(narrates)
+        if size > seen:
+            seen, moved = size, now
+        quiet = now - moved
+        # Quiet first, and the ceiling second. The other order reads the same until
+        # someone sets FIRNESS_BOOT_EXTEND=1 to get the old wall back: ceiling then equals
+        # the allowance, fires first, and a guest that stopped dead in early DXE is
+        # reported as "STILL NARRATING". A diagnostic that inverts under a supported
+        # setting is worse than none.
+        if now >= soft and quiet >= stall_grace:
+            return False, (f'the guest last wrote anything {quiet:.0f}s ago and the '
+                           f'{boot_timeout}s boot allowance is spent -- the protocol '
+                           f'may not be installed, or the boot stopped at the step the '
+                           f'debug port names below')
+        if now >= ceiling:
+            return False, (f'the guest was STILL NARRATING at the '
+                           f'{ceiling - began:.0f}s ceiling, which is {max(1, extend_max)}x '
+                           f'the {boot_timeout}s boot allowance -- this boot is slow, not '
+                           f'stuck, so raise --boot-timeout or FIRNESS_BOOT_EXTEND')
+        if now >= soft:
+            if not announced:
+                announced = True
+                print(f'++++ {boot_timeout}s spent without the harness, but the guest '
+                      f'narrated {quiet:.0f}s ago, so the boot is still moving: waiting '
+                      f'while it does, up to {ceiling - began:.0f}s ++++', flush=True)
+        time.sleep(tick)
 
 
 def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700):
@@ -884,14 +956,18 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
         started_at = time.time()
         process = subprocess.Popen([QEMU_FUZZER], stdout=log, stderr=subprocess.STDOUT,
                                    env=environment, cwd=work)
-        reached = wait_for_qemu_harness(process, serial_path, raw_path, boot_timeout)
+        reached, why = wait_for_qemu_harness(
+            process, serial_path, raw_path, boot_timeout,
+            debugcon=environment.get('FIRNESS_DEBUGCON', ''),
+            # Both overridable, because the right grace depends on how chatty the build
+            # is and the right ceiling on how much of the budget a slot is worth.
+            stall_grace=int(os.environ.get('FIRNESS_BOOT_STALL', '120')),
+            extend_max=int(os.environ.get('FIRNESS_BOOT_EXTEND', '3')))
         if reached:
             print(f'++++ Harness reached after {time.time() - started_at:.0f}s of boot; '
                   f'fuzzing for {timeout}s ++++')
         else:
-            print(f'++++ The boot did not reach the harness within {boot_timeout}s. The '
-                  f'protocol may not be installed, or the boot needs longer under this '
-                  f'much parallelism -- raise --boot-timeout. ++++')
+            print(f'++++ The boot did not reach the harness: {why}. ++++')
             # The serial log is not where the boot narrates itself. OVMF writes DEBUG to
             # the ISA debug port, and only AsanLib's own SerialOutput reaches serial -- so
             # a boot that stops after the console switch looks, on serial, like a boot

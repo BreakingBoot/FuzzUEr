@@ -162,6 +162,14 @@ jobs:
         shell: bash
         run: python3 scripts/build_parity_check.py
 
+      # A boot that is still narrating must not be killed on a clock. Four campaigns were
+      # killed sixteen debug-port lines short of "[Bds]Booting" and the run advised raising
+      # a timeout, which is indistinguishable from the advice it gives a boot that stopped
+      # dead. Seven cases, each a few hundred milliseconds.
+      - name: A boot that is still moving keeps its slot
+        shell: bash
+        run: python3 scripts/boot_wait_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
