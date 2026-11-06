@@ -170,6 +170,10 @@ jobs:
         shell: bash
         run: python3 scripts/boot_wait_check.py
 
+      - name: Every SMI handler is harnessed or explained
+        shell: bash
+        run: python3 scripts/smi_coverage_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
