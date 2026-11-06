@@ -137,25 +137,94 @@ def main():
 
     print('reading a handler that types its own comm buffer')
     space = lift(['_DEFN', '_handler_source', '_body_of', 'payload_from_source',
-                  'recover_missing_handlers', 'lifecycle_gate', 'load_discovered'])
+                  'recover_missing_handlers', 'lifecycle_gate',
+                  '_enclosing_function', 'load_discovered'])
     with tempfile.TemporaryDirectory() as tree:
         os.makedirs(os.path.join(tree, 'Drv'))
         open(os.path.join(tree, 'Drv', 'A.c'), 'w').write(textwrap.dedent('''
-            BOOLEAN mClosed;
-            EFI_STATUS EFIAPI GuidHandler (
-              IN EFI_HANDLE DispatchHandle, IN CONST VOID *Context,
-              IN OUT VOID *CommBuffer, IN OUT UINTN *CommBufferSize)
+            /** @file
+            Copyright (c) 2010 - 2018, Intel Corporation. All rights reserved.
+            **/
+
+            EFI_STATUS
+            EFIAPI
+            Unrelated (
+              VOID
+              )
+            {
+              return EFI_SUCCESS;
+            }
+
+            BOOLEAN  mClosed = FALSE;
+
+            EFI_STATUS
+            EFIAPI
+            GuidHandler (
+              IN EFI_HANDLE  DispatchHandle,
+              IN CONST VOID  *Context,
+              IN OUT VOID    *CommBuffer,
+              IN OUT UINTN   *CommBufferSize
+              )
             {
               REAL_BLOCK *Typed = (REAL_BLOCK *)CommBuffer;
-              if (mClosed) { return EFI_SUCCESS; }
+              Size = AllocateThing (*CommBufferSize);
+              CopyMem (Size, CommBuffer, *CommBufferSize);
+              if (mClosed) {
+                return EFI_SUCCESS;
+              }
               return EFI_SUCCESS;
             }
-            EFI_STATUS EFIAPI Setup (VOID)
+
+            EFI_STATUS
+            EFIAPI
+            Setup (
+              VOID
+              )
             {
               gMmst->MmiHandlerRegister (GuidHandler, &gMyCommGuid, &H);
+              gMmst->MmRegisterProtocolNotify (&gEndGuid, Later, &Reg);
               return EFI_SUCCESS;
             }
-            VOID EFIAPI Later (VOID) { mClosed = TRUE; }
+
+            VOID
+            EFIAPI
+            Later (
+              VOID
+              )
+            {
+              mClosed = TRUE;
+            }
+            '''))
+        # The other shape: the gate is shut by the same function that registers the
+        # handler, so the guarded body is dead for every caller rather than merely late.
+        open(os.path.join(tree, 'Drv', 'C.c'), 'w').write(textwrap.dedent('''
+            BOOLEAN  mOpen = TRUE;
+
+            EFI_STATUS
+            EFIAPI
+            DeadHandler (
+              IN EFI_HANDLE  DispatchHandle,
+              IN CONST VOID  *Context,
+              IN OUT VOID    *CommBuffer,
+              IN OUT UINTN   *CommBufferSize
+              )
+            {
+              if (mOpen) {
+                DoTheInterestingThing (CommBuffer);
+              }
+              return EFI_SUCCESS;
+            }
+
+            EFI_STATUS
+            EFIAPI
+            DeadEntryPoint (
+              VOID
+              )
+            {
+              gSmst->SmiHandlerRegister (DeadHandler, &gDeadGuid, &H);
+              mOpen = FALSE;
+              return EFI_SUCCESS;
+            }
             '''))
         open(os.path.join(tree, 'Drv', 'B.c'), 'w').write(textwrap.dedent('''
             EFI_STATUS EFIAPI PortHandler (
@@ -186,6 +255,42 @@ def main():
               flag == 'mClosed', f'{flag} / {where}')
         flag, _ = space['lifecycle_gate']('PortHandler', tree)
         check('a handler with no latch is not flagged', flag is None, flag)
+
+        # Which shape it is decides what to do about it, so the caveat has to say.
+        _flag, notify = space['lifecycle_gate']('GuidHandler', tree)
+        check('a latch set from a protocol notify names the notify',
+              'gEndGuid' in notify and 'Later' in notify, notify)
+        check('and says the body is reachable before that event',
+              'only before that event' in notify, notify)
+        header = ('/** @file\n'
+                  'Copyright (c) 2010 - 2018, Intel Corporation. All rights reserved.\n'
+                  '**/\n'
+                  'EFI_STATUS\n'
+                  'EFIAPI\n'
+                  'RealFunction (\n'
+                  '  VOID\n'
+                  '  )\n'
+                  '{\n'
+                  '  mFlag = TRUE;\n'
+                  '}\n')
+        check('a file header line is not taken for a function definition',
+              space['_enclosing_function'](header, header.index('mFlag')) == 'RealFunction',
+              space['_enclosing_function'](header, header.index('mFlag')) or '<none>')
+        check('and above every definition the answer is nothing, not a guess',
+              space['_enclosing_function'](header, header.index('Copyright')) == '',
+              space['_enclosing_function'](header, header.index('Copyright')))
+        check("the declaration's own initialiser is not mistaken for it either",
+              'Unrelated' not in notify, notify)
+        check('calls before the gate are counted as reachable regardless',
+              'run before the gate' in notify, notify)
+
+        _flag, dead = space['lifecycle_gate']('DeadHandler', tree)
+        check('a latch cleared where the handler is registered is called unreachable',
+              'unreachable from every caller' in dead, dead)
+        check('and names the function that shuts it',
+              'DeadEntryPoint' in dead, dead)
+        check('a dead gate reports no reachable prologue',
+              'run before the gate' not in dead, dead)
 
         listing = os.path.join(tree, 'Discovered.txt')
         open(listing, 'w').write('GuidHandler  // Drv/A.c\n\nPortHandler\n')
