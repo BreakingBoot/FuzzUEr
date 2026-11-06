@@ -186,6 +186,10 @@ jobs:
         shell: bash
         run: python3 scripts/module_attribution_check.py
 
+      - name: The instrumented count is about the modules' own code
+        shell: bash
+        run: python3 scripts/own_code_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have

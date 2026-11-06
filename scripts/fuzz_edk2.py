@@ -562,6 +562,68 @@ def shared_pcds():
     return ' '.join(f'--pcd {pcd}' for pcd in SHARED_PCDS)
 
 
+# The dependency file build(1) writes for every compile names the module it belongs to:
+#   -MF .../Build/OvmfX64/DEBUG_CLANGSAN/X64/OvmfPkg/RWVariable/RWVariable/OUTPUT/RWVariable.obj.deps
+# so <Pkg>/<path>/<inf stem> comes straight out of the command line, per module, which is
+# the granularity the DSC scopes BuildOptions by. A source directory is not: OvmfPkg/Spi
+# builds DxeSpi (instrumented) and SmmSpi (not) out of one directory.
+OBJ_DEPS = re.compile(r'-MF\s+\S*?/Build/[^/]+/[^/]+/[^/]+/'
+                      r'((?:[A-Za-z0-9]+Pkg)/.*?)/OUTPUT/([^/\s]+)\.obj\.deps')
+
+
+def own_code_instrumented(text, tree=''):
+    """Per module, was the module's OWN source compiled with -fsanitize=address.
+
+    The instrumented stage counts images whose .debug carries __asan_load/__asan_store,
+    and for an SMM image that number is a fiction. A library instance is built once with
+    the global flags and BuildOptions cannot be scoped to one, so every module links
+    instrumented copies of BaseLib and BaseMemoryLib whatever its own flags were. The
+    symbols are therefore present in an SMM driver's image while none of that driver's own
+    code is checked: measured on eval1 run 42171026991, 288/290 images by symbols against
+    0 of 17 SMM modules by their own sources.
+
+    That matters because the gate exists to stop exactly this -- "a sweep over
+    uninstrumented firmware reports clean and means nothing" -- and every injected bug in
+    that tree is in one of those 17.
+
+    AutoGen objects are excluded: they are generated, nobody is looking for a bug in them,
+    and a module whose only instrumented object was AutoGen would otherwise count as
+    covered.
+
+    Returns (instrumented, total, [(module, module_type), ...] for the ones with none).
+    """
+    seen = {}
+    for line in text.splitlines():
+        if 'clang' not in line:
+            continue
+        found = OBJ_DEPS.search(line)
+        if not found:
+            continue
+        module, obj = found.group(1), found.group(2)
+        if obj.startswith('AutoGen'):
+            continue
+        hit, total = seen.get(module, (0, 0))
+        seen[module] = (hit + (1 if 'fsanitize=address' in line else 0), total + 1)
+    dark = []
+    for module, (hit, total) in sorted(seen.items()):
+        if total and not hit:
+            dark.append((module, module_type(tree, module)))
+    return sum(1 for hit, _ in seen.values() if hit), len(seen), dark
+
+
+def module_type(tree, module):
+    """MODULE_TYPE out of the module's own INF, or '' -- the key IS the INF's path."""
+    if not tree:
+        return ''
+    inf = os.path.join(tree, f'{module}.inf')
+    try:
+        with open(inf, errors='ignore') as handle:
+            found = re.search(r'^\s*MODULE_TYPE\s*=\s*(\S+)', handle.read(), re.M)
+    except OSError:
+        return ''
+    return found.group(1) if found else ''
+
+
 def build_error(text):
     """The line that actually explains a failed build.
 
@@ -1330,7 +1392,24 @@ def main():
             return False, (f'{ratio} = {share:.0%} instrumented, under the 90% floor. A '
                            f'sweep over uninstrumented firmware reports clean and means '
                            f'nothing, so this stops the run')
-        return True, f'{ratio} modules carry ASan checks'
+        # The symbol count alone overstates SMM, badly. Say what the modules' own code
+        # carries, and name the SMM ones, because a campaign that drives an SMI handler
+        # whose driver is not instrumented reports clean for a reason that has nothing to
+        # do with the firmware being correct.
+        detail = f'{ratio} images carry ASan symbols'
+        log = os.path.join(out, 'build.log')
+        if os.path.isfile(log):
+            own, total, dark = own_code_instrumented(open(log, errors='replace').read(),
+                                                    tree)
+            detail += f'; {own}/{total} modules have their own code instrumented'
+            smm = [m for m, kind in dark if 'SMM' in (kind or '').upper()]
+            if smm:
+                shown = ', '.join(m.split('/')[-1] for m in smm[:6])
+                detail += (f'. NONE of the {len(smm)} SMM module(s) are -- {shown}'
+                           f'{" ..." if len(smm) > 6 else ""} -- so a defect in an SMI '
+                           f'handler\'s own code raises no report; only the instrumented '
+                           f'libraries it links can')
+        return True, detail
 
     def discover():
         evalset = os.path.join(REPO, 'eval_source', f'evalset-{slug}')
