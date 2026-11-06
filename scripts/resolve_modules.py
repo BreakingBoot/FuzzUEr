@@ -9,6 +9,11 @@ The mapping exists in the log all the same. A DXE core built with `-D DEBUG_ON_S
 puts its dispatch narration on the same wire as the sanitizer:
 
     Loading driver at 0x0001DBB5000 EntryPoint=0x0001DBC95D5 DevicePathDxe.efi
+    Loading SMM driver at 0x0001FC75000 EntryPoint=0x0001FC7C1D8 RWVariable.efi
+    Loading PEIM at 0x0001BFD3000 EntryPoint=0x0001BFE1FB4 PeiCore.efi
+
+Each core words its own line differently, and all three have to be read: the SMM set is
+where every SMI finding lives.
 
 That is a load address and a name for every image in the boot, which is all a resolver
 needs -- provided it also knows how far each image extends. Two sources for that, in order
@@ -32,8 +37,29 @@ import re
 import struct
 import sys
 
-LOAD_RE = re.compile(r'Loading driver at (0x[0-9A-Fa-f]+) '
+# "driver", "SMM driver", "PEIM", "SMM core" -- DxeCore, PiSmmCore and PeiCore each
+# narrate their own dispatch and each words it differently. Matching only "Loading driver
+# at" indexed the DXE images and silently dropped every module in SMRAM: measured on eval1
+# run 42154605158, 110 DXE loads and 16 SMM ones, the SMM set including every injected
+# driver in that tree -- RWVariable, QueryVariableInfo, SmmSpi, HwSmmLight, SmmHwAlarm,
+# B2SmiDispatch. An ip inside SMRAM then resolved to whatever image had the nearest base
+# BELOW it, which was a PEIM, so eight double-fetch findings from SMM code were filed
+# against PeiCore.efi -- a module whose image does not contain that address at all. SMI
+# fuzzing cannot attribute anything without this.
+LOAD_RE = re.compile(r'Loading (?:[A-Za-z0-9 ]{0,12}?)?(?:driver|PEIM|image) at '
+                     r'(0x[0-9A-Fa-f]+) '
                      r'EntryPoint=(0x[0-9A-Fa-f]+) +([A-Za-z0-9_\-]+)\.efi')
+# The SMM core is the one image nothing dispatches: PiSmmIpl relocates it into SMRAM by
+# hand, so it has no "Loading" line at all and announces itself in its own words, with no
+# 0x, no EntryPoint and no file name --
+#     SMM IPL loading SMM Core at SMRAM address 1FFBC000
+# It is also the image an SMI campaign most needs named. SmiManage, the comm-buffer
+# dispatcher, lives in it: on eval1 run 42154605158 eight findings at PiSmmCore+0x11385
+# were filed against PeiCore.efi for want of this one line.
+SMM_CORE_RE = re.compile(r'SMM IPL loading SMM Core at SMRAM address '
+                         r'([0-9A-Fa-f]+)')
+SMM_CORE_NAME = 'PiSmmCore'
+
 IP_RE = re.compile(r'\bip (0x[0-9A-Fa-f]+)')
 
 # No image is this big; a hit further than this past a base is not that image.
@@ -244,8 +270,14 @@ def loads_from_logs(paths):
     for path in paths:
         if not os.path.isfile(path):
             continue
-        for base, entry, name in LOAD_RE.findall(read_text(path)):
+        text = read_text(path)
+        for base, entry, name in LOAD_RE.findall(text):
             loads.append((int(base, 16), int(entry, 16), name))
+        for base in SMM_CORE_RE.findall(text):
+            # No entry point on this line, so this image cannot calibrate itself the way
+            # calibration() does for the others. The base is what attribution needs, and
+            # an uncalibrated offset is still the right module.
+            loads.append((int(base, 16), 0, SMM_CORE_NAME))
     return loads
 
 
@@ -271,7 +303,10 @@ def calibration(paths, build_dirs):
     deltas = {}
     for base, entry, name in loads_from_logs(paths):
         known = entries.get(name)
-        if known:
+        # entry 0 marks a load line that carried no entry point -- the SMM core's. There
+        # is no address both sides agree on there, so it calibrates to nothing rather
+        # than to a delta measured against zero.
+        if known and entry:
             deltas[name] = known - (entry - base)
     return deltas
 

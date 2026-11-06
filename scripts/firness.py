@@ -1213,10 +1213,9 @@ def make_snapshot(simics_dir):
         loads = []
         if os.path.isfile(capture):
             with open(capture, 'r', encoding='utf-8', errors='ignore') as handle:
-                for line in handle:
-                    found = LOAD_LINE.search(line)
-                    if found:
-                        loads.append(f'{found.group(1)} {found.group(2)}')
+                recorded = []
+                note_loads(handle.read(), recorded)
+                loads = [f'{base:#x} {name}' for base, name in recorded]
         if loads:
             with open(os.path.join(simics_dir, 'booted.ckpt.modules'), 'w') as handle:
                 handle.write('\n'.join(sorted(set(loads))))
@@ -1522,8 +1521,35 @@ def save_crashes_to_file(crashes, output_dir=None):
 # reported by 84 of 142 protocols in matrix v7, dominating every solution count -- and the
 # faulting addresses all land inside Firness.efi, which links the library through its
 # generated dsc and never calls it. Nothing about the protocol under test.
+#
+# "SMM driver" has to be in here. Each core words its own dispatch line differently, and
+# matching only driver|PEIM dropped all 16 SMM images -- on eval1 run 42154605158 that was
+# every injected driver in the tree (RWVariable, QueryVariableInfo, SmmSpi, HwSmmLight,
+# SmmHwAlarm, B2SmiDispatch). An SMI campaign's findings are all in SMRAM, so without this
+# every one of them is attributed to whichever image happened to load below it.
 LOAD_LINE = re.compile(
-    r'Loading (?:driver|PEIM) at (0x[0-9A-Fa-f]+) EntryPoint=0x[0-9A-Fa-f]+\s+(\S+\.efi)')
+    r'Loading (?:SMM )?(?:driver|PEIM) at (0x[0-9A-Fa-f]+) '
+    r'EntryPoint=0x[0-9A-Fa-f]+\s+(\S+\.efi)')
+# The SMM core is relocated into SMRAM by PiSmmIpl rather than dispatched, so it has no
+# "Loading" line: no 0x, no entry point, no file name. It is also where SmiManage lives,
+# which is the first thing an SMI finding needs named -- eight findings at PiSmmCore+0x11385
+# were filed against PeiCore.efi for want of this line.
+SMM_CORE_LINE = re.compile(r'SMM IPL loading SMM Core at SMRAM address ([0-9A-Fa-f]+)')
+SMM_CORE_NAME = 'PiSmmCore.efi'
+
+
+def note_loads(text, modules):
+    """Append every image load named in this text to modules, and keep it sorted."""
+    added = False
+    for found in LOAD_LINE.finditer(text):
+        modules.append((int(found.group(1), 16), found.group(2)))
+        added = True
+    for found in SMM_CORE_LINE.finditer(text):
+        modules.append((int(found.group(1), 16), SMM_CORE_NAME))
+        added = True
+    if added:
+        modules.sort()
+    return added
 REPORT_IP = re.compile(r'(?:Return IP address is|\bip) (0x[0-9A-Fa-f]+)')
 # the module name DXE reports for the harness image. Distinct from
 # HARNESS_IMAGE above, which is the path the build writes it to.
@@ -1536,17 +1562,34 @@ def module_for(modules, ip):
     return found[1] if found else ''
 
 
+# No firmware image is this big, so an ip further than this past a base is not in that
+# image. Without the bound the nearest base BELOW an ip always won, however far below it
+# was: that is how an address in SMRAM came back as PeiCore.efi, 1082 MB past that PEIM's
+# base. Matches MAX_IMAGE in resolve_modules.py, which already had this.
+MAX_IMAGE = 0x400000
+
+
 def image_for(modules, ip):
-    """(base, name) of the loaded image containing ip, or None."""
+    """(base, name) of the loaded image containing ip, or None.
+
+    modules is sorted by base, so the candidate is the last entry at or below ip -- and it
+    only answers if ip plausibly falls inside it. The next base above is the tighter
+    bound where there is one; MAX_IMAGE covers the topmost image, which has nothing above
+    it to bound against.
+    """
     if not modules or ip is None:
         return None
-    found = None
+    found, end = None, None
     for base, name in modules:
         if base <= ip:
             found = (base, name)
         else:
+            end = base
             break
-    return found
+    if found is None:
+        return None
+    limit = min(end, found[0] + MAX_IMAGE) if end else found[0] + MAX_IMAGE
+    return found if ip < limit else None
 
 
 # Where the build that produced the running firmware left its unstripped copies. A
@@ -1686,10 +1729,7 @@ def collect_unique_crashes(log_file, output_dir=None):
         if not candidate or not os.path.isfile(candidate):
             continue
         with open(candidate, 'r', encoding='utf-8', errors='ignore') as handle:
-            for entry in handle:
-                found = LOAD_LINE.search(entry)
-                if found:
-                    modules.append((int(found.group(1), 16), found.group(2)))
+            note_loads(handle.read(), modules)
         break
     modules.sort()
     # a checkpoint-restored run has no boot, so seed the map with what the boot that wrote
@@ -1718,10 +1758,7 @@ def collect_unique_crashes(log_file, output_dir=None):
                                     or ('EntryPoint=' in line and 'Firness.efi' in line)):
                 phase = 'fuzz'
 
-            loaded = LOAD_LINE.search(line)
-            if loaded:
-                modules.append((int(loaded.group(1), 16), loaded.group(2)))
-                modules.sort()
+            note_loads(line, modules)
             seen_ip = REPORT_IP.search(line)
             if seen_ip:
                 found_ip = seen_ip.group(1)
