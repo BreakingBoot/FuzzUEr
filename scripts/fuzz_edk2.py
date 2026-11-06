@@ -1394,17 +1394,16 @@ def main():
             # the SMI analysis there -- and mistaking one for the other is what kept the
             # stale note alive.
             #
-            # What is actually unresolved is further downstream: no campaign on an
-            # SMM_REQUIRE image has reached a harness. Measured 0/4 campaigns and 0
-            # iterations, the guest stopping after "[Bds]UnregisterKeyNotify" with SMM
-            # healthy (554 dispatches) and the same firmware booting past that point
-            # under the detect probe. So the SMI target will generate and then find
-            # nothing, for the same reason the protocol targets find nothing on an SMM
-            # image.
+            # The note that used to sit here said no campaign on an SMM_REQUIRE image had
+            # ever reached a harness and that this target would therefore find nothing.
+            # That stopped being true on run 42154605158: the boot reached the harness in
+            # 58s, 11 targets dispatched, the corpus grew 0 -> 20 over 2606 edges, and the
+            # campaign ended early only because its 21st input ASSERTed inside SMM and
+            # CpuDeadLoop()ed the guest -- which SHARED_PCDS now prevents. Leaving the note
+            # in place would tell the next reader to disregard a result that is real.
             return True, (f'{protos} protocols{scope}, {handlers} SMI handlers found in '
-                          f'source; the SMI harness generates. NOTE: no campaign on an '
-                          f'SMM image has reached a harness yet -- the boot stops in late '
-                          f'BDS -- so expect this target to generate and report nothing')
+                          f'source; the SMI harness generates and campaigns on this image '
+                          f'do reach it')
         # Said plainly, because the count on its own reads as though they were targets:
         # without --smi these are discovered and then left alone.
         return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
