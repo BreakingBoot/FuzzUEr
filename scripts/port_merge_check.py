@@ -27,6 +27,11 @@ import os
 import re
 import subprocess
 import sys
+
+# Before apply_asan.py is imported. It lives in a submodule, and a __pycache__ left beside
+# it shows up as an untracked file there -- which reads as a dirty tree, and the port stage
+# refuses a dirty tree.
+sys.dont_write_bytecode = True
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +47,21 @@ def check(name, condition, detail=''):
     else:
         print(f'  FAIL  {name}' + (f' -- {detail}' if detail else ''))
         FAILURES.append(name)
+
+
+_PORT = None
+
+
+def port_module():
+    """apply_asan.py as a module, loaded once."""
+    global _PORT
+    if _PORT is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            'apply_asan_under_test', os.path.join(ROOT, 'uefi_asan', 'apply_asan.py'))
+        _PORT = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_PORT)
+    return _PORT
 
 
 def git(*args):
@@ -61,12 +81,7 @@ def endings(data):
 
 def line_endings_preserved():
     """Every file the port modifies keeps the line endings the base blob had."""
-    import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        'apply_asan', os.path.join(ROOT, 'uefi_asan', 'apply_asan.py'))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    base = mod.PORT_BASE
+    base = port_module().PORT_BASE
 
     if not git('cat-file', '-e', base + '^{commit}') and \
             subprocess.run(('git', '-C', TREE, 'cat-file', '-e', base + '^{commit}'),
@@ -139,11 +154,7 @@ DSC_CONFLICT = '''\
 
 def resolve_one(name, body):
     """Run the port's resolver over one conflicted file and say what it did."""
-    import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        'apply_asan_r', os.path.join(ROOT, 'uefi_asan', 'apply_asan.py'))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    mod = port_module()
     work = tempfile.mkdtemp(prefix='portchk-')
     full = os.path.join(work, name)
     os.makedirs(os.path.dirname(full), exist_ok=True)
