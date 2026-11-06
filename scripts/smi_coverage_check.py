@@ -197,6 +197,16 @@ def main():
     joined = '\n'.join(strings)
     check('there is a shrink branch',
           any('MessageLength = (UINTN)MessageLengthDelta' in s for s in strings), '')
+    # The shrink arm has to reach the lengths that actually divide behaviour. A uniform
+    # draw over 0..sizeof puts almost all its mass above the first field a handler reads,
+    # so without the boundary table the arm exists but rarely demonstrates anything.
+    check('the shrink arm draws from boundary lengths',
+          any('mFirnessShortLengths[' in s for s in strings), '')
+    # the table is emitted over more than one line, so join before looking at it
+    table = ' '.join(s for s in strings if ',' in s and s.strip()[:1].isdigit())
+    values = {v.strip() for v in table.replace(' ', '').split(',') if v.strip().isdigit()}
+    check('the boundary table starts at zero and reaches past a field offset',
+          {'0', '1', '8', '40'} <= values, sorted(values, key=lambda v: int(v)))
     check('there is still a grow branch',
           any('MessageLength += (UINTN)MessageLengthDelta' in s for s in strings), '')
     check('the result is clamped to the comm region',
