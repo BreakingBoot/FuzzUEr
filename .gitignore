@@ -144,3 +144,7 @@ eval_source/evalset_discovered/
 # cannot be listed one by one the way the fixed checkouts above are.
 eval_source/edk2-main-edk2-stable*/
 eval_source/edk2-edk2-stable*-worktree/
+
+# the synthetic SMI fixture smi_call_edges_check.py's C++ assertions are developed against;
+# the analyzer binary it builds is 100+ MB and is rebuilt from source on demand
+.smitest/

@@ -198,6 +198,18 @@ jobs:
         shell: bash
         run: python3 scripts/port_merge_check.py
 
+      - name: A handler's cross-module calls are recorded
+        shell: bash
+        run: python3 scripts/smi_call_edges_check.py
+
+      - name: Every way into SMM is discovered, only the drivable ones harnessed
+        shell: bash
+        run: python3 scripts/smi_dispatch_check.py
+
+      - name: A sanitizer detection cannot be announced without being reported
+        shell: bash
+        run: python3 scripts/fwsan_report_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
