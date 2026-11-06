@@ -76,6 +76,13 @@ CLASS_ARTEFACTS = [
      '22 handlers registered reports 21 double fetches of the dispatch GUID. The GUID is '
      'only ever compared, and the caller controls which handler it wants anyway, so '
      'nothing is bypassed by changing it mid-walk'),
+    ('double-fetch', 'MdePkg/Library/BasePrintLib/',
+     'the second read is inside BasePrintLib, which means a DEBUG statement is printing '
+     'untrusted memory that something else already read -- %g formats a GUID as '
+     'ReadUnaligned32, ReadUnaligned16 twice and then Data4[0..7] one byte at a time, so '
+     'one print of a caller-supplied GUID reports ten double fetches at ten sites. A '
+     'print does not decide anything with the value it reads, so re-reading it bypasses '
+     'no check; the defect class needs the second read to feed a decision'),
 ]
 
 # The sanitizer names the handler it entered, not the defect. `__ubsan_handle_type_mismatch_v1`

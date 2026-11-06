@@ -194,6 +194,52 @@ def main():
     check('a double fetch in a handler still reports', kind == 'candidate',
           f'{kind}: a handler re-reading its own comm buffer is the real class')
 
+    print('and the narration does not manufacture its own findings')
+    # The ten candidates run 42176147435 filed as issues #37-#46 were all one DEBUG
+    # statement. The dispatch narration was handed &CommunicateHeader->HeaderGuid -- a
+    # pointer into the caller's buffer -- and %g formats a GUID through BasePrintLib:
+    # ReadUnaligned32 for Data1, ReadUnaligned16 twice, then Data4[0..7] one byte at a
+    # time. This core's own code is not instrumented and BasePrintLib is, so those ten
+    # reads were the ONLY instrumented reads of the dispatch GUID in the whole SMI and
+    # every one came back as a double fetch: ten sites, 71662 hits each.
+    core = os.path.join(os.path.dirname(HERE), 'eval_source', 'edk2', 'MdeModulePkg',
+                        'Core', 'PiSmmCore', 'PiSmmCore.c')
+    text = open(core).read() if os.path.isfile(core) else ''
+    check('the port carries the dispatch narration', 'SmmCore: dispatch %g' in text, core)
+    narration = text.split('SmmCore: dispatch %g')[-1][:200] if text else ''
+    check('it prints a local, not a pointer into the comm buffer',
+          '&DispatchGuid' in narration
+          and '&CommunicateHeader->HeaderGuid' not in narration,
+          narration.strip().splitlines()[1:3])
+    copy = text.find('DispatchGuid = ')
+    manage = text.find('Status = SmiManage (')
+    check('the copy is taken before SmiManage runs',
+          0 < copy < manage,
+          'a handler may scribble the buffer, and then the narration names the wrong GUID')
+    # CopyGuid and CopyMem are BaseMemoryLib and BaseLib, which ARE instrumented -- routing
+    # the copy through either one puts the reads straight back where they were.
+    check('the copy is a plain assignment, not a library call',
+          'DispatchGuid = CommunicateHeader->HeaderGuid;' in text,
+          'CopyGuid/CopyMem read through instrumented BaseLib and report the same ten '
+          'sites from one line instead of ten')
+
+    print('and a print that reads untrusted memory twice is not filed as a defect')
+    printlib = cluster_of('fwsan-double-fetch (read)',
+                          '/workspace/tmp/edk2/MdePkg/Library/BasePrintLib/'
+                          'PrintLibInternal.c')
+    kind, why = br.verdict(printlib, set(), 8)
+    check('a double fetch inside BasePrintLib is an artefact', kind == 'artefact',
+          f'{kind}: filed as issues #39-#46 on run 42176147435')
+    check('and it says why a print cannot be the defect', 'decide' in why, why[:90])
+    # Deliberately NOT filtered. BaseLib is linked into everything and ReadUnaligned is a
+    # real way to re-read a validated field; blanket-filtering it to tidy up the same run's
+    # report would hide the class in every module at once.
+    baselib = cluster_of('fwsan-double-fetch (read)',
+                         '/workspace/tmp/edk2/MdePkg/Library/BaseLib/Unaligned.c')
+    kind, _why = br.verdict(baselib, set(), 8)
+    check('a double fetch inside BaseLib still reports', kind == 'candidate',
+          f'{kind}: ReadUnaligned32 on a re-read field is the real class')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 
