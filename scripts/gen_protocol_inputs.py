@@ -101,6 +101,163 @@ def scan_header(path):
     return [(guids[0], members)]
 
 
+# ---------------------------------------------------------------------------------------
+# Discovery from the installation site, for protocols whose headers do not follow the
+# conventions the header scan relies on.
+#
+# The scan above needs three things to line up: the struct lives under an Include/Protocol
+# directory, the header declares `extern EFI_GUID g<Name>ProtocolGuid;`, and the struct's
+# name matches that GUID's name. Upstream edk2 holds to all three. A driver written for one
+# platform frequently holds to none -- OvmfPkg/Spi declares DXE_SPI_PROTOCOL in
+# OvmfPkg/Spi/SmmSpiCommon.h, never declares its GUID extern anywhere (the INF's
+# [Protocols] section gets it from AutoGen), and names it gEfiDxeSmmSpiProtocolGuid, which
+# does not resemble _DXE_SPI_PROTOCOL. Three independent misses, and the result is a
+# protocol with two callable methods that no campaign has ever had a target file for.
+#
+# The install call has none of those problems. It names the GUID and the interface variable
+# in one place, and the variable's declaration names the type:
+#
+#     DXE_SPI_PROTOCOL  mDxeSpiProtocol = { DxeSpiRead, DxeSpiWrite };
+#     ...
+#     gBS->InstallMultipleProtocolInterfaces (&Handle, &gEfiDxeSmmSpiProtocolGuid,
+#                                             &mDxeSpiProtocol, NULL);
+#
+# which is evidence that the protocol is not only declared but actually installed -- a
+# stronger statement than the header makes.
+
+INSTALL_RE = re.compile(
+    r'\bInstall(?:Multiple)?ProtocolInterfaces?\s*\(([^;]*?)\)\s*;', re.S)
+TYPEDEF_CLOSE_RE = re.compile(r'^\s*\}\s*([A-Za-z_]\w*)\s*;')
+
+
+def split_args(text):
+    """Top-level comma split, so a nested call or cast does not break the pairing."""
+    out, depth, current = [], 0, ''
+    for char in text:
+        if char in '([{':
+            depth += 1
+        elif char in ')]}':
+            depth -= 1
+        if char == ',' and depth == 0:
+            out.append(current.strip())
+            current = ''
+        else:
+            current += char
+    if current.strip():
+        out.append(current.strip())
+    return out
+
+
+def installed_pairs(src):
+    """[(guid_symbol, interface_variable)] for every protocol this source installs."""
+    pairs = []
+    for match in INSTALL_RE.finditer(src):
+        args = [a.lstrip('&').strip() for a in split_args(match.group(1))]
+        if len(args) < 2:
+            continue
+        if 'Multiple' in src[match.start():match.start() + 40]:
+            # (&Handle, &GuidA, &IfaceA, &GuidB, &IfaceB, NULL)
+            rest = args[1:]
+            for index in range(0, len(rest) - 1, 2):
+                guid, iface = rest[index], rest[index + 1]
+                if guid == 'NULL':
+                    break
+                pairs.append((guid, iface))
+        elif len(args) >= 4:
+            # (&Handle, &Guid, EFI_NATIVE_INTERFACE, Interface)
+            pairs.append((args[1], args[3]))
+    # NULL is not an interface. "Install NULL to DXE data base as notify" is a real edk2
+    # idiom -- three of the EVAL-1 drivers use it to publish a readiness signal -- and
+    # there is nothing on the other end to call, so it must not become a target.
+    return [(g, i) for g, i in pairs
+            if re.fullmatch(r'g\w*Guid', g) and re.fullmatch(r'[A-Za-z_]\w*', i)
+            and i != 'NULL']
+
+
+def interface_type(src, variable):
+    """The declared type of an interface variable, or None."""
+    match = re.search(
+        rf'^\s*(?:STATIC\s+|static\s+|CONST\s+|GLOBAL_REMOVE_IF_UNREFERENCED\s+)*'
+        rf'([A-Za-z_]\w*)\s+\*?\s*{re.escape(variable)}\s*(?:=|;|\[)',
+        src, re.M)
+    return match.group(1) if match else None
+
+
+def structs_in(src):
+    """{normalized struct name: [function-pointer members]} for one header."""
+    fptypes = set(FPTYPE_RE.findall(src))
+    if not fptypes:
+        return {}
+    found, depth, opened_as, current = {}, 0, None, []
+    for line in src.splitlines():
+        opening = STRUCT_OPEN_RE.match(line)
+        if opening and depth == 0:
+            depth, opened_as, current = 1, opening.group(1), []
+            continue
+        if not depth:
+            continue
+        closing = TYPEDEF_CLOSE_RE.match(line) or STRUCT_END_RE.match(line)
+        if closing:
+            for name in (opened_as, closing.group(1)):
+                if name and current:
+                    found.setdefault(normalize(name), list(current))
+            depth, opened_as, current = 0, None, []
+            continue
+        member = MEMBER_RE.match(line)
+        if member and member.group(1) in fptypes and member.group(2) not in current:
+            current.append(member.group(2))
+    return found
+
+
+def struct_index(tree):
+    """Every function-pointer struct in the tree, by normalized name. One walk."""
+    index = {}
+    for base, dirs, files in os.walk(tree):
+        dirs[:] = [d for d in dirs if d not in ('.git', 'Build', 'BaseTools')]
+        for name in sorted(files):
+            if not name.endswith('.h') or name in NOT_TARGETS:
+                continue
+            try:
+                with open(os.path.join(base, name), encoding='utf-8', errors='ignore') as f:
+                    src = f.read()
+            except OSError:
+                continue
+            for key, members in structs_in(src).items():
+                if key not in index or len(members) > len(index[key][1]):
+                    index[key] = (name, members)
+    return index
+
+
+def scan_installations(tree):
+    """{guid: (header, members)} for protocols discovered at their install call."""
+    index = struct_index(tree)
+    found = {}
+    for base, dirs, files in os.walk(tree):
+        dirs[:] = [d for d in dirs if d not in ('.git', 'Build', 'BaseTools')]
+        for name in sorted(files):
+            if not name.endswith('.c'):
+                continue
+            path = os.path.join(base, name)
+            try:
+                with open(path, encoding='utf-8', errors='ignore') as f:
+                    src = f.read()
+            except OSError:
+                continue
+            if 'ProtocolInterface' not in src:
+                continue
+            for guid, variable in installed_pairs(src):
+                kind = interface_type(src, variable)
+                if not kind:
+                    continue
+                hit = index.get(normalize(kind))
+                if not hit:
+                    continue
+                header, members = hit
+                if guid not in found or len(members) > len(found[guid][1]):
+                    found[guid] = (header, members)
+    return found
+
+
 # Protocols that exist in a header but are deliberately not in the firmware. Discovery
 # reads headers, so a driver behind a build flag still looks like a target: AsanFaultDxe
 # is the sanitizer's positive control and is built only under ASAN_FAULT_PROTOCOL, which
@@ -222,6 +379,16 @@ def main():
     print(f'Scanning {len(roots)} Include/Protocol director(ies)')
     protocols = scan_roots(roots, NOT_TARGETS - (BENCH_TARGETS if args.bench else set()))
     print(f'Found {len(protocols)} protocol(s) with callable methods')
+    # Second pass, over install call sites, for the ones whose headers do not follow the
+    # conventions the first pass needs. Header-derived entries win: they are the
+    # conventional spelling and tend to carry the fuller member list.
+    installed = scan_installations(args.src)
+    added = {g: v for g, v in installed.items() if g not in protocols}
+    if added:
+        print(f'{len(added)} more from install call sites, whose headers the scan above '
+              f'cannot match: ' + ', '.join(sorted(added)[:6])
+              + (' ...' if len(added) > 6 else ''))
+        protocols.update(added)
     if not args.any_protocol:
         used = consumed_guids(args.src)
         keep = {g: v for g, v in protocols.items() if g in used}
