@@ -154,6 +154,46 @@ def main():
         b = rm.describe(imap, ip).split('.efi')[0].split('+')[0]
         check(f'both place {ip:#x} in {want}', a == b == want, f'{a!r} vs {b!r}')
 
+    print('what the right name then lets the report say')
+    # The artefact rule below is only reachable once attribution works, which is why it is
+    # checked here. SmiManage is handed a pointer into the caller's buffer and CompareGuid
+    # re-reads it once per registered handler, so the dispatch GUID is reported as a double
+    # fetch about as many times as there are handlers -- 8 sites, 20 hits each, on run
+    # 42154605158. It is not a defect: the GUID is only compared, and the caller chooses
+    # which handler it wants anyway.
+    import bug_report as br
+
+    def cluster_of(klass, path):
+        row = br.Report({'Phase': 'fuzz', 'Module': 'PiSmmCore.efi', 'File': path,
+                         'Line': '160', 'Asan Msg': '', 'ErrorType': klass,
+                         'Message': 'read of 4 bytes at 0x000000001B568000',
+                         'Count': '20'}, 'DiscoveredSmi')
+        found = br.Cluster(row.group_key())
+        found.add(row)
+        return found
+
+    guid_walk = cluster_of('fwsan-double-fetch (read)',
+                           'MdeModulePkg/Core/PiSmmCore/Smi.c')
+    kind, why = br.verdict(guid_walk, set(), 8)
+    check('the dispatcher GUID walk is filtered as an artefact', kind == 'artefact',
+          f'{kind}: filed as 8 separate issues on run 42154605158')
+    check('and it says why', 'CompareGuid' in why, why[:80])
+
+    # The same file with a different class is the finding an SMI campaign exists to find.
+    # A path-only rule would have thrown it away.
+    real = cluster_of('heap-buffer-overflow (write)',
+                      'MdeModulePkg/Core/PiSmmCore/Smi.c')
+    kind, _why = br.verdict(real, set(), 8)
+    check('a real defect in the same file still reports', kind == 'candidate',
+          f'{kind}: suppressing Smi.c by path would hide the dispatcher bugs')
+
+    # And the same class elsewhere is not covered by this rule.
+    elsewhere = cluster_of('fwsan-double-fetch (read)',
+                           'OvmfPkg/RWVariable/RWVariable.c')
+    kind, _why = br.verdict(elsewhere, set(), 8)
+    check('a double fetch in a handler still reports', kind == 'candidate',
+          f'{kind}: a handler re-reading its own comm buffer is the real class')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

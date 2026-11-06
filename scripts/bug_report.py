@@ -65,6 +65,19 @@ KNOWN_ARTEFACTS = [
     ('VbeShim', 'QemuVideoDxe writes its int10h shim into reserved low memory on purpose'),
 ]
 
+# Artefacts that only a class and a site together identify. KNOWN_ARTEFACTS matches a path
+# alone, which is too blunt here: a genuine defect in the SMM dispatcher is exactly what an
+# SMI campaign is looking for, so "Smi.c is noise" would throw away the finding this is
+# meant to surface. Each entry is (class substring, path substring, reason).
+CLASS_ARTEFACTS = [
+    ('double-fetch', 'PiSmmCore/Smi.c',
+     'SmiManage is handed &CommunicateHeader->HeaderGuid, a pointer into the caller\'s '
+     'buffer, and CompareGuid re-reads it once per registered handler -- so a boot with '
+     '22 handlers registered reports 21 double fetches of the dispatch GUID. The GUID is '
+     'only ever compared, and the caller controls which handler it wants anyway, so '
+     'nothing is bypassed by changing it mid-walk'),
+]
+
 # The sanitizer names the handler it entered, not the defect. `__ubsan_handle_type_mismatch_v1`
 # covers a null dereference, a misaligned access and an undersized object; grouping all
 # three under "ubsan" throws away the distinction that decides whether a finding matters.
@@ -676,6 +689,9 @@ def verdict(cluster, boot_keys, ubiquity):
     reason = match_reason(sample.path, KNOWN_ARTEFACTS)
     if reason:
         return 'artefact', reason
+    for klass, path, why in CLASS_ARTEFACTS:
+        if klass in cluster.klass.lower() and path in sample.path:
+            return 'artefact', why
     if len(cluster.protocols) >= ubiquity:
         # Before the background drop below, not after. A real defect can be ubiquitous:
         # the ExportPackageList pointer overflow fires under every protocol that touches
