@@ -16,6 +16,26 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY ./firness/harness_generator /workspace/harness_generator
 COPY ./firness/HarnessHelpers /workspace/HarnessHelpers
+
+# The analyzer, rebuilt from this repository's source rather than inherited.
+#
+# fuzzuer-base carries both the analyzer source tree and a firness binary built when that
+# image was made -- which on the current base is 2026-08-27. The line above ships the
+# generator's Python, so a change to the Python took effect and a change to the C++ did
+# not, and nothing said so. Run 42299962707 is what that looks like from the outside:
+# smi-call-edges.json simply was not in the campaign directory, because the binary that
+# ran predated the pass that writes it, while the Python half of the same commit ran and
+# crashed the generator.
+#
+# The firness target is already registered in the base's clang-tools-extra CMakeLists and
+# its build directory is configured, so this is a link of one target and not an LLVM build.
+COPY ./firness/firness /workspace/llvm-15.0.7/clang-tools-extra/firness/firness
+COPY ./firness/CMakeLists.txt /workspace/llvm-15.0.7/clang-tools-extra/firness/CMakeLists.txt
+RUN cd /workspace/llvm-15.0.7/build \
+    && cmake . >/dev/null \
+    && ninja firness \
+    && /workspace/llvm-15.0.7/build/bin/firness --help >/dev/null 2>&1 \
+    ; test -x /workspace/llvm-15.0.7/build/bin/firness
 COPY ./scripts /workspace/scripts/
 COPY ./scripts/firness.py /workspace/
 COPY ./uefi_asan /workspace/uefi_asan/

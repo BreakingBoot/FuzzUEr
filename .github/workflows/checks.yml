@@ -210,6 +210,10 @@ jobs:
         shell: bash
         run: python3 scripts/fwsan_report_check.py
 
+      - name: No pipeline function reads a name that is never bound
+        shell: bash
+        run: python3 scripts/unbound_name_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have

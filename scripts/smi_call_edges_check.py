@@ -174,6 +174,26 @@ def main():
     check('the edges and the dedup set are declared globally',
           'extern std::vector<Call> SmiCallEdges;' in gsrc
           and 'extern std::set<std::string> SeenSmiHandlerBodies;' in gsrc)
+    # The generator's real call path. analyze_smi() reads the edges, analyze_smi_data()
+    # knows where the analyzer wrote them, and the value is forwarded POSITIONALLY -- so
+    # both that the parameter exists and that it is in the slot the caller fills matter.
+    # Run 42299962707 died at exactly this seam with "NameError: name 'smi_file' is not
+    # defined" after 25 minutes of port, build, instrumentation and benchmark work,
+    # because the call was added to a function that had no such parameter.
+    import inspect
+    from data_analysis.analyze_smi import analyze_smi, analyze_smi_data
+    params = list(inspect.signature(analyze_smi).parameters)
+    check('analyze_smi takes the analyzer output path', 'smi_file' in params, str(params))
+    if 'smi_file' in params:
+        slot = params.index('smi_file')
+        caller = inspect.getsource(analyze_smi_data)
+        check('analyze_smi_data forwards it',
+              'edk2_dir, discovered, smi_file)' in caller,
+              'the edges and the inventory are read from this path')
+        check('it is forwarded into the slot that holds it',
+              slot == len(params) - 1 and params[slot] == 'smi_file',
+              f'smi_file is parameter {slot} of {len(params)}')
+
     fcp = os.path.join(ROOT, 'firness', 'firness', 'FCP.cpp')
     fsrc = open(fcp, encoding='utf-8').read() if os.path.exists(fcp) else ''
     check('the edges are written out', 'outputSmiCallEdges' in fsrc)

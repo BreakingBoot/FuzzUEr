@@ -42,7 +42,13 @@ older_than() {
     return 1
 }
 
-CI_IMAGE_INPUTS="qemustage/firness_qemu scripts uefi_asan firness/harness_generator firness/HarnessHelpers ci.Dockerfile"
+# firness/firness and firness/CMakeLists.txt are the ANALYZER's source. They belong here
+# for the same reason the comment above gives for the fuzzer binary: ci.Dockerfile now
+# rebuilds the analyzer, so a change to its C++ that is not in this list leaves the image
+# holding the binary it was built with. That is what happened to run 42299962707 in the
+# other direction -- the generator's Python shipped and the analyzer's C++ did not, from
+# the same commit, and the only outward sign was a missing output file.
+CI_IMAGE_INPUTS="qemustage/firness_qemu scripts uefi_asan firness/harness_generator firness/HarnessHelpers firness/firness firness/CMakeLists.txt ci.Dockerfile"
 say() { printf '\n=== %s ===\n' "$*"; }
 
 FORCE="${BOOTSTRAP_FORCE:-}"
