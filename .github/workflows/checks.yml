@@ -178,6 +178,10 @@ jobs:
         shell: bash
         run: python3 scripts/protocol_discovery_check.py
 
+      - name: An ASSERT is reported and does not end the campaign
+        shell: bash
+        run: python3 scripts/assert_report_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have

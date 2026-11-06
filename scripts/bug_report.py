@@ -241,6 +241,14 @@ class Cluster:
             # the guest actually faulted. Whether the harness or the firmware is at fault
             # is a triage question; it is never noise.
             return 4
+        if klass.startswith('firmware-assert'):
+            # Beside the fault, not at the bottom with the arithmetic rows: the firmware
+            # stated its own invariant and an input broke it, and on a build with the
+            # deadloop bit set the machine stops there. An SMM one stops it for good --
+            # CpuDeadLoop() with interrupts off, in a context the OS cannot preempt, so
+            # the recovery is a power cycle. It also arrives pre-located, naming its file,
+            # its line and the expression, which is more than a sanitizer row carries.
+            return 4
         if 'heap-buffer-overflow' in klass or 'unknown-crash' in klass:
             return 5 if '(write)' in klass else 4
         if any(k in klass for k in ('use-after-free', 'double-free', 'use-after-poison',
@@ -320,6 +328,128 @@ def guest_faults(protocol, path):
                             'Line': '', 'Asan Msg': '',
                             'ErrorType': f'cpu-exception ({name.split("-")[0].strip()})',
                             'Message': message, 'Count': '1'}, protocol))
+    return rows
+
+
+ASSERT_RE = re.compile(r'^ASSERT (?P<file>[^\s(]+)\((?P<line>\d+)\): (?P<expr>.*)$',
+                       re.MULTILINE)
+# Boot loads drivers; the harness loads nothing. The last load line is therefore the last
+# moment that is certainly still boot, which is the only divider these two captures share
+# -- the harness markers firness.py splits on go to the serial capture, and ASSERTs go to
+# the debug console. Measured on run 42154605158: last load at line 556, the ASSERT at
+# 3287. A capture with no load lines at all leaves every ASSERT in the boot bucket, where
+# the report tells a reader to confirm it against the source, rather than claiming an
+# input provoked something that may fire on every boot.
+LOAD_RE = re.compile(r'^Loading driver at ', re.MULTILINE)
+
+
+_SOURCE_INDEX = None
+
+
+def _source_index(build_dirs):
+    """source basename -> every path under the build dirs with that name."""
+    global _SOURCE_INDEX
+    if _SOURCE_INDEX is None:
+        _SOURCE_INDEX = defaultdict(list)
+        for root in build_dirs:
+            for base, dirs, files in os.walk(root):
+                # Build/ holds generated copies and the AutoGen files; the sources an
+                # ASSERT names are the ones that were compiled, not their build artefacts.
+                dirs[:] = [d for d in dirs if d not in ('Build', '.git')]
+                for name in files:
+                    if name.endswith(('.c', '.h')):
+                        _SOURCE_INDEX[name].append(os.path.join(base, name))
+    return _SOURCE_INDEX
+
+
+def assert_source(name, line, expr, build_dirs):
+    """The package-relative path of the file an ASSERT named, or ''.
+
+    DebugAssert is handed __FILE__, and edk2 compiles each module from its own directory,
+    so what arrives is a bare basename: "Smi.c", and edk2 has more than one of those. The
+    line number settles most of it -- a file of the same name whose line 193 is not an
+    ASSERT at all did not raise this one.
+
+    The expression is only a tie-breaker, and deliberately so. It reaches the message
+    macro-expanded, so for anything but a bare ASSERT (FALSE) it will not appear in the
+    source verbatim; requiring it to match would have thrown away every attribution it
+    cannot confirm, including ones the line number had already settled on its own.
+
+    Returns a path only when exactly one candidate survives. Two that both fit is not a
+    tie to break -- naming one would be a guess presented as an answer, and a bare
+    basename is the more honest row.
+    """
+    if not build_dirs or not name or not line.isdigit():
+        return ''
+    wanted = int(line)
+    hits = []
+    for path in _source_index(build_dirs).get(name, ()):
+        try:
+            with open(path, 'rb') as handle:
+                lines = handle.read().decode('utf-8', errors='replace').splitlines()
+        except OSError:
+            continue
+        if len(lines) >= wanted and 'ASSERT' in lines[wanted - 1]:
+            hits.append((path, lines[wanted - 1]))
+    if len(hits) > 1:
+        # FALSE is how DebugLib's own expansion of ASSERT (FALSE) comes back.
+        spellings = [expr.strip(), expr.strip().replace(' ', '')]
+        if expr.replace(' ', '') == '((BOOLEAN)(0==1))':
+            spellings.append('FALSE')
+        narrowed = [hit for hit in hits
+                    if any(s and s in hit[1].replace(' ', '') for s in spellings)]
+        if len(narrowed) == 1:
+            hits = narrowed
+    if len(hits) != 1:
+        return ''
+    found = resolve_modules.package_relative(hits[0][0])
+    return found or hits[0][0]
+
+
+def guest_asserts(protocol, paths, build_dirs=()):
+    """ASSERTs the firmware raised, from the captures.
+
+    An ASSERT is a finding the other two sources cannot see. It is not a sanitizer report,
+    so it never reaches crashes.csv, and it is not a CPU exception, so guest_faults misses
+    it -- yet DEBUG_PROPERTY_ASSERT_DEADLOOP_ENABLED makes it the most destructive thing a
+    campaign can hit: CpuDeadLoop() with interrupts off, and inside SMM the snapshot
+    restore does not recover the vCPU. Run 42154605158 spent its last four iterations
+    timing out against a machine killed that way by its 21st input.
+
+    SHARED_PCDS in fuzz_edk2.py now clears that bit so the campaign survives, which is
+    only safe because the finding is read back here. The ASSERT names its own file, line
+    and expression, so these rows arrive better located than a sanitizer row does -- no
+    symbolisation, no image map, no build tree.
+    """
+    rows = []
+    for path in paths:
+        if not os.path.isfile(path):
+            continue
+        try:
+            with open(path, 'rb') as handle:
+                text = handle.read().decode('utf-8', errors='replace').replace('\r', '')
+        except OSError:
+            continue
+        loads = [m.start() for m in LOAD_RE.finditer(text)]
+        boot_ends = loads[-1] if loads else len(text)
+        # Count repeats, and keep the phase of the first sighting: one site asserting in
+        # both phases is a boot defect the harness also reaches, not two defects.
+        seen = {}
+        for found in ASSERT_RE.finditer(text):
+            name, line = found.group('file'), found.group('line')
+            key = (name, line, found.group('expr'))
+            if key in seen:
+                seen[key][0] += 1
+            else:
+                seen[key] = [1, 'fuzz' if found.start() > boot_ends else 'boot']
+        for (name, line, expr), (count, phase) in seen.items():
+            where = assert_source(name, line, expr, build_dirs) or name
+            rows.append(Report({'Phase': phase, 'Module': '',
+                                'File': where, 'Line': line, 'Asan Msg': '',
+                                'ErrorType': 'firmware-assert',
+                                'Message': f'assertion failed: {expr} -- a deadloop '
+                                           f'build stops here, in SMM for good',
+                                'Count': str(count)}, protocol))
     return rows
 
 
@@ -485,6 +615,13 @@ def load(root, build_dirs=()):
         for report in guest_faults(protocol, serial):
             rows += 1
             groups[report.group_key()].append(report)
+        # Both captures: an ASSERT reaches the debug console, and reaches the serial one
+        # too when the firmware was built with DEBUG_ON_SERIAL_PORT. attribute() fills in
+        # the module from the source path when the build tree knows which module compiled
+        # that file, exactly as it does for a UBSan row.
+        for report in guest_asserts(protocol, maps, build_dirs):
+            rows += 1
+            groups[attribute(report).group_key()].append(report)
 
     clusters = {}
     for base, reports in groups.items():

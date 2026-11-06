@@ -515,6 +515,52 @@ NETWORK_DEFINES = (
 
 DXE_FV_PCDS = 'PcdOvmfDxeMemFvBase|gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvSize'
 
+# The --pcd overrides every build in a run shares. Kept in one place because the firmware
+# build and the analysis build in IMAGE_DOCKERFILE maintain separate command lines, and
+# that is exactly how PcdResetOnMemoryTypeInformationChange came to be set on the build
+# nobody boots -- see the note on IMAGE_DOCKERFILE. A PCD one build sets and the other does
+# not is a difference between the firmware that was validated and the firmware that runs.
+SHARED_PCDS = (
+    # A fuzzer cannot survive a guest reset, and with SMM the firmware takes one.
+    # OvmfPkgX64.dsc forces this PCD FALSE only inside "!if $(SMM_REQUIRE) == FALSE", so an
+    # SMM build keeps MdeModulePkg's default of TRUE: BDS sees the Memory Type Information
+    # differ, writes it and warm-resets so the new map takes effect --
+    #   Memory Type Information settings change.
+    #   ...Warm Reset!!!
+    # libafl_qemu then dies on "Unhandled QEMU shutdown cause: GuestReset" and the campaign
+    # ends before the harness, which is why ONLY SMM campaigns failed. Without SMM the
+    # variable store is opened read-only, the write cannot happen, and the question never
+    # arises. Passed for every build: without SMM the DSC already says FALSE, so this only
+    # ever agrees with it.
+    'gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange=FALSE',
+
+    # 0x0F is OvmfPkgX64.dsc's own 0x2F with DEBUG_PROPERTY_ASSERT_DEADLOOP_ENABLED (0x20)
+    # cleared, and nothing else changed: DEBUG_ASSERT, DEBUG_PRINT, DEBUG_CODE and
+    # CLEAR_MEMORY all stay on, so the "ASSERT <file>(<line>): <expr>" line still reaches
+    # the debug console and freed pool is still poisoned. Only the CpuDeadLoop that
+    # followed it is gone, which DebugLib documents as a PCD choice -- with neither the
+    # breakpoint nor the deadloop bit set, DebugAssert prints and returns.
+    #
+    # A dead loop forfeits the whole remaining budget, and inside SMM it forfeits the
+    # machine. Measured on eval1 run 42154605158: the corpus grew 0 -> 20 over 20 fast
+    # iterations, then input 21 reached VarCheckPolicyLibMmiHandler with a 1-byte comm
+    # buffer, that handler returned EFI_INVALID_PARAMETER, SmiManage hit its "Unexpected
+    # status code returned" ASSERT (PiSmmCore/Smi.c:193) and CpuDeadLoop()ed with
+    # interrupts off. Iterations 22, 23 and 24 produced no guest output at all -- the
+    # snapshot restore does not recover a vCPU wedged in SMM -- so the campaign spent the
+    # rest of its 300s timing out against a dead machine and stopped at 24 iterations.
+    #
+    # The ASSERT is still a finding, and a better one than the timeout was: it names its
+    # own file and line. guest_asserts() in bug_report.py reads those lines back out of the
+    # capture, so clearing the bit keeps the finding and buys back the budget.
+    'gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask=0x0F',
+)
+
+
+def shared_pcds():
+    """SHARED_PCDS as build(1) arguments."""
+    return ' '.join(f'--pcd {pcd}' for pcd in SHARED_PCDS)
+
 
 def build_error(text):
     """The line that actually explains a failed build.
@@ -768,8 +814,7 @@ def main():
     # campaign boots that build's OVMF, so a PCD the firmware stage sets and this one does
     # not is a difference between the firmware that was validated and the firmware that
     # runs. Kept beside the extras below for the same reason.
-    image_pcds = ('--pcd gEfiMdeModulePkgTokenSpaceGuid.'
-                  'PcdResetOnMemoryTypeInformationChange=FALSE ')
+    image_pcds = f'{shared_pcds()} '
     # Filled in below once the caller's extras are parsed, because the firmware build's
     # comment promises them to "every build in the run" and the image build is one.
     image_extra = ''
@@ -1209,23 +1254,9 @@ def main():
                   f'{{ echo "BASETOOLS-FAILED"; tail -30 /tmp/bt-{slug}.log; exit 1; }}; '
                   f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
                   f'{defines}{NETWORK_DEFINES} -D FD_SIZE_IN_KB=8192 '
-                  # A fuzzer cannot survive a guest reset, and with SMM the firmware takes
-                  # one. OvmfPkgX64.dsc forces this PCD FALSE only inside
-                  # "!if $(SMM_REQUIRE) == FALSE", so an SMM build keeps MdeModulePkg's
-                  # default of TRUE: BDS sees the Memory Type Information differ, writes it
-                  # and warm-resets so the new map takes effect --
-                  #   Memory Type Information settings change.
-                  #   ...Warm Reset!!!
-                  # libafl_qemu then dies on "Unhandled QEMU shutdown cause: GuestReset"
-                  # and the campaign ends before the harness, which is why ONLY SMM
-                  # campaigns failed. Without SMM the variable store is opened read-only,
-                  # the write cannot happen, and the question never arises.
-                  #
-                  # The reset is a memory layout optimisation for the NEXT boot, and a
-                  # campaign boots once. Passed for every build: without SMM the DSC
-                  # already says FALSE, so this only ever agrees with it.
-                  f'--pcd gEfiMdeModulePkgTokenSpaceGuid.'
-                  f'PcdResetOnMemoryTypeInformationChange=FALSE '
+                  # See SHARED_PCDS for why each of these is here. The analysis build
+                  # in IMAGE_DOCKERFILE takes the same list, from the same constant.
+                  f'{shared_pcds()} '
                   # Last, so --extra-defines/--extra-pcds can override any of the above
                   # and not merely add to it. Every build in the run gets them, including
                   # the detect probe, because a knob a codebase needs to build at all is
