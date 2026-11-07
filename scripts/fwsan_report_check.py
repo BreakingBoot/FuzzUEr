@@ -225,9 +225,12 @@ def main():
     check('the report path compiles under -Wall -Wextra -Werror', True)
     check('one report per distinct ip', got['reports'] == 3, str(got))
     check('a banner never outnumbers its reports', got['banners'] == got['reports'], str(got))
+    # A healthy path must be quiet. The counters rewind with the snapshot every iteration,
+    # so a line per suppressed detection is a line per detection: 991623 of them on EVAL-1
+    # run 42310220335, which is the volume problem the banner had, moved.
+    check('a reporting path does not narrate its own suppressions',
+          got['notes'] == 0, str(got))
     check('3000 detections do not cost 3000 lines', got['lines'] < 60, str(got))
-    check('suppression is narrated at powers of two',
-          0 < got['notes'] <= 20, str(got))
 
     # The table-full arm: more distinct ips than the table holds must still not go silent.
     cap = int(re.search(r'#define ASAN_FWSAN_IP_SEEN\s+(\d+)', src).group(1))
@@ -236,6 +239,16 @@ def main():
           err is None and got['reports'] == cap, str(err or got))
     check('a full table says so rather than going quiet',
           err is None and got['notes'] > 0, str(err or got))
+
+    # And the diagnostic case the narration exists for: detections arriving with nothing
+    # reported beside them has to be audible, which is the state that produced 6403878
+    # banners and 0 reports.
+    silent = re.sub(r'(\n  mFwsanSeenIp\[mFwsanSeenCount\+\+\] = Ip;)',
+                    r'\n  if (TRUE) { mFwsanSuppressedOff++; AsanFwsanNote ("off", '
+                    r'mFwsanSuppressedOff); return; }\1', src, count=1)
+    got, err = build_and_run(silent, ips=3, hits=1000)
+    check('a path that reports nothing says so',
+          err is None and got['reports'] == 0 and got['notes'] > 0, str(err or got))
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
