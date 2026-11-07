@@ -75,14 +75,40 @@ CLASS_ARTEFACTS = [
      'buffer, and CompareGuid re-reads it once per registered handler -- so a boot with '
      '22 handlers registered reports 21 double fetches of the dispatch GUID. The GUID is '
      'only ever compared, and the caller controls which handler it wants anyway, so '
-     'nothing is bypassed by changing it mid-walk'),
+     'nothing is bypassed by changing it mid-walk', None),
     ('double-fetch', 'MdePkg/Library/BasePrintLib/',
      'the second read is inside BasePrintLib, which means a DEBUG statement is printing '
      'untrusted memory that something else already read -- %g formats a GUID as '
      'ReadUnaligned32, ReadUnaligned16 twice and then Data4[0..7] one byte at a time, so '
      'one print of a caller-supplied GUID reports ten double fetches at ten sites. A '
      'print does not decide anything with the value it reads, so re-reading it bypasses '
-     'no check; the defect class needs the second read to feed a decision'),
+     'no check; the defect class needs the second read to feed a decision', None),
+    # The same SmiManage walk as the first entry, attributed to the library instead of the
+    # caller. CompareGuid compares two GUIDs as a pair of UINT64s, so the re-read lands on
+    # BaseLib's ReadUnaligned64 and the path is Unaligned.c -- the first entry's
+    # PiSmmCore/Smi.c never matches it. It only became visible once the firmware classes
+    # stopped sharing the outline handlers' dedup table: before that, the boot reported
+    # this very IP as a global-buffer-overflow and every later double fetch at it was
+    # dropped as already-seen. Measured on run 42310220335: one cluster, 165616 hits, an
+    # 8-byte read at the comm buffer's base, which is the HeaderGuid.
+    #
+    # Pinned three ways on purpose, because each one alone would hide real findings.
+    # BaseLib is linked into everything, so the file is not noise. ReadUnaligned32 and
+    # ReadUnaligned16 in the same file are the shape of a caller re-reading a field it
+    # validated, which is the real class -- hence the line, which is ReadUnaligned64. And
+    # the same site in any other module is that module re-reading untrusted memory for its
+    # own reasons, not the dispatcher's handler walk -- hence PiSmmCore.efi.
+    #
+    # The line number is the brittle part: it moves when MdePkg does. It fails safe. A
+    # moved line stops matching, the finding comes back as a candidate, and someone reads
+    # it again -- which is the right direction to fail in.
+    ('double-fetch', 'MdePkg/Library/BaseLib/Unaligned.c:186',
+     'the dispatcher comparing the caller-supplied HeaderGuid against each registered '
+     'handler. CompareGuid reads both GUIDs as two UINT64s, so the re-read is reported '
+     'against BaseLib ReadUnaligned64 rather than against SmiManage, and the hit count '
+     'tracks the number of dispatches. The GUID is only ever compared -- the caller '
+     'already chooses which handler it wants -- so changing it mid-walk bypasses no '
+     'check', 'PiSmmCore.efi'),
 ]
 
 # The sanitizer names the handler it entered, not the defect. `__ubsan_handle_type_mismatch_v1`
@@ -696,9 +722,16 @@ def verdict(cluster, boot_keys, ubiquity):
     reason = match_reason(sample.path, KNOWN_ARTEFACTS)
     if reason:
         return 'artefact', reason
-    for klass, path, why in CLASS_ARTEFACTS:
-        if klass in cluster.klass.lower() and path in sample.path:
-            return 'artefact', why
+    for klass, path, why, module in CLASS_ARTEFACTS:
+        if klass not in cluster.klass.lower() or path not in sample.path:
+            continue
+        # A module condition narrows a path that is not an artefact on its own. BaseLib is
+        # linked into everything and a re-read inside it is a real double fetch when the
+        # caller validated the first read -- it is only noise when the caller is the
+        # dispatcher walking its handler list.
+        if module and module != cluster.module:
+            continue
+        return 'artefact', why
     if len(cluster.protocols) >= ubiquity:
         # Before the background drop below, not after. A real defect can be ubiquitous:
         # the ExportPackageList pointer overflow fires under every protocol that touches

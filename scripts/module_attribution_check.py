@@ -240,6 +240,38 @@ def main():
     check('a double fetch inside BaseLib still reports', kind == 'candidate',
           f'{kind}: ReadUnaligned32 on a re-read field is the real class')
 
+    # ... but ReadUnaligned64 at the dispatcher is that same handler walk, attributed to
+    # the library instead of the caller. CompareGuid compares two GUIDs as a pair of
+    # UINT64s, so the re-read lands on BaseLib and the first artefact entry's
+    # PiSmmCore/Smi.c never matches it.
+    #
+    # It only became visible once the firmware classes stopped sharing the outline
+    # handlers' dedup table. Before that the boot reported this very IP as a
+    # global-buffer-overflow -- run 42186976238 has it in the background bucket at
+    # Unaligned.c:186:10 with 1 hit -- and every later double fetch at it was dropped as
+    # already-seen, which is why 6403878 detections produced no report at all. Run
+    # 42310220335, with the tables separated, filed it as one sev1 cluster of 165616 hits.
+    # The values below are that cluster's, as bugs.json recorded them.
+    guid64 = cluster_of('fwsan-double-fetch (read)',
+                        'MdePkg/Library/BaseLib/Unaligned.c:186')
+    kind, why = br.verdict(guid64, set(), 8)
+    check('the dispatcher GUID compare through ReadUnaligned64 is an artefact',
+          kind == 'artefact', f'{kind}: 165616 hits as a sev1 candidate on run 42310220335')
+    check('and it says the GUID is only compared', 'compared' in why, why[:80])
+
+    # The same site in another module is not the dispatcher's walk.
+    elsewhere64 = br.Report({'Phase': 'fuzz', 'Module': 'VariableSmm.efi',
+                             'File': 'MdePkg/Library/BaseLib/Unaligned.c:186',
+                             'Line': '186', 'Asan Msg': '',
+                             'ErrorType': 'fwsan-double-fetch (read)',
+                             'Message': 'read of 8 bytes at 0x000000001B568000',
+                             'Count': '20'}, 'DiscoveredSmi')
+    other = br.Cluster(elsewhere64.group_key())
+    other.add(elsewhere64)
+    kind, _why = br.verdict(other, set(), 8)
+    check('the same site in another module still reports', kind == 'candidate',
+          f'{kind}: only the dispatcher compares a caller GUID against a handler list')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 
