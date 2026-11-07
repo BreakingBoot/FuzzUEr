@@ -24,6 +24,7 @@ makes an edge sharp -- offset arithmetic on a buffer the caller owns.
 """
 
 import json
+import re
 import os
 import sys
 import types
@@ -52,7 +53,13 @@ def check(name, condition, detail=''):
         FAILURES.append(name)
 
 
-def edge(handler, service, function, order, args, file='RWVariable.c'):
+# The path the analyzer really records is the one it compiled, inside the builder
+# container -- not a repo-relative one. The fixture carries that so the trimming in
+# bug_report.write_source_section is exercised rather than assumed.
+CONTAINER_PATH = '/workspace/tmp/edk2/OvmfPkg/RWVariable/RWVariable.c'
+
+
+def edge(handler, service, function, order, args, file=CONTAINER_PATH):
     return {
         'EnclosingFunction': handler,
         'EnclosingFile': file,
@@ -79,7 +86,10 @@ RWVARIABLE = [
     edge('RWVariableHandler', 'mSmmVariable', 'SmmSetVariable', 1, [
         arg('VarName', '(CHAR16 *)CommData->Data', 'CHAR16 *'),
         arg('VarGuid', '&CommData->VarGuid', 'EFI_GUID *'),
-        arg('Attributes', 'CommData->Attributes', 'UINT32'),
+        # An OR of attribute flags is ordinary edk2 and puts a '|' in the recorded
+        # assignment, which is also a markdown column separator. Here so the escaping in
+        # write_source_section is exercised rather than assumed.
+        arg('Attributes', 'CommData->Attributes | EFI_VARIABLE_NON_VOLATILE', 'UINT32'),
         arg('DestBuffer',
             '(VOID *)((CHAR16 *)((RW_VARIABLE_INFO *)CommBuffer)->Data + CommData->Offset)',
             'VOID *'),
@@ -119,6 +129,45 @@ def main():
           carried.get('Arg_2', {}).get('offset_arithmetic') is not True)
     check('what ran before the crossing is reported',
           one['ran_before'] == ['DuplicateMemory'], str(one['ran_before']))
+
+    check('a peer protocol crossing is classified as one',
+          one['kind'] == 'peer-protocol', one.get('kind'))
+
+    # The core's own services are not a peer whose validation was skipped. On EVAL-1 three
+    # of five crossings were SmmAllocatePool taking *CommBufferSize and SmmFreePool taking
+    # back its own buffer -- both correct -- and they outnumbered the two real findings.
+    core = cross_module.cross_module_edges([
+        edge('RWVariableHandler', 'gSmst', 'SmmAllocatePool', 0, [
+            arg('EfiRuntimeServicesData', '', 'UINTN'),
+            arg('DataSize', '*CommBufferSize', 'UINTN'),
+        ]),
+    ])
+    check('a core service call is classified, not dropped', len(core) == 1, str(len(core)))
+    check('a core service call is not a peer crossing',
+          core and core[0]['kind'] == 'core-service', core and core[0].get('kind'))
+    for table in ('gSmst', 'gMmst', 'gBS', 'gRT', 'gDS', 'gST'):
+        check(f'{table} is a core service table',
+              cross_module.crossing_kind(table) == 'core-service')
+    check('a protocol reached through a member is still a peer',
+          cross_module.crossing_kind('mMmCpuIo->Io') == 'peer-protocol')
+    check('an unnamed protocol is a peer',
+          cross_module.crossing_kind('protocol') == 'peer-protocol')
+
+    # report() must not bury the peer crossings under the core ones.
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        cross_module.report(RWVARIABLE + [
+            edge('RWVariableHandler', 'gSmst', 'SmmFreePool', 2, [arg('CommData', '')]),
+        ])
+    out = buf.getvalue()
+    check('the headline counts peer crossings, not every crossing',
+          'SMI cross-module: 1 peer-protocol crossing' in out,
+          out.splitlines()[0] if out else '(no output)')
+    check('the core service calls are still accounted for',
+          'gSmst->SmmFreePool' in out and 'core services' in out)
+    check('the offset finding is in the printed report',
+          'offset arithmetic' in out)
 
     # A library call inside the same image is not an interface crossing however it is used.
     direct = cross_module.cross_module_edges([
@@ -197,6 +246,92 @@ def main():
     fcp = os.path.join(ROOT, 'firness', 'firness', 'FCP.cpp')
     fsrc = open(fcp, encoding='utf-8').read() if os.path.exists(fcp) else ''
     check('the edges are written out', 'outputSmiCallEdges' in fsrc)
+
+    # The findings have to reach bugs.md. Before this they existed only in
+    # campaigns/<name>/log.txt, which nothing in the pipeline output, the run summary or
+    # the triage stage points at -- the same shape of failure as a detector that fires and
+    # never reports.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'bug_report', os.path.join(ROOT, 'scripts', 'bug_report.py'))
+    bug_report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bug_report)
+
+    check('bug_report can read the analyzer edges', hasattr(bug_report, 'source_crossings'))
+    check('bug_report writes a source section', hasattr(bug_report, 'write_source_section'))
+
+    import io
+    buf = io.StringIO()
+    bug_report.write_source_section(buf, cross_module.cross_module_edges(RWVARIABLE))
+    md = buf.getvalue()
+    check('the section is headed as source-derived',
+          '## Firmware, found in the source' in md)
+    check('the section says a row is not a confirmed defect',
+          'not a confirmed defect' in md)
+    check('the offset finding is marked in the table', 'offset arithmetic' in md)
+    check('the handler is named in the table', 'RWVariableHandler' in md)
+    check('the path is package-relative, not the builder container path',
+          'OvmfPkg/RWVariable/RWVariable.c' in md and '/workspace/' not in md)
+    # Counting every '|' would fail on a correctly escaped one: the escape keeps the
+    # character and adds a backslash before it. Count the ones markdown will treat as
+    # separators.
+    sep = re.compile(r'(?<!\\)\|')
+    rows = [row for row in md.splitlines() if row.startswith('| RWVariableHandler')]
+    check('a pipe in the source text cannot break the table',
+          rows and all(len(sep.findall(row)) == 6 for row in rows),
+          str([len(sep.findall(row)) for row in rows]))
+    check('the pipe case is actually present in the fixture',
+          any('EFI_VARIABLE_NON_VOLATILE' in row for row in rows),
+          'nothing in the table carries a pipe, so the escaping is untested')
+
+    empty = io.StringIO()
+    bug_report.write_source_section(empty, [])
+    check('an empty section says None rather than a bare header',
+          'None.' in empty.getvalue())
+
+    # Driven through write_markdown rather than by calling the section writer directly:
+    # a check that only calls the writer passes when write_markdown stops calling it,
+    # which is what mutation case "C6 bugs.md section removed" showed.
+    import tempfile
+    with tempfile.TemporaryDirectory() as work:
+        out = os.path.join(work, 'bugs.md')
+        bug_report.write_markdown(out, 'title', 'preamble', {}, 0, 0, (),
+                                  cross_module.cross_module_edges(RWVARIABLE))
+        whole = open(out, encoding='utf-8').read()
+    check('write_markdown emits the source section',
+          '## Firmware, found in the source' in whole,
+          'the section writer is never reached from write_markdown')
+    check('write_markdown emits the offset finding',
+          'offset arithmetic' in whole)
+    check('the source section is kept apart from the sanitizer ones',
+          whole.index('Firmware, provoked by an input')
+          < whole.index('Firmware, found in the source'),
+          'a source finding must not read as a sanitizer report')
+
+    # source_crossings() reads the campaign directories, so it needs one. Without this the
+    # loader was never run by any check -- mutation cases C11 and C12 both passed while it
+    # was returning core-service rows and while its dedup was gone.
+    with tempfile.TemporaryDirectory() as work:
+        for name in ('DiscoveredSmi', 'SecondCampaign'):
+            camp = os.path.join(work, name)
+            os.makedirs(camp)
+            with open(os.path.join(camp, 'smi-call-edges.json'), 'w') as handle:
+                json.dump(RWVARIABLE + [
+                    edge('RWVariableHandler', 'gSmst', 'SmmFreePool', 9,
+                         [arg('CommData', '')]),
+                ], handle)
+        loaded = bug_report.source_crossings(work)
+
+    kinds = {f['kind'] for f in loaded}
+    check('the loader reads the campaign directories', loaded != [], 'nothing loaded')
+    check('the loader keeps only peer-protocol crossings', kinds == {'peer-protocol'},
+          str(kinds))
+    # RWVARIABLE holds one peer crossing (SmmSetVariable; DuplicateMemory has no Service),
+    # written into two campaign directories. One place in the source, so one row.
+    check('the same source site in two campaigns is one row',
+          len(loaded) == 1, f'{len(loaded)} row(s) from the same crossing in 2 campaigns')
+    check('a missing edges file is not an error',
+          bug_report.source_crossings(os.path.join(work, 'gone')) == [])
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0

@@ -26,6 +26,7 @@ needs review when the firmware changes.
 
 import argparse
 import csv
+import glob
 import json
 import os
 import re
@@ -894,7 +895,85 @@ def cluster_source(cluster, build_dirs):
     return where
 
 
-def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()):
+def source_crossings(root):
+    """Peer-protocol crossings the analyzer found, from every campaign's smi-call-edges.json.
+
+    These are not sanitizer reports and were not provoked by an input: they are places in
+    the source where an SMI handler hands caller-controlled data to another module's
+    interface, which arrives there without the validation that module does on its own SMI
+    entry path. Read into bugs.md because the alternative is where they lived before --
+    campaigns/<name>/log.txt, which nothing in the pipeline output points at. Measured on
+    EVAL-1 run 42310220335: the two crossings below were in that file, and the run summary,
+    the triage output and bugs.md all said nothing about them.
+    """
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), 'firness', 'harness_generator'))
+        from data_analysis.cross_module import cross_module_edges
+    except Exception:
+        return []
+
+    seen, findings = set(), []
+    for path in sorted(glob.glob(os.path.join(root, '*', 'smi-call-edges.json'))):
+        try:
+            with open(path, 'r') as handle:
+                edges = json.load(handle)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(edges, list):
+            continue
+        for find in cross_module_edges(edges):
+            if find.get('kind') != 'peer-protocol':
+                continue
+            # Same handler and callee in two campaigns is one place in the source.
+            key = (find['handler'], find['service'], find['function'])
+            if key in seen:
+                continue
+            seen.add(key)
+            findings.append(find)
+    return findings
+
+
+def write_source_section(handle, findings):
+    """The source-derived findings, kept clearly apart from the sanitizer ones."""
+    handle.write('## Firmware, found in the source\n\n')
+    handle.write('Not sanitizer reports and not provoked by an input: an SMI handler hands '
+                 'caller-controlled data to another module\'s interface, so the callee '
+                 'receives it without the checks it applies on its own SMI entry path. '
+                 'A row here is a place to read, not a confirmed defect -- a handler that '
+                 'validates thoroughly before the call looks the same from here.\n\n')
+    if not findings:
+        handle.write('None.\n\n')
+        return
+    handle.write('| handler | source | reaches | argument | derived from |\n'
+                 '|---|---|---|---|---|\n')
+
+    def repo_path(path):
+        """The package-relative path, as the sanitizer rows in this file already show.
+
+        The analyzer records the path it compiled, which is inside the builder container
+        (/workspace/tmp/edk2/OvmfPkg/...). Printing that beside
+        `MdePkg/Library/BaseLib/String.c` in the table above invites the reader to think
+        the two came from different trees.
+        """
+        parts = (path or '').replace('\\', '/').split('/')
+        for index, part in enumerate(parts):
+            if part.endswith('Pkg'):
+                return '/'.join(parts[index:])
+        return parts[-1] if parts else ''
+
+    for find in findings:
+        for carry in find['carries']:
+            flag = ' **offset arithmetic**' if carry['offset_arithmetic'] else ''
+            shown = (carry['assignment'] or carry['variable'] or '').replace('|', r'\|')
+            handle.write(f"| {find['handler']} | `{repo_path(find['file'])}` | "
+                         f"{find['service']}->{find['function']} | {carry['arg']} "
+                         f"{carry['data_type']} | `{shown}`{flag} |\n")
+    handle.write('\n')
+
+
+def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=(),
+                   crossings=()):
     """One row per bug, with enough beside it to act on without rerunning anything."""
     def line(cluster, reason, verdict):
         detail = cluster.detail() or ''
@@ -938,6 +1017,7 @@ def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()
             for cluster, reason in entries:
                 handle.write(line(cluster, reason, verdict) + '\n')
             handle.write('\n')
+        write_source_section(handle, list(crossings))
 
 
 def main():
@@ -1071,7 +1151,7 @@ def main():
 
     if args.markdown:
         write_markdown(args.markdown, args.title, args.preamble, buckets, rows,
-                       len(clusters), args.build)
+                       len(clusters), args.build, source_crossings(args.root))
         print(f'\nWrote {args.markdown}')
 
     if args.json:
