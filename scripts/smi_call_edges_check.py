@@ -333,6 +333,7 @@ def main():
     check('a missing edges file is not an error',
           bug_report.source_crossings(os.path.join(work, 'gone')) == [])
 
+
     # A library-attributed finding has to point at the caller. Reports carry one frame --
     # a nine-frame walk #GP'd inside __asan_store1 and capped every boot at one finding --
     # so a fault inside StrLen names the image StrLen was linked into, which is why issues
@@ -384,6 +385,55 @@ def main():
     check('the caller hint reaches the markdown row',
           'RWVariableHandler' in table and 'names the library, not the caller' in table,
           'the hint is computed but never printed')
+
+    # The loader has to find the generator in BOTH layouts. A checkout has
+    # firness/harness_generator beside scripts/; ci.Dockerfile puts harness_generator and
+    # scripts side by side under /workspace. Only the first was tried, so in the image the
+    # import raised, the except returned [], and run 42483193618 wrote "None." into bugs.md
+    # while log.txt in the same run reported two crossings.
+    import subprocess
+    src_scripts = os.path.join(ROOT, 'scripts')
+    src_gen = os.path.join(ROOT, 'firness', 'harness_generator')
+    edges_dir = None
+    with tempfile.TemporaryDirectory() as work:
+        camp = os.path.join(work, 'campaigns', 'OneCampaign')
+        os.makedirs(camp)
+        with open(os.path.join(camp, 'smi-call-edges.json'), 'w') as handle:
+            json.dump(RWVARIABLE, handle)
+        # A campaign with no crashes.csv is reported as "nothing was reported" and main()
+        # returns before write_markdown, so the fixture needs one row for the markdown
+        # path to be reached at all.
+        with open(os.path.join(camp, 'crashes.csv'), 'w') as handle:
+            handle.write('Phase,AtBoot,Module,File,Line,Asan Msg,ErrorType,Message,Count\n')
+            handle.write('fuzz,,VariableSmm.efi,MdePkg/Library/BaseLib/String.c,39,'
+                         'heap-buffer-overflow,asan,"read of 2 bytes",24\n')
+        edges_dir = os.path.join(work, 'campaigns')
+
+        # the image's layout: scripts/ and harness_generator/ as siblings
+        lay = os.path.join(work, 'image')
+        os.makedirs(lay)
+        subprocess.run(['cp', '-r', src_scripts, os.path.join(lay, 'scripts')], check=True)
+        subprocess.run(['cp', '-r', src_gen, os.path.join(lay, 'harness_generator')],
+                       check=True)
+        out = os.path.join(work, 'image.md')
+        subprocess.run([sys.executable, os.path.join(lay, 'scripts', 'bug_report.py'),
+                        '-r', edges_dir, '--markdown', out],
+                       capture_output=True, timeout=300)
+        found = open(out, encoding='utf-8').read() if os.path.exists(out) else ''
+        check("the image's layout finds the generator",
+              'RWVariableHandler' in found,
+              'harness_generator beside scripts/ must resolve too')
+
+        # and with the generator absent it must say so rather than print an empty section
+        subprocess.run(['rm', '-rf', os.path.join(lay, 'harness_generator')], check=True)
+        out2 = os.path.join(work, 'absent.md')
+        ran = subprocess.run([sys.executable, os.path.join(lay, 'scripts', 'bug_report.py'),
+                              '-r', edges_dir, '--markdown', out2],
+                             capture_output=True, text=True, timeout=300)
+        said = (ran.stdout or '') + (ran.stderr or '')
+        check('a missing generator is reported, not swallowed',
+              '::warning::' in said and 'smi-call-edges.json' in said,
+              'an empty section would read as "no crossings found"')
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0

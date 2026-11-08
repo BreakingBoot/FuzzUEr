@@ -906,15 +906,50 @@ def source_crossings(root):
     EVAL-1 run 42310220335: the two crossings below were in that file, and the run summary,
     the triage output and bugs.md all said nothing about them.
     """
-    try:
-        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
-            os.path.abspath(__file__))), 'firness', 'harness_generator'))
-        from data_analysis.cross_module import cross_module_edges
-    except Exception:
+    #
+    # The generator does not sit in the same place in a checkout and in the CI image.
+    # ci.Dockerfile puts it at /workspace/harness_generator and the scripts at
+    # /workspace/scripts, while a checkout has firness/harness_generator beside scripts/.
+    # Only the checkout layout was tried, so in the image the import raised, the except
+    # returned [], and run 42483193618 wrote "None." into bugs.md while log.txt in the same
+    # run reported two crossings. A silent failure that reads as a clean result is the
+    # same defect this section exists to fix, so the miss is reported rather than swallowed.
+    #
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(os.path.dirname(here), 'firness', 'harness_generator'),
+        os.path.join(os.path.dirname(here), 'harness_generator'),
+        os.path.join(here, 'harness_generator'),
+    ]
+    cross_module_edges = None
+    for candidate in candidates:
+        # Defensive only, and not covered by a check: in any layout where the first
+        # candidate exists the later ones are never reached, so a check could only
+        # falsify this by contriving a tree where it does not -- and a check that passes
+        # whatever the code does is worse than none. It is here so a candidate that does
+        # not hold the package cannot be left on sys.path for an unrelated import to
+        # resolve out of.
+        if not os.path.isdir(os.path.join(candidate, 'data_analysis')):
+            continue
+        if candidate not in sys.path:
+            sys.path.insert(0, candidate)
+        try:
+            from data_analysis.cross_module import cross_module_edges
+            break
+        except Exception:
+            cross_module_edges = None
+
+    edge_files = sorted(glob.glob(os.path.join(root, '*', 'smi-call-edges.json')))
+    if cross_module_edges is None:
+        if edge_files:
+            print(f'::warning::found {len(edge_files)} smi-call-edges.json but could not '
+                  f'import data_analysis.cross_module from any of {candidates} -- the '
+                  f'source findings section will be empty for that reason, not because '
+                  f'there are none')
         return []
 
     seen, findings = set(), []
-    for path in sorted(glob.glob(os.path.join(root, '*', 'smi-call-edges.json'))):
+    for path in edge_files:
         try:
             with open(path, 'r') as handle:
                 edges = json.load(handle)
