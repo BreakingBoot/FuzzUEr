@@ -23,6 +23,7 @@ handlers while the inventory accounts for all of them.
 import os
 import re
 import sys
+import tempfile
 import types
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +36,8 @@ if 'fuzzywuzzy' not in sys.modules:
     sys.modules['fuzzywuzzy'] = _fw
     sys.modules['fuzzywuzzy.fuzz'] = _fw.fuzz
 
-from data_analysis.analyze_smi import _dispatch_reason, report_smi_coverage  # noqa: E402
+from data_analysis.analyze_smi import (  # noqa: E402
+    _dispatch_reason, report_smi_coverage, DEFINITE_DISPATCH as _definite)
 
 FAILURES = []
 
@@ -227,6 +229,51 @@ def main():
           'RootHandler must fall into the not-addressable arm')
     check('the summary says not addressable rather than not dispatched',
           'not addressable by GUID' in osrc)
+
+    # The report has to cover what the analyzer found, and say the most definite thing it
+    # knows. On run 42483193618 the seven SMM core handlers were in the inventory and in
+    # none of the sets the report reads, and CpuHotplugMmi was described as having a comm
+    # buffer that is "never cast to a recorded type" -- a cast a root handler cannot have.
+    import io, contextlib
+    inv = {
+        'CpuHotplugMmi': {'Dispatch': 'RootHandler', 'Type': ''},
+        'SwOne': {'Dispatch': 'SwDispatch', 'Type': ''},
+        'SmmReadyToLockHandler': {'Dispatch': 'SmiHandlerRegister', 'Type': ''},
+        'Harnessed': {'Dispatch': 'SmiHandlerRegister', 'Type': 'FOO *'},
+    }
+    vague = {'CpuHotplugMmi': 'its comm buffer is never cast to a recorded type',
+             'SwOne': 'its comm buffer is never cast to a recorded type'}
+    # edk2_dir must be a real, small directory. report_smi_coverage calls lifecycle_gate
+    # for each harnessed handler, and that reaches _handler_source, which does
+    # os.walk(edk2_dir or '.') -- passing '' from the repo root walks the whole tree,
+    # eval_source/edk2 included, once per handler. This check hung on exactly that.
+    buf = io.StringIO()
+    with tempfile.TemporaryDirectory() as empty:
+        with contextlib.redirect_stdout(buf):
+            report_smi_coverage({'Harnessed': object()}, ['Harnessed'], {}, vague,
+                                empty, inv)
+    out = buf.getvalue()
+
+    check('a handler only the inventory knows is still reported',
+          'SmmReadyToLockHandler' in out,
+          'the seven SMM core handlers were found and then not mentioned')
+    check('the coverage total counts the inventory',
+          'of 4 registered' in out, out.splitlines()[0])
+    check('a root handler is not told it lacks a cast',
+          'never cast to a recorded type' not in out.split('CpuHotplugMmi')[1].split(chr(10))[0],
+          'the vague reason is shadowing the definite one')
+    check('a root handler gets the root reason',
+          'root handler' in out.split('CpuHotplugMmi')[1].split(chr(10))[0])
+    check('a dispatcher handler gets the dispatcher reason',
+          'software MMI dispatch protocol' in out.split('SwOne')[1].split(chr(10))[0])
+    check('a GUID handler with no type still gets the type reason',
+          'not resolved' in out.split('SmmReadyToLockHandler')[1].split(chr(10))[0],
+          'for a comm-buffer registration the buffer really is the reason')
+    check('only a non-GUID kind overrides the generator note',
+          _definite({'Dispatch': 'RootHandler'}) and _definite({'Dispatch': 'SwDispatch'})
+          and not _definite({'Dispatch': 'SmiHandlerRegister'})
+          and not _definite({}),
+          'SmiHandlerRegister must not override: there the buffer is the reason')
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
