@@ -166,7 +166,7 @@ def main():
     check('the inventory says whether a handler can be driven',
           '"Harnessable"' in osrc)
 
-    kinds = sorted({k for _, k in SPELLINGS if k} | {''})
+    kinds = sorted({k for _, k in SPELLINGS if k} | {'', 'RootHandler'})
     for kind in kinds:
         reason = _dispatch_reason({'Dispatch': kind, 'Type': ''})
         check(f'{kind or "(unrecorded)"} has a reason a reader can act on',
@@ -207,6 +207,26 @@ def main():
     check('the table is only consulted when nothing named a function',
           'if (CurrentFunction.empty() && Shift < call->getNumArgs())' in src,
           'it must not override a registration that did name its handler')
+
+    # A root handler is registered with HandlerType NULL: SmiManage calls it on every MMI
+    # and its CommBuffer is ignored by contract. EVAL-1 has two, CpuHotplugMmi and
+    # SmmSwDispatcher, and both were reported as "dropped for an unresolved CommBuffer
+    # type" -- which sends a reader looking for a type that does not exist.
+    check('a NULL HandlerType is recognised as a root handler',
+          'CurrentInfo.Dispatch = "RootHandler";' in src)
+    check('the NULL is tested as a null pointer constant, not by spelling',
+          'isNullPointerConstant' in src,
+          'NULL, 0 and (VOID *)0 all appear in-tree')
+    check('only a registration with no GUID can be a root handler',
+          'CurrentInfo.Guid.empty() &&' in src)
+    root = _dispatch_reason({'Dispatch': 'RootHandler', 'Type': ''})
+    check('the root handler reason says there is no buffer to give it',
+          'ignored by contract' in root and 'not the analyser failing' in root, root[:60])
+    check('a root handler is kept out of the generator input',
+          'smiInfo.Dispatch != "SmiHandlerRegister"' in osrc,
+          'RootHandler must fall into the not-addressable arm')
+    check('the summary says not addressable rather than not dispatched',
+          'not addressable by GUID' in osrc)
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
