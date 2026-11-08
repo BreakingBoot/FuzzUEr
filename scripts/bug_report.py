@@ -934,6 +934,37 @@ def source_crossings(root):
     return findings
 
 
+# Libraries whose code is instrumented but which no module owns. A finding here names the
+# interceptor, never the code that chose its arguments.
+CALLER_BLIND_LIBS = (
+    'MdePkg/Library/BaseLib/',
+    'MdePkg/Library/BaseMemoryLib',
+    'MdePkg/Library/BasePrintLib/',
+)
+
+
+def likely_callers(cluster_path, module, crossings):
+    """Handlers the source says pass caller-controlled data, for a library-attributed find.
+
+    Reports carry one frame -- __builtin_return_address(N) for N > 0 is documented unsafe
+    and a nine-frame walk #GP'd inside __asan_store1, which capped every boot at one
+    finding -- so a fault inside StrLen is attributed to the image StrLen was linked into
+    and never to the code that handed it the pointer. That is why issues #47 and #48 were
+    filed against VariableSmm.efi when the defect is in RWVariable.c.
+
+    The frame walk is not coming back for that. The static crossings answer the same
+    question without touching a stack: if a handler in this campaign hands caller-controlled
+    data to another module's interface, it is worth reading next to a library fault in that
+    module. This is a pointer and says so -- it does not claim the handler is the cause,
+    because nothing here proves this fault came through that call.
+    """
+    if not crossings or not module:
+        return []
+    if not any(lib in (cluster_path or '') for lib in CALLER_BLIND_LIBS):
+        return []
+    return sorted({f"{f['handler']} -> {f['service']}->{f['function']}" for f in crossings})
+
+
 def write_source_section(handle, findings):
     """The source-derived findings, kept clearly apart from the sanitizer ones."""
     handle.write('## Firmware, found in the source\n\n')
@@ -975,10 +1006,17 @@ def write_source_section(handle, findings):
 def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=(),
                    crossings=()):
     """One row per bug, with enough beside it to act on without rerunning anything."""
+    crossing_list = list(crossings)
+
     def line(cluster, reason, verdict):
         detail = cluster.detail() or ''
         note = reason or VERDICT_NOTE.get(verdict, '')
         where = cluster_source(cluster, build_dirs)
+        callers = likely_callers(where, cluster.module, crossing_list)
+        if callers:
+            note += (' -- the report names the library, not the caller; the source says '
+                     + '; '.join(callers) + ' passes caller-controlled data into another '
+                     'module, so read that beside this')
         protocols = ', '.join(sorted(cluster.protocols)[:4])
         if len(cluster.protocols) > 4:
             protocols += f' +{len(cluster.protocols) - 4}'

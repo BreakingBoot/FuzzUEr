@@ -414,6 +414,9 @@ runs:
         # per-protocol measurements behind shift=6 (corpus 49->100, edges 1468->1528 on
         # EfiDevicePathFromText, n=3) were controlled and this is not, so deciding needs
         # controlled repeats per protocol rather than one CI run each.
+        # scripts/fuzz_batch.py defaults to shift=6 instead, for the controlled
+        # per-protocol reasons recorded there. The two differ on purpose and a campaign
+        # run from a shell is therefore not configured like this one.
         FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
         FIRNESS_CONTAINER_PREFIX: ci
       run: |

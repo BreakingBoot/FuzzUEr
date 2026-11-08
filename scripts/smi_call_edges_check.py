@@ -333,6 +333,58 @@ def main():
     check('a missing edges file is not an error',
           bug_report.source_crossings(os.path.join(work, 'gone')) == [])
 
+    # A library-attributed finding has to point at the caller. Reports carry one frame --
+    # a nine-frame walk #GP'd inside __asan_store1 and capped every boot at one finding --
+    # so a fault inside StrLen names the image StrLen was linked into, which is why issues
+    # #47 and #48 were filed against VariableSmm.efi when the defect is in RWVariable.c.
+    # The static crossings answer it without touching a stack.
+    crossings = cross_module.cross_module_edges(RWVARIABLE)
+    hinted = bug_report.likely_callers(
+        'MdePkg/Library/BaseLib/String.c', 'VariableSmm.efi', crossings)
+    check('a library finding is pointed at the handler the source names',
+          any('RWVariableHandler' in h for h in hinted), str(hinted))
+    check('firmware code of its own is not given a caller hint',
+          bug_report.likely_callers(
+              'OvmfPkg/RWVariable/RWVariable.c', 'RWVariable.efi', crossings) == [],
+          'a module whose own code faulted already names the right place')
+    check('no hint without crossings to point at',
+          bug_report.likely_callers(
+              'MdePkg/Library/BaseLib/String.c', 'VariableSmm.efi', []) == [])
+    check('no hint without a module to attribute to',
+          bug_report.likely_callers(
+              'MdePkg/Library/BaseLib/String.c', '', crossings) == [])
+    for lib in ('MdePkg/Library/BaseLib/String.c',
+                'MdePkg/Library/BaseMemoryLibRepStr/CopyMem.c',
+                'MdePkg/Library/BasePrintLib/PrintLibInternal.c'):
+        check(f'{lib.split("/")[-2]} is treated as caller-blind',
+              bug_report.likely_callers(lib, 'VariableSmm.efi', crossings) != [])
+
+    # And it must reach the table, not just the function.
+    with tempfile.TemporaryDirectory() as work:
+        out = os.path.join(work, 'bugs.md')
+        # Shaped like the real cluster the pipeline builds: cluster_source() reads
+        # reports[0].path, which is where the library path that triggers the hint comes
+        # from -- a stub without it never exercises the lookup.
+        class FakeReport:
+            path = 'MdePkg/Library/BaseLib/String.c'
+            line = 39
+
+        class Fake:
+            module = 'VariableSmm.efi'
+            site = 'String.c:39'
+            klass = 'heap-buffer-overflow (read)'
+            hits = 24
+            protocols = {'DiscoveredSmi'}
+            reports = [FakeReport()]
+            def detail(self): return 'read of 2 bytes'
+            def severity(self): return 4
+        bug_report.write_markdown(out, 't', 'p', {'candidate': [(Fake(), '')]}, 1, 1, (),
+                                  crossings)
+        table = open(out, encoding='utf-8').read()
+    check('the caller hint reaches the markdown row',
+          'RWVariableHandler' in table and 'names the library, not the caller' in table,
+          'the hint is computed but never printed')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

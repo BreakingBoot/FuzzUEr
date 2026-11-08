@@ -212,6 +212,13 @@ def launch(protocol, args):
     # feedback loop that is actually learning looks like: it spends its budget on inputs
     # that differ rather than re-running ones that do not.
     #
+    # This default is NOT what the action uses. action.yml sets shift=auto explicitly and
+    # says why: its own CI comparison was confounded by a different set of campaigns
+    # reaching the harness in each run, so it neither supports nor refutes shift=6 and was
+    # left alone. So a shell run and a CI run of the same campaign are not comparing the
+    # same thing, and the open question is the same one in both places -- controlled
+    # repeats per protocol. Noted at both ends because a reader at one of them could not
+    # otherwise tell the other existed.
     env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=6,sleep=off')
     # Said out loud, once. Every configuration question about a campaign -- which machine,
     # which icount, which backend -- is answered by this list, and none of it was recorded

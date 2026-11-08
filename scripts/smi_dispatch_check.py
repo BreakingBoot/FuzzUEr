@@ -178,6 +178,36 @@ def main():
     check('an unresolved type is distinguished from a different channel',
           'not resolved' in _dispatch_reason({'Dispatch': DRIVABLE, 'Type': ''}))
 
+    # A table-driven registration names no handler at the call site. The SMM core does
+    # exactly that -- SmiHandlerRegister (mSmmCoreSmiHandlers[Index].Handler, ...) -- and
+    # the walk took the deepest DeclRefExpr, so "Index" was recorded as an SMI handler and
+    # appeared as one in the inventory on EVAL-1 run 42310220335.
+    check('a handler slot accepts only a function',
+          'if (isa<FunctionDecl>(DRE->getDecl()))' in src,
+          'any identifier in the expression can land in the handler slot')
+    check('a GUID slot accepts only a variable',
+          'if (isa<VarDecl>(DRE->getDecl()))' in src)
+    check('a table-driven registration is recognised',
+          'const VarDecl *handlerTable(Expr *E)' in src)
+    check('the table is reached through the subscript, not the member',
+          'ArraySubscriptExpr' in src,
+          'mCoreSmiHandlers[Index].Handler has to be unwrapped to the array')
+    check('the table must carry an initialiser to be usable',
+          '!Var->hasInit()' in src)
+    check('every row of the table is expanded',
+          'void expandHandlerTable(' in src and 'Rows->getNumInits()' in src)
+    check('a row is read by shape, not by field index',
+          'Handler.empty() && isa<FunctionDecl>' in src and 'UO_AddrOf' in src,
+          'field order and trailing fields differ between tables')
+    check('the NULL terminator row is skipped',
+          'if (Handler.empty()) {' in src,
+          'a { NULL, NULL, ... } row names no function and must not be recorded')
+    check('a handler already known is not overwritten by the table',
+          'SmiFunctionSet.find(Handler) != SmiFunctionSet.end()' in src)
+    check('the table is only consulted when nothing named a function',
+          'if (CurrentFunction.empty() && Shift < call->getNumArgs())' in src,
+          'it must not override a registration that did name its handler')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 
