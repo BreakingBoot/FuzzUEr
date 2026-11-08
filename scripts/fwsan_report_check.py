@@ -250,6 +250,33 @@ def main():
     check('a path that reports nothing says so',
           err is None and got['reports'] == 0 and got['notes'] > 0, str(err or got))
 
+    # A report this path emits must not be mistaken for a source location by the crash
+    # extractor. The UBSan shape is "<path>, line:0x008B, column:0x003A"; the firmware
+    # sanitizer's report ends "at line: 0x1FFC9B37", and a test for a bare "line:" matched
+    # both -- so a compiler-inserted check that followed a fwsan report took the whole
+    # report line as its path. Run 42483193618 filed that as issue #51 with the report
+    # line in the title. Only reachable once this path emitted a report at all.
+    extractor = open(os.path.join(ROOT, 'scripts', 'firness.py'), encoding='utf-8').read()
+    loose = re.findall(r"check fail' in line and 'line:' in prev", extractor)
+    check('the extractor does not treat a bare "line:" as a source location',
+          not loose, f'{len(loose)} loose shape test(s) left')
+    tight = re.findall(r"', line:' in prev\w* and 'column:' in prev", extractor)
+    check('it requires the comma-and-column shape instead', len(tight) >= 2,
+          f'{len(tight)} tightened site(s); both extractors need it')
+
+    # And the shapes themselves, so the rule is pinned to real capture text.
+    banner = 'ASAN MEMORY ACCESS check fail! __asan_load0x02 is called'
+    ubsan = ('/workspace/tmp/edk2/UefiPayloadPkg/Library/SpiFlashLib/SpiFlashLib.c, '
+             'line:0x008B, column:0x003A')
+    fwsan = 'bug_descr=fwsan-double-fetch in file: fwsan at line: 0x000000001FFC9B37'
+
+    def shaped(prev):
+        return ('ASAN MEMORY ACCESS check fail' in banner
+                and ', line:' in prev and 'column:' in prev)
+
+    check('a real UBSan location is still recognised', shaped(ubsan))
+    check('a firmware sanitizer report is not', not shaped(fwsan))
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

@@ -1658,7 +1658,10 @@ def boot_report_sites(capture):
     with open(capture, 'r', encoding='utf-8', errors='ignore') as handle:
         prev = ''
         for line in handle:
-            if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev:
+            # Same shape test as the main extractor below: ", line:" and a column, so
+            # the firmware sanitizer's "at line:" cannot be mistaken for a source location.
+            if ('ASAN MEMORY ACCESS check fail' in line
+                    and ', line:' in prev and 'column:' in prev):
                 parts = prev.split(',')
                 if len(parts) > 1 and ':' in parts[1]:
                     try:
@@ -1785,7 +1788,19 @@ def collect_unique_crashes(log_file, output_dir=None):
                             entry.module = owner
                     pending = []
 
-            if 'ASAN MEMORY ACCESS check fail' in line and 'line:' in prev_line:
+            #
+            # The UBSan shape is "<path>, line:0x008B, column:0x003A" -- comma separated
+            # and carrying a column. Testing only for "line:" also matched the firmware
+            # sanitizer's own report, which ends "at line: 0x1FFC9B37", so a
+            # compiler-inserted check that happened to follow one took that whole report
+            # line as its source path. Run 42483193618 filed it as issue #51, titled
+            # "VariableSmm.efi: __asan_load0x02 in bug_descr=fwsan-double-fetch in file:
+            # fwsan at line: 0x000000001FFC9B37". The pairing only became reachable when
+            # the fwsan path started emitting a report at all -- before that it printed a
+            # banner and nothing else.
+            #
+            if ('ASAN MEMORY ACCESS check fail' in line
+                    and ', line:' in prev_line and 'column:' in prev_line):
                 # split(',', 2) so a detail containing a comma survives: the message
                 # is free text from the firmware and only the first two fields are
                 # positional.
