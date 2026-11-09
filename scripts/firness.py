@@ -676,6 +676,104 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     return log
 
 # compile the harness
+def rebuild_ovmf_with_harness(src):
+    """Build the harness INTO the DXE firmware volume and restage the .fd.
+
+    The application-timing harness is a separate little platform (Firness/Firness.dsc)
+    whose only output is EFI/BOOT/BOOTX64.EFI on an ESP, so BDS launches it as a boot
+    option -- which is AFTER gEfiEndOfDxeEventGroupGuid is signalled. Everything an SMI
+    handler guards on mEndOfDxe is therefore unreachable from it: SmmSpi refuses its
+    whole dispatch, FaultTolerantWriteSmm refuses its write path, and VariableSmm and
+    Tcg2Smm each refuse several command codes. Those are the handlers with the real
+    memory-safety surface.
+
+    A DXE_DRIVER with a [Depex] dispatches during DXE, long before BDS, so the latch is
+    still open. But a driver has to be IN the firmware volume, and the volume was linked
+    when the campaign image was built -- before this harness existed. So the harness is
+    added to the platform description and the FDF here, at campaign time, and OVMF is
+    relinked.
+
+    The tree already has a full Build/ from the analysis stage's compile_ovmf, so this is
+    incremental: the harness compiles and the FVs relink. Build/ is NOT cleared -- that
+    is compile_ovmf's business, where bear needs to observe every compilation.
+    """
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import fv_harness
+
+    dir1 = os.path.join(src, 'edk2')
+    try:
+        components, entries = fv_harness.place(dir1)
+    except FileNotFoundError as missing:
+        print(f'Error: cannot place the harness in the FV -- {missing} does not exist. '
+              f'The dxe harness timing needs OvmfPkgX64.dsc and OvmfPkgX64.fdf; this '
+              f'tree has neither, so use FIRNESS_HARNESS_TIMING=application.')
+        return '', False
+    # place() is idempotent, so a second campaign in the same tree adds nothing and
+    # reports zero. That is success, not a failure -- but zero on the FIRST campaign
+    # would mean the harness is not in the volume and the boot would never reach it,
+    # which looks exactly like a harness that hangs. Say which happened.
+    print(f'++++ harness placed in the DXE FV: {components} component entr(ies), '
+          f'{entries} FDF entr(ies) added (0 and 0 means a previous campaign in this '
+          f'tree already placed it) ++++')
+
+    clang = os.environ.get('CLANGSAN_BIN', '/workspace/llvm-15.0.7/build/bin/')
+    # The same defines as the firmware the campaign boots. A mismatch here is worse than
+    # a build failure: the FV would link, the harness would run, and it would be running
+    # against a differently configured firmware than the one the image was measured on.
+    defines = os.environ.get(
+        'FIRNESS_ANALYSIS_DEFINES',
+        '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
+        '-D FD_SIZE_IN_KB=8192')
+    cmd = (f'cd {dir1} && '
+           f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
+           f'CONF_PATH={dir1}/Conf CLANGSAN_BIN={clang} && '
+           f'source edksetup.sh && cd {dir1} && '
+           f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
+           f'{defines} -n "$(nproc)"')
+    process = subprocess.run(cmd, shell=True, executable='/bin/bash',
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log = (process.stdout.decode('utf-8', errors='ignore') +
+           process.stderr.decode('utf-8', errors='ignore'))
+    if process.returncode != 0:
+        print('Error: OVMF did not rebuild with the harness in its DXE FV')
+        said = [line for line in log.splitlines()
+                if re.search(r'\berror\b|undefined reference', line, re.I)
+                and len(line) < 400]
+        for line in said[:25]:
+            print(f'  {line}')
+        if not said:
+            tail = [line.rstrip() for line in log.splitlines() if line.strip()][-20:]
+            print(f'  no compiler diagnostic; the last {len(tail)} line(s) were:')
+            for line in tail:
+                print(f'  {line[:400]}')
+        return log, False
+
+    # Restage the .fd the fuzzer actually boots. Without this the rebuild is a no-op
+    # from the campaign's point of view: /workspace/qemu_fw/OVMF_CODE.fd was copied in
+    # when the image was built and still holds a DXEFV with no harness in it, so the
+    # boot would run to BDS, find no boot option, and the run would report that the
+    # guest never reached the harness.
+    built = sorted(glob.glob(os.path.join(dir1, 'Build', '**', 'OVMF_CODE.fd'),
+                             recursive=True), key=os.path.getmtime)
+    if not built:
+        print(f'Error: the rebuild succeeded but no OVMF_CODE.fd is under '
+              f'{dir1}/Build -- nothing to restage, so the campaign would boot the '
+              f'image\'s original firmware and never reach the harness.')
+        return log, False
+    for name, dest in (('OVMF_CODE.fd', QEMU_OVMF_CODE), ('OVMF_VARS.fd', QEMU_OVMF_VARS)):
+        found = sorted(glob.glob(os.path.join(dir1, 'Build', '**', name),
+                                 recursive=True), key=os.path.getmtime)
+        if not found:
+            print(f'Error: {name} is not in the rebuild output.')
+            return log, False
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        shutil.copyfile(found[-1], dest)
+        print(f'++++ restaged {name} -> {dest} '
+              f'({os.path.getsize(dest)} bytes) ++++')
+    print('++++ Compiled Harness into the DXE FV ++++')
+    return log, True
+
+
 def compile_harness(src, count=0):
     dir1 = os.path.join(src, 'edk2')
     # Nothing to build is not a compilation failure, and saying so here is the only
@@ -689,6 +787,12 @@ def compile_harness(src, count=0):
               f'the generator produced no harness to build. The generator\'s output '
               f'above says why.')
         return ''
+    # The dxe timing does not build Firness.dsc at all: the harness is a DXE_DRIVER that
+    # has to be linked into OVMF's own DXE firmware volume to be dispatched, so the whole
+    # platform is relinked instead. See rebuild_ovmf_with_harness for why.
+    if HARNESS_TIMING == 'dxe':
+        log, ok = rebuild_ovmf_with_harness(src)
+        return log if ok else log + '\nFIRNESS_DXE_HARNESS_FAILED\n'
     test_cmd = f'cd {dir1} && make -C BaseTools clean && make -C BaseTools && export WORKSPACE=/workspace/tmp/edk2 && export EDK_TOOLS_PATH=/workspace/tmp/edk2/BaseTools && export CONF_PATH=/workspace/tmp/edk2/Conf && export CLANGSAN_BIN=/usr/bin/ && source edksetup.sh && build -a X64 -b DEBUG -p Firness/Firness.dsc -t CLANGSAN'
     process = subprocess.run(test_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
@@ -889,7 +993,13 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
     os.makedirs(corpus, exist_ok=True)
     os.makedirs(os.path.join(work, 'crashes'), exist_ok=True)
     esp = os.path.join(work, 'esp.qcow2')
-    build = subprocess.run(['bash', QEMU_ESP_TOOL, harness, esp, '64'],
+    # Under the dxe timing the harness is inside the firmware volume, not on the disk, so
+    # there is no application to copy. The device still has to exist and still has to be
+    # a qcow2 the emulator can snapshot. Passing the missing Firness.efi here instead
+    # fails make_esp.sh with "no such file", which reads as a build failure three stages
+    # after the build succeeded.
+    payload = '--empty' if HARNESS_TIMING == 'dxe' else harness
+    build = subprocess.run(['bash', QEMU_ESP_TOOL, payload, esp, '64'],
                            capture_output=True, text=True)
     if build.returncode != 0:
         print(f'Error: could not build the ESP: {build.stdout}{build.stderr}')
@@ -1059,7 +1169,11 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
 # and report coverage for a protocol it never actually fuzzed. Compare the built harness
 # against the request file that is supposed to have produced it.
 def warn_if_harness_is_stale(input_file):
-    harness = HARNESS_IMAGE
+    # Under the dxe timing there is no Firness.efi -- the harness is inside the firmware
+    # volume -- so the artefact whose age answers "was this built for this protocol" is
+    # the .fd the rebuild restaged. Checking Firness.efi there finds nothing and returns
+    # silently, which is the one case this warning exists to catch.
+    harness = QEMU_OVMF_CODE if HARNESS_TIMING == 'dxe' else HARNESS_IMAGE
     if not os.path.isfile(harness) or not os.path.isfile(input_file):
         return False
     if os.path.getmtime(harness) >= os.path.getmtime(input_file):
@@ -2134,6 +2248,22 @@ def main():
                         help='Test case to replay with --reproduce (default: first file in solutions/)')
     args = parser.parse_args()
     complete_analysis = not args.analyze and not args.fuzz and not args.generate
+    # The dxe timing relinks OvmfPkgX64 and restages the .fd the QEMU fuzzer boots.
+    # Simics boots a checkpoint of a different platform entirely, so there is nothing for
+    # that rebuild to reach -- the campaign would build a correct harness into a firmware
+    # image nothing runs and then report zero iterations against the old checkpoint.
+    if HARNESS_TIMING == 'dxe' and args.backend != 'qemu':
+        print(f'Error: FIRNESS_HARNESS_TIMING=dxe links the harness into OvmfPkgX64\'s '
+              f'DXE firmware volume and restages OVMF_CODE.fd, which only the qemu '
+              f'backend boots. --backend {args.backend} would run its own checkpoint and '
+              f'never reach the harness. Use --backend qemu, or '
+              f'FIRNESS_HARNESS_TIMING=application.')
+        return 1
+    if HARNESS_TIMING not in ('application', 'dxe'):
+        print(f'Error: FIRNESS_HARNESS_TIMING={HARNESS_TIMING!r} is not a timing. It is '
+              f'"application" (a boot option on the ESP, after EndOfDxe) or "dxe" (a '
+              f'DXE_DRIVER in the firmware volume, before it).')
+        return 1
 
     if args.eval:
         run_eval(args.src, args.input, args.random)
@@ -2234,10 +2364,18 @@ def main():
         # happily run the Firness.efi left over from whatever protocol was built last and
         # report its coverage under this one. Stop instead.
         harness_source = os.path.join(tmp_dir, 'edk2', 'Firness', 'FirnessHarnesses.c')
-        if not os.path.isfile(HARNESS_IMAGE) or (
+        # Which artefact proves the harness got built depends on the timing. The
+        # application harness produces its own Firness.efi; the dxe harness produces no
+        # separate image at all -- it is inside the firmware volume, and the thing that
+        # has to be newer than the generated source is the .fd the fuzzer boots. Checking
+        # for Firness.efi under the dxe timing fails every run, and checking the .fd
+        # under the application timing passes every run because the image's prebuilt .fd
+        # is always there.
+        built_artefact = QEMU_OVMF_CODE if HARNESS_TIMING == 'dxe' else HARNESS_IMAGE
+        if not os.path.isfile(built_artefact) or (
                 os.path.isfile(harness_source)
-                and os.path.getmtime(HARNESS_IMAGE) < os.path.getmtime(harness_source)):
-            print(f'Error: the harness did not compile -- {HARNESS_IMAGE} is missing or older '
+                and os.path.getmtime(built_artefact) < os.path.getmtime(harness_source)):
+            print(f'Error: the harness did not compile -- {built_artefact} is missing or older '
                   f'than the harness just generated. Not fuzzing, because that would run the '
                   f'previously built harness and report its coverage under this protocol.')
             return 1
@@ -2248,10 +2386,14 @@ def main():
         # it under tsffs, whose harness instructions it no longer contains: the run would
         # sit through the whole boot and never start fuzzing, with nothing saying why.
         if args.backend == 'qemu':
-            if not os.path.isfile(HARNESS_IMAGE):
-                print(f'Error: {HARNESS_IMAGE} is missing -- run the generate stage first.')
+            # Under the dxe timing the harness is linked into the firmware volume, so the
+            # thing that has to exist is the .fd, not a standalone Firness.efi. Gating on
+            # Firness.efi there refuses to fuzz a campaign whose harness built fine.
+            needed = QEMU_OVMF_CODE if HARNESS_TIMING == 'dxe' else HARNESS_IMAGE
+            if not os.path.isfile(needed):
+                print(f'Error: {needed} is missing -- run the generate stage first.')
                 return 1
-            fuzz_started = run_qemu_fuzzer(HARNESS_IMAGE, output, args.timeout,
+            fuzz_started = run_qemu_fuzzer(needed, output, args.timeout,
                                            args.seed_corpus,
                                            boot_timeout=args.boot_timeout)
             if not fuzz_started:
