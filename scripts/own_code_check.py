@@ -118,6 +118,66 @@ def main():
           'NONE of the' in source and 'SMM module(s) are' in source,
           'the count alone reads as 99% healthy')
 
+    # A library instance is built once, so the only way a defect inside an SMM driver's
+    # own code reaches a check is for the LIBRARY it calls to do the checking. No SMM
+    # module has its own code instrumented -- 0 of 17 -- and on EVAL-1 run 42490347442
+    # five injected SMM drivers were dispatched between 31709 and 90503 times each with
+    # one finding between them, which came through another module's instrumented
+    # libraries rather than from the driver itself.
+    #
+    # AsanInternalMemCopyMem shadow-checks the source and the destination for the full
+    # Length before copying, so resolving BaseMemoryLib to it gives every CopyMem, SetMem,
+    # ZeroMem and CompareMem in SMM a bounds check with no recompilation of the driver.
+    repo = os.path.dirname(HERE)
+    dsc = os.path.join(repo, "eval_source", "edk2", "OvmfPkg", "OvmfPkgX64.dsc")
+    if not os.path.exists(dsc):
+        check('the port DSC is present', False, dsc)
+    else:
+        raw = open(dsc, 'rb').read()
+        check('the port DSC is still CRLF throughout',
+              b'\n' not in raw.replace(b'\r\n', b''),
+              'a bare LF means an edit went through Python text mode')
+
+        # Read it the way the port does: dedup_sections() drops the duplicate copy of the
+        # whole body, so what matters is which mapping survives that, not what the file
+        # says twice.
+        import importlib.util
+        sys.dont_write_bytecode = True
+        spec = importlib.util.spec_from_file_location(
+            'apply_asan', os.path.join(repo, 'uefi_asan', 'apply_asan.py'))
+        mod = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(mod)
+        except SystemExit:
+            pass
+        kept, _ = mod.dedup_sections(raw.split(b'\n'))
+        text = b'\n'.join(kept).decode('utf-8', 'replace')
+
+        section, resolved = '', {}
+        for line in text.splitlines():
+            bare = line.strip()
+            if bare.startswith('[') and bare.endswith(']'):
+                section = bare
+            elif bare.startswith('BaseMemoryLib|'):
+                resolved.setdefault(section, []).append(bare.split('|', 1)[1])
+
+        for want in ('[LibraryClasses.common.DXE_SMM_DRIVER]',
+                     '[LibraryClasses.common.SMM_CORE]'):
+            got = resolved.get(want, [])
+            check(f'{want} resolves the instrumented memory library',
+                  any('AsanMemoryLibRepStr' in g for g in got), str(got))
+
+        globals_ = resolved.get('[LibraryClasses]', [])
+        check('the global default is left alone',
+              globals_ and not any('AsanMemoryLibRepStr' in g for g in globals_),
+              f'{globals_} -- instrumenting every module was measured as a boot cost, '
+              f'not a detection gain')
+        check('the duplicate body still dedups to one SMM section',
+              text.count('[LibraryClasses.common.DXE_SMM_DRIVER]') == 1,
+              'a new section header re-aligns the duplicate search')
+        check('dedup did not eat [Defines]', '[Defines]' in text,
+              'the failure mode the DSC comment warns about')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

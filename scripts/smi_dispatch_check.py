@@ -275,6 +275,89 @@ def main():
           and not _definite({}),
           'SmiHandlerRegister must not override: there the buffer is the reason')
 
+    # Some handlers refuse any comm buffer but the one their DXE half published:
+    #
+    #   gBS->LocateProtocol (&gEfiLightStatusCodeCommunicationGuid, NULL, &mCommBuffer);
+    #   if ((UINTN)CommBuffer != (UINTN)mCommBuffer + SMM_COMMUNICATE_HEADER_SIZE) return;
+    #
+    # An equality test on an address, so no input gets past it. On EVAL-1 run 42490347442
+    # UnregisterCBFunctionLight was dispatched 37278 times and UnregisterCBFunctionHwAlarm
+    # 56021 times, both with zero findings -- two of the six injected drivers, unreachable
+    # for a reason no amount of fuzzing changes.
+    check('a LocateProtocol is recorded as pointer -> GUID',
+          'GuidForLocatedPointer[Into] = Guid;' in src)
+    check('all three LocateProtocol spellings match',
+          'Callee.find("LocateProtocol")' in src,
+          'gBS->LocateProtocol, SmmLocateProtocol and MmLocateProtocol')
+    check('the GUID and the out pointer are read through their casts',
+          'std::string addressedName(const Expr *E)' in src and 'UO_AddrOf' in src,
+          '(VOID **)&mCommBuffer needs the cast unwrapped')
+    check('the out pointer is taken as the last argument',
+          'Call->getArg(Call->getNumArgs() - 1)' in src,
+          'LocateProtocol has the GUID first and the interface last')
+    check('an identity test on the comm buffer is found',
+          'void findBufferIdentityGate(' in src)
+    check('it matches equality and inequality',
+          'BO_EQ || BO->getOpcode() == BO_NE' in src)
+    check('one side must mention CommBuffer and the other must not',
+          '!HasCommBuffer(WithBuffer) || HasCommBuffer(WithOther)' in src,
+          'a test of CommBuffer against itself is not a gate')
+    check('an offset added to the expected address does not defeat it',
+          'namedLocatedPointer' in src,
+          'the real gate is mCommBuffer + SMM_COMMUNICATE_HEADER_SIZE')
+    check('located pointers are collected from every body, not just handlers',
+          'collectLocatedPointers(func->getBody());' in src,
+          'the LocateProtocol sits in the entry point, not the handler')
+    # Both files, named separately: the inventory line alone satisfied a bare
+    # '"BufferProtocol"' search while the guid map -- which is what the generator reads --
+    # had lost it, and mutation case G6 passed.
+    check('the protocol reaches the generator input (guid map)',
+          'smiJson["BufferProtocol"] = smiInfo.BufferProtocol;' in osrc)
+    check('and the inventory records it too',
+          'entry["BufferProtocol"] = smiInfo.BufferProtocol;' in osrc)
+
+    gen = os.path.join(ROOT, 'firness', 'harness_generator')
+    tmpl = open(os.path.join(gen, 'uefi_harness', 'smi_harness_template.py'),
+                encoding='utf-8').read()
+    check('the region entry stays as a fallback',
+          'if (!EFI_ERROR(Status) && PublishedBuffer != NULL)' in tmpl,
+          'a firmware that does not publish it must still get a buffer')
+
+    # Run the template rather than grep it. 'buffer_protocol' appears in a comment and in
+    # the getattr, so a textual check passed with the emission disabled -- mutation G7.
+    sys.path.insert(0, gen)
+    from common.types import SmiInfo as GenSmiInfo, TypeInfo, FieldInfo  # noqa: E402
+    from uefi_harness.smi_harness_template import harness_generator  # noqa: E402
+
+    # The parameter block needs at least one field: generator_struct_args resolves the
+    # struct through types[...] only when .fields is non-empty, and otherwise falls to the
+    # alias map and looks up None.
+    gated = GenSmiInfo('MyGatedHandler', 'MY_GATED_PARAMS *', 'gMyGatedCommGuid',
+                       buffer_protocol='gMyPublishedBufferGuid')
+    plain = GenSmiInfo('MyPlainHandler', 'MY_PLAIN_PARAMS *', 'gMyPlainCommGuid')
+    types_ = {'MY_GATED_PARAMS': TypeInfo('MY_GATED_PARAMS', [FieldInfo('Function', 'UINT32')]),
+              'MY_PLAIN_PARAMS': TypeInfo('MY_PLAIN_PARAMS', [FieldInfo('Function', 'UINT32')])}
+    try:
+        emitted = '\n'.join(harness_generator({'MyGatedHandler': gated}, types_, {}, {}))
+        clean = '\n'.join(harness_generator({'MyPlainHandler': plain}, types_, {}, {}))
+    except Exception as exc:  # the template needs more than a stub: say so, do not pass
+        check('the template runs against a stub handler', False, f'{type(exc).__name__}: {exc}')
+        emitted = clean = ''
+
+    if emitted or clean:
+        check('a gated handler emits a LocateProtocol for its buffer',
+              'gMyPublishedBufferGuid' in emitted and 'PublishedBuffer' in emitted,
+              'the emission is disabled or unreachable')
+        check('it assigns the located buffer over the region entry',
+              'CommBuffer = (UINT8 *)PublishedBuffer;' in emitted)
+        check('a handler with no gate emits none of it',
+              'PublishedBuffer' not in clean,
+              'every handler would declare an unused local')
+    an = open(os.path.join(gen, 'data_analysis', 'analyze_smi.py'), encoding='utf-8').read()
+    check('the protocol GUID is added to the INF',
+          'protocol_guids.add(smi.buffer_protocol)' in an,
+          'otherwise the harness references a symbol nothing declares')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 
