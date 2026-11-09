@@ -59,13 +59,17 @@ def check(name, condition, detail=''):
 CONTAINER_PATH = '/workspace/tmp/edk2/OvmfPkg/RWVariable/RWVariable.c'
 
 
-def edge(handler, service, function, order, args, file=CONTAINER_PATH):
+def edge(handler, service, function, order, args, file=CONTAINER_PATH, gate=''):
     return {
         'EnclosingFunction': handler,
         'EnclosingFile': file,
         'Service': service,
         'Function': function,
         'CallOrder': order,
+        # The enclosing condition that reads caller data, as CallSiteAnalysis.h records it.
+        # '' means the call is unconditional, which is NOT the same as "not analysed" --
+        # the writer emits the key for every edge so a consumer can tell those apart.
+        'CallerGate': gate,
         'Arguments': {f'Arg_{i}': a for i, a in enumerate(args)},
     }
 
@@ -94,6 +98,19 @@ RWVARIABLE = [
             '(VOID *)((CHAR16 *)((RW_VARIABLE_INFO *)CommBuffer)->Data + CommData->Offset)',
             'VOID *'),
     ]),
+]
+
+
+# UnregisterCBFunctionLight as the analyzer records it. The crossing carries the handler's
+# OWN function pointer, so nothing is tainted and the argument pass must stay silent -- but
+# the caller picks the switch arm that reaches it, so the gate is the finding. The ungated
+# peer call in the same body is the control: it must not be reported at all.
+HWLIGHT = [
+    edge('UnregisterCBFunctionLight', 'mPeer', 'Always', 0,
+         [arg('LightStatusCode', '', 'VOID *')], 'SmmLight.c'),
+    edge('UnregisterCBFunctionLight', 'mRscProtocol', 'Unregister', 1,
+         [arg('LightStatusCode', '', 'VOID *')], 'SmmLight.c',
+         gate='CommunicationData->Function'),
 ]
 
 
@@ -209,6 +226,90 @@ def main():
     check('taint does not leak between handler bodies', len(two) == 1,
           f'{len(two)} finding(s); CommData is only tainted inside RWVariableHandler')
 
+    # ---- reach 'control': the caller chooses whether a peer call happens -------------
+    #
+    # EVAL-1 dispatched UnregisterCBFunctionLight and its HwAlarm twin about 93000 times
+    # between them and reported nothing, correctly: no argument carries caller data and no
+    # access goes out of bounds. What the caller does control is whether a peer module's
+    # registration is torn down, and it can decide again on the next SMI.
+    gated = cross_module.cross_module_edges(HWLIGHT)
+    control = [f for f in gated if f.get('reach') == 'control']
+    check('a peer call reached only under a caller-data condition is a crossing',
+          len(control) == 1, f'{len(gated)} finding(s), {len(control)} of reach control')
+    if control:
+        got = control[0]
+        check('it names the interface torn down',
+              got['service'] == 'mRscProtocol' and got['function'] == 'Unregister',
+              f"{got['service']}->{got['function']}")
+        check('it reports the condition that reaches it',
+              got['gate'] == 'CommunicationData->Function', got.get('gate'))
+        check('it carries nothing, and says so',
+              got['carries'] == [], str(got['carries']))
+        check('it is still classified as a peer crossing',
+              got['kind'] == 'peer-protocol', got.get('kind'))
+    check('an UNGATED peer call carrying no caller data is not reported',
+          not any(f['function'] == 'Always' for f in gated),
+          'mPeer->Always has no gate and no tainted argument -- there is nothing to say')
+
+    # A gate must not promote a core-service call into the peer list.
+    core_gate = cross_module.cross_module_edges([
+        edge('H', 'gSmst', 'SmmFreePool', 0, [arg('Local', '')], gate='Comm->Function'),
+    ])
+    check('a gated core-service call stays core-service',
+          len(core_gate) == 1 and core_gate[0]['kind'] == 'core-service',
+          str([(f['kind'], f.get('reach')) for f in core_gate]))
+
+    # A crossing that carries data AND sits under a gate is a data finding, not two.
+    both = cross_module.cross_module_edges([
+        edge('H', 'mProto', 'Use', 0, [arg('CommBuffer', '')], gate='Comm->Function'),
+    ])
+    check('a gated crossing that also carries data is reported once, as data',
+          len(both) == 1 and both[0]['reach'] == 'data',
+          str([(f.get('reach'), len(f['carries'])) for f in both]))
+    check('and it still reports the gate it sits under',
+          both and both[0]['gate'] == 'Comm->Function', str(both and both[0].get('gate')))
+
+    # Edges with no CallerGate key at all -- an older analyzer -- must behave exactly as
+    # before, not start reporting every peer call.
+    legacy = [{k: v for k, v in e.items() if k != 'CallerGate'} for e in HWLIGHT]
+    check('edges from an analyzer with no gate field report nothing new',
+          cross_module.cross_module_edges(legacy) == [], 'absent key must read as ungated')
+    legacy_rw = [{k: v for k, v in e.items() if k != 'CallerGate'} for e in RWVARIABLE]
+    check('and the data findings are unchanged without the field',
+          len(cross_module.cross_module_edges(legacy_rw)) == 1)
+
+    # The report has to print it, in its own section. Checked by running the reporter,
+    # because a grep for the string passes with the emission disabled -- that mistake
+    # was made in this file's sibling and caught by mutation.
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        cross_module.report(HWLIGHT)
+    text = buf.getvalue()
+    check('the report prints the gated crossing',
+          'mRscProtocol->Unregister' in text, text.strip()[:200])
+    check('the report prints the condition that reaches it',
+          'CommunicationData->Function' in text, text.strip()[:200])
+    check('the report separates it from the data-carrying crossings',
+          'carrying no data into them' in text, text.strip()[:200])
+    check('the report does not list the ungated peer call',
+          'mPeer->Always' not in text, text.strip()[:200])
+    # A gated crossing counted in BOTH lists prints twice and inflates the headline, which
+    # is what "2 crossings carrying caller-controlled data" would then claim about a body
+    # that carries none. Mutation M4.
+    check('a gated crossing is not also counted as a data-carrying one',
+          '0 peer-protocol crossing(s) carrying caller-controlled data' in text,
+          text.splitlines()[0] if text else '')
+    check('and it is printed once, not in both sections',
+          text.count('mRscProtocol->Unregister') == 1,
+          f"{text.count('mRscProtocol->Unregister')} occurrence(s)")
+    buf2 = io.StringIO()
+    with contextlib.redirect_stdout(buf2):
+        cross_module.report(RWVARIABLE)
+    rw_text = buf2.getvalue()
+    check('a run with no gated crossing prints no gated section',
+          'carrying no data into them' not in rw_text, rw_text.strip()[:160])
+
     # The analyzer side: the writer must exist and the collection must be inverted.
     cs = os.path.join(ROOT, 'firness', 'firness', 'CallSiteAnalysis.h')
     src = open(cs, encoding='utf-8').read() if os.path.exists(cs) else ''
@@ -242,6 +343,44 @@ def main():
         check('it is forwarded into the slot that holds it',
               slot == len(params) - 1 and params[slot] == 'smi_file',
               f'smi_file is parameter {slot} of {len(params)}')
+
+    # The C++ half of the gate. These are structural assertions, not behavioural ones --
+    # the behaviour was proved by building the analyzer and running it on a fixture that
+    # mirrors OvmfPkg/HwLight, which produced exactly:
+    #
+    #   UnregisterCBFunctionLight call 0  mPeer->Always         CallerGate ''
+    #   UnregisterCBFunctionLight call 1  mRscProtocol->Unregister
+    #                                     CallerGate 'CommunicationData->Function'
+    #   DataCarryingHandler       call 0  ->SizeProbe           CallerGate ''
+    #   DataCarryingHandler       call 1  mPeer->TakesData
+    #                                     CallerGate 'SizeProbe (CommBuffer) != 0'
+    #
+    # Each of the three decisions below is one of those lines, and each would be silently
+    # undone by a plausible edit, so they are pinned here where the suite runs without a
+    # 20-minute LLVM link.
+    check('the gate is threaded through the body walk',
+          'const std::string &Gate' in src and 'CallInfo.CallerGate = Gate;' in src,
+          'collectSmiCalls must carry the enclosing condition to each edge')
+    check('the OUTERMOST caller-data condition wins',
+          'Gate.empty() && mentionsCallerName' in src,
+          'without the Gate.empty() guard the inner `if (mRscProtocol != NULL)` -- which '
+          'reads no caller data -- overwrites the switch and the call reads as ungated')
+    check("a call inside a condition is not gated by that same condition",
+          'IsTheCondition ? Gate : Inner' in src,
+          'the condition is a child of the IfStmt but is not inside the branch it guards')
+    check('taint reaches the typed local, not just the parameter',
+          'growCallerNames' in src and 'BO_Assign && mentionsCallerName' in src,
+          'HwLight gates on CommunicationData, which is an assignment hop from CommBuffer, '
+          'which is itself a hop from the parameter spelled CommBuffer1')
+    check('the parameter is found by shape, not by one spelling',
+          'Name.find("CommBuffer") != std::string::npos' in src,
+          'EVAL-1 spells it CommBuffer1')
+
+    fops = os.path.join(ROOT, 'firness', 'firness', 'FileOperationHelpers.h')
+    osrc = open(fops, encoding='utf-8').read() if os.path.exists(fops) else ''
+    check('the gate is written for every edge, not only the gated ones',
+          'callObject["CallerGate"] = call.CallerGate;' in osrc,
+          'an absent key must mean "older analyzer", not "unconditional"')
 
     fcp = os.path.join(ROOT, 'firness', 'firness', 'FCP.cpp')
     fsrc = open(fcp, encoding='utf-8').read() if os.path.exists(fcp) else ''
