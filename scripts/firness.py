@@ -602,6 +602,21 @@ def combine_cfgs(src):
         json.dump(function_edge_map, file)
 
 # generate the harness for fuzzing with the results from the static analysis tool
+# WHEN the SMI harness runs, from the environment so a campaign can ask for it without a
+# new flag threaded through every caller.
+#
+# 'application' is the default and what every campaign has used. 'dxe' builds the harness
+# as a DXE_DRIVER in the firmware volume instead of writing it to the ESP, which is the
+# only way to reach a handler that latches on EndOfDxe -- BDS launches a boot option well
+# after that latch closes. Measured on EVAL-1 run 42633354713: SmmEndOfDxeHandler at
+# debugcon line 1688, the harness opened at line 3183, and SmmFtwHandler refusing work in
+# between.
+#
+# It is opt-in because the cost does not scale: an ESP harness is one firmware and many
+# harnesses, while a module in the FV needs a firmware build per harness.
+HARNESS_TIMING = os.environ.get('FIRNESS_HARNESS_TIMING', 'application')
+
+
 def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False,
                      backend: str = 'tsffs', max_steps: int = 0):
     dst = output_dir
@@ -618,6 +633,11 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
         generate_cmd += f' --backend {backend}'
     if max_steps:
         generate_cmd += f' --max-steps {max_steps}'
+    # SMI only: a protocol harness is called directly and has nothing to do with when an
+    # SMI handler's latch closes, so asking for dxe timing there would cost a firmware
+    # build per protocol and buy nothing.
+    if smi and HARNESS_TIMING != 'application':
+        generate_cmd += f' --harness-timing {HARNESS_TIMING}'
     process = subprocess.run(generate_cmd, shell=True, executable='/bin/bash', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = process.stdout.decode('utf-8', errors='ignore')
     log += process.stderr.decode('utf-8', errors='ignore')

@@ -206,6 +206,10 @@ jobs:
         shell: bash
         run: python3 scripts/smi_dispatch_check.py
 
+      - name: The harness reaches the DXE firmware volume, unconditionally
+        shell: bash
+        run: python3 scripts/fv_harness_check.py
+
       - name: A sanitizer detection cannot be announced without being reported
         shell: bash
         run: python3 scripts/fwsan_report_check.py
