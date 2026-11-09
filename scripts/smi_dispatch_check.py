@@ -358,6 +358,74 @@ def main():
           'protocol_guids.add(smi.buffer_protocol)' in an,
           'otherwise the harness references a symbol nothing declares')
 
+    # The constants the source tests each field against have to survive the whole path:
+    # analyzer JSON -> loader -> SmiInfo -> emitted C. Run it, do not grep for it.
+    print('the constants the source tests a field against')
+    import json as _json
+    import inspect as _inspect
+    from data_analysis.analyze_smi import load_smi_data  # noqa: E402
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, 'smi-function-guid-map.json')
+        # Shaped exactly as outputSmiFunctionGuidMap writes it.
+        open(path, 'w').write(_json.dumps({
+            'MyGatedHandler': {
+                'Guid': 'gMyGatedCommGuid',
+                'Type': 'MY_GATED_PARAMS *',
+                'Dispatch': 'SmiHandlerRegister',
+                'BufferProtocol': 'gMyPublishedBufferGuid',
+                'FieldConstants': {'Function': ['MY_CMD_ONE', 'MY_CMD_TWO']},
+            }}))
+        loaded = load_smi_data(path)
+    got = loaded.get('MyGatedHandler')
+    check('the loader reads FieldConstants out of the analyzer output',
+          got is not None and getattr(got, 'field_constants', None)
+          == {'Function': ['MY_CMD_ONE', 'MY_CMD_TWO']},
+          str(getattr(got, 'field_constants', '<no attribute>')))
+    if got is not None:
+        with_consts = '\n'.join(harness_generator({'MyGatedHandler': got}, types_, {}, {}))
+        check('and they reach the generated C',
+              'MY_CMD_ONE' in with_consts and 'MY_CMD_TWO' in with_consts,
+              'the loader parsed them and the template dropped them')
+        check('through the index byte, not a slot each',
+              'ConstChoice % 2' in with_consts, with_consts[-400:])
+
+    # The analyzer half. Proved by building it and running it on a fixture mirroring
+    # OvmfPkg/HwLight, which returned exactly:
+    #
+    #   Function     ["REGISTER_RSC", "RE_REGISTER_RSC", "UNREGISTER_FROM_RSC"]
+    #   Disable      ["FALSE"]
+    #   ReturnStatus ["MODE_A"]
+    #
+    # -- macro names kept as names, the enum constant kept, and the VARIABLE in
+    # `CommunicationData->ReturnStatus == Status` correctly refused. These pin the two
+    # decisions that made that true, where the suite can check them without an LLVM link.
+    root = ROOT
+    sfa = os.path.join(root, 'firness', 'firness', 'SmiFunctionAnalysis.h')
+    sfsrc = open(sfa, encoding='utf-8').read() if os.path.exists(sfa) else ''
+    check('the analyzer collects a field\'s comparison constants',
+          'collectFieldConstants' in sfsrc and 'SwitchStmt' in sfsrc,
+          'both a switch arm and an == comparison name one')
+    check('only an ENUM constant is taken from a name',
+          'isa<EnumConstantDecl>' in sfsrc,
+          'a plain variable is not a constant, and emitting its name puts an undeclared '
+          'identifier in the generated C -- the firmware then does not build and the '
+          'campaign reports a broken port rather than a weaker harness')
+    check('the field has to belong to the comm buffer',
+          'if (!HasCommBuffer(ME->getBase()) && !isCommBufferLocal(ME->getBase())) {'
+          in sfsrc,
+          'the GUARD, not the function name: gutting the body leaves both names in place '
+          'and every struct field in the body then matches, so an unrelated local struct '
+          "would hand its own constants to the comm buffer's fields")
+    check('and the local it was cast into is recorded where the type is resolved',
+          'CommBufferLocals.insert(DRE2->getDecl()->getNameAsString());' in sfsrc,
+          'HwLight gates on CommunicationData, one assignment from CommBuffer; without '
+          'that name the base check rejects every field and nothing is collected')
+    fops = os.path.join(root, 'firness', 'firness', 'FileOperationHelpers.h')
+    fosrc = open(fops, encoding='utf-8').read() if os.path.exists(fops) else ''
+    check('and the writer emits them',
+          'smiJson["FieldConstants"] = constants;' in fosrc,
+          'collected and then dropped on the floor')
+
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 
