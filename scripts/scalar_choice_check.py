@@ -150,13 +150,24 @@ def main():
     # TWICE IN ONE BOOT, which at that rate never happens.
     #
     _, withc = render(BLOCK, {'EFI_STATUS': 'RETURN_STATUS', 'RETURN_STATUS': 'UINTN'},
-                      constants={'AccessType': ['UNREGISTER_FROM_RSC', 'REGISTER_RSC']})
-    check('a constant the source names is offered',
-          'HandlerData->AccessType = (UINT32)REGISTER_RSC;' in withc, withc)
-    check('and so is the second one',
-          'HandlerData->AccessType = (UINT32)UNREGISTER_FROM_RSC;' in withc, withc)
+                      constants={'AccessType': {'UNREGISTER_FROM_RSC': '3',
+                                                'RE_REGISTER_RSC': '2'}})
+    # The VALUE is emitted, never the name. The generator vendors private comm-buffer
+    # structs into FirnessIncludes.h instead of including the driver's header -- run
+    # 42633354713's carries SMM_LIGHT_FUNCTION_COMMUNICATION and not one of the three
+    # REGISTER_RSC macros defined beside it -- so a name would be an undeclared identifier
+    # and the campaign would lose its whole budget to a failed build, not to a weak
+    # harness. This is the check that would have caught that before a campaign did.
+    check('the value is what reaches the C, not the name',
+          'HandlerData->AccessType = (UINT32)3;' in withc
+          and 'UNREGISTER_FROM_RSC;' not in withc, withc)
+    check('and the second value too',
+          'HandlerData->AccessType = (UINT32)2;' in withc, withc)
+    check('the name survives as a comment',
+          '(UINT32)3; break;  // UNREGISTER_FROM_RSC' in withc,
+          '(UINT32)3 alone tells a reader nothing about why 3')
     check('it is cast to the field type as written',
-          '(UINT32)UNREGISTER_FROM_RSC' in withc,
+          '(UINT32)3;' in withc,
           'a UINTN constant assigned to a UINT32 field without a cast warns, and the '
           'build runs with warnings as errors')
     check('the constants do not displace the generic cases',
@@ -167,7 +178,8 @@ def main():
     check('an index byte picks which constant',
           'switch (HandlerDataConstChoice % 2) {' in withc, withc)
     # On the single-field block there is exactly one of each, so the order is unambiguous.
-    _, one_field = render([('Function', 'UINTN')], constants={'Function': ['CMD_A', 'CMD_B']})
+    _, one_field = render([('Function', 'UINTN')],
+                          constants={'Function': {'CMD_A': '7', 'CMD_B': '8'}})
 
     def before(text, first, second):
         """True when both are present and `first` comes first.
@@ -190,8 +202,8 @@ def main():
           'at & 7 the generic cases 8..11 and every constant case are unreachable, and '
           'the harness silently loses both')
     check('a field with no constants gets none',
-          'HandlerData->Offset = (UINT32)REGISTER_RSC' not in withc
-          and 'HandlerData->Offset = (UINTN)REGISTER_RSC' not in withc,
+          'HandlerData->Offset = (UINTN)3;' not in withc
+          and 'HandlerData->Offset = (UINT32)3;' not in withc,
           "one field's constants must not be emitted on another's")
     check('half the selector range is still the raw read',
           not any(re.search(rf'^    case {c}:', withc, re.M) for c in range(8)),
@@ -207,54 +219,82 @@ def main():
 
     # Many constants: the shape that four dedicated slots could not have expressed.
     _, many = render([('Function', 'UINTN')],
-                     constants={'Function': [f'CMD_{i}' for i in range(8)]})
+                     constants={'Function': {f'CMD_{i}': str(100 + i) for i in range(8)}})
     check('eight command codes all reach the harness',
-          all(f'(UINTN)CMD_{i};' in many for i in range(8)), many)
+          all(f'(UINTN){100 + i};' in many for i in range(8)), many)
+    check('and each carries its name',
+          all(f'// CMD_{i}' in many for i in range(8)), many)
     check('and the index is taken modulo their count',
           'switch (HandlerDataConstChoice % 8) {' in many, many)
     check('no index byte is declared for a block with no constants',
           'ConstChoice' not in render(BLOCK)[1],
           'a block with nothing to offer must emit what it emitted before')
 
+    # A single constant needs no index, and `% 1` is a constant zero that reads as a
+    # mistake in a generated file someone has to review.
+    _, single = render([('Function', 'UINTN')], constants={'Function': {'ONE_CMD': '16'}})
+    check('one constant is assigned directly, with no modulo',
+          '% 1' not in single and 'HandlerData->Function = (UINTN)16;' in single, single)
+    check('and declares no index byte it would not use',
+          'ConstChoice' not in single, single)
+    check('it still occupies all four constant selector values',
+          all(re.search(rf'^    case {c}:', single, re.M) for c in (12, 13, 14, 15)),
+          'one constant at 1-in-16 is a quarter of the reachability of 1-in-4')
+    check('and the name is still recorded beside it',
+          '(UINTN)16;  // ONE_CMD' in single, single)
+
     print('and what a constant may not be')
-    check('a non-identifier is dropped, not pasted into C',
-          smi.field_constants_for('x', ['a b', 'f()', 'A|B', '-1', '']) == [],
+    check('a non-numeric value is dropped, not pasted into C',
+          smi.field_constants_for('x', {'A': 'a b', 'B': 'f()', 'C': 'A|B', 'D': ''}) == [],
           'the generated file has to compile; a malformed constant breaks the port, not '
           'just the harness')
-    check('an identifier and a hex literal are kept',
-          smi.field_constants_for('x', ['OK_NAME', '0x3F']) == ['OK_NAME', '0x3F'])
+    check('a name with no value attached is dropped',
+          smi.field_constants_for('x', ['UNREGISTER_FROM_RSC']) == [],
+          'an older analyzer wrote names only, and a name is exactly what cannot be '
+          'emitted -- dropping it beats finding out at build time')
+    check('a legacy list of numeric literals still works',
+          smi.field_constants_for('x', ['0x10', '32']) == [('0x10', '0x10'), ('32', '32')])
+    check('a decimal and a hex value are both kept',
+          smi.field_constants_for('x', {'A': '63', 'B': '0x3F'})
+          == [('63', 'A'), ('0x3F', 'B')])
+    check('two names with one value collapse to one arm',
+          smi.field_constants_for('x', {'A': '5', 'B': '5'}) == [('5', 'A')],
+          'the index would otherwise waste half its range on the same value')
     check('0 and 1 are dropped as already offered',
-          smi.field_constants_for('x', ['0', '1', '0x0', '0x1', 'KEEP']) == ['KEEP'],
+          smi.field_constants_for('x', {'ZERO': '0', 'ONE': '1', 'KEEP': '9'})
+          == [('9', 'KEEP')],
           'cases 8 and 9 assign them, so re-offering spends an arm for nothing')
     # Found by running the analyzer on a fixture: HwLight tests
     # `if (CommunicationData->Disable == FALSE) break;`, so FALSE came back as Disable's
     # only constant and the four constant selector values all assigned the one value that
     # makes the handler bail -- turning a 0.875 chance of a non-zero Disable into 0.69.
     check('TRUE and FALSE are dropped too',
-          smi.field_constants_for('x', ['FALSE', 'TRUE']) == [],
+          smi.field_constants_for('x', {'FALSE': '0', 'TRUE': '1'}) == [],
           'a BOOLEAN whose only source constant is FALSE would spend the constant arm on '
           'the value that makes the handler return')
     check('and such a field then declares no index byte',
           'ConstChoice' not in render([('Disable', 'BOOLEAN')],
-                                      constants={'Disable': ['FALSE']})[1],
+                                      constants={'Disable': {'FALSE': '0'}})[1],
           'it falls back to the generic cases, where 1, the low byte and all ones are '
           'each non-zero')
     check('the list is bounded so generated code cannot run away',
-          len(smi.field_constants_for('x', [f'C_{i}' for i in range(40)]))
+          len(smi.field_constants_for('x', {f'C_{i}': str(200 + i) for i in range(40)}))
           == smi.MAX_FIELD_CONSTANTS,
           f'{smi.MAX_FIELD_CONSTANTS} is the cap; the index byte means slots are not the '
           f'limit, but a switch arm per constant still lands in a compiled image')
     check('eight constants are NOT capped -- the shape four slots could not express',
-          len(smi.field_constants_for('x', [f'C_{i}' for i in range(8)])) == 8,
+          len(smi.field_constants_for('x',
+                                      {f'C_{i}': str(200 + i) for i in range(8)})) == 8,
           'VariableSmm switches on eight command codes and SmmSpi on several')
+    named = {f'C_{i:02d}': str(300 + i) for i in range(smi.MAX_FIELD_CONSTANTS)}
+    named.update({'7': '7', '8': '8'})   # bare literals: name == value
     check('names are kept before bare numerals when the cap bites',
-          smi.field_constants_for(
-              'x', ['0x7', '0x8'] + [f'C_{i:02d}' for i in range(smi.MAX_FIELD_CONSTANTS)])
+          [n for _, n in smi.field_constants_for('x', named)]
           == [f'C_{i:02d}' for i in range(smi.MAX_FIELD_CONSTANTS)],
           'a numeral that survived is a literal in a comparison; a name is a command code')
-    check('the order does not depend on set iteration order',
-          smi.field_constants_for('x', {'B', 'A', 'C'})
-          == smi.field_constants_for('x', {'C', 'B', 'A'}),
+    check('the order does not depend on map iteration order',
+          smi.field_constants_for('x', {'B': '2', 'A': '3', 'C': '4'})
+          == smi.field_constants_for('x', {'C': '4', 'B': '2', 'A': '3'}),
           'two runs of the generator must emit the same harness')
     check('a constant list that is None is not an error',
           smi.field_constants_for('x', None) == [])

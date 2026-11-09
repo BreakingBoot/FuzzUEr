@@ -373,19 +373,30 @@ def main():
                 'Type': 'MY_GATED_PARAMS *',
                 'Dispatch': 'SmiHandlerRegister',
                 'BufferProtocol': 'gMyPublishedBufferGuid',
-                'FieldConstants': {'Function': ['MY_CMD_ONE', 'MY_CMD_TWO']},
+                'FieldConstants': {'Function': {'MY_CMD_ONE': '6', 'MY_CMD_TWO': '7'}},
             }}))
         loaded = load_smi_data(path)
     got = loaded.get('MyGatedHandler')
     check('the loader reads FieldConstants out of the analyzer output',
           got is not None and getattr(got, 'field_constants', None)
-          == {'Function': ['MY_CMD_ONE', 'MY_CMD_TWO']},
+          == {'Function': {'MY_CMD_ONE': '6', 'MY_CMD_TWO': '7'}},
           str(getattr(got, 'field_constants', '<no attribute>')))
     if got is not None:
         with_consts = '\n'.join(harness_generator({'MyGatedHandler': got}, types_, {}, {}))
-        check('and they reach the generated C',
-              'MY_CMD_ONE' in with_consts and 'MY_CMD_TWO' in with_consts,
+        # The VALUES reach the C. The NAMES must not: the generator vendors a private
+        # comm-buffer struct into FirnessIncludes.h instead of including the driver's
+        # header, so a macro name is an undeclared identifier and the firmware does not
+        # build -- which costs the campaign its whole budget rather than weakening a
+        # harness. Verified on run 42633354713: its FirnessIncludes.h carries
+        # SMM_LIGHT_FUNCTION_COMMUNICATION and none of the three REGISTER_RSC macros
+        # defined beside it in SmmLight.h.
+        check('the values reach the generated C',
+              '(UINT32)6;' in with_consts and '(UINT32)7;' in with_consts,
               'the loader parsed them and the template dropped them')
+        check('and the names do NOT, except in a comment',
+              with_consts.count('MY_CMD_ONE') == 1
+              and '// MY_CMD_ONE' in with_consts,
+              'a name outside a comment is an undeclared identifier in the harness')
         check('through the index byte, not a slot each',
               'ConstChoice % 2' in with_consts, with_consts[-400:])
 
@@ -402,9 +413,25 @@ def main():
     root = ROOT
     sfa = os.path.join(root, 'firness', 'firness', 'SmiFunctionAnalysis.h')
     sfsrc = open(sfa, encoding='utf-8').read() if os.path.exists(sfa) else ''
+    fops = os.path.join(root, 'firness', 'firness', 'FileOperationHelpers.h')
+    fosrc = open(fops, encoding='utf-8').read() if os.path.exists(fops) else ''
     check('the analyzer collects a field\'s comparison constants',
           'collectFieldConstants' in sfsrc and 'SwitchStmt' in sfsrc,
           'both a switch arm and an == comparison name one')
+    check('the integer VALUE is recorded, not only the spelling',
+          'getIntegerConstantExpr' in sfsrc
+          and 'FieldConstants[Field][Spelling] = Number;' in sfsrc,
+          'the harness emits the value because the name does not exist in its '
+          'translation unit; recording only the spelling makes the firmware not build')
+    check('and a non-constant expression is refused before the value is read',
+          'if (!Value.hasValue()) {' in sfsrc,
+          'toString on an empty Optional is undefined -- the analyzer would crash on the '
+          'first handler comparing a field against something that is not a constant, and '
+          'a dead analyzer looks like a clean result')
+    check('the writer keeps the value, not a second copy of the name',
+          'byName[one.first] = one.second;' in fosrc,
+          'name -> name would put macro names back in the harness and fail the build, '
+          'which is the exact failure this whole path exists to avoid')
     check('only an ENUM constant is taken from a name',
           'isa<EnumConstantDecl>' in sfsrc,
           'a plain variable is not a constant, and emitting its name puts an undeclared '
@@ -420,8 +447,6 @@ def main():
           'CommBufferLocals.insert(DRE2->getDecl()->getNameAsString());' in sfsrc,
           'HwLight gates on CommunicationData, one assignment from CommBuffer; without '
           'that name the base check rejects every field and nothing is collected')
-    fops = os.path.join(root, 'firness', 'firness', 'FileOperationHelpers.h')
-    fosrc = open(fops, encoding='utf-8').read() if os.path.exists(fops) else ''
     check('and the writer emits them',
           'smiJson["FieldConstants"] = constants;' in fosrc,
           'collected and then dropped on the floor')
