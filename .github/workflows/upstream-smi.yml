@@ -160,16 +160,35 @@ jobs:
               sys.exit('::error::BOOTX64.EFI was opened, so a boot option still exists: '
                        'the ESP was not built empty and the harness ran after EndOfDxe '
                        'after all')
+          # Two ways to date the first SMI, because the better one is not always there.
+          #
+          # "SmmCore: dispatch" is the port's own narration in PiSmmCore.c, and on a
+          # release whose SmmEntryPoint upstream restructured the port DROPS that file --
+          # it names a variable upstream deleted, so keeping it would not compile. The
+          # port stage prints NARRATION DROPPED when that happens. The campaign still
+          # runs and still reports, so the gate falls back to the handlers' own upstream
+          # DEBUG lines, which say a handler parsed a buffer just as well.
           first = debugcon.find('SmmCore: dispatch')
-          latch = debugcon.find('SmmEndOfDxeHandler')
+          how = 'the SMI dispatch narration'
           if first < 0:
-              sys.exit('::error::no "SmmCore: dispatch" line: the harness never raised an '
-                       'SMI, so nothing was fuzzed however many iterations were counted')
+              # SmmEndOfDxeHandler matches this shape too and is the thing being dated,
+              # so it cannot be its own evidence.
+              hits = [m.start() for m in re.finditer(r'Smm[A-Za-z]*Handler[:;]', debugcon)
+                      if not debugcon.startswith('SmmEndOfDxeHandler', m.start())]
+              first = min(hits) if hits else -1
+              how = "a handler's own DEBUG line"
+          if first < 0:
+              sys.exit('::error::nothing in debugcon.log says an SMI handler ran: no '
+                       '"SmmCore: dispatch" narration and no handler DEBUG either, so '
+                       'nothing was fuzzed however many iterations were counted')
+          latch = debugcon.find('SmmEndOfDxeHandler')
           if 0 <= latch < first:
-              sys.exit('::error::SmmEndOfDxeHandler ran BEFORE the first SMI dispatch, so '
-                       'the latch was shut by the time the harness ran -- which is the '
-                       'whole thing the dxe timing exists to avoid')
-          print('  the latch had not shut when the harness raised its first SMI')
+              sys.exit(f'::error::SmmEndOfDxeHandler ran BEFORE the first SMI reached a '
+                       f'handler (dated by {how}), so the latch was shut by the time the '
+                       f'harness ran -- which is the whole thing the dxe timing exists '
+                       f'to avoid')
+          print(f'  the latch had not shut when the harness raised its first SMI '
+                f'(dated by {how})')
           print('  upstream SMI at dxe timing: OK')
           PY
 

@@ -152,16 +152,51 @@ DSC_CONFLICT = '''\
 '''
 
 
+def pristine(body):
+    """The destination's side of a conflicted body -- what a clean checkout holds."""
+    out, keep = [], None
+    for line in body.split('\n'):
+        if line.startswith('<<<<<<< '):
+            keep = 'ours'
+        elif line.startswith('=======') and keep:
+            keep = 'theirs'
+        elif line.startswith('>>>>>>> ') and keep:
+            keep = None
+        elif keep == 'theirs':
+            continue
+        else:
+            out.append(line)
+    return '\n'.join(out)
+
+
 def resolve_one(name, body):
-    """Run the port's resolver over one conflicted file and say what it did."""
+    """Run the port's resolver over one conflicted file and say what it did.
+
+    A real git repository, not just a directory: the diagnostic-only arm restores its
+    file with `git checkout HEAD --`, because the hunks that already applied cannot be
+    undone by filtering conflict markers. A plain temp dir would silently exercise that
+    arm's fallback instead of the path a campaign takes.
+
+    HEAD holds the destination's side, which is what a clean checkout of the ref being
+    ported to contains; the conflicted body is then written over it unstaged, exactly as
+    `git apply -3` leaves things.
+    """
     mod = port_module()
     work = tempfile.mkdtemp(prefix='portchk-')
     full = os.path.join(work, name)
     os.makedirs(os.path.dirname(full), exist_ok=True)
+    subprocess.run(['git', 'init', '-q', work], check=False)
+    with open(full, 'w', newline='') as handle:
+        handle.write(pristine(body))
+    for argv in (['add', '--', name],
+                 ['-c', 'user.email=check@example.invalid', '-c', 'user.name=check',
+                  '-c', 'commit.gpgsign=false', 'commit', '-qm', 'pristine']):
+        subprocess.run(['git', '-C', work] + argv, check=False,
+                       capture_output=True)
     with open(full, 'w', newline='') as handle:
         handle.write(body)
-    resolved, unresolved = mod.resolve_conflicts(work, [name])
-    return resolved, unresolved, open(full, newline='').read()
+    resolved, unresolved, dropped = mod.resolve_conflicts(work, [name])
+    return resolved, unresolved, dropped, open(full, newline='').read()
 
 
 def main():
@@ -183,18 +218,53 @@ def main():
               on_disk == 'crlf', on_disk)
 
     print('and refuses a conflict it has no model for')
-    resolved, unresolved, after = resolve_one('MdeModulePkg/Core/PiSmmCore/PiSmmCore.c',
-                                              C_CONFLICT)
-    check('a conflicted C source is left unresolved', unresolved and not resolved,
-          f'resolved={resolved} unresolved={unresolved}: the key-value merge drops '
-          f'statements out of the middle of functions')
+    # A C source the port changes for real. Still refused: the key-value merge drops
+    # statements out of the middle of functions, and there is no model for a C conflict.
+    resolved, unresolved, dropped, after = resolve_one(
+        'MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c', C_CONFLICT)
+    check('a conflicted C source is left unresolved',
+          unresolved and not resolved and not dropped,
+          f'resolved={resolved} unresolved={unresolved} dropped={dropped}')
     check('and it is not rewritten on the way out', '<<<<<<< ours' in after,
           'refusing means leaving the markers for a human, not writing a guess')
 
+    print('while dropping one whose port content is only narration')
+    # PiSmmCore.c is the exception, and it is not a softened standard: upstream deleted
+    # the variable the port's DEBUG names, so keeping the port's side does not compile.
+    # Dropping is the only correct resolution, and the alternative -- refusing -- fails
+    # the port stage and stops a campaign that would otherwise have found defects.
+    pismm = 'MdeModulePkg/Core/PiSmmCore/PiSmmCore.c'
+    mod = port_module()
+    check('it is declared diagnostic-only, with a reason',
+          pismm in getattr(mod, 'DIAGNOSTIC_ONLY', {})
+          and len(mod.DIAGNOSTIC_ONLY.get(pismm, '')) > 40,
+          'a path dropped without a recorded reason is a capability lost silently')
+    resolved, unresolved, dropped, after = resolve_one(pismm, C_CONFLICT)
+    check('a conflict there is dropped, not refused',
+          dropped == [pismm] and not unresolved and not resolved,
+          f'resolved={resolved} unresolved={unresolved} dropped={dropped}')
+    check('and the file it leaves has no markers',
+          '<<<<<<<' not in after and '=======' not in after
+          and '>>>>>>>' not in after,
+          'the port stage passes on a dropped file, so what is left has to build')
+    check('the whole file goes back to the destination\'s version',
+          after == pristine(C_CONFLICT),
+          'not just the conflicted hunks: a port diff is several hunks and they succeed '
+          'independently, so resolving only the conflicts leaves half the narration -- '
+          'untrustworthy to read, and a compile break as soon as the half that survives '
+          'is the one naming a variable upstream deleted')
+    check('and the port\'s side is gone, not merged in',
+          after.count('SmiManage') == 1
+          and 'gSmmCorePrivate->BufferSize = BufferSize;' not in after,
+          'keeping both sides of a C conflict duplicates statements -- two SmiManage '
+          'calls here -- which is the corruption this whole arm exists to prevent')
+
     print('while still merging what it does have a model for')
-    resolved, unresolved, after = resolve_one('OvmfPkg/OvmfPkgX64.dsc', DSC_CONFLICT)
-    check('a conflicted DSC still resolves', resolved and not unresolved,
-          f'resolved={resolved} unresolved={unresolved}')
+    resolved, unresolved, dropped, after = resolve_one('OvmfPkg/OvmfPkgX64.dsc',
+                                                       DSC_CONFLICT)
+    check('a conflicted DSC still resolves',
+          resolved and not unresolved and not dropped,
+          f'resolved={resolved} unresolved={unresolved} dropped={dropped}')
     check('the port\'s value wins where both sides set the same key',
           'BaseCryptLibNull' in after and 'BaseCryptLib/BaseCryptLib.inf' not in after,
           'the port picks BaseCryptLibNull because openssl is not built -- and "ours" is '
