@@ -118,16 +118,27 @@ def main():
           'NONE of the' in source and 'SMM module(s) are' in source,
           'the count alone reads as 99% healthy')
 
-    # A library instance is built once, so the only way a defect inside an SMM driver's
-    # own code reaches a check is for the LIBRARY it calls to do the checking. No SMM
-    # module has its own code instrumented -- 0 of 17 -- and on EVAL-1 run 42490347442
-    # five injected SMM drivers were dispatched between 31709 and 90503 times each with
-    # one finding between them, which came through another module's instrumented
-    # libraries rather than from the driver itself.
+    # SMM stays on the UNINSTRUMENTED BaseMemoryLib, and this asserts it stays there.
     #
-    # AsanInternalMemCopyMem shadow-checks the source and the destination for the full
-    # Length before copying, so resolving BaseMemoryLib to it gives every CopyMem, SetMem,
-    # ZeroMem and CompareMem in SMM a bounds check with no recompilation of the driver.
+    # Resolving it to AsanMemoryLibRepStr for DXE_SMM_DRIVER and SMM_CORE is the obvious
+    # way to get a bounds check into an SMM driver without recompiling it, since no SMM
+    # module has its own code instrumented -- 0 of 17 -- and AsanInternalMemCopyMem
+    # shadow-checks source and destination for the full Length before copying. It was
+    # tried and it costs the campaign its entire budget. EVAL-1 run 42633354713 managed
+    # 66 iterations and failed the fuzz stage; run 42496944636, identical in every other
+    # respect, managed 282995.
+    #
+    # AsanLib is already linked into these modules and owns __asan_load1 and the shadow
+    # machinery. AsanMemoryLibRepStr ships its own __asan_load1 and its own reporter, so
+    # adding it displaces the path that dedups and gates: 4993 check failures over 66
+    # iterations, ~75 per dispatch, nearly all from PlatformDebugLibIoPort inside
+    # PchSmiDispatchSmm, every one a global-buffer-overflow against an SMRAM address
+    # whose shadow byte reads 0xf9. Nothing asserts and nothing deadloops -- the dispatch
+    # spends 45s writing reports to the serial port and the call times out.
+    #
+    # 0xf9 is the global redzone magic and the addresses are SMM image globals, so the
+    # shadow does not describe the TSEG range those images were relocated into. Fixing
+    # that is the prerequisite for instrumenting SMM, and it is not a library mapping.
     repo = os.path.dirname(HERE)
     dsc = os.path.join(repo, "eval_source", "edk2", "OvmfPkg", "OvmfPkgX64.dsc")
     if not os.path.exists(dsc):
@@ -164,8 +175,9 @@ def main():
         for want in ('[LibraryClasses.common.DXE_SMM_DRIVER]',
                      '[LibraryClasses.common.SMM_CORE]'):
             got = resolved.get(want, [])
-            check(f'{want} resolves the instrumented memory library',
-                  any('AsanMemoryLibRepStr' in g for g in got), str(got))
+            check(f'{want} does NOT resolve the instrumented memory library',
+                  not any('AsanMemoryLibRepStr' in g for g in got),
+                  f'{got} -- measured at 66 iterations against 282995; see the note above')
 
         globals_ = resolved.get('[LibraryClasses]', [])
         check('the global default is left alone',
