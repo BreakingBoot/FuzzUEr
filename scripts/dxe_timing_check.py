@@ -37,6 +37,27 @@ def check(what, ok, detail=''):
         print(f'  [FAIL] {what}' + (f'\n         {detail}' if detail else ''))
 
 
+def pcd_tuple(path, name):
+    """The PCD strings from a module-level tuple, ignoring the comments between them.
+
+    Each entry carries a long comment, and those comments contain apostrophes, so a
+    single-quoted-string regex over the whole tuple matches comment fragments as well.
+    Taking only the strings that look like a PCD assignment avoids parsing the file.
+    """
+    try:
+        text = open(path, encoding='utf-8').read()
+    except OSError:
+        return ()
+    start = text.find(f'\n{name} = (')
+    if start < 0:
+        return ()
+    end = text.find('\n)', start)
+    if end < 0:
+        return ()
+    return tuple(re.findall(r"'(g[A-Za-z0-9]+TokenSpaceGuid\.[^']+=[^']+)'",
+                            text[start:end]))
+
+
 def body(path, name):
     """The source of one function, from its def to the next top-level def."""
     text = open(path, encoding='utf-8').read()
@@ -79,6 +100,56 @@ def main():
           'rm -rf' not in rebuild,
           'clearing Build/ turns an incremental relink into a full platform build on '
           'every campaign; that is compile_ovmf\'s business, where bear needs it')
+    # The PCDs. This is the assertion run 42690509737 was missing: the relink built a
+    # firmware without them, so the first ASSERT inside SMM CpuDeadLooped the vCPU, the
+    # snapshot restore could not recover it, and a campaign that had done 246665
+    # iterations on the pipeline's own firmware did 50.
+    firness_pcds = pcd_tuple(FIRNESS, 'FIRMWARE_PCDS')
+    shared_pcds = pcd_tuple(os.path.join(HERE, 'fuzz_edk2.py'), 'SHARED_PCDS')
+    # The arguments are built from the tuple, so there is no literal PCD name in this
+    # function to grep for. What has to hold is that every entry becomes a --pcd argument
+    # AND that the result is interpolated into the build command -- a joined-but-unused
+    # variable is exactly the shape of the defect this check exists for.
+    joined = re.search(r"(\w+)\s*=\s*' '\.join\(\s*f'--pcd \{\w+\}'"
+                       r"\s+for\s+\w+\s+in\s+FIRMWARE_PCDS\s*\)", rebuild)
+    cmd = re.search(r"\n    cmd = \((.*?)\n    [a-z]", rebuild, re.S)
+    check('the relink turns every firmware PCD into a --pcd argument',
+          bool(firness_pcds) and joined is not None,
+          'rebuild_ovmf_with_harness has to join FIRMWARE_PCDS into --pcd arguments; a '
+          'firmware relinked without them deadloops in SMM on its first ASSERT and the '
+          'campaign spends the rest of its budget timing out against a dead machine')
+    check('and passes them to the build that links the platform',
+          bool(joined) and bool(cmd) and '{%s}' % joined.group(1) in cmd.group(1)
+          and 'OvmfPkg/OvmfPkgX64.dsc' in cmd.group(1),
+          'the joined arguments are never interpolated into the build command line, so '
+          'they have no effect at all')
+    check('firness.py and fuzz_edk2.py pin the SAME PCDs',
+          bool(shared_pcds) and firness_pcds == shared_pcds,
+          f'FIRMWARE_PCDS is {firness_pcds} and SHARED_PCDS is {shared_pcds}; '
+          f'ci.Dockerfile ships only firness.py into the campaign image so the list has '
+          f'to be duplicated, which means it can drift -- the relinked firmware would '
+          f'then differ from the one the pipeline measured and nothing would say so')
+    # Both builds, not just the relink. compile_ovmf builds the tree that the relink then
+    # links incrementally, so a PCD that appears only on the relink's command line has to
+    # propagate through AutoGen into modules that are already compiled.
+    analysis = body(FIRNESS, 'compile_ovmf')
+    check('the analysis build pins them too',
+          'FIRMWARE_PCDS' in analysis and '--pcd' in analysis
+          and re.search(r"\{pcds\}", analysis) is not None,
+          'compile_ovmf builds the tree rebuild_ovmf_with_harness relinks; if the two '
+          'disagree about the PCDs the relink depends on edk2 propagating a changed '
+          'FixedAtBuild value into every already-built module')
+    mask = [p for p in firness_pcds if 'PcdDebugPropertyMask' in p]
+    check('the mask it pins has the deadloop bit clear',
+          len(mask) == 1 and not int(mask[0].split('=')[1], 16) & 0x20,
+          f'PcdDebugPropertyMask is {mask}; bit 0x20 is '
+          f'DEBUG_PROPERTY_ASSERT_DEADLOOP_ENABLED, and an ASSERT that CpuDeadLoops '
+          f'inside SMM wedges every core with interrupts off')
+    check('and keeps the ASSERT bit set, so the finding survives',
+          len(mask) == 1 and int(mask[0].split('=')[1], 16) & 0x01,
+          'bit 0x01 is DEBUG_PROPERTY_DEBUG_ASSERT_ENABLED; clearing it would silence '
+          'the "ASSERT <file>(<line>)" line that guest_asserts() reads back, trading a '
+          'located sev4 finding for nothing')
     check('it uses the same defines as the firmware the campaign boots',
           'FIRNESS_ANALYSIS_DEFINES' in rebuild,
           'a different ASAN_SCOPE or FD_SIZE_IN_KB links a firmware that is not the one '

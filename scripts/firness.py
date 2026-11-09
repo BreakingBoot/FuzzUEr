@@ -101,6 +101,23 @@ def compile(src, capture_db=False):
     return log
 
 
+# The firmware PCDs every build in this pipeline pins. SHARED_PCDS in scripts/fuzz_edk2.py
+# is the source of truth and carries the full reasoning for each; this is a copy because
+# ci.Dockerfile ships only firness.py into the campaign image, so fuzz_edk2 is not
+# importable from here. dxe_timing_check.py asserts the two lists are character-identical,
+# so changing one without the other fails a check instead of silently relinking a firmware
+# that differs from the one the pipeline measured.
+#
+# Omitting them is not a small mismatch. Without the deadloop bit cleared, the first ASSERT
+# inside SMM wedges the vCPU for good and a snapshot restore does not recover it: run
+# 42690509737 relinked without these, reached the harness, ran its 20 seeds, and then spent
+# its whole remaining budget timing out -- 50 iterations where the same harness on the
+# pipeline's own firmware had done 246665.
+FIRMWARE_PCDS = (
+    'gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange=FALSE',
+    'gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask=0x0F',
+)
+
 def compile_ovmf(src, capture_db=False):
     """Build OVMF under bear, in the tree under test.
 
@@ -129,13 +146,19 @@ def compile_ovmf(src, capture_db=False):
     # database and every analysis artefact comes back as "null" -- from a build whose log
     # says "- Done -". The firmware the campaign boots is prebuilt and copied in, not
     # taken from this tree, so clearing it costs nothing.
+    # The same PCDs too. Under the application timing this tree's .fd is discarded, so
+    # they change nothing; under the dxe timing rebuild_ovmf_with_harness relinks THIS
+    # tree incrementally, and a PCD that first appears on the relink's command line would
+    # have to propagate through AutoGen into every already-compiled module to take effect.
+    # Pinning them here makes the relink a link and not a bet on that.
+    pcds = ' '.join(f'--pcd {pcd}' for pcd in FIRMWARE_PCDS)
     cmd = (f'cd {dir1} && rm -rf {dir1}/Build && '
            f'make -C BaseTools clean && make -C BaseTools && '
            f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
            f'CONF_PATH={dir1}/Conf CLANGSAN_BIN={clang} && '
            f'source edksetup.sh && cd {dir1} && '
            f'{bear}build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
-           f'{defines} -n "$(nproc)"')
+           f'{defines} {pcds} -n "$(nproc)"')
     process = subprocess.run(cmd, shell=True, executable='/bin/bash',
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return (process.stdout.decode('utf-8', errors='ignore') +
@@ -617,6 +640,7 @@ def combine_cfgs(src):
 HARNESS_TIMING = os.environ.get('FIRNESS_HARNESS_TIMING', 'application')
 
 
+
 def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False,
                      backend: str = 'tsffs', max_steps: int = 0):
     dst = output_dir
@@ -724,12 +748,13 @@ def rebuild_ovmf_with_harness(src):
         'FIRNESS_ANALYSIS_DEFINES',
         '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
         '-D FD_SIZE_IN_KB=8192')
+    pcds = ' '.join(f'--pcd {pcd}' for pcd in FIRMWARE_PCDS)
     cmd = (f'cd {dir1} && '
            f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
            f'CONF_PATH={dir1}/Conf CLANGSAN_BIN={clang} && '
            f'source edksetup.sh && cd {dir1} && '
            f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
-           f'{defines} -n "$(nproc)"')
+           f'{defines} {pcds} -n "$(nproc)"')
     process = subprocess.run(cmd, shell=True, executable='/bin/bash',
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     log = (process.stdout.decode('utf-8', errors='ignore') +
