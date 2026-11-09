@@ -72,6 +72,15 @@ inputs:
                   tree whose DSC has no StandaloneMM components'
     required: false
     default: 'false'
+  harness-timing:
+    description: 'When the SMI harness runs. "application" is a boot option on the ESP,
+                  which BDS launches AFTER EndOfDxe -- so every handler that latches on
+                  that event refuses the harness. "dxe" builds the harness into the DXE
+                  firmware volume as a DXE_DRIVER with a depex, so it runs before the
+                  latch shuts. dxe relinks the platform per campaign and needs the qemu
+                  backend'
+    required: false
+    default: 'application'
   port-from:
     description: 'The tree the sanitizer integration is TAKEN FROM -- not the tree being
                   fuzzed. Leave empty to use the one FuzzUEr carries. Set it only when
@@ -419,6 +428,12 @@ runs:
         # run from a shell is therefore not configured like this one.
         FIRNESS_QEMU_ICOUNT: shift=auto,sleep=off
         FIRNESS_CONTAINER_PREFIX: ci
+        # Named here rather than left to step-env inheritance. scripts/fuzz_batch.py
+        # forwards every FIRNESS_* it sees into the campaign containers, so this is the
+        # one place that has to carry it -- and a value only reachable by inheritance is
+        # the kind that silently reverts to "application" and reports a clean negative
+        # on handlers the campaign never actually reached.
+        FIRNESS_HARNESS_TIMING: ${{ inputs.harness-timing }}
       run: |
         set -uo pipefail
 

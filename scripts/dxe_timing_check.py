@@ -153,7 +153,31 @@ def main():
           'without it the generator emits UEFI_APPLICATION and the driver is never '
           'dispatched')
 
-    # 6. make_esp.sh --empty actually works, if the tools are here.
+    # 6. The action can actually be asked for it, and the value reaches the containers.
+    action = os.path.join(os.path.dirname(HERE), 'action.yml')
+    if not os.path.isfile(action):
+        check('action.yml exists', False, action)
+    else:
+        text = open(action, encoding='utf-8').read()
+        check('action.yml exposes harness-timing',
+              re.search(r'^  harness-timing:', text, re.M) is not None,
+              'without an input the only way to ask for it is step-env inheritance, '
+              'which silently reverts to application timing')
+        check('action.yml defaults it to application',
+              re.search(r"^  harness-timing:(?:.|\n)*?default: 'application'", text,
+                        re.M) is not None,
+              'defaulting to dxe would relink the platform on every existing campaign')
+        check('action.yml wires it into the environment',
+              'FIRNESS_HARNESS_TIMING: ${{ inputs.harness-timing }}' in text,
+              'an input nothing reads is worse than no input: the run accepts dxe and '
+              'fuzzes with application timing')
+        batch = os.path.join(HERE, 'fuzz_batch.py')
+        forwarded = open(batch, encoding='utf-8').read() if os.path.isfile(batch) else ''
+        check('fuzz_batch forwards FIRNESS_* into the campaign containers',
+              "k.startswith('FIRNESS_')" in forwarded,
+              'the value reaches the action and stops at the container boundary')
+
+    # 7. make_esp.sh --empty actually works, if the tools are here.
     tools = all(subprocess.run(['sh', '-c', f'command -v {t}'],
                                capture_output=True).returncode == 0
                 for t in ('mkfs.vfat', 'mmd', 'mcopy', 'mdir'))
