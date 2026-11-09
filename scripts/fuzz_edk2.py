@@ -816,6 +816,18 @@ def main():
                              'which is what installs EFI_MM_COMMUNICATION3_PROTOCOL. Inert '
                              'on its own: OvmfPkgX64.dsc nests the whole StandaloneMM block '
                              'inside !if $(SMM_REQUIRE) == TRUE')
+    parser.add_argument('--harness-timing', choices=('application', 'dxe'),
+                        default='application',
+                        help='when the SMI harness runs. "application" writes it to the '
+                             'ESP, which BDS launches AFTER it signals EndOfDxe -- so '
+                             'every handler that latches on that event refuses it, and on '
+                             'upstream MdeModulePkg alone that is SmmSpi\'s whole '
+                             'dispatch, FaultTolerantWriteSmm\'s write path and '
+                             'VariableSmm\'s runtime-cache arm. "dxe" builds it into the '
+                             'DXE firmware volume as a DXE_DRIVER with a depex, so it '
+                             'runs before the latch shuts. Needs --smi, relinks the '
+                             'platform per campaign, and the campaign guest is qemu '
+                             'either way')
     parser.add_argument('--skip-fuzz', action='store_true',
                         help='qualify a version without spending the fuzzing budget')
     args = parser.parse_args()
@@ -910,6 +922,18 @@ def main():
     if args.smi and not args.smm:
         args.smm = True
         print('--smi implies --smm; building with SMM_REQUIRE=TRUE')
+    # The dxe timing is an SMI construction: firness.py only passes the timing to the
+    # generator on the --smi path, and the depex it emits is floored on
+    # gEfiSmmCommunicationProtocolGuid. Asked for without --smi it would build a
+    # UEFI_APPLICATION, place it in the firmware volume and boot an empty ESP -- every
+    # target reporting "the boot never reached the harness". firness.py rejects that too;
+    # this is the earlier and cheaper place to say so, before a port and a build.
+    if args.harness_timing == 'dxe' and not args.smi:
+        sys.exit('--harness-timing dxe needs --smi: the dxe harness is a DXE_DRIVER whose '
+                 'depex floor is gEfiSmmCommunicationProtocolGuid, emitted only on the '
+                 'SMI path. Without --smi the generator would build a UEFI_APPLICATION, '
+                 'and placing that in the firmware volume produces a harness nothing '
+                 'dispatches and no boot option launches.')
     if args.standalone_mm and not args.smm:
         sys.exit('--standalone-mm needs --smm: OvmfPkgX64.dsc nests the StandaloneMM '
                  'components inside !if $(SMM_REQUIRE) == TRUE, so on its own it builds '
@@ -927,6 +951,15 @@ def main():
     # campaign containers, so setting it here reaches them.
     if args.smm:
         os.environ.setdefault('FIRNESS_QEMU_MACHINE', 'q35,smm=on')
+
+    # The same channel: fuzz_batch forwards every FIRNESS_* into the campaign containers,
+    # and firness.py reads the timing from FIRNESS_HARNESS_TIMING. setdefault, not an
+    # assignment, so an operator who exported it keeps their value -- and so the default
+    # 'application' never overwrites one.
+    if args.harness_timing != 'application':
+        os.environ['FIRNESS_HARNESS_TIMING'] = args.harness_timing
+        print(f'harness timing: {args.harness_timing} -- the harness is linked into the '
+              f'DXE firmware volume, so the platform is relinked once per campaign')
 
     slug = re.sub(r'[^A-Za-z0-9._-]', '-', args.ref)
     # Absolute, because several stages hand this to "docker run -v", and a relative

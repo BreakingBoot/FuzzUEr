@@ -280,6 +280,103 @@ def main():
                   missing.returncode != 0,
                   'the --empty branch must not swallow a genuinely missing harness')
 
+    # 7. The dxe timing has to be reachable on an ARBITRARY edk2, not only through the
+    # action. The sweep driver is the other entry point, and the two guards below are the
+    # ones whose absence produces a whole sweep of "the boot never reached the harness".
+    sweep = os.path.join(HERE, 'fuzz_edk2.py')
+    sweep_src = open(sweep, encoding='utf-8').read() if os.path.isfile(sweep) else ''
+    check('fuzz_edk2.py takes --harness-timing',
+          "'--harness-timing'" in sweep_src
+          and re.search(r"choices=\('application', 'dxe'\)", sweep_src) is not None,
+          'the sweep is the only way to fuzz an arbitrary ref, so without this the dxe '
+          'timing exists for consumers of the action and for nothing else')
+    check('and forwards it as FIRNESS_HARNESS_TIMING',
+          "os.environ['FIRNESS_HARNESS_TIMING']" in sweep_src,
+          'fuzz_batch forwards FIRNESS_* into the campaign containers and firness.py '
+          'reads the timing from there; an argument that reaches neither is inert')
+    check('and refuses dxe without --smi',
+          re.search(r"args\.harness_timing == 'dxe' and not args\.smi", sweep_src)
+          is not None,
+          'the timing only reaches the generator on the --smi path, so dxe without it '
+          'builds a UEFI_APPLICATION, places THAT in the firmware volume and boots an '
+          'empty ESP -- it builds, and then nothing runs the harness')
+    check('firness.py refuses the same combination',
+          re.search(r"HARNESS_TIMING == 'dxe' and not args\.smi", src) is not None,
+          'the sweep is not the only caller; a campaign driven directly has to fail the '
+          'same way rather than produce a harness nothing dispatches')
+
+    # 8. The workflows. An input nothing passes is the same as no input.
+    root = os.path.dirname(HERE)
+    flows = os.path.join(root, '.github', 'workflows')
+
+    def flow(name):
+        path = os.path.join(flows, name)
+        return open(path, encoding='utf-8').read() if os.path.isfile(path) else ''
+
+    sweep_flow = flow('fuzz-edk2.yml')
+    check('the weekly sweep passes --harness-timing through',
+          '--harness-timing "$TIMING"' in sweep_flow,
+          'fuzz-edk2.yml is the scheduled mainline run; an argument the driver accepts '
+          'and the workflow never sends changes nothing on a timer')
+    check('the sweep has a second cron for the SMI pass',
+          sweep_flow.count("- cron:") >= 2 and "'0 3 * * 3'" in sweep_flow,
+          'a single cron cannot carry --smi without rebuilding the firmware every '
+          'protocol target is measured against, so the SMI pass needs its own schedule')
+    # Both halves: the variable has to be DEFINED from github.event.schedule and then
+    # READ by the shell. Grepping for the name alone passes when the definition has been
+    # renamed, because the shell body still mentions it.
+    defined = re.search(r'EVENT_SCHEDULE:\s*\$\{\{\s*github\.event\.schedule\s*\}\}',
+                        sweep_flow) is not None
+    used = re.search(r'"\$\{EVENT_SCHEDULE:-\}"\s*=\s*\'0 3 \* \* 3\'', sweep_flow) \
+        is not None
+    check('and selects that pass by the cron expression',
+          defined and used,
+          f'defined from github.event.schedule: {defined}, compared in the shell: '
+          f'{used}. A scheduled run carries no inputs at all, so the cron expression is '
+          f'the only thing that can say which pass this is')
+    check('the sweep refuses dxe without smi before it starts a 24h job',
+          re.search(r'TIMING"?\s*=\s*.dxe.*\n.*::error::', sweep_flow) is not None
+          or ('harness_timing=dxe needs smi=true' in sweep_flow),
+          'the driver rejects it, but only after a checkout and a bootstrap; the cheap '
+          'place to say so is before any of that')
+
+    smi_flow = flow('upstream-smi.yml')
+    check('an upstream SMI gate exists and is push-triggerable',
+          "branches: ['ci-smi-**']" in smi_flow,
+          'nothing here can dispatch a workflow without a token, so a gate with no push '
+          'prefix cannot be run at all -- which is how both of fuzz-edk2.yml\'s first '
+          'two runs failed unnoticed')
+    check('it asks for smi and the dxe timing',
+          'smi: true' in smi_flow and 'harness-timing: dxe' in smi_flow,
+          'without both it is stable-e2e.yml with extra steps')
+    check('it asserts the FV narration, not just that stages passed',
+          'harness placed in the DXE FV' in smi_flow
+          and 'restaged OVMF_CODE.fd' in smi_flow,
+          'every stage passes when the dxe path does not run; the narration is the only '
+          'thing that distinguishes a dxe campaign from an application one')
+    # The ORDERING, not the mention. Both names also appear in the error text, so a gate
+    # that computes the positions and never compares them greps the same.
+    # Three parts, because each can be broken without touching the others: both
+    # positions have to be taken from the right strings, and then compared. Asserting
+    # only the comparison passes a gate that compares two constants.
+    from_latch = re.search(r"latch\s*=\s*debugcon\.find\('SmmEndOfDxeHandler'\)",
+                           smi_flow) is not None
+    from_first = re.search(r"first\s*=\s*debugcon\.find\('SmmCore: dispatch'\)",
+                           smi_flow) is not None
+    ordered = re.search(r'0 <= latch < first', smi_flow) is not None
+    no_boot_option = re.search(r"if 'BOOTX64\.EFI' in debugcon:", smi_flow) is not None
+    check('it asserts the latch had not shut',
+          from_latch and from_first and ordered and no_boot_option,
+          f'latch from the narration: {from_latch}, first dispatch from it: '
+          f'{from_first}, compared: {ordered}, boot option rejected: {no_boot_option}. '
+          f'Reaching the harness is not the claim -- reaching it BEFORE EndOfDxe is, and '
+          f'that is an ordering in debugcon.log plus the absence of a boot option')
+    smoke = flow('action-smoke.yml')
+    check('the smoke workflow excludes the new prefix',
+          "'!ci-smi-**'" in smoke,
+          'action-smoke.yml triggers on ci-**, so without the exclusion every push to '
+          'ci-smi-* also starts a second firmware build')
+
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
 

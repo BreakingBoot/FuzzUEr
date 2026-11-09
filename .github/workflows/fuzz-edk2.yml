@@ -28,13 +28,33 @@ on:
         description: 'Seconds a target may spend booting to the harness (blank: scale with jobs)'
         required: false
         default: ''
+      smi:
+        description: 'Also fuzz the SMI handlers discovery finds, not just the protocols. Implies SMM_REQUIRE=TRUE, which changes the firmware every target is fuzzed against'
+        type: boolean
+        required: false
+        default: false
+      harness_timing:
+        description: 'application (a boot option, after EndOfDxe) or dxe (a DXE_DRIVER in the firmware volume, before it). dxe needs smi'
+        required: false
+        default: 'application'
       qualify_only:
         description: 'Qualify each version -- port, build, instrument, detect -- without spending the fuzzing budget'
         type: boolean
         required: false
         default: false
   schedule:
+    # Sunday: the protocol sweep, four refs, SMM off. What this workflow has always done.
     - cron: '0 3 * * 0'
+    # Wednesday: the SMI pass, master only, with the dxe harness timing. A SEPARATE cron
+    # rather than --smi on the Sunday one, because --smi implies SMM_REQUIRE=TRUE and that
+    # rebuilds the firmware every protocol target is fuzzed against -- the two sweeps would
+    # no longer be comparable, and together they do not fit the 24h timeout. Keeping them
+    # apart also keeps the Sunday verdict meaning what it has always meant.
+    #
+    # This is the pass that can reach what the protocol sweep cannot: BreakingBoot/eval1_edk2
+    # issue #52 is upstream MdeModulePkg code behind `if (mEndOfDxe)`, so 246665
+    # application-timed iterations never touched it and one dxe-timed campaign did.
+    - cron: '0 3 * * 3'
   # The sweep itself is hours, so it is not on every push. This prefix exists because
   # nothing could reach this workflow without a token: it had no push trigger, and
   # dispatching it needs the API. Both of its only two runs failed, and the verdict logic
@@ -86,6 +106,9 @@ jobs:
           IN_JOBS: ${{ github.event.inputs.jobs }}
           IN_BOOT_TIMEOUT: ${{ github.event.inputs.boot_timeout }}
           IN_QUALIFY: ${{ github.event.inputs.qualify_only }}
+          IN_SMI: ${{ github.event.inputs.smi }}
+          IN_HARNESS_TIMING: ${{ github.event.inputs.harness_timing }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
           set -uo pipefail
           # Deliberately NOT errexit. GitHub runs a `run:` step as `bash -e {0}`, so the
@@ -128,6 +151,34 @@ jobs:
           [ -n "${REFS// /}" ] || { echo "::error::no ref to fuzz: the tree has no"; \
             echo "::error::edk2-stable tag. Did the tag fetch step run?"; exit 1; }
           BUDGET="${IN_BUDGET:-600}"
+          # The SMI pass. Three ways in: the Wednesday cron, which carries no inputs at
+          # all, so the mode has to come from the cron expression; an explicit dispatch;
+          # and nothing else. A push stays protocol-only on purpose -- it is the
+          # control-flow test, and --smi would make it a build it does not have time for.
+          SMI=''
+          TIMING="${IN_HARNESS_TIMING:-application}"
+          if [ "${EVENT_SCHEDULE:-}" = '0 3 * * 3' ]; then
+            SMI='--smi'
+            TIMING='dxe'
+            # master only. The SMM_REQUIRE build is slower, the relink is per campaign, and
+            # the point of this pass is the handlers in current upstream code -- not a
+            # matrix.
+            REFS='master'
+            QUALIFY=''
+            echo "SMI pass: $REFS with the dxe harness timing"
+          elif [ "${IN_SMI:-}" = 'true' ]; then
+            SMI='--smi'
+          fi
+          # dxe without --smi builds a UEFI_APPLICATION, places it in the firmware volume
+          # and boots an empty ESP: it BUILDS, and then every target reports "the boot
+          # never reached the harness". fuzz_edk2.py rejects it and so does firness.py --
+          # this is just the earliest of the three places, before a 24h job starts.
+          if [ "$TIMING" = 'dxe' ] && [ -z "$SMI" ]; then
+            echo "::error::harness_timing=dxe needs smi=true: the dxe harness is a"
+            echo "::error::DXE_DRIVER whose depex floor is gEfiSmmCommunicationProtocolGuid,"
+            echo "::error::emitted only on the SMI path."
+            exit 1
+          fi
           # Sized to the runner rather than fixed. A campaign is one QEMU plus a harness
           # build, so a quarter of the cores keeps the box busy without making every boot
           # compete -- at 8 on this 72-core runner the sweep would have needed 31 hours,
@@ -150,6 +201,8 @@ jobs:
             python3 scripts/fuzz_edk2.py --ref "$ref" \
               --budget "$BUDGET" \
               --jobs "$JOBS" \
+              --harness-timing "$TIMING" \
+              $SMI \
               $BOOT \
               $QUALIFY
             # Recorded, not acted on. The driver's exit code distinguishes degraded (2)

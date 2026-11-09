@@ -2284,6 +2284,22 @@ def main():
               f'never reach the harness. Use --backend qemu, or '
               f'FIRNESS_HARNESS_TIMING=application.')
         return 1
+    # The dxe timing is an SMI construction, and only generate_harness passes the timing
+    # on to the generator -- and only under --smi. Without it the generator emits a
+    # UEFI_APPLICATION while compile_harness still takes the dxe path: an application INF
+    # placed in the DXE FV, relinked, and booted with an empty ESP. The build SUCCEEDS.
+    # Nothing dispatches it, no boot option launches it, and every target reports "the
+    # boot never reached the harness" -- the same sentence as a bad depex, a missing
+    # protocol and a hung boot. Rejecting it is the difference between one clear error and
+    # a whole sweep of unreadable ones.
+    if HARNESS_TIMING == 'dxe' and not args.smi:
+        print(f'Error: FIRNESS_HARNESS_TIMING=dxe needs --smi. The dxe harness is a '
+              f'DXE_DRIVER whose depex floor is gEfiSmmCommunicationProtocolGuid, which '
+              f'is only emitted on the SMI path; without --smi the generator would build '
+              f'a UEFI_APPLICATION and placing THAT in the firmware volume produces a '
+              f'harness nothing ever runs. Pass --smi, or use '
+              f'FIRNESS_HARNESS_TIMING=application.')
+        return 1
     if HARNESS_TIMING not in ('application', 'dxe'):
         print(f'Error: FIRNESS_HARNESS_TIMING={HARNESS_TIMING!r} is not a timing. It is '
               f'"application" (a boot option on the ESP, after EndOfDxe) or "dxe" (a '

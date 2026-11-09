@@ -1,0 +1,186 @@
+# Fuzz a clean upstream edk2 release's SMI handlers, with the harness running at DXE time.
+#
+# stable-e2e.yml proves the port applies to a tianocore release and that PROTOCOL campaigns
+# reach a harness on it. It deliberately does not turn SMM on: --smi implies
+# SMM_REQUIRE=TRUE, which rebuilds the firmware every protocol target is measured against,
+# and that gate is scoped to finish in under an hour before a tag.
+#
+# This is the other half, and it is not a duplicate. The two differ in what they can
+# REACH, not in how they are configured:
+#
+#   application timing   the harness is EFI/BOOT/BOOTX64.EFI, and BDS signals
+#                        gEfiEndOfDxeEventGroupGuid before it launches a boot option. Every
+#                        handler that latches on that event refuses it.
+#   dxe timing           the harness is a DXE_DRIVER in the firmware volume with a depex,
+#                        dispatched before the latch shuts.
+#
+# Measured, on upstream MdeModulePkg code: 246665 application-timed iterations never entered
+# SmmVariableHandler's INIT_RUNTIME_VARIABLE_CACHE_CONTEXT arm, because line 823 of
+# VariableSmm.c is `if (mEndOfDxe) ... EFI_ACCESS_DENIED`. One dxe-timed campaign did, and
+# found three caller-supplied pointers dereferenced before the check that validates them.
+#
+# Push a branch whose name starts with "ci-smi-" to run it, or dispatch it.
+name: Upstream SMI, dxe timing
+
+on:
+  push:
+    branches: ['ci-smi-**']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'An upstream edk2 ref to fuzz instead of the pinned release'
+        required: false
+        default: ''
+      budget:
+        description: 'Seconds of fuzzing'
+        required: false
+        default: '300'
+
+permissions:
+  contents: read
+
+env:
+  # The same release stable-e2e.yml gates on, so a failure here is about the SMI path and
+  # not about a release that moved under the port. The weekly master pass lives in
+  # fuzz-edk2.yml's Wednesday cron.
+  STABLE_REF: edk2-stable202608
+
+jobs:
+  smi:
+    runs-on: [self-hosted, linux, x64]
+    # Longer than stable-e2e's. An SMM_REQUIRE image boots far slower -- measured at 327s
+    # against roughly 90s without -- and the dxe timing relinks the platform once per
+    # campaign on top of that.
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Bootstrap the runner
+        shell: bash
+        run: scripts/bootstrap_runner.sh
+
+      - name: Make the upstream releases reachable
+        shell: bash
+        run: git -C eval_source/edk2 fetch --tags --depth=1 tianocore
+
+      - id: where
+        name: Where to keep the results
+        shell: bash
+        run: echo "out=$HOME/fuzzuer-smi-out/$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - id: fuzz
+        uses: ./
+        with:
+          out: ${{ steps.where.outputs.out }}
+          source: eval_source/edk2
+          ref: ${{ github.event.inputs.ref || env.STABLE_REF }}
+          # The handler list discovery builds is one target, named for the file it comes
+          # from. Without --smi fuzz_batch excludes it by name, which is why `smi` below is
+          # not optional for this gate.
+          targets: DiscoveredSmi
+          smi: true
+          harness-timing: dxe
+          budget: ${{ github.event.inputs.budget || '300' }}
+          jobs: '1'
+          # Against UPSTREAM code, and they would be filed here, which is not where anyone
+          # would look for them. The consumer path that files is examples/fuzzuer.yml.
+          open-issues: false
+
+      - name: The harness ran at DXE time and the latch was still open
+        shell: bash
+        env:
+          RESULTS: ${{ steps.fuzz.outputs.results }}
+          STAGES: ${{ steps.fuzz.outputs.stages }}
+        run: |
+          set -uo pipefail
+          echo "  stages = ${STAGES:-<empty>}"
+          [ -n "${RESULTS:-}" ] || { echo "::error::the action set no results path"; exit 1; }
+          python3 - "$RESULTS" <<'PY'
+          import glob, json, os, re, sys
+          root = sys.argv[1]
+          try:
+              run = json.load(open(os.path.join(root, 'run.json')))
+          except OSError as exc:
+              sys.exit(f'::error::cannot read run.json: {exc}')
+          stages = {s['name']: s for s in run.get('stages', [])}
+          mark = lambda ok: ('SKIP' if ok is None else 'PASS' if ok is True
+                             else 'WARN' if ok == 'warn' else 'FAIL')
+          for s in run.get('stages', []):
+              print(f"  [{mark(s['ok'])}] {s['name']:<13} {s.get('detail','')[:78]}")
+          bad = [n for n, s in stages.items() if s['ok'] is False]
+          if bad:
+              sys.exit(f"::error::stage(s) failed: {', '.join(bad)}")
+          missing = [n for n in ('fuzz', 'triage')
+                     if n not in stages or stages[n]['ok'] not in (True, 'warn')]
+          if missing:
+              sys.exit(f"::error::{', '.join(missing)} did not run")
+
+          detail = stages['fuzz'].get('detail', '')
+          hit = re.search(r'(\d+)/(\d+) campaign\(s\) fuzzed the harness', detail)
+          if hit and hit.group(1) == '0':
+              sys.exit('::error::no campaign reached the harness')
+          print(f"  fuzz: {detail[:100]}")
+
+          # Everything above would also pass under the application timing. These four are
+          # what make it a DXE-timing run, and each of them failed silently at least once
+          # while every stage stayed green.
+          def read(pattern):
+              found = sorted(glob.glob(os.path.join(root, pattern)))
+              return ''.join(open(f, errors='ignore').read() for f in found)
+
+          narration = read('campaigns/*/run.log')
+          for want in ('harness placed in the DXE FV', 'restaged OVMF_CODE.fd',
+                       'Compiled Harness into the DXE FV'):
+              if want not in narration:
+                  sys.exit(f'::error::"{want}" is not in any campaign run.log, so the dxe '
+                           f'path did not run -- the harness was built as an application '
+                           f'and the firmware the guest booted has no harness in it')
+          print('  the harness was placed in the FV and the platform relinked')
+
+          inf = sorted(glob.glob(os.path.join(
+              root, 'campaigns/*/GeneratedHarnesses/*/*.inf')))
+          if not inf:
+              sys.exit('::error::the generator wrote no INF')
+          text = open(inf[0], errors='ignore').read()
+          if 'MODULE_TYPE                    = DXE_DRIVER' not in text:
+              sys.exit(f'::error::{inf[0]} is not a DXE_DRIVER; a UEFI_APPLICATION in the '
+                       f'firmware volume is dispatched by nothing and launched by nothing')
+          if '[Depex]' not in text:
+              sys.exit('::error::the INF has no [Depex]; a DXE_DRIVER without one can '
+                       'dispatch before the protocols it needs are published')
+          print('  the INF is a DXE_DRIVER with a depex')
+
+          debugcon = read('campaigns/*/qemu/debugcon.log')
+          if not debugcon:
+              sys.exit('::error::no debugcon.log; the guest narrated nothing')
+          if 'BOOTX64.EFI' in debugcon:
+              sys.exit('::error::BOOTX64.EFI was opened, so a boot option still exists: '
+                       'the ESP was not built empty and the harness ran after EndOfDxe '
+                       'after all')
+          first = debugcon.find('SmmCore: dispatch')
+          latch = debugcon.find('SmmEndOfDxeHandler')
+          if first < 0:
+              sys.exit('::error::no "SmmCore: dispatch" line: the harness never raised an '
+                       'SMI, so nothing was fuzzed however many iterations were counted')
+          if 0 <= latch < first:
+              sys.exit('::error::SmmEndOfDxeHandler ran BEFORE the first SMI dispatch, so '
+                       'the latch was shut by the time the harness ran -- which is the '
+                       'whole thing the dxe timing exists to avoid')
+          print('  the latch had not shut when the harness raised its first SMI')
+          print('  upstream SMI at dxe timing: OK')
+          PY
+
+      - name: Keep the run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-smi-${{ github.run_id }}
+          path: |
+            ${{ steps.where.outputs.out }}/*.log
+            ${{ steps.where.outputs.out }}/*.json
+            ${{ steps.where.outputs.out }}/*.md
+          if-no-files-found: warn
+          retention-days: 14

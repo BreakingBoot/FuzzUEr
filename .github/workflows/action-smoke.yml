@@ -15,7 +15,8 @@ on:
     # The two dedicated workflows own their own prefixes. Without the exclusions a branch
     # pushed to run ONE of them runs this as well, and each is a firmware build on the same
     # runner -- so a targeted test silently costs two builds and queues behind itself.
-    branches: ['ci-**', '!ci-uses-**', '!ci-stable-**', '!ci-sweep-**', '!ci-private-**']
+    branches: ['ci-**', '!ci-uses-**', '!ci-stable-**', '!ci-sweep-**',
+               '!ci-private-**', '!ci-smi-**']
   workflow_dispatch:
 
 permissions:
