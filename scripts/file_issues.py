@@ -329,9 +329,34 @@ def push_evidence(source, slug, token, run_id, files, server):
                GIT_COMMITTER_EMAIL='github-actions[bot]@users.noreply.github.com')
     # Whatever is already on the branch, so earlier runs are kept. The URL carries the
     # token, so nothing here echoes the command.
+    #
+    # ls-remote first, because the two ways this can go wrong are indistinguishable
+    # afterwards. If the branch exists and we commit without its tip as our parent, the
+    # push is a non-fast-forward and the remote rejects it -- which prints "failed to push
+    # some refs", exactly what a permission failure prints. Run 42703964006 lost the
+    # evidence for five issues to that and reported it as a token scope.
+    listed = git(source, 'ls-remote', url, f'refs/heads/{EVIDENCE_BRANCH}', env=env)
+    tip = listed.stdout.split()[0] if listed.returncode == 0 and listed.stdout.split() \
+        else ''
     parent = ''
-    if git(source, 'fetch', '--depth=1', url, EVIDENCE_BRANCH, env=env).returncode == 0:
+    fetched = git(source, 'fetch', '--depth=1', url, EVIDENCE_BRANCH, env=env)
+    if fetched.returncode == 0:
         parent = git(source, 'rev-parse', 'FETCH_HEAD', env=env).stdout.strip()
+    if tip and parent != tip:
+        # --depth=1 is the cheap path, not the required one. A shallow fetch of a single
+        # ref can fail where a full one works, and this branch is one small commit per
+        # run, so pay for the full fetch rather than lose the evidence.
+        fetched = git(source, 'fetch', url, EVIDENCE_BRANCH, env=env)
+        if fetched.returncode == 0:
+            parent = git(source, 'rev-parse', 'FETCH_HEAD', env=env).stdout.strip()
+    if tip and parent != tip:
+        why = (fetched.stderr or '').replace(url, '<remote>').strip().splitlines()
+        print(f'::warning::the evidence branch is at {tip[:12]} but fetching it '
+              f'{"failed" if fetched.returncode else f"gave {parent[:12] or chr(63)}"}; '
+              f'committing without it would be a non-fast-forward and the remote would '
+              f'reject it{": " + why[-1][:100] if why else ""}. '
+              f'The issues will carry the inline excerpts only.')
+        return ''
     if parent:
         git(source, 'read-tree', parent, env=env)
     else:
@@ -357,11 +382,23 @@ def push_evidence(source, slug, token, run_id, files, server):
         return ''
     pushed = git(source, 'push', url, f'{commit}:refs/heads/{EVIDENCE_BRANCH}', env=env)
     if pushed.returncode:
-        # The remote's own words, minus the URL, which has the token in it.
-        said = (pushed.stderr or '').replace(url, '<remote>').strip().splitlines()
-        print(f'::warning::could not push the evidence branch: '
-              f'{said[-1][:120] if said else "no detail"} -- the token needs Contents: '
-              f'write. The issues will carry the inline excerpts only.')
+        # The remote's own words, minus the URL, which has the token in it. The LAST line
+        # is git's "failed to push some refs" summary or an advice hint -- the same text
+        # whatever went wrong. The line that names the cause starts with "!" (the per-ref
+        # rejection) or "remote:" (what the server said), so prefer those and do not
+        # append a cause of our own: claiming "the token needs Contents: write" when the
+        # real reason was a non-fast-forward sent run 42703964006's reader after a
+        # permission that was already granted.
+        said = [line.strip() for line
+                in (pushed.stderr or '').replace(url, '<remote>').strip().splitlines()
+                if line.strip()]
+        named = [line for line in said
+                 if line.startswith('!') or line.startswith('remote:')]
+        detail = ' / '.join(named[:2]) if named else (said[-1] if said else 'no detail')
+        print(f'::warning::could not push the evidence branch: {detail[:220]} '
+              f'(a rejection here is usually a non-fast-forward or a missing Contents: '
+              f'write; the line above says which). '
+              f'The issues will carry the inline excerpts only.')
         return ''
     print(f'pushed {staged} evidence file(s) to {EVIDENCE_BRANCH}')
     return f'{server}/{slug}/blob/{EVIDENCE_BRANCH}'
