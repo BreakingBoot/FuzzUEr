@@ -290,20 +290,41 @@ def main():
     # docstring, so grepping for it passes a version that ignores the variable entirely.
     reads = re.search(r"os\.environ\.get\('FIRNESS_ANALYSIS_DEFINES'\)",
                       defines_fn) is not None
-    prefers = re.search(r'if told:\s*\n\s*return told', defines_fn) is not None
+    # The exported string has to be the BASE, with this function's additions appended --
+    # not returned early, because the relink needs FD_SIZE_IN_KB on top of it, and not
+    # ignored, because only the pipeline knows what actually built the .fd.
+    prefers = re.search(r"defines = os\.environ\.get\('FIRNESS_ANALYSIS_DEFINES'\)\s*or",
+                        defines_fn) is not None
     check('there is one place that decides the firmware defines',
           bool(defines_fn) and reads and prefers,
           f'reads the exported string: {reads}, prefers it: {prefers}. Both of the '
           f'campaign\'s builds have to agree with each other and with the pipeline\'s, '
           f'and only the pipeline knows the string that actually built the .fd')
+    check('it asks for the 8MB flash layout when a harness is linked in',
+          re.search(r"if with_harness and 'FD_SIZE_IN_KB' not in defines",
+                    defines_fn) is not None
+          and 'FD_SIZE_IN_KB=8192' in defines_fn,
+          'at 4MB FVMAIN_SIZE is 0x348000 and the pipeline\'s own instrumented build '
+          'lands at 68% of it, so a firmware with the harness LINKED IN does not fit -- '
+          'and this is a property of that build, not of the campaign, because the '
+          'pipeline has no harness to fit')
+    check('and the relink asks for it',
+          'with_harness=True' in rebuild,
+          'the one build that carries the harness is the one that needs the bigger '
+          'layout')
+    check('the resize says something when it changes nothing',
+          'resize changed nothing' in body(FIRNESS, 'grow_fv_for_harness'),
+          "'' from grow_dxe_fv means both \"already big enough\" and \"a layout it does "
+          "not understand\"; printing neither is how run 42743770936 reported a GenFv "
+          "error and nothing about the attempt to fix it")
     check('it adds SMM_REQUIRE for an SMI campaign',
-          re.search(r'if smi:\s*\n\s*defines \+=\s*.\s*-D SMM_REQUIRE=TRUE',
-                    defines_fn) is not None,
+          re.search(r"if smi and 'SMM_REQUIRE' not in defines:\s*\n"
+                    r"\s*defines \+= ' -D SMM_REQUIRE=TRUE'", defines_fn) is not None,
           'the dxe timing only exists on the SMI path, so its relink builds a platform '
           'that must have an SMM core; without this it builds one that does not while '
           'the image\'s firmware does')
     check('the relink asks for the SMI defines',
-          'firmware_defines(smi=True)' in rebuild,
+          re.search(r'firmware_defines\(\s*smi=True', rebuild) is not None,
           'passing smi=False here would reintroduce exactly the mismatch')
     check('and the analysis build uses the same function',
           'firmware_defines(' in body(FIRNESS, 'compile_ovmf'),

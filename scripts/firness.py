@@ -123,7 +123,7 @@ FIRMWARE_PCDS = (
     'gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask=0x0F',
 )
 
-def firmware_defines(smi=False):
+def firmware_defines(smi=False, with_harness=False):
     """The -D defines the campaign's own builds use.
 
     fuzz_edk2.py exports FIRNESS_ANALYSIS_DEFINES after ITS build succeeds, which is the
@@ -138,13 +138,23 @@ def firmware_defines(smi=False):
     edk2-stable202608 it was not even silent: run 42723218264 lost every module at its
     link step and reported make's "Error 1 (ignored)" noise instead of a cause.
     """
-    told = os.environ.get('FIRNESS_ANALYSIS_DEFINES')
-    if told:
-        return told
-    defines = ('-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
-               '-D FD_SIZE_IN_KB=8192')
-    if smi:
+    defines = os.environ.get('FIRNESS_ANALYSIS_DEFINES') or (
+        '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE')
+    if smi and 'SMM_REQUIRE' not in defines:
         defines += ' -D SMM_REQUIRE=TRUE'
+    # The 8MB flash layout, which the port carries for exactly this reason: at 4MB
+    # FVMAIN_SIZE is 0x348000 and an instrumented OVMF only just fits -- the pipeline's
+    # own build lands at 68% of it. A firmware with the harness LINKED IN is strictly
+    # bigger than the one the pipeline measured, and run 42743770936 overflowed by
+    # 0x13BFC8: "the required fv image size 0x483fc8 exceeds the set fv image size
+    # 0x348000". The 8192 branch of OvmfPkgDefines.fdf.inc gives FVMAIN 0x71C000 and
+    # keeps the variable store on the 4MB layout so an OVMF_VARS built for either size
+    # still works -- and the relink restages both .fd files together anyway.
+    #
+    # Added here rather than taken from the pipeline's string because it is a property of
+    # THIS build, not of the campaign's configuration: the pipeline has no harness to fit.
+    if with_harness and 'FD_SIZE_IN_KB' not in defines:
+        defines += ' -D FD_SIZE_IN_KB=8192'
     return defines
 
 def compile_ovmf(src, capture_db=False):
@@ -171,7 +181,8 @@ def compile_ovmf(src, capture_db=False):
     # links incrementally, so if the two disagree about SMM_REQUIRE the relink is not an
     # incremental link at all -- it is a reconfiguration of every module that mentions an
     # SMM PCD.
-    defines = firmware_defines(smi=HARNESS_TIMING == 'dxe')
+    defines = firmware_defines(smi=HARNESS_TIMING == 'dxe',
+                               with_harness=HARNESS_TIMING == 'dxe')
     # bear records compilations as they happen, so an already-built tree yields an empty
     # database and every analysis artefact comes back as "null" -- from a build whose log
     # says "- Done -". The firmware the campaign boots is prebuilt and copied in, not
@@ -759,7 +770,17 @@ def grow_fv_for_harness(tree, required):
               f'is not reachable from here ({missing}). Enlarge [FD.MEMFD]\'s DXEFV '
               f'region by at least 0x{required:X} bytes by hand.')
         return ''
-    return grow_dxe_fv(tree, required)
+    grew = grow_dxe_fv(tree, required)
+    if not grew:
+        # The one path that used to be silent: run 42743770936 reported the GenFv error
+        # and nothing about the attempt to fix it, because '' means both "already big
+        # enough" and "a layout this does not understand" and neither was printed.
+        print(f'Error: the firmware volume needs 0x{required:X} bytes and the DXEFV '
+              f'resize changed nothing -- either it is already that big, in which case '
+              f'the volume that overflowed is a different one (FVMAIN_COMPACT is sized '
+              f'by FD_SIZE_IN_KB, not by DXEFV), or this [FD.MEMFD] layout is not one it '
+              f'understands. The full build log says which volume GenFv named.')
+    return grew
 
 
 def rebuild_ovmf_with_harness(src):
@@ -807,7 +828,7 @@ def rebuild_ovmf_with_harness(src):
     # a build failure: the FV would link, the harness would run, and it would be running
     # against a differently configured firmware than the one the image was measured on.
     # The dxe timing only exists on the SMI path, so this build is always an SMM one.
-    defines = firmware_defines(smi=True)
+    defines = firmware_defines(smi=True, with_harness=True)
     pcds = ' '.join(f'--pcd {pcd}' for pcd in FIRMWARE_PCDS)
     cmd = (f'cd {dir1} && '
            f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
