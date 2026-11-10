@@ -151,9 +151,10 @@ def main():
           'the "ASSERT <file>(<line>)" line that guest_asserts() reads back, trading a '
           'located sev4 finding for nothing')
     check('it uses the same defines as the firmware the campaign boots',
-          'FIRNESS_ANALYSIS_DEFINES' in rebuild,
-          'a different ASAN_SCOPE or FD_SIZE_IN_KB links a firmware that is not the one '
-          'the image was measured on -- it builds and boots, so nothing says so')
+          'firmware_defines(' in rebuild,
+          'a different ASAN_SCOPE, FD_SIZE_IN_KB or SMM_REQUIRE links a firmware that is '
+          'not the one the image was measured on -- and the defines have to come from '
+          'the one function that decides them, not a second copy of the default')
     # EVERY exit, not just one. A mutation that turned a single `return log, False` into
     # a `raise` left the others in place and this passed when it was written as "is there
     # at least one such return".
@@ -279,6 +280,56 @@ def main():
             check('a missing application is still an error',
                   missing.returncode != 0,
                   'the --empty branch must not swallow a genuinely missing harness')
+
+    # 6b. The defines. A relink that configures the platform differently from the
+    # firmware the image carries is the failure mode this function's own comment calls
+    # worse than a build failure -- and on edk2-stable202608 it was not even a quiet one:
+    # every module lost its link step.
+    defines_fn = body(FIRNESS, 'firmware_defines')
+    # The READ and the RETURN, not the name. The name also appears in this function's
+    # docstring, so grepping for it passes a version that ignores the variable entirely.
+    reads = re.search(r"os\.environ\.get\('FIRNESS_ANALYSIS_DEFINES'\)",
+                      defines_fn) is not None
+    prefers = re.search(r'if told:\s*\n\s*return told', defines_fn) is not None
+    check('there is one place that decides the firmware defines',
+          bool(defines_fn) and reads and prefers,
+          f'reads the exported string: {reads}, prefers it: {prefers}. Both of the '
+          f'campaign\'s builds have to agree with each other and with the pipeline\'s, '
+          f'and only the pipeline knows the string that actually built the .fd')
+    check('it adds SMM_REQUIRE for an SMI campaign',
+          re.search(r'if smi:\s*\n\s*defines \+=\s*.\s*-D SMM_REQUIRE=TRUE',
+                    defines_fn) is not None,
+          'the dxe timing only exists on the SMI path, so its relink builds a platform '
+          'that must have an SMM core; without this it builds one that does not while '
+          'the image\'s firmware does')
+    check('the relink asks for the SMI defines',
+          'firmware_defines(smi=True)' in rebuild,
+          'passing smi=False here would reintroduce exactly the mismatch')
+    check('and the analysis build uses the same function',
+          'firmware_defines(' in body(FIRNESS, 'compile_ovmf'),
+          'compile_ovmf builds the tree the relink links incrementally; disagreeing '
+          'about SMM_REQUIRE makes that a reconfiguration, not a link')
+    check('the pipeline exports the string that actually built the firmware',
+          "os.environ.setdefault('FIRNESS_ANALYSIS_DEFINES'" in sweep_src
+          if (sweep_src := open(os.path.join(HERE, 'fuzz_edk2.py'),
+                                encoding='utf-8').read()) else False,
+          'the pipeline resizes volumes and retries, so only the string its successful '
+          'build used is known to match the .fd the image carries')
+
+    # 6c. The failure report. This one cost a 1055s run with nothing to show.
+    check('the relink saves its whole build log',
+          'dxe-relink.log' in rebuild,
+          'the summary below it is a guess; the log is not, and without it a failed '
+          'relink leaves nothing to diagnose')
+    check('and its summary excludes make\'s ignored-error noise',
+          'Error \\d+ \\(ignored\\)' in rebuild or 'ignored' in rebuild,
+          'edk2 marks the per-module copy as ignorable, so ONE real failure prints one '
+          '"make: [...] Error 1 (ignored)" per module -- a filter on the word "error" '
+          'fills with those and drops the cause')
+    check('and it always prints the tail of the build',
+          'the last lines of the build' in rebuild,
+          'edk2 puts "- Failed -" and its summary at the end, and a matched line from '
+          'the middle of a 20k-line log is not a substitute for it')
 
     # 7. The dxe timing has to be reachable on an ARBITRARY edk2, not only through the
     # action. The sweep driver is the other entry point, and the two guards below are the

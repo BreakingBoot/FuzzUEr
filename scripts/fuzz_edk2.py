@@ -1394,6 +1394,16 @@ def main():
                                    f'hand')
         if not ok_:
             return False, text
+        # The campaign's own builds have to be this configuration, not a guess at it.
+        # firness.py builds twice inside the campaign container -- the analysis build, and
+        # under the dxe harness timing a relink of the platform whose .fd the fuzzer then
+        # boots -- and both read FIRNESS_ANALYSIS_DEFINES. Nothing set it, so both used a
+        # hardcoded default with no SMM_REQUIRE in it while this build had one: on
+        # edk2-stable202608 the relink then lost every module at its link step (run
+        # 42723218264). This is the string that actually worked, after any volume resize,
+        # so it is the only safe thing to hand them. setdefault, so an operator who
+        # exported their own keeps it.
+        os.environ.setdefault('FIRNESS_ANALYSIS_DEFINES', defines.strip())
         fill = re.search(r'FVMAIN_COMPACT \[(\d+)%Full\]', text)
         return True, f'firmware built{", FV " + fill.group(1) + "% full" if fill else ""}'
 

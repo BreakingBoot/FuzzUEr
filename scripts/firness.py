@@ -118,6 +118,30 @@ FIRMWARE_PCDS = (
     'gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask=0x0F',
 )
 
+def firmware_defines(smi=False):
+    """The -D defines the campaign's own builds use.
+
+    fuzz_edk2.py exports FIRNESS_ANALYSIS_DEFINES after ITS build succeeds, which is the
+    only value guaranteed to match the firmware the image carries -- it is the string that
+    built it, after any volume resize. Taking that is how a relink stays the same
+    configuration as the thing it is replacing.
+
+    Standing alone there is no such string, and the default has to know one thing the
+    old one did not: an SMI campaign needs SMM_REQUIRE=TRUE. Without it the relink builds
+    a platform with no SMM core while the image's firmware has one, which is the mismatch
+    rebuild_ovmf_with_harness's own comment called worse than a build failure -- and on
+    edk2-stable202608 it was not even silent: run 42723218264 lost every module at its
+    link step and reported make's "Error 1 (ignored)" noise instead of a cause.
+    """
+    told = os.environ.get('FIRNESS_ANALYSIS_DEFINES')
+    if told:
+        return told
+    defines = ('-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
+               '-D FD_SIZE_IN_KB=8192')
+    if smi:
+        defines += ' -D SMM_REQUIRE=TRUE'
+    return defines
+
 def compile_ovmf(src, capture_db=False):
     """Build OVMF under bear, in the tree under test.
 
@@ -138,10 +162,11 @@ def compile_ovmf(src, capture_db=False):
     # found for OvmfPkg/ResetVector/ResetVector.inf" -- so the database came back empty
     # from a toolchain the run never uses.
     clang = os.environ.get('CLANGSAN_BIN', '/workspace/llvm-15.0.7/build/bin/')
-    defines = os.environ.get(
-        'FIRNESS_ANALYSIS_DEFINES',
-        '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
-        '-D FD_SIZE_IN_KB=8192')
+    # One source of truth with the relink. compile_ovmf builds the tree the relink then
+    # links incrementally, so if the two disagree about SMM_REQUIRE the relink is not an
+    # incremental link at all -- it is a reconfiguration of every module that mentions an
+    # SMM PCD.
+    defines = firmware_defines(smi=HARNESS_TIMING == 'dxe')
     # bear records compilations as they happen, so an already-built tree yields an empty
     # database and every analysis artefact comes back as "null" -- from a build whose log
     # says "- Done -". The firmware the campaign boots is prebuilt and copied in, not
@@ -700,6 +725,8 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     return log
 
 # compile the harness
+
+
 def rebuild_ovmf_with_harness(src):
     """Build the harness INTO the DXE firmware volume and restage the .fd.
 
@@ -744,10 +771,8 @@ def rebuild_ovmf_with_harness(src):
     # The same defines as the firmware the campaign boots. A mismatch here is worse than
     # a build failure: the FV would link, the harness would run, and it would be running
     # against a differently configured firmware than the one the image was measured on.
-    defines = os.environ.get(
-        'FIRNESS_ANALYSIS_DEFINES',
-        '-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE '
-        '-D FD_SIZE_IN_KB=8192')
+    # The dxe timing only exists on the SMI path, so this build is always an SMM one.
+    defines = firmware_defines(smi=True)
     pcds = ' '.join(f'--pcd {pcd}' for pcd in FIRMWARE_PCDS)
     cmd = (f'cd {dir1} && '
            f'export WORKSPACE={dir1} EDK_TOOLS_PATH={dir1}/BaseTools '
@@ -761,11 +786,35 @@ def rebuild_ovmf_with_harness(src):
            process.stderr.decode('utf-8', errors='ignore'))
     if process.returncode != 0:
         print('Error: OVMF did not rebuild with the harness in its DXE FV')
-        said = [line for line in log.splitlines()
-                if re.search(r'\berror\b|undefined reference', line, re.I)
-                and len(line) < 400]
-        for line in said[:25]:
+        # Keep the whole thing, because the summary below is a guess and the log is not.
+        # Run 42723218264 failed here for 1055s and left nothing to diagnose: the filter
+        # was `\berror\b`, every module's `make: [...] Error 1 (ignored)` matched it, the
+        # 25-line cap filled with that noise and the actual cause never printed.
+        where = os.path.join(os.getcwd(), 'firness_output', 'dxe-relink.log')
+        try:
+            os.makedirs(os.path.dirname(where), exist_ok=True)
+            with open(where, 'w') as handle:
+                handle.write(log)
+            print(f'  the full build log is at {where}')
+        except OSError as exc:
+            print(f'  (could not save the build log: {exc})')
+        # make's own bookkeeping is never the cause: "Error 1 (ignored)" says a recipe
+        # line failed and the makefile carried on, and edk2's rules mark the per-module
+        # copy that way, so one real failure prints one of these for every module.
+        noise = re.compile(r'^\s*make(\[\d+\])?:|Error \d+ \(ignored\)|^\s*$')
+        real = re.compile(r'error:|fatal|undefined reference|Traceback|No such file'
+                          r'|cannot find|Permission denied|GenFw|GenFv|not defined'
+                          r'|- Failed -', re.I)
+        lines = [line for line in log.splitlines() if not noise.search(line)]
+        said = [line for line in lines if real.search(line) and len(line) < 400]
+        for line in said[:20]:
             print(f'  {line}')
+        # Always, even when something matched: the tail is where edk2 puts "- Failed -"
+        # and the build summary, and a matched line from the middle of a 20k-line log is
+        # not a substitute for the end of it.
+        print('  --- the last lines of the build ---')
+        for line in [l.rstrip() for l in lines if l.strip()][-12:]:
+            print(f'  {line[:300]}')
         if not said:
             tail = [line.rstrip() for line in log.splitlines() if line.strip()][-20:]
             print(f'  no compiler diagnostic; the last {len(tail)} line(s) were:')
