@@ -214,6 +214,10 @@ jobs:
         shell: bash
         run: python3 scripts/dxe_timing_check.py
 
+      - name: A report seen during the boot is not called input driven
+        shell: bash
+        run: python3 scripts/boot_phase_check.py
+
       - name: The SMI generator skips no step the protocol generator takes
         shell: bash
         run: python3 scripts/smi_generator_parity_check.py

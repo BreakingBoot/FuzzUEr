@@ -751,6 +751,18 @@ def verdict(cluster, boot_keys, ubiquity):
                               f'so it is not input driven -- review, do not dismiss')
     if cluster.key in boot_keys and cluster.phases == {'boot'}:
         return 'background', 'only ever seen during boot, with no input in play'
+    if 'boot' in cluster.phases:
+        # Reported during the boot AND under fuzzing. The boot sighting happened before
+        # any input existed, so whatever this is, an input did not provoke it -- but it is
+        # not background either, because the harness reaches it too. The equality test
+        # above sent it to 'candidate': on run 42749754933 that put
+        # CpuHotplugSmm.efi|global-buffer-overflow|String.c in "Firmware, provoked by an
+        # input" while "Firmware, present on every run" printed None, and its own boot
+        # rows were in the same crashes.csv. firness.py's AtBoot column says the same
+        # thing and nothing here read it.
+        return 'ubiquitous', (f'also reported during the boot, before any input was fed, '
+                              f'so the input did not provoke it -- review, do not '
+                              f'dismiss')
     return 'candidate', ''
 
 

@@ -1758,13 +1758,21 @@ def save_crashes_to_file(crashes, output_dir=None):
                    'Message', 'Count']]
     # a site that also reported during boot is firmware doing what it does anyway; the
     # harness starting does not make it a finding
-    at_boot = {(getattr(c, 'site', c.file), c.line)
+    #
+    # Keyed on the MODULE too. Without it a boot report anywhere in the build marked every
+    # fuzz report at the same file and line as "also seen at boot": on run 42749754933
+    # DxeCore's 586 boot reports at BaseLib/Unaligned.c:197 flagged PiSmmCore's fuzz
+    # report at the same library line, and those are two different images running two
+    # different callers. BaseLib is linked into nearly every module, so this is the common
+    # case rather than a corner of it.
+    at_boot = {(getattr(c, 'module', ''), getattr(c, 'site', c.file), c.line)
                for c in crashes.values() if c.phase == 'boot'}
     # fuzzing findings first, boot reports are a fixed baseline
     ordered = sorted(crashes.values(), key=lambda c: (c.phase != 'fuzz', c.file, c.line))
     for crash in ordered:
         repeat = 'yes' if (crash.phase == 'fuzz'
-                           and (getattr(crash, 'site', crash.file),
+                           and (getattr(crash, 'module', ''),
+                                getattr(crash, 'site', crash.file),
                                 crash.line) in at_boot) else ''
         crash_list.append([crash.phase, repeat, getattr(crash, 'module', ''), crash.file,
                            f'{crash.line}', crash.asan_msg,
