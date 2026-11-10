@@ -316,6 +316,32 @@ def main():
           'the pipeline resizes volumes and retries, so only the string its successful '
           'build used is known to match the .fd the image carries')
 
+    # 6b2. The volume. The port sizes the FVs for a firmware with no harness in it, so
+    # linking one in is exactly the case that does not fit -- run 42737814549 compiled the
+    # harness and then stopped 1.3 MB short at GenFv.
+    grow = body(FIRNESS, 'grow_fv_for_harness')
+    check('the relink can enlarge a volume the harness does not fit in',
+          bool(grow) and 'grow_dxe_fv' in grow,
+          'the pipeline already grows DXEFV from GenFv\'s own number when its build does '
+          'not fit; a relink that adds a module to that volume needs the same and cannot '
+          'carry a constant that is right for only one configuration')
+    check('and it reuses the pipeline\'s resize rather than copying it',
+          'from fuzz_edk2 import grow_dxe_fv' in grow,
+          'COPY ./scripts ships fuzz_edk2.py into the campaign image, so a second '
+          'implementation of an FDF rewrite would be two things to keep right')
+    check('a failed import of it still says what to do',
+          'ImportError' in grow and 'by hand' in grow,
+          'the resize is the one thing here that can fail for an environment reason, and '
+          '"too small" with no number is not actionable')
+    check('the relink retries the build once after growing',
+          re.search(r'for attempt in \(0, 1\)', rebuild) is not None
+          and 'grow_fv_for_harness(' in rebuild,
+          'growing the volume and not rebuilding leaves the same failure reported')
+    check('and does not retry a failure it cannot fix',
+          re.search(r'if not short or attempt:\s*\n\s*break', rebuild) is not None,
+          'a second attempt at an unrelated failure doubles a 3-minute build for '
+          'nothing, and hides which attempt the log belongs to')
+
     # 6c. The failure report. This one cost a 1055s run with nothing to show.
     check('the relink saves its whole build log',
           'dxe-relink.log' in rebuild,

@@ -102,11 +102,16 @@ def compile(src, capture_db=False):
 
 
 # The firmware PCDs every build in this pipeline pins. SHARED_PCDS in scripts/fuzz_edk2.py
-# is the source of truth and carries the full reasoning for each; this is a copy because
-# ci.Dockerfile ships only firness.py into the campaign image, so fuzz_edk2 is not
-# importable from here. dxe_timing_check.py asserts the two lists are character-identical,
-# so changing one without the other fails a check instead of silently relinking a firmware
-# that differs from the one the pipeline measured.
+# is the source of truth and carries the full reasoning for each. This is a copy, not an
+# import, because this file also runs as the flattened /workspace/firness.py and has to
+# work when nothing else is beside it. dxe_timing_check.py asserts the two lists are
+# character-identical, so changing one without the other fails a check instead of silently
+# relinking a firmware that differs from the one the pipeline measured.
+#
+# (An earlier version of this comment said ci.Dockerfile ships only firness.py. It does
+# not -- `COPY ./scripts /workspace/scripts/` ships all of it, which is how fv_harness and
+# grow_dxe_fv are imported below. The duplication is a robustness choice, not a
+# constraint.)
 #
 # Omitting them is not a small mismatch. Without the deadloop bit cleared, the first ASSERT
 # inside SMM wedges the vCPU for good and a snapshot restore does not recover it: run
@@ -727,6 +732,36 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
 # compile the harness
 
 
+def grow_fv_for_harness(tree, required):
+    """Enlarge DXEFV to hold `required` bytes. Returns what changed, or ''.
+
+    The port sizes the volumes for a firmware WITHOUT a harness in them, and the pipeline
+    already grows them when its own build does not fit -- `grow_dxe_fv` in fuzz_edk2.py,
+    which takes GenFv's own number rather than carrying a constant that is wrong for the
+    next configuration. Linking the harness into the DXE FV needs the same thing again:
+    run 42737814549 built the harness and then stopped at "the required fv image size
+    0x483ee8 exceeds the set fv image size 0x348000", 1.3 MB short.
+
+    Imported rather than copied. ci.Dockerfile does `COPY ./scripts /workspace/scripts/`,
+    so fuzz_edk2.py is in the campaign image beside this file's own directory, and
+    fv_harness is already imported the same way. Everything fuzz_edk2 imports at module
+    level is stdlib, so this costs nothing but the parse.
+    """
+    for candidate in (os.path.dirname(os.path.abspath(__file__)),
+                      os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts'),
+                      '/workspace/scripts'):
+        if candidate not in sys.path:
+            sys.path.append(candidate)
+    try:
+        from fuzz_edk2 import grow_dxe_fv
+    except ImportError as missing:
+        print(f'Error: the firmware volume is too small for the harness and the resize '
+              f'is not reachable from here ({missing}). Enlarge [FD.MEMFD]\'s DXEFV '
+              f'region by at least 0x{required:X} bytes by hand.')
+        return ''
+    return grow_dxe_fv(tree, required)
+
+
 def rebuild_ovmf_with_harness(src):
     """Build the harness INTO the DXE firmware volume and restage the .fd.
 
@@ -780,10 +815,24 @@ def rebuild_ovmf_with_harness(src):
            f'source edksetup.sh && cd {dir1} && '
            f'build -a X64 -b DEBUG -t CLANGSAN -p OvmfPkg/OvmfPkgX64.dsc '
            f'{defines} {pcds} -n "$(nproc)"')
-    process = subprocess.run(cmd, shell=True, executable='/bin/bash',
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    log = (process.stdout.decode('utf-8', errors='ignore') +
-           process.stderr.decode('utf-8', errors='ignore'))
+    # Twice at most. The first failure may be the one failure this can fix by itself --
+    # a volume with no room for the module just added to it -- and GenFv says exactly how
+    # much it needed, so there is nothing to guess at. Any second failure is reported.
+    for attempt in (0, 1):
+        process = subprocess.run(cmd, shell=True, executable='/bin/bash',
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        log = (process.stdout.decode('utf-8', errors='ignore') +
+               process.stderr.decode('utf-8', errors='ignore'))
+        if process.returncode == 0:
+            break
+        short = re.search(r'required fv image size 0x([0-9A-Fa-f]+) exceeds the set '
+                          r'fv image size 0x([0-9A-Fa-f]+)', log)
+        if not short or attempt:
+            break
+        grew = grow_fv_for_harness(dir1, int(short.group(1), 16))
+        if not grew:
+            break
+        print(f'++++ the firmware volume had no room for the harness; {grew} ++++')
     if process.returncode != 0:
         print('Error: OVMF did not rebuild with the harness in its DXE FV')
         # Keep the whole thing, because the summary below is a guess and the log is not.
