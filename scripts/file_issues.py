@@ -47,6 +47,47 @@ EVIDENCE_BRANCH = 'fuzzuer-evidence'
 MARK = 'fuzzuer-fingerprint:'
 LABEL_FINDING = 'fuzzuer-finding'
 
+# GitHub rejects a push containing any single file over 100 MB -- the whole push, not just
+# that blob -- and warns at 50 MB. fuzz.txt is the raw libafl capture and it is routinely
+# bigger than both: 191 MB on run 42933720452 and 214 MB on 42703964006, and both pushes
+# were rejected with "See https://gh.io/lfs". 42703964006 had already filed five issues,
+# which are live today with no harness, no input and no log, because losing the push loses
+# the evidence for EVERY issue in the run. The runs that pushed 14 files had a 96 MB
+# capture and a 0 MB one.
+#
+# 40 MiB sits under the 50 MB warning, not just under the 100 MB wall: the wall is the
+# limit, and the gap is for git's own per-blob overhead, for a capture that grows between
+# the stat and the read, and for the day the limit is lowered.
+MAX_EVIDENCE_FILE = 40 * 1024 * 1024
+
+# One oversized file is not the only way to lose the push. The branch takes a directory per
+# run and this stages three logs, three harness sources and up to eight inputs PER
+# CAMPAIGN, so twenty campaigns at the per-file ceiling is a branch nobody can clone. The
+# total is spent SMALLEST FIRST, so a 2 KiB harness source is never evicted by a 40 MiB
+# capture -- the files that cost almost nothing are the ones a reader opens first.
+MAX_EVIDENCE_TOTAL = 80 * 1024 * 1024
+
+# Below this there is no point publishing a capture at all: a reader who follows the link
+# and gets 20 KiB of a 200 MB log is worse off than one told the file was dropped, because
+# the first looks complete.
+MIN_EVIDENCE_CLIP = 64 * 1024
+
+# Head and tail, not tail alone, and the head gets the larger share. Measured on run
+# 42933720452's 191 MB DiscoveredSmi capture: it holds 28 distinct `bug_descr=` lines, and
+# EVERY ONE of them -- including all 8 ASan findings, the 464 "ASAN MEMORY ACCESS check
+# fail" lines among them, which are all inside the first 153 KB -- first appears in the
+# first 3.6% of the file. The other 96.4% is the same fwsan-double-fetch sites repeating
+# half a million times. So keeping the tail alone loses 8 of the 28 distinct reports, every
+# ASan one of them; keeping only lines that match the report markers does not help either,
+# because those lines are themselves 137 MB of the 191. The tail is kept at all because the
+# end of a run holds whatever stopped it, which the head cannot show.
+EVIDENCE_HEAD_SHARE = 0.75
+
+# Room reserved inside the per-file budget for the truncation notice itself, so the
+# published size still comes in under the cap once the banner and the elision marker are
+# counted. The notices are fixed text plus three decimal numbers.
+EVIDENCE_NOTE_ROOM = 2048
+
 # The one rule in this tool that has no exception: a fuzzing finding is never filed at, and
 # nothing is ever pushed to, upstream edk2. A candidate list is not a disclosure, and
 # sending one unasked is not ours to do.
@@ -303,6 +344,98 @@ def git(repo, *args, env=None):
                           env=env)
 
 
+def clip_evidence(local, limit, into):
+    """What to stage for one evidence file: the file itself, or a clipped copy of it.
+
+    Returns (path, original size, staged size). The path is None when the file cannot be
+    read, or when `limit` leaves less room than a capture is worth publishing in.
+
+    A file over the cap must not be dropped silently and must not be published as if it
+    were whole, so the copy keeps the head and the tail with the middle elided, and SAYS SO
+    in its own first line, with the original byte count. See EVIDENCE_HEAD_SHARE for why
+    the head carries the reports and the tail is kept anyway.
+    """
+    try:
+        original = os.path.getsize(local)
+    except OSError:
+        return None, 0, 0
+    if original <= limit:
+        return local, original, original
+    if limit < MIN_EVIDENCE_CLIP:
+        return None, original, 0
+
+    room = limit - EVIDENCE_NOTE_ROOM
+    head_room = int(room * EVIDENCE_HEAD_SHARE)
+    tail_room = room - head_room
+    try:
+        with open(local, 'rb') as handle:
+            head = handle.read(head_room)
+            handle.seek(original - tail_room)
+            tail = handle.read(tail_room)
+    except OSError:
+        return None, original, 0
+    # Cut on line boundaries where there are any, so a report is not split down the middle
+    # and the elision marker lands on its own line. A file with no newline in the window --
+    # an input, not a log -- keeps the raw bytes.
+    cut = head.rfind(b'\n')
+    if cut > 0:
+        head = head[:cut + 1]
+    cut = tail.find(b'\n')
+    if 0 <= cut < len(tail) - 1:
+        tail = tail[cut + 1:]
+    elided = original - len(head) - len(tail)
+
+    name = os.path.basename(local)
+    marker = (
+        f'\n*** FuzzUEr: {elided} bytes elided here -- offsets {len(head)} to '
+        f'{original - len(tail)} of the original {original}-byte {name}. ***\n'
+        f'*** Everything after this line is the LAST {len(tail)} bytes of that file. ***\n'
+        f'\n').encode()
+
+    def banner_for(total):
+        """The first thing in the published file, so nobody reads a clip as a capture."""
+        return (
+            f'*** FuzzUEr TRUNCATED this file to publish it. NOT THE WHOLE CAPTURE. ***\n'
+            f'*** original {name}: {original} bytes. published here: {total} bytes. ***\n'
+            f'*** GitHub rejects a push holding any file over 100 MB, and the rejection\n'
+            f'*** loses the evidence for every issue in the run, so the head and the tail\n'
+            f'*** are kept and the middle is elided. The distinct sanitizer reports are at\n'
+            f'*** the HEAD: on the 191 MB capture this was measured against, all 28\n'
+            f'*** distinct bug_descr lines first appear in the first 3.6% and the rest of\n'
+            f'*** the file is the same sites repeating. A count in crashes.csv may\n'
+            f'*** therefore exceed what is quoted here.\n'
+            f'***\n').encode()
+
+    # The banner states its own output size, and the width of that number is part of it, so
+    # settle the two against each other rather than letting the file claim a byte count it
+    # does not have. One pass is enough in practice; the loop is there so it cannot lie.
+    staged = len(banner_for(0)) + len(head) + len(marker) + len(tail)
+    banner = banner_for(staged)
+    for _ in range(4):
+        settled = len(banner) + len(head) + len(marker) + len(tail)
+        if settled == staged:
+            break
+        staged, banner = settled, banner_for(settled)
+    if staged > limit:          # belt and braces: the cap is the one hard promise here
+        banner = banner_for(limit)
+        tail = tail[len(banner) + len(head) + len(marker) + len(tail) - limit:]
+        staged = len(banner) + len(head) + len(marker) + len(tail)
+
+    path = os.path.join(into, name)
+    try:
+        # Per-file directory: every campaign's capture is called fuzz.txt, so a flat
+        # scratch would have the second one overwrite the first's clipped copy.
+        os.makedirs(into, exist_ok=True)
+        with open(path, 'wb') as handle:
+            handle.write(banner)
+            handle.write(head)
+            handle.write(marker)
+            handle.write(tail)
+    except OSError:
+        return None, original, 0
+    return path, original, staged
+
+
 def push_evidence(source, slug, token, run_id, files, server):
     """Commit the harness, the inputs and the logs to a branch, and return its blob base.
 
@@ -361,14 +494,42 @@ def push_evidence(source, slug, token, run_id, files, server):
         git(source, 'read-tree', parent, env=env)
     else:
         git(source, 'read-tree', '--empty', env=env)
-    staged = 0
-    for published, local in sorted(files.items()):
-        blob = git(source, 'hash-object', '-w', '--', local, env=env)
+    # Smallest first, and never more than MAX_EVIDENCE_TOTAL in all. Size order is what
+    # makes the budget safe to spend: the harness sources and the inputs are kilobytes and
+    # they are what a reader needs, so they are staged before any capture can eat the
+    # budget. Ties go to the published path, so two runs of the same results stage the same
+    # bytes.
+    def by_cost(item):
+        try:
+            return os.path.getsize(item[1]), item[0]
+        except OSError:
+            return 0, item[0]
+
+    scratch = os.path.join(os.path.dirname(index), 'clipped')
+    staged, budget, dropped = 0, MAX_EVIDENCE_TOTAL, []
+    for seen, (published, local) in enumerate(sorted(files.items(), key=by_cost)):
+        # The remaining total is as binding as the per-file cap, so clip to whichever is
+        # smaller rather than letting the last file decide whether the push survives.
+        path, original, kept = clip_evidence(local, min(MAX_EVIDENCE_FILE, budget),
+                                             os.path.join(scratch, str(seen)))
+        if path is None:
+            dropped.append((published, original))
+            continue
+        blob = git(source, 'hash-object', '-w', '--', path, env=env)
         if blob.returncode or not blob.stdout.strip():
             continue
         if git(source, 'update-index', '--add', '--cacheinfo',
                f'100644,{blob.stdout.strip()},{published}', env=env).returncode == 0:
             staged += 1
+            budget -= kept
+            if kept < original:
+                print(f'clipped {published} from {original} to {kept} byte(s); the file '
+                      f'says so in its first line')
+    if dropped:
+        print('::warning::left {} evidence file(s) off the branch to keep the push under '
+              '{} MiB in all: {}. The issues name the artifact, which has them whole.'
+              .format(len(dropped), MAX_EVIDENCE_TOTAL // (1024 * 1024),
+                      ', '.join(f'{p} ({n} bytes)' for p, n in dropped[:4])))
     if not staged:
         return ''
     tree = git(source, 'write-tree', env=env).stdout.strip()
@@ -405,7 +566,13 @@ def push_evidence(source, slug, token, run_id, files, server):
 
 
 def collect_evidence(results, campaigns):
-    """published path -> local file, for every campaign that produced a finding."""
+    """published path -> local file, for every campaign that produced a finding.
+
+    Paths only: how much of each file is publishable is push_evidence's business, because
+    the budget is shared across every campaign and only the staging loop knows what is
+    left. fuzz.txt in particular is the raw libafl capture and is regularly over GitHub's
+    100 MB per-file limit -- see MAX_EVIDENCE_FILE and clip_evidence.
+    """
     files = {}
     for campaign in sorted(campaigns):
         base = os.path.join(results, 'campaigns', campaign)
