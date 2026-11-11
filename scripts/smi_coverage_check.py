@@ -136,7 +136,8 @@ def main():
           bare_name('CONST EFI_GUID *') == 'EFI_GUID')
 
     print('reading a handler that types its own comm buffer')
-    space = lift(['_DEFN', '_handler_source', '_body_of', 'payload_from_source',
+    space = lift(['_DEFN', '_handler_source', '_body_of', '_payload_casts',
+                  'payload_from_source',
                   'recover_missing_handlers', 'lifecycle_gate',
                   '_enclosing_function', 'load_discovered'])
     with tempfile.TemporaryDirectory() as tree:
@@ -273,6 +274,34 @@ def main():
             check('the real definition in the same file is still found',
                   there is not None,
                   'forbidding the comment must not cost the definition below it')
+
+        # A cast to a type nobody parsed must say so by name. Reporting "never cast to a
+        # recorded type" sent a reader looking for a cast that was plainly there:
+        # TpmNvsCommunciate casts in Tcg2Smm.c, and the type is missing only because
+        # Tcg2Smm is in no OvmfPkg DSC.
+        with tempfile.TemporaryDirectory() as unknown_tree:
+            os.makedirs(os.path.join(unknown_tree, 'Drv'))
+            open(os.path.join(unknown_tree, 'Drv', 'D.c'), 'w').write(textwrap.dedent('''
+                EFI_STATUS
+                EFIAPI
+                UnknownPayload (
+                  IN EFI_HANDLE DispatchHandle, IN CONST VOID *Context,
+                  IN OUT VOID *CommBuffer, IN OUT UINTN *CommBufferSize
+                  )
+                {
+                  NEVER_PARSED_BLOCK *P = (NEVER_PARSED_BLOCK *)CommBuffer;
+                  gSmst->SmiHandlerRegister (UnknownPayload, &gUnknownGuid, &H);
+                  return EFI_SUCCESS;
+                }
+                '''))
+            casts = space['_payload_casts']('UnknownPayload', unknown_tree)
+            check('the cast is found even when the type is unknown',
+                  casts == ['NEVER_PARSED_BLOCK'], repr(casts))
+            s2 = space['recover_missing_handlers'](
+                {}, ['UnknownPayload'], {}, unknown_tree)
+            why = (s2 or {}).get('UnknownPayload', '')
+            check('the reason names the type rather than denying the cast',
+                  'NEVER_PARSED_BLOCK' in why and 'never cast' not in why, repr(why))
 
         smi = {}
         stuck = space['recover_missing_handlers'](

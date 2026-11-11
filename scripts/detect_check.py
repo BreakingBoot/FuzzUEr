@@ -145,13 +145,30 @@ def check_selftest(args, work):
     found = []
     if 'double free' in serial.lower():
         found.append('double-free')
-    stores = serial.count('__asan_store')
-    if stores < 3:
-        return False, (f'only {stores} __asan_store report(s); overflow, underflow and '
-                       f'use-after-free should each produce one')
-    found.append(f'{stores} store reports')
-    if 'double-free' not in found:
+    # Keyed on the CLASS each case must be reported as, not on how many __asan_store lines
+    # appeared. A count was never an assertion: those lines carry no address and no ip, and
+    # N moves with the build configuration, so "3 or more" only ever meant "the sanitizer
+    # fired at all" -- it passed just as happily when the three reports were three copies
+    # of one case. Measured on run 42943602615's capture: 4 heap-buffer-overflow, 1
+    # heap-use-after-free, 1 double-free, 3 __asan_store lines.
+    #
+    # The announcements live in the debug stream and the reports in the serial one, so they
+    # cannot be paired by position the way bench_cases.py pairs its own. What this does NOT
+    # separate is overflow from underflow: both are reported as heap-buffer-overflow,
+    # because the left and right redzones carry the same magic. Separating them needs the
+    # self test to announce the address it is about to fault at, so the report can be
+    # matched to it -- worth doing, and not possible from this capture alone.
+    classes = {name: serial.count(f'bug_descr={name}')
+               for name in ('heap-buffer-overflow', 'heap-use-after-free', 'double-free')}
+    if classes['heap-buffer-overflow'] < 2:
+        return False, (f"only {classes['heap-buffer-overflow']} heap-buffer-overflow "
+                       f'report(s); the overflow and the underflow case are both reported '
+                       f'as that class, so two is the floor')
+    if not classes['heap-use-after-free']:
+        return False, 'the use-after-free was not reported as heap-use-after-free'
+    if not classes['double-free'] and 'double-free' not in found:
         return False, 'the double free was not reported'
+    found.append(', '.join(f'{n} {k}' for k, n in classes.items() if n))
     # The length driven case is caught by the instrumented CopyMem, not by a load/store
     # check, so it is the one class that also covers a module that is not itself
     # instrumented -- which is how the DevicePathDxe finding surfaced.

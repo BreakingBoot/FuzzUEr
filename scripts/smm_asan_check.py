@@ -147,6 +147,50 @@ def main():
           'an ungated platform gate overrides the knob, because this file is included '
           'after Asan.dsc.inc and the later statement wins')
 
+    print('\nthe shadow is placed below TSEG, not below LowMemory')
+    mem = read(os.path.join(FORK, 'OvmfPkg', 'PlatformPei', 'MemDetect.c'))
+    check('MemDetect.c is readable', bool(mem))
+    check('the fits-guard compares against a TSEG-aware ceiling',
+          '(ShadowStart + ShadowSize) > ShadowCeiling' in mem,
+          'comparing against LowMemory lets the shadow be placed INSIDE SMRAM and still '
+          'pass, because TSEG is carved off the TOP of low memory')
+    check('the ceiling subtracts TSEG when SMRAM is required',
+          'PlatformInfoHob->SmmSmramRequire' in mem
+          and 'ShadowCeiling -= (UINT64)PlatformInfoHob->Q35TsegMbytes * SIZE_1MB;' in mem)
+    # The arithmetic, for the guest in use and for the one the old guard let through.
+    START = 0x5000000
+    def fits(low, tseg_mb, smram=True):
+        size = low >> 3
+        ceiling = low - (tseg_mb << 20 if smram else 0)
+        return START + size <= ceiling
+    check('the guest in use still fits (LowMemory 0x20000000, 64MB TSEG)',
+          fits(0x20000000, 64),
+          'this change must not refuse the configuration that works today')
+    check('a 128MB guest with a 64MB TSEG is refused',
+          not fits(0x8000000, 64),
+          'shadow 0x5000000+0x1000000 ends at 0x6000000 while TSEG starts at 0x4000000 -- '
+          'the old guard compared against 0x8000000 and accepted it, so the SMM core '
+          'would have allocated out of the region holding its own shadow')
+    check('and the same guest fits once SMRAM is not required',
+          fits(0x8000000, 64, smram=False),
+          'the subtraction has to be conditional, or a non-SMM build loses shadow it can '
+          'legitimately have')
+
+    print('\nPiSmmCore still builds on platforms that do not instrument')
+    for rel in ('OvmfPkg/OvmfPkgIa32.dsc', 'OvmfPkg/OvmfPkgIa32X64.dsc',
+                'OvmfPkg/CloudHv/CloudHvX64.dsc', 'UefiPayloadPkg/UefiPayloadPkg.dsc'):
+        text = read(os.path.join(FORK, *rel.split('/')))
+        check(f'{rel} resolves AsanLib',
+              'AsanLib|' in text,
+              'PiSmmCore.inf lists AsanLib in [LibraryClasses] because Pool.c calls '
+              'PoisonPool directly, so every platform that builds the SMM core needs a '
+              'resolution or the build fails with "instance of library class [AsanLib] is '
+              'not found"')
+        check(f'{rel} resolves it to the Null instance',
+              'AsanLibNull' in text,
+              'these platforms are not instrumented; the real instance would change what '
+              'they build')
+
     print('\nthe SMM pool redzone')
     pool = read(POOL_C)
     check('the poisoned span ends at POOL_TAIL, not at AsanRightRZSize',
