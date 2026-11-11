@@ -234,6 +234,10 @@ jobs:
         shell: bash
         run: python3 scripts/smm_asan_check.py
 
+      - name: An SMM report is attributed from its own ip
+        shell: bash
+        run: python3 scripts/smm_attribution_check.py
+
       - name: A finding's evidence reaches the branch its issue links to
         shell: bash
         run: python3 scripts/evidence_push_check.py

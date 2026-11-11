@@ -1856,6 +1856,37 @@ def module_for(modules, ip):
     return found[1] if found else ''
 
 
+def attribute_from_own_ip(crashes, modules):
+    """Set each report's module from the ip in its OWN message. Returns the number fixed.
+
+    A sanitizer report prints "ERROR: Invalid memory access: address 0x.., size 0x..,
+    is_write 0x.., ip 0x.." and that whole line is kept as the entry's message, so the ip
+    is still available after the capture has been read -- no pairing, no ordering, and no
+    interleaving to get wrong.
+
+    The streaming pass in collect_unique_crashes pairs a file-and-line with the next ip
+    line it sees, which was safe only while reports arrived one at a time. With SMM
+    instrumented they do not: AsanLib takes no lock and the SMI rendezvous runs
+    instrumented library code on every AP, so a header from one CPU is followed by an ip
+    from another. Run 42943602615 filed three reports -- ips 0x1F901170, 0x1F99AE2D and
+    0x1FF21688, which lie in SmmFaultTolerantWriteDxe, VariableSmm and SmmLockBox -- all
+    against SmmLockBox.efi, and the source line that came with the wrong module
+    (UefiDriverModel.c:679, driver-binding helpers that never run during an SMI) was wrong
+    with it. Both image maps resolved all three correctly on their own, so the map was
+    never at fault.
+    """
+    fixed = 0
+    for entry in crashes.values() if hasattr(crashes, 'values') else crashes:
+        own = REPORT_IP.search(getattr(entry, 'message', '') or '')
+        if not own:
+            continue
+        owner = module_for(modules, int(own.group(1), 16))
+        if owner and owner != getattr(entry, 'module', ''):
+            entry.module = owner
+            fixed += 1
+    return fixed
+
+
 # No firmware image is this big, so an ip further than this past a base is not in that
 # image. Without the bound the nearest base BELOW an ip always won, however far below it
 # was: that is how an address in SMRAM came back as PeiCore.efi, 1082 MB past that PEIM's
@@ -2076,10 +2107,24 @@ def collect_unique_crashes(log_file, output_dir=None):
                            f'ip {found_ip}', site=found_ip)
                     pending_callback = ''
                 if pending:
+                    # The ip belongs to ONE report -- the one whose header was printed
+                    # most recently -- not to every report still queued. Attributing the
+                    # whole queue was safe only while reports arrived strictly one at a
+                    # time, and they do not any more: with SMM instrumented, AsanLib takes
+                    # no lock and the SMI rendezvous runs instrumented library code on
+                    # every AP, so a file-and-line from one CPU is followed by an ip from
+                    # another. Measured on run 42943602615: three findings carrying
+                    # ip 0x1F901170, 0x1F99AE2D and 0x1FF21688 in their own messages were
+                    # all filed against SmmLockBox.efi, which owns only the third -- the
+                    # other two are SmmFaultTolerantWriteDxe and VariableSmm. Both image
+                    # maps resolved all three correctly, so the map was never the problem.
                     owner = module_for(modules, int(found_ip, 16))
-                    for entry in pending:
-                        if owner and not entry.module:
-                            entry.module = owner
+                    if owner and not pending[-1].module:
+                        pending[-1].module = owner
+                    # The rest are dropped rather than guessed. A report that printed no
+                    # ip of its own has no address to attribute from, and a neighbour's is
+                    # not an approximation of it -- the pass below fills in anything that
+                    # does carry one.
                     pending = []
 
             #
@@ -2131,6 +2176,12 @@ def collect_unique_crashes(log_file, output_dir=None):
                 record(path, line_no.strip(), descr, 'asan', detail)
 
             prev_line = line
+
+    # The streaming pass above pairs a header with the next ip it sees; this is the
+    # authoritative pass, from each report's own message. See attribute_from_own_ip.
+    corrected = attribute_from_own_ip(crashes, modules)
+    if corrected:
+        print(f'    re-attributed {corrected} site(s) from their own ip')
 
     crash_list = save_crashes_to_file(crashes, output_dir)
     boot = sum(c.count for c in crashes.values() if c.phase == 'boot')

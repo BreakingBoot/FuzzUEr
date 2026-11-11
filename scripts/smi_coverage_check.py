@@ -239,6 +239,41 @@ def main():
         got = space['payload_from_source']('GuidHandler', tree, kinds)
         check("the handler's own cast names the payload", got == 'REAL_BLOCK', repr(got))
 
+        # A doc comment is not a definition. Under re.S the parameter group runs across
+        # newlines, so a comment mentioning "Name()" paired its own '(' with a ')' far
+        # below it and _handler_source returned the comment as the body. Measured on edk2
+        # master: FpdtSmiHandler matched in three files, two of them comments that came
+        # first in the walk, and the handler was reported as "no GUID-keyed registration
+        # call found" with its registration sitting beside the real definition.
+        #
+        # In a tree of its own: dropping another handler into `tree` changes what the
+        # reachability assertions further down see.
+        with tempfile.TemporaryDirectory() as comment_tree:
+            os.makedirs(os.path.join(comment_tree, 'Drv'))
+            open(os.path.join(comment_tree, 'Drv', 'C.c'), 'w').write(textwrap.dedent("""
+                /** @file
+                  CommentOnly() will receive untrusted input and do basic validation.
+
+                  Copyright (c) 2026, someone. All rights reserved.
+                **/
+                EFI_STATUS
+                EFIAPI
+                SomethingElse (
+                  IN UINTN A
+                  )
+                {
+                  return EFI_SUCCESS;
+                }
+                """))
+            where, _ = space['_handler_source']('CommentOnly', comment_tree)
+            check('a doc comment is not taken as a definition', where is None,
+                  f'{where!r}: the comment names CommentOnly() but nothing defines it, so '
+                  f'the walk must keep looking rather than return that file')
+            there, _ = space['_handler_source']('SomethingElse', comment_tree)
+            check('the real definition in the same file is still found',
+                  there is not None,
+                  'forbidding the comment must not cost the definition below it')
+
         smi = {}
         stuck = space['recover_missing_handlers'](
             smi, ['GuidHandler', 'PortHandler', 'Nowhere'], kinds, tree)

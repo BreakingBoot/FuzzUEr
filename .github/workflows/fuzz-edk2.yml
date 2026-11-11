@@ -156,6 +156,7 @@ jobs:
           # and nothing else. A push stays protocol-only on purpose -- it is the
           # control-flow test, and --smi would make it a build it does not have time for.
           SMI=''
+          TARGETS=''
           TIMING="${IN_HARNESS_TIMING:-application}"
           if [ "${EVENT_SCHEDULE:-}" = '0 3 * * 3' ]; then
             SMI='--smi'
@@ -165,7 +166,15 @@ jobs:
             # matrix.
             REFS='master'
             QUALIFY=''
-            echo "SMI pass: $REFS with the dxe harness timing"
+            # DiscoveredSmi and nothing else. Without this the pass fuzzes every protocol
+            # discover finds as well -- 254 of them on master -- and the SMI target waits
+            # at the back of that queue. Measured on the first firing, 2026-11-11: 36
+            # protocol campaigns in the first two hours, about thirteen hours of wall
+            # clock re-covering the surface the Sunday sweep had already swept, before the
+            # one target this pass exists for. DiscoveredSmi is the single request file
+            # that carries the handlers.
+            TARGETS='--targets DiscoveredSmi'
+            echo "SMI pass: $REFS with the dxe harness timing, DiscoveredSmi only"
           elif [ "${IN_SMI:-}" = 'true' ]; then
             SMI='--smi'
           fi
@@ -203,6 +212,7 @@ jobs:
               --jobs "$JOBS" \
               --harness-timing "$TIMING" \
               $SMI \
+              $TARGETS \
               $BOOT \
               $QUALIFY
             # Recorded, not acted on. The driver's exit code distinguishes degraded (2)
