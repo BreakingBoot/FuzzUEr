@@ -251,6 +251,10 @@ jobs:
         shell: bash
         run: python3 scripts/close_issues_check.py
 
+      - name: A site already filed is not filed again
+        shell: bash
+        run: python3 scripts/file_issues_check.py
+
       - name: SMM code is instrumented and the shadow writers are bounded
         shell: bash
         run: python3 scripts/smm_asan_check.py
