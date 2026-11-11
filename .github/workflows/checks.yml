@@ -144,6 +144,16 @@ jobs:
         shell: bash
         run: python3 scripts/sweep_output_check.py
 
+      # PiSmmCore/Page.c had no poisoning hooks at all, so an SMM page allocation read as
+      # addressable and an out-of-bounds access into it raised nothing; and a freed SMM
+      # pool block went straight back on its free list, so neither a use-after-free nor a
+      # double free inside SMRAM was detectable. This compiles the quarantine out of
+      # Pool.c and drives it, rather than grepping for the function names, and it pins the
+      # ceiling that stops the quarantine exhausting TSEG.
+      - name: Does SMM poison its pages and hold freed pool
+        shell: bash
+        run: python3 scripts/smm_page_poison_check.py
+
       # One unreachable submodule used to poison every other submodule in the tree:
       # `git submodule update` aborts on the failure, the abort lands before the checkout
       # pass, and the rest are left at their branch tip rather than the recorded commit.
