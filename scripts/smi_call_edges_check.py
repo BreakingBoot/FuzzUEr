@@ -518,6 +518,11 @@ def main():
             reports = [FakeReport()]
             def detail(self): return 'read of 2 bytes'
             def severity(self): return 4
+            # A real Cluster narrows the caller list to the handlers whose parameter block
+            # has a field at the offset the report named. Empty means "do not narrow",
+            # which is what a heap overflow carries -- there is no untrusted offset in one
+            # -- and is what keeps this case about the crossings rather than the join.
+            def field_handlers(self): return ()
         bug_report.write_markdown(out, 't', 'p', {'candidate': [(Fake(), '')]}, 1, 1, (),
                                   crossings)
         table = open(out, encoding='utf-8').read()

@@ -153,6 +153,475 @@ UBSAN_DETAIL = [
 TYPE_NAME = re.compile(r"of type '([^']+)'")
 
 
+# ---------------------------------------------------------------------------------------
+# The untrusted field a double-fetch report now carries, and what it is called.
+#
+# A fwsan-double-fetch row used to read, in full:
+#
+#     sev1 x2759  VariableSmm.efi  Unaligned.c:32:10  fwsan-double-fetch (read)
+#             read of 2 bytes at 0x000000001B56802C
+#
+# MdePkg/Library/BaseLib/Unaligned.c:32 is ReadUnaligned16, a leaf utility called from
+# everywhere, and nobody can patch that. What a developer needs is which field of which
+# comm-buffer struct was read twice, from which two call sites, inside which handler --
+# and every piece of that was available: AsanLib knows the offset from the registered
+# buffer and both ips, and the static SMI analysis knows the layout of each handler's
+# parameter block. The two were never joined.
+# ---------------------------------------------------------------------------------------
+
+# AsanLib appends "untrusted_field offset=0x.. base=0x.. extent=0x.. first_ip=0x..
+# first_addr=0x.. first_bytes=0x.." to the ERROR line, so it arrives in the Message
+# column. key=0xVALUE with no space after the '=' on purpose: IP_RE, SIZE_RE and ADDR_RE
+# above are leftmost-first searches for "ip 0x..", "size 0x.." and "address 0x..", and a
+# field spelled with a space would be a second thing each of them can match.
+FIELD_KV = re.compile(r'\b(offset|base|extent|first_ip|first_addr|first_bytes)='
+                      r'(0x[0-9A-Fa-f]+)')
+
+
+def untrusted_field(message):
+    """The untrusted-field facts in a report message, or {} for a report without them."""
+    marker = 'untrusted_field '
+    if marker not in (message or ''):
+        return {}
+    found = {k: int(v, 16) for k, v in FIELD_KV.findall(message.split(marker, 1)[1])}
+    return found if 'offset' in found else {}
+
+
+# X64 is the only ABI any of this is built for, and edk2 packs nothing: a member sits at
+# the next multiple of its own alignment. UINTN is 8 here, which aliases.json agrees with
+# (UINTN -> UINT64 in every campaign's map).
+#
+# A type that is not in here, not a typedef that reaches something that is, and not a
+# struct in types.json has NO entry and no guess. That is the point: one member of unknown
+# size makes every offset after it unknown, and a field named out of a layout that guessed
+# is worse than no field at all.
+SCALAR_BYTES = {
+    'UINT8': 1, 'INT8': 1, 'CHAR8': 1, 'BOOLEAN': 1, 'char': 1, 'signed char': 1,
+    'unsigned char': 1,
+    'UINT16': 2, 'INT16': 2, 'CHAR16': 2, 'short': 2, 'unsigned short': 2,
+    'UINT32': 4, 'INT32': 4, 'int': 4, 'unsigned int': 4, 'unsigned': 4, 'float': 4,
+    'UINT64': 8, 'INT64': 8, 'UINTN': 8, 'INTN': 8, 'double': 8,
+    'long': 8, 'unsigned long': 8, 'long long': 8, 'unsigned long long': 8,
+}
+
+ARRAY_DECL = re.compile(r'^(.*?)\s*\[\s*(\d*)\s*\]$')
+
+# How deep a typedef chain or a nest of structs is followed before the answer is "unknown".
+# A cyclic alias map is a real shape -- scalar_choice_check.py carries the case -- and an
+# unbounded walk on one does not come back.
+TYPE_DEPTH = 24
+
+
+def type_extent(decl, types, aliases, depth=0):
+    """(size, alignment) in bytes for a member declaration, or None when unknowable.
+
+    Spellings come from the analyzer's types.json, which writes an array as `UINT8[1024]`
+    and a pointer as `RW_VARIABLE_INFO *`.
+    """
+    if depth > TYPE_DEPTH:
+        return None
+    name = (decl or '').strip()
+    if not name:
+        return None
+
+    found = ARRAY_DECL.match(name)
+    if found:
+        element = type_extent(found.group(1), types, aliases, depth + 1)
+        if element is None:
+            return None
+        # A trailing [] or [0] is a flexible member: it has an alignment and no extent,
+        # which is exactly how the payload region of a comm buffer is usually declared.
+        count = int(found.group(2)) if found.group(2) else 0
+        return (element[0] * count, element[1])
+
+    if name.endswith('*'):
+        return (8, 8)
+
+    if name in SCALAR_BYTES:
+        size = SCALAR_BYTES[name]
+        return (size, size)
+
+    info = types.get(name)
+    if info is not None and getattr(info, 'fields', None):
+        return aggregate_extent(name, types, aliases, depth + 1)
+
+    target = aliases.get(name)
+    if target and target != name:
+        return type_extent(target, types, aliases, depth + 1)
+    return None
+
+
+def aggregate_extent(name, types, aliases, depth=0):
+    """(size, alignment) for a struct in types.json, or None when a member is unknowable."""
+    laid = struct_layout(name, types, aliases, depth)
+    if laid['size'] is None:
+        return None
+    return (laid['size'], laid['align'])
+
+
+def struct_layout(name, types, aliases, depth=0):
+    """Where every field of a struct sits.
+
+    Returns {'type', 'size', 'align', 'fields', 'stopped'}. `fields` is
+    [(path, offset, size)] for each member AND, for a nested struct, for each of its
+    members under a dotted path -- so a two-byte read at the fifth byte of an EFI_GUID
+    comes back as `VarGuid.Data2` rather than as `VarGuid`.
+
+    `size` is None and `stopped` names the member when one of them cannot be sized. The
+    fields BEFORE it are still returned, because their offsets are certain; nothing after
+    it is, so nothing after it is offered.
+    """
+    answer = {'type': name, 'size': None, 'align': 1, 'fields': [], 'stopped': ''}
+    info = types.get(name)
+    if info is None or not getattr(info, 'fields', None) or depth > TYPE_DEPTH:
+        answer['stopped'] = f'{name} is not a struct this campaign recorded'
+        return answer
+
+    at, align = 0, 1
+    for field in info.fields:
+        member = (getattr(field, 'name', '') or '').strip()
+        decl = (getattr(field, 'type', '') or '').strip()
+        extent = type_extent(decl, types, aliases, depth + 1)
+        if extent is None or not member:
+            answer['stopped'] = f'{member or "an unnamed member"} ({decl or "no type"})'
+            return answer
+        size, want = extent
+        at = ((at + want - 1) // want) * want if want else at
+        align = max(align, want)
+        answer['fields'].append((member, at, size))
+        # Descend, so the answer can be a field of a field. Only into something that laid
+        # out completely: a partial nested layout would place its tail members wrongly.
+        base = ARRAY_DECL.match(decl)
+        inner = (base.group(1) if base else decl).strip()
+        inner = inner if inner in types else (aliases.get(inner) or inner)
+        if not base and not decl.endswith('*') and inner in types:
+            nested = struct_layout(inner, types, aliases, depth + 1)
+            if nested['size'] is not None:
+                for path, offset, bytes_ in nested['fields']:
+                    answer['fields'].append((f'{member}.{path}', at + offset, bytes_))
+        at += size
+
+    answer['align'] = align
+    answer['size'] = ((at + align - 1) // align) * align if align else at
+    return answer
+
+
+def field_at(fields, offset, size):
+    """The most specific recorded field the access lands in, or None.
+
+    Exact first: a two-byte read at the two-byte field that starts there is the answer
+    even though the enclosing struct also contains it. Then the smallest field that holds
+    the whole access. An access that starts inside one field and ends in the next matches
+    nothing here, which is itself worth saying.
+    """
+    exact = [f for f in fields if f[1] == offset and f[2] == size]
+    if exact:
+        return exact[0]
+    holds = [f for f in fields
+             if f[1] <= offset and (offset + max(size, 1)) <= (f[1] + f[2])]
+    if holds:
+        return min(holds, key=lambda f: (f[2], f[1]))
+    return None
+
+
+# EFI_SMM_COMMUNICATE_HEADER, which the PI spec fixes: EFI_GUID HeaderGuid, UINTN
+# MessageLength, UINT8 Data[1]. The SMI harness registers the WHOLE message --
+# FirnessUntrusted(CommBuffer, CommSize) -- so a reported offset is measured from
+# HeaderGuid and the handler's own parameter block starts after MessageLength, at
+# OFFSET_OF (EFI_SMM_COMMUNICATE_HEADER, Data).
+#
+# Written out rather than read from types.json because it decides where the payload
+# begins: a campaign whose types.json happens not to carry the header would otherwise
+# join every offset against the wrong base, which names the wrong field with full
+# confidence.
+COMM_HEADER_FIELDS = (
+    ('HeaderGuid', 0, 16),
+    ('HeaderGuid.Data1', 0, 4),
+    ('HeaderGuid.Data2', 4, 2),
+    ('HeaderGuid.Data3', 6, 2),
+    ('HeaderGuid.Data4', 8, 8),
+    ('MessageLength', 16, 8),
+)
+COMM_PAYLOAD_AT = 24
+
+
+# A cast of the comm-buffer parameter to a pointer: `(RW_VARIABLE_INFO *)CommBuffer`.
+#
+# A nested cast does not match, which is what makes this usable on a recorded expression
+# rather than on source. In
+#
+#     (VOID *)((CHAR16 *)((RW_VARIABLE_INFO *)CommBuffer)->Data + CommData->Offset)
+#
+# the outer two casts are followed by '(' where this requires an identifier, so the only
+# match is the one whose target is the parameter itself -- and `(CHAR16 *)CommData->Data`
+# is rejected because CommData is not the comm buffer.
+CAST_OF_BUFFER = re.compile(r'\(\s*([A-Za-z_]\w*)\s*\*\s*\)\s*\(?\s*([A-Za-z_]\w*)\b')
+
+
+def is_comm_buffer(name):
+    """Whether an identifier is the handler's comm-buffer parameter.
+
+    EFI_MM_HANDLER_ENTRY_POINT fixes the signature, so the name is CommBuffer in every
+    handler in the tree -- matched loosely anyway, and with the size parameter next to it
+    excluded, because the two differ by a suffix and taking CommBufferSize for the buffer
+    would read a cast of the size as the type of the block.
+    """
+    lowered = (name or '').lower()
+    return 'commbuffer' in lowered and 'size' not in lowered
+
+
+def comm_buffer_casts(edges):
+    """handler -> the type names its own body casts CommBuffer to, first seen first.
+
+    The analyser records a handler's declared parameter block, and for a handler that
+    takes CommBuffer as VOID * and casts it inside the body there is nothing to record:
+    RWVariableHandler comes back as `void *`, which has no fields, no size and no field
+    names -- so the one handler EVAL-1's injected bugs live in was the one the join could
+    say nothing about.
+
+    The cast is the handler's own statement of what the block is, and it is already in
+    smi-call-edges.json: the expression that reaches a callee carries it verbatim, which
+    is where bugs.md's "derived from" column gets
+    `(VOID *)((CHAR16 *)((RW_VARIABLE_INFO *)CommBuffer)->Data + CommData->Offset)`.
+
+    Not cast-map.json. That file is keyed by type rather than by function -- 1448 entries
+    for this campaign and no RW_VARIABLE entry at all -- so it cannot say which recorded
+    type belongs to this buffer. Not the handler source either: triage runs against a
+    campaign directory, which holds the analysis and not the tree.
+
+    Nothing is filtered by name here. A `(UINT8 *)CommBuffer` is a byte-pointer cast and
+    not a parameter block, and it drops out by having no fields in types.json rather than
+    by being on a list of spellings someone has to keep.
+    """
+    found = {}
+    for edge in edges or []:
+        if not isinstance(edge, dict):
+            continue
+        handler = (edge.get('EnclosingFunction') or '').strip()
+        if not handler:
+            continue
+        for arg in (edge.get('Arguments') or {}).values():
+            if not isinstance(arg, dict):
+                continue
+            for text in (arg.get('assignment'), arg.get('usage')):
+                for cast in CAST_OF_BUFFER.finditer(text or ''):
+                    if not is_comm_buffer(cast.group(2)):
+                        continue
+                    names = found.setdefault(handler, [])
+                    if cast.group(1) not in names:
+                        names.append(cast.group(1))
+    return found
+
+
+class CommBufferJoin:
+    """What offset N of one campaign's untrusted buffer is called.
+
+    Built from the files the analyzer already copies into every campaign directory:
+    smi-function-guid-map.json gives handler -> parameter block, types.json gives each
+    block's members, aliases.json resolves EFI_STATUS -> RETURN_STATUS -> UINTN, and
+    smi-call-edges.json recovers the block for a handler that declares its buffer VOID *
+    and casts it inside the body. A campaign with none of them -- a DXE protocol campaign,
+    where the registered buffer is an argument the harness built and not a comm buffer --
+    joins nothing and says so.
+    """
+
+    def __init__(self, campaign_dir):
+        # handler -> [layout, ...]. A list because a handler can cast its buffer to more
+        # than one type, and picking one of those would be a guess; one entry is the
+        # ordinary case.
+        self.handlers = {}
+        self.why = ''
+        smi = self._read(campaign_dir, 'smi-function-guid-map.json')
+        if not isinstance(smi, dict) or not smi:
+            self.why = ('no smi-function-guid-map.json in the campaign, so the registered '
+                        'buffer is a protocol argument rather than a comm buffer and has '
+                        'no handler layout')
+            return
+        raw_types = self._read(campaign_dir, 'types.json')
+        aliases = self._read(campaign_dir, 'aliases.json')
+        if not isinstance(raw_types, list) or not raw_types:
+            self.why = 'the campaign kept no types.json, so no struct can be laid out'
+            return
+        types = _types_from_json(raw_types)
+        aliases = {k: v for k, v in (aliases or {}).items() if isinstance(v, str)}
+        casts = comm_buffer_casts(self._read(campaign_dir, 'smi-call-edges.json'))
+        for handler, data in sorted(smi.items()):
+            if not isinstance(data, dict):
+                continue
+            found = []
+            # The declared type first and on its own terms. A handler that names a real
+            # block keeps it even when its body also casts the buffer somewhere: the
+            # declaration is what the analyser resolved and what the harness sends.
+            block = (data.get('Type') or '').replace('*', '').strip()
+            if block:
+                laid = self._lay(block, types, aliases, 'declared')
+                if laid:
+                    found.append(laid)
+            # Only then the cast, and only because the declaration gave no fields -- which
+            # is what `void *`, an empty Type, and a type nothing recorded all look like.
+            if not found:
+                for name in casts.get(handler, ()):
+                    laid = self._lay(name, types, aliases, 'cast')
+                    if laid:
+                        found.append(laid)
+            if found:
+                self.handlers[handler] = found
+        if not self.handlers:
+            self.why = 'no handler in the campaign named a parameter block'
+
+    @staticmethod
+    def _lay(name, types, aliases, via):
+        """The layout of a candidate block, or None when it has no fields to offer."""
+        resolved = name if name in types else (aliases.get(name) or name)
+        laid = struct_layout(resolved, types, aliases)
+        if not laid['fields']:
+            return None
+        laid['via'] = via
+        return laid
+
+    @staticmethod
+    def _read(campaign_dir, name):
+        try:
+            with open(os.path.join(campaign_dir, name)) as handle:
+                return json.load(handle)
+        except (OSError, ValueError):
+            return None
+
+    def matches(self, offset, size):
+        """[(handler, type, path, field offset, field size, how)] for a buffer offset.
+
+        One campaign drives every handler it found, so several parameter blocks can have
+        something at one offset and nothing here knows which handler was running. The
+        ambiguity is narrowed rather than hidden: a field that starts exactly there and is
+        exactly that wide is what a two-byte read of a two-byte field looks like, while a
+        256-byte payload array merely CONTAINS the offset and would match almost any read.
+        So when any block fits exactly, only the exact fits are offered.
+        """
+        inner = offset - COMM_PAYLOAD_AT
+        found = []
+        for handler, blocks in sorted(self.handlers.items()):
+            for laid in blocks:
+                hit = field_at(laid['fields'], inner, size)
+                if hit:
+                    exact = hit[1] == inner and hit[2] == size
+                    found.append((exact, handler, laid['type'], hit[0], hit[1], hit[2],
+                                  laid.get('via', 'declared')))
+        if any(entry[0] for entry in found):
+            found = [entry for entry in found if entry[0]]
+        return [entry[1:] for entry in found]
+
+    def describe(self, offset, size):
+        """One clause naming the field, or saying exactly why it could not be named."""
+        # Before the header arithmetic, not after. With no handler map the buffer is not
+        # known to be a comm buffer at all -- in a DXE protocol campaign it is an argument
+        # the harness built -- so subtracting a message header it may not have, and naming
+        # a field of EFI_SMM_COMMUNICATE_HEADER, would be a claim about a layout nothing
+        # here has seen.
+        if not self.handlers:
+            return (f'offset 0x{offset:X} of the registered buffer; '
+                    f'{self.why or "no comm-buffer layout for this campaign"}, so which '
+                    f'field it is cannot be said from here')
+        if offset < COMM_PAYLOAD_AT:
+            hit = field_at(COMM_HEADER_FIELDS, offset, size)
+            where = f'EFI_SMM_COMMUNICATE_HEADER.{hit[0]}' if hit else \
+                'inside EFI_SMM_COMMUNICATE_HEADER'
+            return (f'{where} at offset 0x{offset:X} -- the message header the SMM core '
+                    f'reads, not a field of any handler\'s parameter block')
+        found = self.matches(offset, size)
+        if not found:
+            unsized = sorted({laid['stopped'] for blocks in self.handlers.values()
+                              for laid in blocks if laid['stopped']})
+            inner = offset - COMM_PAYLOAD_AT
+            said = (f'no field at payload offset 0x{inner:X} in any of the '
+                    f'{len(self.handlers)} parameter block(s) this campaign drove '
+                    f'({", ".join(sorted(self.handlers))})')
+            if unsized:
+                said += f' -- {len(unsized)} of those layouts stop at {"; ".join(unsized)}'
+            else:
+                said += ' -- the read is past the end of every one of them'
+            return said
+        # "via the cast" is said rather than left out. A block recovered from
+        # `(TYPE *)CommBuffer` is the handler's own statement of what it believes the
+        # buffer is, not a declaration the analyser resolved, and a reader deciding
+        # whether to trust the field name should be told which of the two it is.
+        shown = [f'{handler} comm buffer: {block}.{path} at payload offset 0x{at:X}, '
+                 f'{bytes_} byte(s)'
+                 + (' (block recovered from the cast the handler performs on CommBuffer, '
+                    'which declares it VOID *)' if how == 'cast' else '')
+                 for handler, block, path, at, bytes_, how in found[:3]]
+        if len(found) > 3:
+            shown.append(f'and {len(found) - 3} other handler(s) with a field there')
+        return '; '.join(shown)
+
+    def handler_names(self, offset, size):
+        """Just the handlers whose block has a field there, for narrowing a caller list."""
+        if offset < COMM_PAYLOAD_AT:
+            return ()
+        seen = []
+        for entry in self.matches(offset, size):
+            if entry[0] not in seen:
+                seen.append(entry[0])
+        return tuple(seen)
+
+
+def _types_from_json(raw):
+    """types.json as the generator's TypeInfo, without importing the generator.
+
+    bug_report.py runs on a host that may not have the generator's dependencies -- it
+    imports fuzzywuzzy at module scope -- and this needs two attributes off each record.
+    """
+    class _Field:
+        __slots__ = ('name', 'type')
+
+        def __init__(self, name, type_):
+            self.name, self.type = name, type_
+
+    class _Type:
+        __slots__ = ('name', 'fields')
+
+        def __init__(self, name, fields):
+            self.name, self.fields = name, fields
+
+    built = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        name = entry.get('TypeName')
+        if not name:
+            continue
+        built[name] = _Type(name, [_Field(f.get('Name') or '', f.get('Type') or '')
+                                   for f in (entry.get('Fields') or [])
+                                   if isinstance(f, dict)])
+    return built
+
+
+# Said once per double-fetch row, because it is the reason the row is a finding at all and
+# a reader who has not met the class cannot act on a field name without it.
+TOCTOU = ('a caller-controlled field read twice is a TOCTOU risk: the OS can rewrite the '
+          'buffer between the read that validated the value and the read that uses it, so '
+          'what passed the check is not what acts')
+
+
+def untrusted_payload(cluster):
+    """The untrusted-field facts of a cluster, for bugs.json, or {}."""
+    for report in cluster.reports:
+        field = getattr(report, 'field', None) or {}
+        if not field:
+            continue
+        return {'untrusted': {
+            'offset': field['offset'],
+            'base': field.get('base', 0),
+            'extent': field.get('extent', 0),
+            'first_ip': field.get('first_ip', 0),
+            'first_addr': field.get('first_addr', 0),
+            'first_bytes': field.get('first_bytes', 0),
+            'first_source': getattr(report, 'first_site', ''),
+            'field': getattr(report, 'field_note', ''),
+            'handlers': list(getattr(report, 'field_handlers', ()) or ()),
+        }}
+    return {}
+
+
 # The interceptor reports at its own source line, so the file says CopyMemWrapper.c for
 # every out-of-bounds copy in the image. Cluster those by caller instead.
 INTERCEPTOR_SOURCES = ('CopyMemWrapper', 'SetMemWrapper', 'ScanMem', 'CompareMemWrapper',
@@ -167,8 +636,13 @@ def match_reason(text, table):
 
 
 class Report:
+    # field/field_note/field_handlers/first_site are filled in by load(), which is the
+    # only place that knows which campaign directory the row came from and therefore which
+    # handler layout to join its offset against. A Report built by hand -- the checks do
+    # that -- carries the defaults and renders as it always did.
     __slots__ = ('protocol', 'phase', 'module', 'path', 'line', 'asan', 'kind',
-                 'message', 'count')
+                 'message', 'count', 'field', 'field_note', 'field_handlers',
+                 'first_site')
 
     def __init__(self, row, protocol):
         self.protocol = protocol
@@ -183,6 +657,10 @@ class Report:
             self.count = int(row.get('Count') or 0)
         except ValueError:
             self.count = 0
+        self.field = untrusted_field(self.message)
+        self.field_note = ''
+        self.field_handlers = ()
+        self.first_site = ''
 
     @property
     def basename(self):
@@ -326,10 +804,55 @@ class Cluster:
                 addr = ADDR_RE.search(report.message)
                 if size and write:
                     direction = 'write' if int(write.group(1), 16) else 'read'
-                    return (f'{direction} of {int(size.group(1), 16)} bytes'
+                    said = (f'{direction} of {int(size.group(1), 16)} bytes'
                             f'{" at " + addr.group(1) if addr else ""}')
+                    return said + self.untrusted_detail(report)
                 return report.message[:90] + suffix
         return suffix.strip() or ''
+
+    def field_handlers(self):
+        """Handlers whose parameter block has a field where this cluster's reports read.
+
+        Empty when nothing in the cluster carried an untrusted offset, which is every
+        class but this one -- and the caller treats empty as "do not narrow", so a
+        non-double-fetch row keeps the behaviour it had.
+        """
+        picked = set()
+        for report in self.reports:
+            picked.update(getattr(report, 'field_handlers', ()) or ())
+        return tuple(sorted(picked))
+
+    def untrusted_detail(self, report):
+        """What a double fetch adds to the access: the field, both reads, and why.
+
+        Everything here comes off the report itself. The row's own location is the SECOND
+        read -- the one that used the value -- and until the detector started recording the
+        first fetch's ip the read that validated it was simply not in the output, so the
+        finding named the line that cannot be fixed without naming the check it got past.
+
+        One line, because this lands in a markdown table cell and on one console line.
+        """
+        field = getattr(report, 'field', None) or {}
+        if not field:
+            return ''
+        said = [f'untrusted offset 0x{field["offset"]:X} of the '
+                f'0x{field.get("extent", 0):X}-byte buffer at '
+                f'0x{field.get("base", 0):016X}']
+        if getattr(report, 'field_note', ''):
+            said.append(report.field_note)
+        first = field.get('first_ip', 0)
+        where = getattr(report, 'first_site', '') or ''
+        read = f'first read at ip 0x{first:016X}'
+        if where:
+            read += f' ({where})'
+        if field.get('first_bytes') and field.get('first_bytes') != int(
+                SIZE_RE.search(report.message).group(1), 16):
+            # The granule match earning its keep: four bytes to check a length and eight
+            # to use it is the same word read twice, and the two sizes are what say so.
+            read += f', {field["first_bytes"]} byte(s) there'
+        said.append(f'{read}; re-read at {self.site}')
+        said.append(TOCTOU)
+        return ' -- ' + ' -- '.join(said)
 
 
 EXC_RE = re.compile(r'X64 Exception Type - ([0-9A-Fa-f]{2})\(([^)]*)\)')
@@ -578,6 +1101,44 @@ def load(root, build_dirs=()):
         imap = resolve_modules.map_from_logs(maps, build_dirs)
         smap = resolve_modules.source_map(build_dirs) if build_dirs else None
         calibrate(maps, build_dirs)
+        # One per campaign, because the handler set and the recorded struct layouts are
+        # this campaign's. Built once rather than per report: a double fetch arrives
+        # thousands of times and laying out seven parameter blocks for each of them is
+        # work with one answer.
+        join = CommBufferJoin(os.path.join(root, protocol))
+
+        def source_of(ip):
+            """file:line for an ip, by the same rules locate() uses, or ''.
+
+            The first read of a double fetch is an ip and nothing else -- it is recorded by
+            the detector, not reported by a sanitizer handler with a source position -- so
+            this is the only way it gets a line. Same conservatism: a base the map is not
+            certain of names a line in the wrong function.
+            """
+            if not ip or not len(imap) or not build_dirs:
+                return ''
+            found = imap.resolve(ip)
+            if not found or not found[2]:
+                return ''
+            answer = symbolise_offset(f'{found[0]}.efi', f'+{found[1]:#x}', build_dirs)
+            where = answer.split(' -- ', 1)[1] if ' -- ' in answer else ''
+            return where if ':' in where else ''
+
+        def name_field(report):
+            """Join a double fetch's offset to the field of the handler's struct."""
+            # Re-read from the message rather than trusting what __init__ parsed:
+            # merge_by_ip hands a twin the other row's message when the other row's class
+            # is the more specific of the two, and a field parsed before that would then
+            # describe an access the row no longer carries.
+            report.field = untrusted_field(report.message)
+            if not report.field:
+                return report
+            size = SIZE_RE.search(report.message)
+            width = int(size.group(1), 16) if size else 0
+            report.field_note = join.describe(report.field['offset'], width)
+            report.field_handlers = join.handler_names(report.field['offset'], width)
+            report.first_site = source_of(report.field.get('first_ip', 0))
+            return report
 
         def locate(report):
             """Fill in the source for a report that only has an ip.
@@ -658,7 +1219,7 @@ def load(root, build_dirs=()):
         # 40532555997: locate-then-merge gave 5 candidates with UefiDriverModel.c:731
         # twice, merge-then-locate gives 4.
         for report in merge_by_ip(collected):
-            groups[locate(report).group_key()].append(report)
+            groups[name_field(locate(report)).group_key()].append(report)
         for report in guest_faults(protocol, serial):
             rows += 1
             groups[report.group_key()].append(report)
@@ -990,7 +1551,7 @@ CALLER_BLIND_LIBS = (
 )
 
 
-def likely_callers(cluster_path, module, crossings):
+def likely_callers(cluster_path, module, crossings, only=()):
     """Handlers the source says pass caller-controlled data, for a library-attributed find.
 
     Reports carry one frame -- __builtin_return_address(N) for N > 0 is documented unsafe
@@ -1004,12 +1565,21 @@ def likely_callers(cluster_path, module, crossings):
     data to another module's interface, it is worth reading next to a library fault in that
     module. This is a pointer and says so -- it does not claim the handler is the cause,
     because nothing here proves this fault came through that call.
+
+    `only` narrows it to the handlers whose parameter block actually has a field at the
+    offset the report named. Without that this was the same paragraph on every row of
+    every campaign -- a list of handlers pasted beside a finding that had nothing to do
+    with most of them -- which is a list a reader stops reading. A handler whose comm
+    buffer has no field where the double fetch happened did not do this one.
     """
     if not crossings or not module:
         return []
     if not any(lib in (cluster_path or '') for lib in CALLER_BLIND_LIBS):
         return []
-    return sorted({f"{f['handler']} -> {f['service']}->{f['function']}" for f in crossings})
+    picked = [f for f in crossings if not only or f['handler'] in only]
+    if not picked:
+        return []
+    return sorted({f"{f['handler']} -> {f['service']}->{f['function']}" for f in picked})
 
 
 def write_source_section(handle, findings):
@@ -1059,7 +1629,8 @@ def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()
         detail = cluster.detail() or ''
         note = reason or VERDICT_NOTE.get(verdict, '')
         where = cluster_source(cluster, build_dirs)
-        callers = likely_callers(where, cluster.module, crossing_list)
+        callers = likely_callers(where, cluster.module, crossing_list,
+                                 cluster.field_handlers())
         if callers:
             note += (' -- the report names the library, not the caller; the source says '
                      + '; '.join(callers) + ' passes caller-controlled data into another '
@@ -1247,7 +1818,12 @@ def main():
                 {'id': cluster_id(c), 'module': c.module, 'site': c.site,
                  'class': c.klass, 'hits': c.hits, 'severity': c.severity(),
                  'detail': c.detail(), 'protocols': sorted(c.protocols),
-                 'source': cluster_source(c, args.build)}
+                 'source': cluster_source(c, args.build),
+                 # Structured as well as in the detail text, so file_issues.py and
+                 # anything else reading bugs.json can key on the field rather than
+                 # re-parse a sentence. Absent on every class that has no untrusted
+                 # buffer behind it, which is all of them but this one.
+                 **untrusted_payload(c)}
                 for c, _ in candidates],
             'ubiquitous': [
                 {'id': cluster_id(c), 'module': c.module, 'site': c.site,
