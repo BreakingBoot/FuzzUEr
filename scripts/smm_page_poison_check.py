@@ -1140,18 +1140,25 @@ def main():
           f'matches "expect <case>" literally, so a name only one side knows is scored '
           f'NOT RUN and reads as a class the sanitizer failed on')
 
-    # The boot the rows are measured in. Without smm=on there is no SMM core, so no
-    # communication protocol, so every SMM row scores NO SMM -- a control that is built
-    # and shipped and never fired.
+    # The boot the rows are measured in. An SMM_REQUIRE OVMF needs all three settings
+    # together -- smm=on alone does not boot it, because the secure pflash property is
+    # what its varstore requires -- so what matters is that they travel as a set behind
+    # one flag, not which way that flag defaults.
     bench_src = read(os.path.join(HERE, 'bench_cases.py'))
     boot_fn = bench_src[bench_src.index('def boot('):bench_src.index('def score_one(')]
-    check('the bench boot turns SMM on, and does so by default',
+    smm_block = boot_fn[boot_fn.index('if args.smm:'):] if 'if args.smm:' in boot_fn \
+        else ''
+    check('the three SMM boot settings travel together behind one flag',
           "'q35,smm=on' if args.smm else 'q35'" in boot_fn
-          and 'driver=cfi.pflash01,property=secure,value=on' in boot_fn
-          and re.search(r"add_argument\('--smm'.*?default=True", bench_src, re.S)
-          is not None,
-          'the flags are the ones guest_run.py and detect_check.py use for an SMM image; '
-          'defaulting them off would score the SMM rows NO SMM on a correct build')
+          and 'ICH9-LPC.disable_s3=1' in smm_block
+          and 'driver=cfi.pflash01,property=secure,value=on' in smm_block,
+          'these are the settings guest_run.py and detect_check.py use for an SMM image, '
+          'and an SMM_REQUIRE OVMF boots with all three or none: smm=on without the '
+          'secure pflash property leaves the varstore unusable and the boot stops')
+    check('the exempt verdict names the flag that would measure the row',
+          '--smm' in bench_src[bench_src.index("verdict='NO SMM'"):][:400],
+          'a row that reports itself unmeasurable has to say what would measure it, or '
+          'the exemption is indistinguishable from a class nobody can run')
 
     check('the three own-code rows are the ones with an ip to attribute',
           bench.SMM_OWN_CODE == {'smm-pool-overflow', 'smm-pool-use-after-free',
@@ -1268,6 +1275,42 @@ def main():
     check('a control that reports invalidates the run',
           got['verdict'] == 'FAIL', f"{got['verdict']}: {got['detail']}")
 
+    # The DXE control too, not only the SMM one. The third column of CASES is overloaded
+    # -- a description for 'control', an unreachable reason for boot-service-after-exit --
+    # so a control rule written in terms of that column reclassified the DXE control as
+    # N/A and dropped the one row that proves the runtime is not crying wolf. The board
+    # stayed n of n and stayed green, which is why only an assertion on this row finds it.
+    dxe_silent = ('SanBenchDrive: start\nSanBenchDrive: control, expect NO report\n'
+                  'SanBenchDrive: done\n')
+    got = verdict('control', dxe_silent)
+    check('the DXE control is still scored, and passes when silent',
+          got['verdict'] == 'PASS',
+          f"{got['verdict']}: {got['detail']} -- N/A here takes the control out of the "
+          f'denominator entirely')
+    got = verdict('control', dxe_silent.replace(
+        'SanBenchDrive: done',
+        'bug_descr=heap-use-after-free in file: x at line: 0x1\nSanBenchDrive: done'))
+    check('and fails when it reports',
+          got['verdict'] == 'FAIL', f"{got['verdict']}: {got['detail']}")
+    # Order, not just rules: the SMM reachability test has to run before the control
+    # rule, or smm-control on an image with no SanBenchSmm takes the control branch,
+    # finds no reports and scores PASS -- an unexercised control reported as a passing
+    # one, in both halves of the graded line.
+    got = verdict('smm-control',
+                  log('smm-control',
+                      ['SanBenchDrive: no SMM communication protocol -- not attempted'],
+                      image=False))
+    check('an unexercised SMM control is exempt, not a passing control',
+          got['verdict'] == 'NO SMM',
+          f"{got['verdict']}: {got['detail']} -- PASS here would count a control that "
+          f'never ran, and would put it in the denominator too')
+
+    check('both control rows are recognised as controls',
+          all(verdict(c, dxe_silent if c == 'control'
+                      else log(c, ['SanBenchSmm: dispatch']))['verdict'] == 'PASS'
+              for c in ('control', 'smm-control')),
+          'a rule that catches one and not the other is how this broke')
+
     # No image line: the module is not in this volume, so the case is exempt.
     got = verdict('smm-pool-overflow',
                   log('smm-pool-overflow',
@@ -1324,7 +1367,7 @@ def main():
     # other. Nothing but these literals ties the two files together.
     fuzz = read(os.path.join(HERE, 'fuzz_edk2.py'))
     bench_src = read(os.path.join(HERE, 'bench_cases.py'))
-    printed = re.search(r"print\('(%d of %d [a-z ]+)' % \(detected, scored\)\)",
+    printed = re.search(r"return '(%d of %d [a-z ]+)' % \(detected, scored\)",
                         bench_src)
     # Anchored on bench_text.splitlines(), because fuzz_edk2.py holds several
     # comprehensions of this shape and an unanchored search found an unrelated one --
@@ -1340,12 +1383,24 @@ def main():
     pattern = grader.group(1) if grader else r'(\d+) of (\d+)'
 
     check('the line bench_cases prints is the line fuzz_edk2 selects',
-          pick in (fmt % (0, 0)),
-          f'fuzz_edk2 picks the line containing "{pick}"; bench_cases prints "{fmt}"')
+          pick in (fmt % (0, 0)) and pick in bench.graded_line(0, 0),
+          f'fuzz_edk2 picks the line containing "{pick}"; bench_cases prints '
+          f'"{bench.graded_line(0, 0)}"')
+    # No arithmetic between the tally and the print. Asserted on the source because the
+    # hole it closes is invisible to every test of tally(): a main() that adjusted the
+    # numbers after counting them would change what the pipeline grades while the
+    # counting itself stayed correct.
+    check('the graded line is printed straight from the tally',
+          'print(graded_line(*tally(results, wanted)[:2]))' in bench_src,
+          'composed in one expression so there is nowhere for arithmetic to live')
 
     def graded(detected, scored):
-        """fuzz_edk2's own verdict on a board: True when the detects stage passes."""
-        found = re.search(pattern, fmt % (detected, scored))
+        """fuzz_edk2's own verdict on a board: True when the detects stage passes.
+
+        Through bench_cases' own graded_line, not through a copy of its format string:
+        the subject is what the pipeline will be handed.
+        """
+        found = re.search(pattern, bench.graded_line(detected, scored))
         return found is not None and found.group(1) == found.group(2)
 
     def board(smm_verdict):
@@ -1381,6 +1436,25 @@ def main():
     check('the exemptions are the three that mean "this image cannot run it"',
           set(bench.EXEMPT) == {'N/A', 'UNBUILT', 'NO SMM'},
           f'EXEMPT={bench.EXEMPT}')
+
+    # The defect this closes: a verdict in NEITHER list is dropped from BOTH counts, so
+    # the board shrinks and still reads "n of n" and the detects stage passes. FAIL,
+    # NO BOOT and ERROR were all unclassified -- and FAIL is a CONTROL that reported,
+    # i.e. the sanitizer firing on code that does nothing wrong, which is the one result
+    # that must never be hidden. Measured before the fix: a reporting control printed
+    # "16 of 16" and PASSED. Derived from the source rather than listed here, so a verdict
+    # added later fails this instead of disappearing.
+    literals = set(re.findall(r"verdict='([A-Z/ ]+)'", open(bench.__file__).read()))
+    check('every verdict bench_cases.py can emit is classified',
+          literals and not (literals - set(bench.SCORED) - set(bench.EXEMPT)),
+          f'unclassified: {sorted(literals - set(bench.SCORED) - set(bench.EXEMPT))} -- '
+          f'a verdict in neither list leaves both counts and the board still reads n of n')
+    check('a control that reported is a non-detection, not an exemption',
+          'FAIL' in bench.SCORED and 'FAIL' not in bench.EXEMPT,
+          'a sanitizer reporting on the control is the one result that must fail the stage')
+    check('a case whose boot died or raised is still counted',
+          {'NO BOOT', 'ERROR'} <= set(bench.SCORED),
+          f'SCORED={bench.SCORED}')
 
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0

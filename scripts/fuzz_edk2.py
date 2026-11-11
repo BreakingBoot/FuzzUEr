@@ -1717,7 +1717,17 @@ def main():
                      '--entrypoint', 'bash', args.base_image, '-lc',
                      'python3 /repo/scripts/bench_cases.py --code /fw/OVMF_CODE.fd '
                      '--vars /fw/OVMF_VARS.fd --app /fw/SanBenchDrive.efi '
-                     '--out /out/bench_cases --roms /workspace/qemu_fw --jobs 2'],
+                     '--out /out/bench_cases --roms /workspace/qemu_fw --jobs 2'
+                     # Exactly when the probe firmware was built with SMM_REQUIRE, which
+                     # is the same condition. bench_cases.py needs it to boot the image at
+                     # all -- q35,smm=on plus the SMM varstore globals, and an
+                     # SMM_REQUIRE image does not come up without them -- and the smm-*
+                     # rows are what measure a report raised by an SMM driver's OWN code.
+                     # Without this they come back exempt: the board stays honest and
+                     # green, and the thing those rows exist to demonstrate is never
+                     # demonstrated. Conditional, because passing it to a non-SMM image
+                     # would make the varstore SMM-writable only, which is untested here.
+                     + (' --smm' if args.smm else '')],
                     timeout=2400)
         bench_text = scored.stdout + scored.stderr
         open(os.path.join(out, 'bench_cases.log'), 'w').write(bench_text)

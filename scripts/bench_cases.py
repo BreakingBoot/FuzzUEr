@@ -161,8 +161,27 @@ def is_narration(line):
 # listed under "not scorable here" instead of entering the total, because fuzz_edk2.py
 # fails the detects stage on any shortfall in that total -- so a class the build was
 # never configured to run must not be in the denominator.
-SCORED = ('PASS', 'MISS', 'WRONG', 'NOT RUN', 'FOREIGN', 'NO MAP')
+#
+# FAIL, NO BOOT and ERROR are non-detections too, and they were in NEITHER list. A verdict
+# in neither one is dropped from both counts, so the board shrinks and still reads "n of n"
+# -- the stage passes. For FAIL that is the worst case of all: FAIL is a CONTROL that
+# reported, i.e. the sanitizer firing on code that does nothing wrong, and a board that
+# hides it is worse than no board. Measured before the fix: a control reporting printed
+# "16 of 16" and the detects stage PASSED.
+SCORED = ('PASS', 'MISS', 'WRONG', 'NOT RUN', 'FOREIGN', 'NO MAP',
+          'FAIL', 'NO BOOT', 'ERROR')
 EXEMPT = ('N/A', 'UNBUILT', 'NO SMM')
+
+
+def graded_line(detected, scored):
+    """The one line fuzz_edk2.py grades.
+
+    A function rather than a format string inlined at the print, so the wording and the
+    numbers can be exercised as a unit: that script selects this line by the substring
+    'scorable classes detected' and then fails the detects stage unless the two numbers
+    "(\\d+) of (\\d+)" in it agree.
+    """
+    return '%d of %d scorable classes detected' % (detected, scored)
 
 
 def tally(results, wanted):
@@ -203,12 +222,17 @@ def boot(args, case, work):
     debug = os.path.join(work, 'debug.log')
 
     # SMM on by default, because the SMM rows cannot be measured without it and a run
-    # that forgets the flag scores them NO SMM -- a control that is built, shipped and
-    # never fired, which is the exact failure this file exists to prevent. The three
-    # settings are the ones guest_run.py and detect_check.py use for an SMM image and
-    # they are inert on a firmware built without SMM_REQUIRE, so the DXE rows are
-    # unaffected; --no-smm restores the old command line exactly if that is ever shown
-    # to be wrong.
+    # that forgets the flag scores them exempt -- a control that is built, shipped and
+    # never fired, which is the failure this file exists to prevent.
+    #
+    # Off by default all the same. The three settings are the ones guest_run.py and
+    # detect_check.py use for an SMM image, and an SMM_REQUIRE OVMF does not boot
+    # without the secure pflash property -- but that property also makes the varstore
+    # writable only from SMM, and whether a non-SMM image still boots that way has NOT
+    # been measured here. Defaulting it on would put that untested change on the
+    # pipeline's existing green path, where it buys nothing: on a non-SMM image the
+    # smm-* rows are exempt with or without the flag. So the default is the command line
+    # that is known to work, and measuring the SMM rows is one explicit flag away.
     machine = 'q35,smm=on' if args.smm else 'q35'
     cmd = [
         args.qemu, '-machine', machine, '-m', '2048', '-no-reboot', '-smp', '1',
@@ -283,17 +307,11 @@ def score_one(args, case, expect, unreachable, work):
     reports = [line.strip() for line in after.splitlines()
                if REPORT.search(line) and not is_narration(line)]
 
-    # Any row with no expected class and no unreachable reason is a control: it must be
-    # silent. Tested on the expectation rather than on the literal name 'control', which
-    # is what made 'smm-control' fall through to the MISS branch and score a correct,
-    # silent control as a missed detection.
-    if expect is None and not unreachable:
-        if reports:
-            return dict(case=case, verdict='FAIL',
-                        detail='reported on correct code -- every other result is worth less',
-                        reports=reports[:4])
-        return dict(case=case, verdict='PASS', detail='silent, as it should be', reports=[])
-
+    # The SMM reachability test comes FIRST, ahead of the control rule. Behind it,
+    # 'smm-control' on an image with no SanBenchSmm took the control branch, found no
+    # reports and scored PASS -- an unexercised control reported as a passing one,
+    # and it inflated both halves of the graded line (12 of 12 became 13 of 13 on a
+    # board where nothing SMM had run at all).
     # An SMM row that could not be raised splits two ways, and only ONE of them is a
     # non-detection. Conflating them put five rows in the denominator on every non-SMM
     # build, so the board printed "12 of 17" -- and fuzz_edk2.py fails the detects stage
@@ -330,6 +348,22 @@ def score_one(args, case, expect, unreachable, work):
                                   if 'no SMM communication' in after
                                   else 'it reached no handler'),
                         reports=reports[:4])
+
+    # A control must be silent. Tested on the NAME, because the third column of CASES is
+    # overloaded: for 'control' it holds a description ('no report at all') and for
+    # 'boot-service-after-exit' it holds the reason that row cannot run. An earlier
+    # version of this tested "expect is None and not unreachable" so that 'smm-control'
+    # would stop falling through to MISS -- and that silently reclassified the DXE
+    # 'control' row as N/A, which took the one row that proves the runtime is not crying
+    # wolf out of the denominator altogether. Measured: 12 of 12 became 11 of 11, still
+    # n of n, still green, and no longer scoring the control.
+    if case == 'control' or case.endswith('-control'):
+        if reports:
+            return dict(case=case, verdict='FAIL',
+                        detail='reported on correct code -- every other result is worth less',
+                        reports=reports[:4])
+        return dict(case=case, verdict='PASS', detail='silent, as it should be', reports=[])
+
 
     if unreachable:
         attempted = 'not attempted' in after
@@ -402,10 +436,14 @@ def main():
                              'a few contend and a contended boot times out before BDS')
     parser.add_argument('--case', action='append', default=[],
                         help='score only this case (repeatable)')
-    parser.add_argument('--smm', action=argparse.BooleanOptionalAction, default=True,
-                        help='boot with q35,smm=on and the SMM varstore globals. On by '
-                             'default: the smm-* rows need it, and a run without it '
-                             'scores them NO SMM rather than measuring them')
+    parser.add_argument('--smm', action=argparse.BooleanOptionalAction, default=False,
+                        help='boot q35 with SMM on, plus the SMM varstore globals, for '
+                             'an image built with -D SMM_REQUIRE -- which does not boot '
+                             'without them. OFF by default: those globals make the '
+                             'varstore writable only from SMM, and whether a NON-SMM '
+                             'image still boots that way is untested here. Without it '
+                             'the smm-* rows come back exempt, which costs a '
+                             'measurement and cannot cost a working board its verdict')
     args = parser.parse_args()
 
     for attr in ('code', 'vars', 'app'):
@@ -441,16 +479,17 @@ def main():
     print()
     print('%-24s %-8s %s' % ('CASE', 'VERDICT', 'EVIDENCE'))
     print('-' * 100)
-    detected, scored, skipped = tally(results, wanted)
+    skipped = tally(results, wanted)[2]
     for case, _expect, _unreachable in wanted:
         row = results[case]
         print('%-24s %-8s %s' % (case, row['verdict'], row['detail']))
 
     print('-' * 100)
-    # The line fuzz_edk2.py grades. Its wording is load-bearing twice over: that script
-    # selects it by the substring 'scorable classes detected' and then reads
-    # "(\d+) of (\d+)" out of it, failing the stage unless the two agree.
-    print('%d of %d scorable classes detected' % (detected, scored))
+    # Composed in one expression on purpose. With the numbers held in locals first, any
+    # later arithmetic between tally() and the print would change what the pipeline
+    # grades while every test of tally() still passed -- so there is deliberately
+    # nowhere here for arithmetic to live.
+    print(graded_line(*tally(results, wanted)[:2]))
     if skipped:
         print('not scorable here: %s' % ', '.join(sorted(skipped)))
     print('logs under %s' % args.out)
