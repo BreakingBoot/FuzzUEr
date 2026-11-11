@@ -58,7 +58,57 @@ CASES = [
     ('stack-buffer-overflow',   'asan',                      None),
     ('double-free',             'double-free',               None),
     ('size-overflow',           'asan',                      None),
+    # The SMM classes. These are not protocol calls: SanBenchDrive raises a software SMI
+    # through EFI_SMM_COMMUNICATION_PROTOCOL and the fault happens inside SMRAM, in
+    # SanBenchSmm's own instrumented statements, on SMM pool and SMM page allocations.
+    # Nothing above this line can measure that -- every SMM finding on record so far came
+    # from an instrumented LIBRARY linked into an SMM image, never from an SMM driver's
+    # own code, and these rows are what tells those two apart.
+    #
+    # Each names its class rather than accepting a bare 'asan'. A bare expectation is
+    # what let 'stale-interface' score PASS off a status line, and in SMM it would be
+    # worse: the firmware raises reports from inside SMRAM for other reasons, so "any
+    # sanitizer line after the marker" is not evidence about THIS class.
+    ('smm-control',             None,                        None),
+    ('smm-pool-overflow',       'heap-buffer-overflow',      None),
+    ('smm-pool-use-after-free', 'heap-use-after-free',       None),
+    ('smm-page-use-after-free', 'heap-use-after-free',       None),
+    ('smm-double-free',         'double-free',               None),
 ]
+
+# Of the SMM rows, the three whose report must be attributed to SanBenchSmm's OWN image.
+#
+# An ASan report names no module: it says "in file: asan-outline-instrumentation" and
+# carries an ip. So for these three the class alone is not the result -- a
+# heap-buffer-overflow raised by a memory wrapper linked into the module is exactly the
+# result already on record, and scoring it here would claim something that had not been
+# shown. The module publishes its own base and size on the same wire and the ip has to
+# fall inside it.
+#
+# 'smm-double-free' is deliberately NOT in this set. That class is detected by the
+# allocator, in PiSmmCore/Pool.c, which is where the quarantine signature is read: the
+# faulting caller is SanBenchSmm but the report is the SMM core's own and carries no ip
+# at all. Requiring an ip inside SanBenchSmm would fail a correct detection.
+SMM_OWN_CODE = {
+    'smm-pool-overflow',
+    'smm-pool-use-after-free',
+    'smm-page-use-after-free',
+}
+
+# "SanBenchSmm: image base=0x0000000000000000 size=0x0000000000000000", printed by the
+# module at registration. Num2Str64bit emits 0x plus 16 uppercase hex digits.
+SMM_IMAGE_RE = re.compile(
+    r'SanBenchSmm: image base=(0x[0-9A-Fa-f]+) size=(0x[0-9A-Fa-f]+)')
+
+# The ip an ASan report carries, which is the only thing in it that identifies code.
+#
+# Two spellings, because AsanEmitReport prints the ip twice and only one of the two lines
+# survives the report filter. The "address ..., size ..., ip ..." line names no class, so
+# REPORT does not match it and it is not in `reports` at all -- attributing from `ip`
+# alone found nothing and scored a correct detection as FOREIGN. The bug_descr line
+# carries the same ip where a line number would go, which also ties the ip to the class
+# on the very same line rather than to whichever report happened to be adjacent.
+IP_RE = re.compile(r'(?:\bip|at line:) (0x[0-9A-Fa-f]+)')
 
 # A line that is a sanitizer saying something, as opposed to the exerciser narrating.
 # Both arrive on the same wire, which is what makes a report attributable to a case.
@@ -90,7 +140,49 @@ REPORT = re.compile(
     r'stale-protocol-interface|asan[-_](load|store)|'
     r'__asan_report|CPU Exception|runtime error)', re.I)
 
-NARRATION = 'SanBenchDrive:'
+# Lines the exerciser and the SMM module say about themselves. A tuple rather than one
+# string because both ends narrate now, and a narration line that reaches the report
+# filter is a case scoring itself: this file has been bitten by that twice, once by a case
+# named after its own class and once by a status line that read as a detection.
+NARRATION = ('SanBenchDrive:', 'SanBenchSmm:')
+
+
+def is_narration(line):
+    return any(prefix in line for prefix in NARRATION)
+
+
+# What counts as a measurement, and what is exempt from being one.
+#
+# NOT RUN, FOREIGN and NO MAP are non-detections: the class COULD have been demonstrated
+# on this image and was not. Leaving any of them out would print "n of n" for a board
+# where a class was never shown, which is the shape this file exists to avoid.
+#
+# N/A, UNBUILT and NO SMM are exemptions: the image cannot run the case at all. They are
+# listed under "not scorable here" instead of entering the total, because fuzz_edk2.py
+# fails the detects stage on any shortfall in that total -- so a class the build was
+# never configured to run must not be in the denominator.
+SCORED = ('PASS', 'MISS', 'WRONG', 'NOT RUN', 'FOREIGN', 'NO MAP')
+EXEMPT = ('N/A', 'UNBUILT', 'NO SMM')
+
+
+def tally(results, wanted):
+    """(detected, scored, exempt cases) over the rows that were asked for.
+
+    Split out of main() so the accounting itself can be exercised. What matters is not
+    what this file prints but what fuzz_edk2.py's "(\\d+) of (\\d+)" grep makes of it,
+    and an assertion that re-implemented the sums would not be testing them.
+    """
+    detected = scored = 0
+    exempt = []
+    for case, _expect, _unreachable in wanted:
+        verdict = results[case]['verdict']
+        if verdict in SCORED:
+            scored += 1
+            if verdict == 'PASS':
+                detected += 1
+        elif verdict in EXEMPT:
+            exempt.append(case)
+    return detected, scored, sorted(exempt)
 
 
 def read(path):
@@ -110,8 +202,16 @@ def boot(args, case, work):
     serial = os.path.join(work, 'serial.log')
     debug = os.path.join(work, 'debug.log')
 
+    # SMM on by default, because the SMM rows cannot be measured without it and a run
+    # that forgets the flag scores them NO SMM -- a control that is built, shipped and
+    # never fired, which is the exact failure this file exists to prevent. The three
+    # settings are the ones guest_run.py and detect_check.py use for an SMM image and
+    # they are inert on a firmware built without SMM_REQUIRE, so the DXE rows are
+    # unaffected; --no-smm restores the old command line exactly if that is ever shown
+    # to be wrong.
+    machine = 'q35,smm=on' if args.smm else 'q35'
     cmd = [
-        args.qemu, '-machine', 'q35', '-m', '2048', '-no-reboot', '-smp', '1',
+        args.qemu, '-machine', machine, '-m', '2048', '-no-reboot', '-smp', '1',
         # The bugcheck override is what keeps a single-CPU boot from stopping on the
         # CPU hotplug check; without it the firmware never reaches BDS.
         '-fw_cfg', 'name=opt/org.tianocore/X-Cpuhp-Bugcheck-Override,string=yes',
@@ -122,6 +222,11 @@ def boot(args, case, work):
         '-drive', 'file=fat:rw:%s,format=raw,if=ide' % os.path.join(work, 'esp'),
         '-display', 'none', '-serial', 'file:%s' % serial,
     ]
+    if args.smm:
+        # disable_s3 keeps the SMM build off the S3 path it has no LockBox for, and the
+        # secure pflash property is what an SMM_REQUIRE OVMF requires of its varstore.
+        cmd += ['-global', 'ICH9-LPC.disable_s3=1',
+                '-global', 'driver=cfi.pflash01,property=secure,value=on']
     if args.roms:
         cmd += ['-L', args.roms]
 
@@ -143,7 +248,7 @@ def score_one(args, case, expect, unreachable, work):
     if 'no memory protocol' in serial or 'no memory protocol' in debug:
         return dict(case=case, verdict='UNBUILT', detail='built without -D SAN_BENCH',
                     reports=[])
-    if NARRATION not in serial:
+    if not is_narration(serial):
         return dict(case=case, verdict='NO BOOT',
                     detail='the exerciser never announced itself', reports=[])
 
@@ -155,7 +260,7 @@ def score_one(args, case, expect, unreachable, work):
 
     def from_line_start(text, at):
         # From the start of the LINE, not from the marker. Slicing at the marker cuts off
-        # the "SanBenchDrive: " prefix that the NARRATION filter below depends on, so the
+        # the "SanBenchDrive: " prefix that the narration filter below depends on, so the
         # case's own announcement survives the filter -- and a case NAMED after a report
         # class then scores PASS off its own echo, with the sanitizer switched off.
         return text[text.rfind('\n', 0, at) + 1:]
@@ -176,14 +281,55 @@ def score_one(args, case, expect, unreachable, work):
                     reports=[])
 
     reports = [line.strip() for line in after.splitlines()
-               if REPORT.search(line) and NARRATION not in line]
+               if REPORT.search(line) and not is_narration(line)]
 
-    if case == 'control':
+    # Any row with no expected class and no unreachable reason is a control: it must be
+    # silent. Tested on the expectation rather than on the literal name 'control', which
+    # is what made 'smm-control' fall through to the MISS branch and score a correct,
+    # silent control as a missed detection.
+    if expect is None and not unreachable:
         if reports:
             return dict(case=case, verdict='FAIL',
                         detail='reported on correct code -- every other result is worth less',
                         reports=reports[:4])
         return dict(case=case, verdict='PASS', detail='silent, as it should be', reports=[])
+
+    # An SMM row that could not be raised splits two ways, and only ONE of them is a
+    # non-detection. Conflating them put five rows in the denominator on every non-SMM
+    # build, so the board printed "12 of 17" -- and fuzz_edk2.py fails the detects stage
+    # on ANY shortfall, which turned a plain protocol sweep red over classes its firmware
+    # was never built to run.
+    #
+    # The evidence is already on the wire. SanBenchSmm prints its image range at
+    # registration, so:
+    #
+    #   no image line     the module is not in this volume: either SMM_REQUIRE was not
+    #                     set, so OvmfPkgX64.dsc never built the SMM components, or
+    #                     SAN_BENCH was not. The image structurally cannot run the case.
+    #                     That is what UNBUILT already means for "built without
+    #                     -D SAN_BENCH" and what N/A means for boot-service-after-exit,
+    #                     and it is exempted here for the same reason.
+    #
+    #   image line, but   the module IS here and registered, and the loop still did not
+    #   the SMI did not   close. A MISS, and it stays in the denominator: this is the
+    #   arrive            result these rows exist to catch.
+    #
+    # Exempting everything that fails would put the dishonest shape back. An image that
+    # HAS SanBenchSmm and stays silent still fails.
+    if case.startswith('smm-'):
+        registered = SMM_IMAGE_RE.search(serial) is not None
+        if 'not attempted' in after and not registered:
+            return dict(case=case, verdict='NO SMM',
+                        detail='no SanBenchSmm in this image -- needs -D SMM_REQUIRE '
+                               '-D SAN_BENCH, and this script run with --smm',
+                        reports=[])
+        if 'not attempted' in after:
+            return dict(case=case, verdict='MISS',
+                        detail='SanBenchSmm IS in this image but the SMI did not arrive: '
+                               + ('no communication protocol'
+                                  if 'no SMM communication' in after
+                                  else 'it reached no handler'),
+                        reports=reports[:4])
 
     if unreachable:
         attempted = 'not attempted' in after
@@ -198,9 +344,43 @@ def score_one(args, case, expect, unreachable, work):
     if expect == 'asan':
         return dict(case=case, verdict='PASS', detail=reports[0][:90], reports=reports[:4])
 
-    for line in reports:
-        if expect.lower() in line.lower():
-            return dict(case=case, verdict='PASS', detail=line[:90], reports=reports[:4])
+    matched = [line for line in reports if expect.lower() in line.lower()]
+
+    if matched and case in SMM_OWN_CODE:
+        # The whole point of these three rows: the report has to come from this module's
+        # own code. The ip is the only thing in an ASan report that identifies code, and
+        # the range it is tested against is the one the module published for itself.
+        image = SMM_IMAGE_RE.search(serial)
+        if image is None:
+            return dict(case=case, verdict='NO MAP',
+                        detail='reported as %s, but the module never published its image '
+                               'range, so nothing can say whose code raised it' % expect,
+                        reports=matched[:4])
+        base = int(image.group(1), 16)
+        end = base + int(image.group(2), 16)
+        # The ip is on the "address ..., ip ..." line rather than on the bug_descr line,
+        # and the two are printed as a pair, so every report line is searched.
+        inside, outside = [], []
+        for line in matched:
+            found = IP_RE.search(line)
+            if found is None:
+                continue
+            (inside if base <= int(found.group(1), 16) < end
+             else outside).append(found.group(1))
+        if inside:
+            return dict(case=case, verdict='PASS',
+                        detail='%s from SanBenchSmm.efi at ip %s' % (expect, inside[0]),
+                        reports=matched[:4])
+        return dict(case=case, verdict='FOREIGN',
+                    detail='reported as %s, but no ip is inside SanBenchSmm '
+                           '[%s,0x%016X) -- saw %s. A fault in a library linked into the '
+                           'module is not a fault in the module' %
+                           (expect, image.group(1), end,
+                            outside[0] if outside else 'no ip in any report'),
+                    reports=matched[:4])
+
+    if matched:
+        return dict(case=case, verdict='PASS', detail=matched[0][:90], reports=reports[:4])
 
     return dict(case=case, verdict='WRONG',
                 detail='reported, but not as %s: %s' % (expect, reports[0][:70]),
@@ -222,6 +402,10 @@ def main():
                              'a few contend and a contended boot times out before BDS')
     parser.add_argument('--case', action='append', default=[],
                         help='score only this case (repeatable)')
+    parser.add_argument('--smm', action=argparse.BooleanOptionalAction, default=True,
+                        help='boot with q35,smm=on and the SMM varstore globals. On by '
+                             'default: the smm-* rows need it, and a run without it '
+                             'scores them NO SMM rather than measuring them')
     args = parser.parse_args()
 
     for attr in ('code', 'vars', 'app'):
@@ -257,21 +441,16 @@ def main():
     print()
     print('%-24s %-8s %s' % ('CASE', 'VERDICT', 'EVIDENCE'))
     print('-' * 100)
-    scored = detected = 0
+    detected, scored, skipped = tally(results, wanted)
     for case, _expect, _unreachable in wanted:
         row = results[case]
         print('%-24s %-8s %s' % (case, row['verdict'], row['detail']))
-        # NOT RUN counts in the denominator. It is a non-detection, not an exemption:
-        # leaving it out would shrink the total and print "11 of 11" for a board where one
-        # case was never exercised, which is the dishonest shape this file exists to avoid.
-        if row['verdict'] in ('PASS', 'MISS', 'WRONG', 'NOT RUN'):
-            scored += 1
-            if row['verdict'] == 'PASS':
-                detected += 1
 
     print('-' * 100)
+    # The line fuzz_edk2.py grades. Its wording is load-bearing twice over: that script
+    # selects it by the substring 'scorable classes detected' and then reads
+    # "(\d+) of (\d+)" out of it, failing the stage unless the two agree.
     print('%d of %d scorable classes detected' % (detected, scored))
-    skipped = [r['case'] for r in results.values() if r['verdict'] in ('N/A', 'UNBUILT')]
     if skipped:
         print('not scorable here: %s' % ', '.join(sorted(skipped)))
     print('logs under %s' % args.out)
@@ -280,6 +459,23 @@ def main():
     if stale:
         print('NOT RUN: %s -- the SanBenchDrive in this firmware predates these cases. '
               'Rebuild it; a missing case is not a passing one.' % ', '.join(sorted(stale)))
+
+    wrong_module = [r['case'] for r in results.values() if r['verdict'] == 'FOREIGN']
+    if wrong_module:
+        print("FOREIGN: %s -- the class was reported but not by SanBenchSmm's own code. "
+              'That is the result already on record for SMM, not the one these rows exist '
+              'to measure; do not read it as a detection.'
+              % ', '.join(sorted(wrong_module)))
+    unmapped = [r['case'] for r in results.values() if r['verdict'] == 'NO MAP']
+    if unmapped:
+        print('NO MAP: %s -- reported, but the module published no image range, so the '
+              'report could not be attributed either way.' % ', '.join(sorted(unmapped)))
+    no_smm = [r['case'] for r in results.values() if r['verdict'] == 'NO SMM']
+    if no_smm:
+        print('NO SMM: %s -- this image carries no SanBenchSmm, so these classes are '
+              'exempt rather than missed and are NOT in the total above. To measure '
+              'them: build with -D SMM_REQUIRE -D SAN_BENCH and pass --smm.'
+              % ', '.join(sorted(no_smm)))
 
     # A control that reports, or a boot that never happened, invalidates the run rather
     # than costing it a point -- so those fail the exit status while a MISS does not.

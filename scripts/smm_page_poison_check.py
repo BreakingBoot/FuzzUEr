@@ -890,6 +890,11 @@ def main():
     print('\nthe SMM positive control')
     inf = read(os.path.join(BENCH, 'SanBenchSmm.inf'))
     src = read(os.path.join(BENCH, 'SanBenchSmm.c'))
+    shared = read(os.path.join(FORK, 'MdePkg', 'Include', 'Protocol', 'SanBench.h'))
+    drive = read(os.path.join(FORK, 'MdeModulePkg', 'Application', 'SanBenchDrive',
+                              'SanBenchDrive.c'))
+    drive_inf = read(os.path.join(FORK, 'MdeModulePkg', 'Application', 'SanBenchDrive',
+                                  'SanBenchDrive.inf'))
     dsc, fdf = read(DSC), read(FDF)
     check('the control is an SMM driver',
           'MODULE_TYPE              = DXE_SMM_DRIVER' in inf,
@@ -955,9 +960,427 @@ def main():
           'a board with no control cannot tell a sanitizer that detects faults from one '
           'that reports on everything it is shown')
     check('the request payload is a fixed array, not a trailing Data[1]',
-          'UINT8     Data[SAN_BENCH_SMM_DATA_BYTES];' in src,
+          'UINT8     Data[SAN_BENCH_SMM_DATA_BYTES];' in shared,
           'a flexible tail gets sizeof () == 1 in the harness generator, and every '
           'command arm then reads its arguments out of leftovers')
+
+    print('\nthe loop that actually fires it')
+    check('the handler GUID is defined once, in the header both ends include',
+          'SAN_BENCH_SMM_HANDLER_GUID' in shared
+          and shared.count('0x7a2f1c84') == 1
+          and src.count('0x7a2f1c84') == 0
+          and drive.count('0x7a2f1c84') == 0,
+          'two copies of a GUID drift, and a drifted GUID is the worst kind of broken '
+          'control: SmiManage finds no handler, Communicate returns EFI_NOT_FOUND, and '
+          'the board reads "no report" for a sanitizer that was never asked anything')
+    check('both ends spell the GUID through that macro',
+          'SAN_BENCH_SMM_HANDLER_GUID' in src and 'SAN_BENCH_SMM_HANDLER_GUID' in drive)
+    check('the module publishes its own image range at registration',
+          'SAN_BENCH_SMM_IMAGE_PREFIX' in shared
+          and 'SAN_BENCH_SMM_IMAGE_PREFIX' in src
+          and 'SanBenchSmmPublishImage (ImageHandle);' in body(src, 'SanBenchSmmEntry'),
+          'an ASan report names no module -- "in file: asan-outline-instrumentation" and '
+          'an ip -- so without the range nothing can say whose code raised it, and the '
+          'one thing this control exists to show cannot be read off the log')
+    check('the range comes from the loaded image protocol, not from a load map',
+          'gEfiLoadedImageProtocolGuid' in src and 'ImageSize' in src,
+          "the SMM core's \"Loading SMM driver at\" lines give bases only, so each "
+          "image's end would have to be guessed from the next image's base")
+    check('it looks the handle up in the DXE database',
+          'gBS->HandleProtocol (' in body(src, 'SanBenchSmmPublishImage'),
+          'the SMM core calls an SMM driver entry point with the DXE-side ImageHandle, '
+          'so gSmst->SmmHandleProtocol on that handle finds nothing')
+    check('a missing image range is announced rather than passed over',
+          'reports cannot be attributed' in src,
+          'silently skipping it would leave the scorer unable to tell a library report '
+          'from a module one, with nothing in the log saying so')
+
+    raise_fn = body(drive, 'SmmRaise')
+    check('the exerciser raises the SMI through the communication protocol',
+          'mSmmComm->Communicate (' in raise_fn,
+          'a UEFI-phase caller has no other way into SMRAM')
+    check('MessageLength is the payload size',
+          'Header->MessageLength = sizeof (SAN_BENCH_SMM_COMM);' in raise_fn,
+          'it excludes the header by definition and the core subtracts OFFSET_OF (Data) '
+          'before calling the handler; a pointer size here is the defect that made every '
+          'command arm read its arguments out of leftovers')
+    check('the buffer is sized from the header offset plus the payload',
+          'OFFSET_OF (EFI_SMM_COMMUNICATE_HEADER, Data) + sizeof (SAN_BENCH_SMM_COMM)'
+          in raise_fn,
+          'a buffer short of the payload is rejected by the core, and one sized by the '
+          'payload alone leaves the handler reading past it')
+    check('a build with no SMM core says so rather than reporting nothing',
+          # Inside a string the module actually prints, not anywhere in the function.
+          # The comment above that call explains the phrase and contains it, so a plain
+          # substring test passed with every one of the three messages reworded.
+          len(re.findall(r'SerialOutput \("[^"]*not attempted', raise_fn)) == 3,
+          '"the sanitizer missed it" and "the class was never raised" are different '
+          'results, and the scorer reads this phrase to tell them apart. All three exits '
+          'from SmmRaise have to carry it, or one of them is scored as a miss')
+    check('the comm protocol is optional in the exerciser',
+          'mSmmComm = NULL;' in body(drive, 'SanBenchDriveEntry')
+          and 'SOMETIMES_CONSUMES' in drive_inf,
+          'failing the application without it would take the DXE classes down on every '
+          'build that has no SMM core')
+    check('the SMM rows run before the destructive DXE ones',
+          drive.index('"smm-double-free"') < drive.index('"double-free",'),
+          'a whole-sequence run stops at the first destructive case, so SMM rows placed '
+          'after them would never be reached by the cheap measurement')
+    check('the SMM double free is marked destructive',
+          re.search(r'"smm-double-free",\s*CaseSmmDoubleFree,\s*TRUE', drive)
+          is not None,
+          'it leaves a block in the quarantine marked as already freed, and anything '
+          'after it in the same boot measures that rather than itself')
+
+    # The offset the exerciser's OFFSET_OF has to produce, computed independently.
+    #
+    # Tied to the header rather than asserted as a bare 24: a ctypes model nothing in the
+    # tree can contradict is a constant dressed up as a measurement, which is how the
+    # struct assertions earlier in this file first managed to pass against a header they
+    # no longer described.
+    class CommHeader(ctypes.Structure):
+        _pack_ = 1
+        _fields_ = [('HeaderGuid', ctypes.c_uint8 * 16),
+                    ('MessageLength', ctypes.c_uint64),
+                    ('Data', ctypes.c_uint8 * 1)]
+
+    mm = read(os.path.join(FORK, 'MdePkg', 'Include', 'Protocol', 'MmCommunication.h'))
+    declared = re.search(r'#pragma pack\(1\)(.*?)\}\s*EFI_MM_COMMUNICATE_HEADER;',
+                         mm, re.S)
+    check('EFI_MM_COMMUNICATE_HEADER is declared packed', declared is not None,
+          'unpacked, MessageLength aligns to 8 after a 16-byte GUID anyway but Data '
+          'would not sit at 24, and the SMM core subtracts a constant')
+    fields = re.findall(r'^\s*(EFI_GUID|UINTN|UINT8)\s+(\w+)',
+                        declared.group(1) if declared else '', re.M)
+    check('and holds HeaderGuid, MessageLength, Data in that order',
+          [name for _type, name in fields] == ['HeaderGuid', 'MessageLength', 'Data'],
+          f'declared {fields}; the ctypes model below stands in for exactly these three')
+    check('the comm payload starts 24 bytes into the header',
+          CommHeader.Data.offset == 24 and declared is not None
+          and [n for _t, n in fields] == ['HeaderGuid', 'MessageLength', 'Data'],
+          f'computed {CommHeader.Data.offset}; this is the offset the SMM core subtracts '
+          f'before it hands CommBuffer to the handler, and the offset the exerciser sizes '
+          f'its buffer from')
+
+    # ------------------------------------------- the scoreboard that drives the control
+    #
+    # A control nothing raises proves nothing, and a scorer nothing tests is the same
+    # problem one level up. These drive scripts/bench_cases.py's real score_one() against
+    # canned serial logs -- the only part of the loop that can be executed without
+    # firmware -- so the verdict for each shape is measured rather than asserted about.
+    #
+    print('\nhow the SMM rows are scored')
+    import importlib.util
+
+    # No bytecode cache, the way own_code_check.py loads apply_asan.py. A .pyc is keyed
+    # on the source's size and its mtime TO THE SECOND, so a same-second edit that keeps
+    # the file the same length is invisible and this section then measures the PREVIOUS
+    # contents of bench_cases.py. Measured: mutation-testing this file edits it once per
+    # second with column-aligned, length-preserving replacements, and one mutation was
+    # scored against its predecessor's table before this line was added.
+    # dont_write_bytecode stops this run WRITING a .pyc; it does not stop it READING one
+    # that is already there, and exec_module() consults the cache and accepts it whenever
+    # the recorded size and mtime match. So the hazard above survived that line: a stale
+    # scripts/__pycache__/bench_cases.*.pyc left by an earlier run made this section
+    # measure the previous table and report TWO failures against code that was correct,
+    # which cost more time than the check saved. Compile the source text instead, so no
+    # bytecode cache is consulted at all and the only thing that can be measured is what
+    # is on disk right now.
+    sys.dont_write_bytecode = True
+    bench_path = os.path.join(HERE, 'bench_cases.py')
+    spec = importlib.util.spec_from_file_location('bench_cases', bench_path)
+    bench = importlib.util.module_from_spec(spec)
+    with open(bench_path, encoding='utf-8') as handle:
+        bench_code = compile(handle.read(), bench_path, 'exec')
+    exec(bench_code, bench.__dict__)
+
+    drive_rows = drive[drive.index('mCases[]'):] if 'mCases[]' in drive else drive
+    names = [row[0] for row in bench.CASES]
+    for want in ('smm-control', 'smm-pool-overflow', 'smm-pool-use-after-free',
+                 'smm-page-use-after-free', 'smm-double-free'):
+        check(f'{want} is a row in CASES', want in names,
+              'a class the exerciser can raise but the table does not list is a class '
+              'nobody scores')
+    byname = {row[0]: row for row in bench.CASES}
+
+    # .get with a sentinel rather than subscripting. A row renamed out of CASES raised
+    # KeyError in the four assertions below and took the script down with it, so the
+    # assertion that had correctly failed printed nothing and neither did any after it.
+    def expect_of(case):
+        return byname.get(case, (case, '<no such row>', None))[1]
+
+    def unreachable_of(case):
+        return byname.get(case, (case, None, '<no such row>'))[2]
+
+    smm_rows = [n for n in names if n.startswith('smm-')]
+    check('every SMM row names its class rather than accepting any sanitizer line',
+          smm_rows and all(expect_of(n) != 'asan' for n in smm_rows),
+          "a bare 'asan' expectation is what let stale-interface score PASS off a status "
+          'line')
+    check('smm-control expects no report at all',
+          expect_of('smm-control') is None
+          and unreachable_of('smm-control') is None)
+    check('the two use-after-free rows expect the use-after-free class',
+          expect_of('smm-pool-use-after-free') == 'heap-use-after-free'
+          and expect_of('smm-page-use-after-free') == 'heap-use-after-free',
+          'kAsanHeapFreeMagic maps to heap-use-after-free in AsanLib; expecting '
+          'heap-buffer-overflow here would fail a correct detection')
+    check('the overflow row expects the overflow class',
+          expect_of('smm-pool-overflow') == 'heap-buffer-overflow',
+          'the pool right redzone is poisoned with kAsanHeapLeftRedzoneMagic, which '
+          'AsanLib maps to heap-buffer-overflow')
+    # The one cross-file invariant that silently costs every SMM row its verdict: the
+    # scorer looks for "expect <case>" on the wire, so a name the exerciser spells
+    # differently is scored NOT RUN -- a non-detection with no sanitizer involved.
+    exerciser = set(re.findall(r'\{ "(smm-[a-z-]+)",', drive_rows))
+    table = {n for n in names if n.startswith('smm-')}
+    check('every SMM row in the table is a case the exerciser can run',
+          table and table == exerciser,
+          f'table {sorted(table)} against exerciser {sorted(exerciser)}; the scorer '
+          f'matches "expect <case>" literally, so a name only one side knows is scored '
+          f'NOT RUN and reads as a class the sanitizer failed on')
+
+    # The boot the rows are measured in. Without smm=on there is no SMM core, so no
+    # communication protocol, so every SMM row scores NO SMM -- a control that is built
+    # and shipped and never fired.
+    bench_src = read(os.path.join(HERE, 'bench_cases.py'))
+    boot_fn = bench_src[bench_src.index('def boot('):bench_src.index('def score_one(')]
+    check('the bench boot turns SMM on, and does so by default',
+          "'q35,smm=on' if args.smm else 'q35'" in boot_fn
+          and 'driver=cfi.pflash01,property=secure,value=on' in boot_fn
+          and re.search(r"add_argument\('--smm'.*?default=True", bench_src, re.S)
+          is not None,
+          'the flags are the ones guest_run.py and detect_check.py use for an SMM image; '
+          'defaulting them off would score the SMM rows NO SMM on a correct build')
+
+    check('the three own-code rows are the ones with an ip to attribute',
+          bench.SMM_OWN_CODE == {'smm-pool-overflow', 'smm-pool-use-after-free',
+                                 'smm-page-use-after-free'},
+          'smm-double-free must NOT be in this set: that class is detected by the '
+          'allocator in PiSmmCore/Pool.c and its report carries no ip, so requiring one '
+          'inside SanBenchSmm would fail a correct detection')
+
+    BASE, SIZE = 0x7F001000, 0x4000
+    IMAGE = 'SanBenchSmm: image base=0x%016X size=0x%016X' % (BASE, SIZE)
+
+    def log(marker, body, image=True):
+        """A serial log of the shape a real boot produces, in the real order.
+
+        The image line comes from SMM dispatch, long BEFORE the application's marker,
+        which is why the scorer searches the whole log for it and only the text after
+        the marker for reports.
+        """
+        head = [IMAGE, 'SanBenchSmm: armed'] if image else ['SanBenchSmm: armed']
+        return '\n'.join(head + ['SanBenchDrive: start',
+                                  'SanBenchDrive: expect ' + marker] + body
+                          + ['SanBenchDrive: done']) + '\n'
+
+    def report(klass, ip):
+        return ['[ASan] ERROR: Invalid memory access: address 0x%016X, size '
+                '0x%016X, is_write 0x%016X, ip 0x%016X' % (0x7EF00100, 1, 1, ip),
+                'bug_descr=%s in file: asan-outline-instrumentation at line: 0x%016X'
+                % (klass, ip)]
+
+    def verdict(case, serial):
+        """score_one's real verdict for a canned log, or a verdict that says why not.
+
+        Two failure modes are turned into verdicts rather than exceptions, because an
+        assertion that cannot be evaluated has to FAIL rather than take the run down with
+        it -- measured: eight mutations killed this script mid-file, and because a dead
+        script prints no [FAIL] lines they read as assertions that had passed.
+
+          MISSING   the row is not in CASES, so there is nothing to exercise
+          CRASH     score_one itself raised, which is what a scorer does when a row's
+                    expectation and its branch logic disagree
+        """
+        class Args:
+            pass
+
+        if case not in byname:
+            return dict(case=case, verdict='MISSING',
+                        detail='no such row in CASES', reports=[])
+        saved = bench.boot
+        bench.boot = lambda args, case, work: (serial, '')
+        try:
+            row = byname[case]
+            return bench.score_one(Args(), case, row[1], row[2], '')
+        except Exception as problem:                 # a scorer that cannot score
+            return dict(case=case, verdict='CRASH', detail=repr(problem)[:90],
+                        reports=[])
+        finally:
+            bench.boot = saved
+
+    inside, outside = BASE + 0x1040, BASE + SIZE + 0x200
+
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow', ['SanBenchSmm: dispatch']
+                      + report('heap-buffer-overflow', inside)))
+    check('a report of the right class from inside the image scores PASS',
+          got['verdict'] == 'PASS' and 'SanBenchSmm.efi' in got['detail'],
+          f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow', ['SanBenchSmm: dispatch']
+                      + report('heap-buffer-overflow', outside)))
+    check('the same report from outside the image does NOT score PASS',
+          got['verdict'] == 'FOREIGN' and ('0x%016X' % outside) in got['detail'],
+          f"{got['verdict']}: {got['detail']} -- a heap-buffer-overflow raised by a "
+          f'library linked into the module is the result already on record, and scoring '
+          f'it here would claim the one thing that has never been shown')
+
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow', ['SanBenchSmm: dispatch']
+                      + report('heap-buffer-overflow', inside), image=False))
+    check('a report that cannot be attributed scores NO MAP, not PASS',
+          got['verdict'] == 'NO MAP', f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-pool-use-after-free',
+                  log('smm-pool-use-after-free', ['SanBenchSmm: dispatch']
+                      + report('heap-use-after-free', inside)))
+    check('the pool use-after-free row scores PASS on its own class',
+          got['verdict'] == 'PASS', f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-pool-use-after-free',
+                  log('smm-pool-use-after-free', ['SanBenchSmm: dispatch']
+                      + report('heap-buffer-overflow', inside)))
+    check('a report of the WRONG class does not score the row',
+          got['verdict'] == 'WRONG', f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-double-free',
+                  log('smm-double-free',
+                      ['SanBenchSmm: dispatch',
+                       '[ASan] ERROR: double free of 0x%016X' % 0x7EF00100,
+                       'bug_descr=double-free in file: '
+                       'MdeModulePkg/Core/PiSmmCore/Pool.c at line: 0x1F']))
+    check('the double free scores on the class alone, with no ip to attribute',
+          got['verdict'] == 'PASS', f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-control', log('smm-control', ['SanBenchSmm: dispatch']))
+    check('a silent control scores PASS',
+          got['verdict'] == 'PASS',
+          f"{got['verdict']}: {got['detail']} -- tested on the expectation rather than "
+          f"on the literal name 'control', or smm-control falls through to MISS and a "
+          f'correct control is scored as a missed detection')
+
+    got = verdict('smm-control',
+                  log('smm-control', ['SanBenchSmm: dispatch']
+                      + report('heap-use-after-free', inside)))
+    check('a control that reports invalidates the run',
+          got['verdict'] == 'FAIL', f"{got['verdict']}: {got['detail']}")
+
+    # No image line: the module is not in this volume, so the case is exempt.
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow',
+                      ['SanBenchDrive: no SMM communication protocol -- not attempted'],
+                      image=False))
+    check('an image without SanBenchSmm scores NO SMM, not MISS',
+          got['verdict'] == 'NO SMM',
+          f"{got['verdict']}: {got['detail']} -- \"the sanitizer missed it\" and \"this "
+          f'image was never built to run it" are different results, and only the first '
+          f'belongs in the denominator')
+
+    # Image line present: the module IS here, so a loop that did not close is a MISS.
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow',
+                      ['SanBenchDrive: the SMI was not delivered -- not attempted']))
+    check('an image WITH SanBenchSmm that the SMI never reaches is a MISS',
+          got['verdict'] == 'MISS' and 'IS in this image' in got['detail'],
+          f"{got['verdict']}: {got['detail']} -- exempting this too would put the "
+          f'dishonest shape back: the class could have been demonstrated here')
+
+    got = verdict('smm-pool-overflow', log('smm-pool-overflow', ['SanBenchSmm: dispatch']))
+    check('no report at all is a MISS',
+          got['verdict'] == 'MISS', f"{got['verdict']}: {got['detail']}")
+
+    got = verdict('smm-pool-overflow',
+                  log('smm-pool-overflow',
+                      ['SanBenchSmm: dispatch heap-buffer-overflow at ip 0x%016X'
+                       % inside]))
+    check('narration naming a class does not score as that class',
+          got['verdict'] == 'MISS',
+          f"{got['verdict']}: {got['detail']} -- both ends narrate now, and a narration "
+          f'line reaching the report filter is a case scoring itself')
+
+    print('\nwhat the board tells the pipeline')
+
+    smm_wanted = [row for row in bench.CASES if row[0].startswith('smm-')]
+    absent = {row[0]: dict(verdict='NO SMM') for row in smm_wanted}
+    silent = {row[0]: dict(verdict='MISS') for row in smm_wanted}
+    det_a, sc_a, ex_a = bench.tally(absent, smm_wanted)
+    det_s, sc_s, ex_s = bench.tally(silent, smm_wanted)
+
+    check('an exempt row does not enter the denominator',
+          sc_a == 0 and det_a == 0 and len(ex_a) == len(smm_wanted),
+          f'{det_a} of {sc_a}, exempt {ex_a}; an image that cannot run the case at all '
+          f'is what UNBUILT and N/A already describe, and counting it fails the detects '
+          f'stage over a class the build never contained')
+    check('a MISS row does enter the denominator',
+          sc_s == len(smm_wanted) and det_s == 0 and ex_s == [],
+          f'{det_s} of {sc_s}, exempt {ex_s}; an image that HAS SanBenchSmm and stays '
+          f'silent is the result these rows exist to catch, and exempting it would put '
+          f'the dishonest shape back')
+
+    # The coupling, read out of both sources rather than out of either one's idea of the
+    # other. Nothing but these literals ties the two files together.
+    fuzz = read(os.path.join(HERE, 'fuzz_edk2.py'))
+    bench_src = read(os.path.join(HERE, 'bench_cases.py'))
+    printed = re.search(r"print\('(%d of %d [a-z ]+)' % \(detected, scored\)\)",
+                        bench_src)
+    # Anchored on bench_text.splitlines(), because fuzz_edk2.py holds several
+    # comprehensions of this shape and an unanchored search found an unrelated one --
+    # which made this assertion compare the bench line against another stage's label.
+    selector = re.search(r"bench_text\.splitlines\(\) if '([^']+)' in l\]", fuzz)
+    grader = re.search(r"re\.search\(r'(\([^']*\))', verdict\[0\]\)", fuzz)
+    check('both ends of the graded line were found in their own source',
+          None not in (printed, selector, grader),
+          f'printed={bool(printed)} selector={bool(selector)} grader={bool(grader)}; '
+          f'this assertion is the only thing that notices these two files drifting')
+    fmt = printed.group(1) if printed else '%d of %d <not found>'
+    pick = selector.group(1) if selector else '<not found>'
+    pattern = grader.group(1) if grader else r'(\d+) of (\d+)'
+
+    check('the line bench_cases prints is the line fuzz_edk2 selects',
+          pick in (fmt % (0, 0)),
+          f'fuzz_edk2 picks the line containing "{pick}"; bench_cases prints "{fmt}"')
+
+    def graded(detected, scored):
+        """fuzz_edk2's own verdict on a board: True when the detects stage passes."""
+        found = re.search(pattern, fmt % (detected, scored))
+        return found is not None and found.group(1) == found.group(2)
+
+    def board(smm_verdict):
+        """A whole board the shape a real run produces."""
+        out = {}
+        for case, _expect, unreachable in bench.CASES:
+            if case.startswith('smm-'):
+                out[case] = dict(verdict=smm_verdict)
+            elif unreachable:
+                out[case] = dict(verdict='N/A')
+            else:
+                out[case] = dict(verdict='PASS')
+        return out
+
+    det_b, sc_b, ex_b = bench.tally(board('NO SMM'), bench.CASES)
+    check('a board with SMM absent still prints n of n',
+          det_b == sc_b and graded(det_b, sc_b),
+          f'prints "{fmt % (det_b, sc_b)}", exempt {ex_b} -- fuzz_edk2.py returns False '
+          f'on ANY shortfall, so an exempt class in the denominator fails the detects '
+          f'stage on every non-SMM build, the cross-version gate included')
+    det_c, sc_c, _ = bench.tally(board('MISS'), bench.CASES)
+    check('and a board with SMM present but silent does not',
+          det_c < sc_c and not graded(det_c, sc_c),
+          f'prints "{fmt % (det_c, sc_c)}" -- if this passed, an SMM control that is in '
+          f'the image and reports nothing would be indistinguishable from one that works')
+
+    check('the non-detections are all in the scored set',
+          {'FOREIGN', 'NO MAP', 'NOT RUN', 'MISS', 'WRONG'} <= set(bench.SCORED)
+          and 'NO SMM' not in bench.SCORED,
+          f'SCORED={bench.SCORED}; a non-detection left out shrinks the total and prints '
+          f'"n of n" for a board where a class was never demonstrated, and NO SMM left '
+          f'IN fails the detects stage on every build without SMM')
+    check('the exemptions are the three that mean "this image cannot run it"',
+          set(bench.EXEMPT) == {'N/A', 'UNBUILT', 'NO SMM'},
+          f'EXEMPT={bench.EXEMPT}')
 
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
