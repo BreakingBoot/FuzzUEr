@@ -53,6 +53,12 @@ The last line of the output is machine readable and is what a CI gate should rea
     result: mode=<m> list=<ok|failed|skipped> enumerated=N unlabelled=N closed=N \
             skipped=N failed=N
 
+`closed=N` counts every issue that ENDED UP closed and unlabelled, which includes the
+ones that were already closed and only needed the label taken off. The human-readable
+line above it reports those two separately ("0 closed, 6 already closed and freed"), so
+the two lines disagree by design and not by accident: a gate wants "dealt with", a
+reader wants to know which.
+
 `failed=0` alone is NOT success -- a run in which every issue was skipped also ends in
 `failed=0`, and so does a run whose enumeration returned nothing because the listing
 failed. A gate has to compare the acted-on counts against `enumerated`, and check
