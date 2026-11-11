@@ -22,11 +22,20 @@
 # release is where upstream churn lands, and the oldest is the only thing that can show a
 # repair written for a new release did not break the old ones.
 #
-# QUALIFY-ONLY, deliberately. The runner takes one job at a time and a fuzzing budget is
-# hours, so a multi-version gate that fuzzed would be a sweep -- that is fuzz-edk2.yml's
-# weekly. Here each ref runs port, build, instrumented, discover, image and detects, which
-# is every stage that can notice a release moving under the port, and skips only the two
-# that spend the budget. Minutes per ref on a warm runner.
+# BOUNDED, not qualify-only. The runner takes one job at a time and a full budget is
+# hours, so a multi-version gate that fuzzed everything would be a sweep -- that is
+# fuzz-edk2.yml's weekly. But skipping the fuzzing entirely left the claim half proved:
+# port, build, instrumented, discover, image and detects say the firmware is right, and
+# say nothing about whether a HARNESS can be generated, built and driven on that version.
+# That half is version specific -- the generator reads the release's own headers -- while
+# triage and filing are not, so it is the half worth paying for here.
+#
+# So every ref runs the whole pipeline, with the campaign bounded to MAX_TARGETS targets
+# at BUDGET seconds each. Bounded by COUNT, never by name: the discovered set differs
+# between releases -- 261 targets on edk2-stable202305 against 254 on edk2-stable202608 --
+# so a named protocol is one that exists on some versions and not others, and a ref that
+# fuzzed nothing would finish fast with every stage green. scripts/fuzz_edk2.py's
+# pick_targets owns that choice and scripts/target_choice_check.py asserts it.
 #
 # Push a branch whose name starts with "ci-versions-" to run it, or dispatch it.
 name: Cross-version qualify
@@ -50,6 +59,14 @@ on:
         description: 'Space separated refs to qualify instead of the chosen spread'
         required: false
         default: ''
+      max_targets:
+        description: 'Targets fuzzed per version. 0 skips the fuzzing entirely'
+        required: false
+        default: '2'
+      budget:
+        description: 'Seconds of fuzzing per target'
+        required: false
+        default: '300'
 
 permissions:
   contents: read
@@ -57,10 +74,12 @@ permissions:
 jobs:
   cross-version:
     runs-on: [self-hosted, linux, x64]
-    # Four releases plus master. A qualify run is about eight minutes on a warm runner and
-    # includes a firmware build, so this is sized for a cold-ish one rather than the best
-    # case, and still well short of the weekly sweep's 24h.
-    timeout-minutes: 300
+    # Four releases plus master. Measured on run 43062246969, qualify-only: 142 minutes
+    # for five refs, about 28 each, dominated by the two firmware builds per ref. The
+    # bounded campaign adds roughly a harness build, a boot and MAX_TARGETS x BUDGET on
+    # top of that, so this is sized for five refs fuzzing rather than for the best case,
+    # and is still well short of the weekly sweep's 24h.
+    timeout-minutes: 420
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,6 +115,8 @@ jobs:
           # straight into this shell.
           IN_COUNT: ${{ github.event.inputs.count }}
           IN_REFS: ${{ github.event.inputs.refs }}
+          IN_MAX_TARGETS: ${{ github.event.inputs.max_targets }}
+          IN_BUDGET: ${{ github.event.inputs.budget }}
         run: |
           set -uo pipefail
           # Deliberately NOT errexit, which GitHub turns on by default for a `run:` step.
@@ -110,6 +131,18 @@ jobs:
           # every one of these arrives as an empty string.
           COUNT="${IN_COUNT:-4}"
           REFS="${IN_REFS:-}"
+          MAX_TARGETS="${IN_MAX_TARGETS:-2}"
+          BUDGET="${IN_BUDGET:-300}"
+          # Refused rather than coerced. A non-numeric value makes `[ -gt ]` fail, which
+          # under `set +e` takes the else arm -- so a typo in a dispatch input would run
+          # the whole gate qualify-only while its summary claimed a bounded campaign, and
+          # every ref would come back green having generated no harness at all.
+          for pair in "max_targets:$MAX_TARGETS" "budget:$BUDGET"; do
+            case "${pair#*:}" in
+              ''|*[!0-9]*) echo "::error::${pair%%:*} must be a whole number, got "
+                           echo "::error::'${pair#*:}'"; exit 1 ;;
+            esac
+          done
           if [ -z "${REFS// /}" ]; then
             # Read out of the tree, not hardcoded. The releases come from the README's own
             # version table -- the project's claim about which versions work -- narrowed
@@ -136,9 +169,19 @@ jobs:
             # whatever the driver's own default does. The slug is the driver's: every
             # character outside [A-Za-z0-9._-] becomes a dash.
             slug="$(printf '%s' "$ref" | tr -c 'A-Za-z0-9._-' '-')"
-            python3 scripts/fuzz_edk2.py --ref "$ref" \
-              --skip-fuzz \
-              --out "$OUTDIR/fuzz-$slug"
+            # --jobs 1 on purpose. The boot allowance is fitted per job and a campaign
+            # that never reaches its harness reports as a weak target rather than as
+            # contention, which on a gate comparing VERSIONS is the one confusion worth
+            # paying a little wall clock to avoid.
+            if [ "$MAX_TARGETS" -gt 0 ]; then
+              python3 scripts/fuzz_edk2.py --ref "$ref" \
+                --max-targets "$MAX_TARGETS" --budget "$BUDGET" --jobs 1 \
+                --out "$OUTDIR/fuzz-$slug"
+            else
+              python3 scripts/fuzz_edk2.py --ref "$ref" \
+                --skip-fuzz \
+                --out "$OUTDIR/fuzz-$slug"
+            fi
             # Recorded, not acted on: 0 clean, 2 degraded, 1 failed, and which of those
             # fails this JOB is a policy that lives in scripts/sweep_verdict.py where
             # --selftest asserts it, not in this shell where nothing could.
@@ -180,7 +223,12 @@ jobs:
           # __asan_load/__asan_store, which is the thing a successful build does NOT
           # imply. detects: the sanitizer reports a deliberate error in the firmware that
           # was just built, which is the thing instrumentation does not imply either.
-          WANT = ('port', 'build', 'instrumented', 'detects')
+          # fuzz and triage included: the generator reads the release's own headers, so
+          # "a harness builds and drives this version" is a per-version fact and the only
+          # one the six qualify stages cannot speak to. Zero candidates is a pass -- the
+          # triage stage says so itself -- because this gate asks whether the pipeline
+          # RUNS on a version, not whether that version has bugs.
+          WANT = ('port', 'build', 'instrumented', 'detects', 'fuzz', 'triage')
           slug = lambda ref: re.sub(r'[^A-Za-z0-9._-]', '-', ref)
           rows = []
           try:
@@ -251,7 +299,8 @@ jobs:
           set -uo pipefail
           python3 - "$RESULTS" <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import glob, json, os, sys
-          names = ['port', 'build', 'instrumented', 'discover', 'image', 'detects']
+          names = ['port', 'build', 'instrumented', 'discover', 'image', 'detects',
+                   'fuzz', 'triage']
           rows = []
           for path in sorted(glob.glob(os.path.join(sys.argv[1], 'fuzz-*', 'run.json'))):
               try:

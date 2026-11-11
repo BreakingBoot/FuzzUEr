@@ -255,6 +255,10 @@ jobs:
         shell: bash
         run: python3 scripts/file_issues_check.py
 
+      - name: A bounded gate fuzzes a real subset of what the version discovered
+        shell: bash
+        run: python3 scripts/target_choice_check.py
+
       - name: SMM code is instrumented and the shadow writers are bounded
         shell: bash
         run: python3 scripts/smm_asan_check.py

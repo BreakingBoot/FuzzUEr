@@ -750,6 +750,39 @@ def grow_dxe_fv(tree, required, block=0x10000, headroom=0x80000):
     return ''
 
 
+SMI_TARGET = 'DiscoveredSmi'
+
+
+def pick_targets(evalset, limit, smi, explicit=()):
+    """Which discovered targets to fuzz: all of them, the first `limit`, or named ones.
+
+    Returns [] for "every target discovered", which is what passing no -p to fuzz_batch
+    means. The precedence is a property rather than a line in the stage body, because
+    getting it backwards -- a bounded gate quietly overriding a caller's --targets -- is
+    invisible in a log that says "fuzzing 2 target(s)" either way.
+
+    For a gate that runs the SAME pipeline on several edk2 releases without spending a
+    full campaign budget on each of them. Naming protocols literally cannot work there:
+    the discovered set differs between releases -- 261 on edk2-stable202305 against 254
+    on edk2-stable202608 -- so a fixed name is a target that silently does not exist on
+    some of them, and a run that fuzzed nothing reports exactly like a clean one.
+
+    Sorted, so two runs of one ref choose the same targets and a difference between them
+    is a regression rather than a different draw. Under --smi the handler list goes first:
+    it is the target that mode exists to fuzz, and taking the alphabetical head without it
+    would fuzz protocols while reporting an SMI run.
+    """
+    if explicit:
+        return list(explicit)
+    if limit <= 0:
+        return []
+    names = sorted(f[:-len('.txt')] for f in os.listdir(evalset)
+                   if f.endswith('.txt') and f[:-len('.txt')] != SMI_TARGET)
+    if smi:
+        names.insert(0, SMI_TARGET)
+    return names[:limit]
+
+
 def main():
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, _stop_child)
@@ -853,6 +886,11 @@ def main():
                              'runs before the latch shuts. Needs --smi, relinks the '
                              'platform per campaign, and the campaign guest is qemu '
                              'either way')
+    parser.add_argument('--max-targets', type=int, default=0, metavar='N',
+                        help='fuzz at most N of the discovered targets, chosen by name. '
+                             '0, the default, fuzzes everything discovered. For a gate '
+                             'that has to reach the fuzz and triage stages on several '
+                             'versions without spending a full budget on each')
     parser.add_argument('--skip-fuzz', action='store_true',
                         help='qualify a version without spending the fuzzing budget')
     args = parser.parse_args()
@@ -1853,11 +1891,15 @@ def main():
             argv.append('--smi')
         if presence:
             argv += ['--presence', presence]
-        if args.targets:
-            argv += ['-p'] + list(args.targets)
+        chosen = pick_targets(run.evalset, args.max_targets, args.smi, args.targets)
+        if chosen and not args.targets:
+            print(f'  fuzzing {len(chosen)} of {run.target_count} discovered target(s): '
+                  f'{", ".join(chosen)}')
+        if chosen:
+            argv += ['-p'] + chosen
         # a campaign is its budget plus a boot and a harness build; the queue runs
         # args.jobs of them at once
-        planned = len(args.targets) if args.targets else run.target_count
+        planned = len(chosen) if chosen else run.target_count
         rounds = max(1, -(-planned // max(1, args.jobs)))
         # The boot allowance is a floor, not a wall: firness.py keeps waiting past it while
         # the guest is still writing to serial or the debug port, up to FIRNESS_BOOT_EXTEND
