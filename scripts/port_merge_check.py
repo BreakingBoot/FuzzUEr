@@ -259,6 +259,101 @@ def main():
           'keeping both sides of a C conflict duplicates statements -- two SmiManage '
           'calls here -- which is the corruption this whole arm exists to prevent')
 
+    print('and skips a platform this tree no longer has, without loosening the standard')
+    # Upstream deleted OvmfPkg/OvmfPkgIa32.dsc at edk2-stable202511. The port carries a
+    # one-line AsanLibNull resolution for it -- there so the port does not break a
+    # platform nobody here builds -- and `git apply --3way` against a path that is not in
+    # the index reports "does not exist in index", which lands in `failed` and fails the
+    # whole port stage. Measured before this: the port landed on edk2-stable202302
+    # through 202508.01 and hard-failed on 202511, 202602, 202605, 202608 and master.
+    courtesy = getattr(mod, 'PLATFORM_COURTESY', {})
+    check('a courtesy platform is declared, with a reason',
+          'OvmfPkg/OvmfPkgIa32.dsc' in courtesy
+          and len(courtesy.get('OvmfPkg/OvmfPkgIa32.dsc', '')) > 40,
+          'a path skipped without a recorded reason is a capability lost silently')
+    check('and it is not also on the revive list',
+          not (set(courtesy) & set(getattr(mod, 'REVIVE', ()))),
+          'reviving and skipping are the two answers to a deleted file and a path cannot '
+          'have both')
+    # The guard, which is the whole reason the list above is safe to have. Asked of the
+    # port on every run rather than taken on trust: a declared path whose delta grows
+    # anything that could carry instrumentation stops qualifying.
+    base = mod.PORT_BASE
+    reachable = subprocess.run(('git', '-C', TREE, 'cat-file', '-e', base + '^{commit}'),
+                               capture_output=True).returncode == 0
+    if not reachable:
+        check('the port base is reachable for the courtesy check', False,
+              f'{base[:12]} is not in {TREE}')
+    else:
+        for path in sorted(courtesy):
+            if subprocess.run(('git', '-C', TREE, 'cat-file', '-e', f'HEAD:{path}'),
+                              capture_output=True).returncode:
+                continue                        # the port no longer touches it
+            check(f'{os.path.basename(path)} is only comments and a Null resolution',
+                  mod.courtesy_delta(TREE, base, path),
+                  'declared a courtesy, but its delta is something else now')
+        # The negative control, out of the real port rather than a fixture:
+        # MdeModulePkg.dsc gets AsanLib|.../AsanLib.inf -- the REAL instance, which is
+        # instrumentation wiring. It must not qualify, or the mechanism is a licence to
+        # drop the port's own content on any version that moved a file.
+        check('a resolution naming the real instance does NOT qualify',
+              not mod.courtesy_delta(TREE, base,
+                                     'MdeModulePkg/MdeModulePkg.dsc'),
+              'MdeModulePkg.dsc resolves AsanLib to AsanLib.inf, which is the '
+              'instrumented instance; skipping that would switch the sanitizer off and '
+              'report the port as landed')
+        # And a C file the port really changes: Page.c is PoisonPages/UnpoisonPages, so
+        # nothing about it looks like a library resolution.
+        check('an instrumentation hunk does NOT qualify',
+              not mod.courtesy_delta(TREE, base,
+                                     'MdeModulePkg/Core/Dxe/Mem/Page.c'),
+              'Page.c carries the DXE heap poisoning')
+
+    # Every branch of the guard, on deltas built here. The real port happens to be
+    # additions only, so a tree-based check cannot reach the "the port removes something"
+    # arm at all -- and an arm nothing reaches is an arm that can be deleted without a
+    # single assertion noticing.
+    NULL_LINE = '  AsanLib|MdeModulePkg/Library/AsanLibNull/AsanLibNull.inf\n'
+    for name, before, after, want, why in (
+            ('comments and a Null resolution',
+             '[LibraryClasses]\n  PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf\n',
+             '[LibraryClasses]\n  #\n  # keeps this platform building\n  #\n' + NULL_LINE
+             + '  PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf\n',
+             True, 'the shape a buildability courtesy has'),
+            ('a removal beside it',
+             '[LibraryClasses]\n  TimerLib|OvmfPkg/Library/AcpiTimerLib/Base.inf\n',
+             '[LibraryClasses]\n' + NULL_LINE,
+             False, 'the port taking a line away is changing what the platform does, '
+                    'not answering a class it left unresolved'),
+            ('a PCD beside it',
+             '[LibraryClasses]\n',
+             '[LibraryClasses]\n' + NULL_LINE
+             + '\n[PcdsFixedAtBuild]\n  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvBase|0x2700000\n',
+             False, 'a PCD is not a resolution, and moving a firmware volume is not a '
+                    'courtesy'),
+            ('the real instance',
+             '[LibraryClasses]\n',
+             '[LibraryClasses]\n  AsanLib|MdeModulePkg/Library/AsanLib/AsanLib.inf\n',
+             False, 'the instrumented instance'),
+            ('nothing at all', '[LibraryClasses]\n', '[LibraryClasses]\n',
+             False, 'an empty delta is not something to skip; let it merge')):
+        work = tempfile.mkdtemp(prefix='courtesy-')
+        rel = 'OvmfPkg/Platform.dsc'
+        os.makedirs(os.path.join(work, 'OvmfPkg'))
+        commit = ['-c', 'user.email=check@example.invalid', '-c', 'user.name=check',
+                  '-c', 'commit.gpgsign=false', 'commit', '-qm', 'x', '--allow-empty']
+        subprocess.run(['git', 'init', '-q', work], check=False, capture_output=True)
+        for body in (before, after):
+            with open(os.path.join(work, rel), 'w', newline='') as handle:
+                handle.write(body)
+            subprocess.run(['git', '-C', work, 'add', '--', rel], check=False,
+                           capture_output=True)
+            subprocess.run(['git', '-C', work] + commit, check=False, capture_output=True)
+        first = subprocess.run(['git', '-C', work, 'rev-parse', 'HEAD~1'],
+                               capture_output=True, text=True).stdout.strip()
+        got = port_module().courtesy_delta(work, first, rel)
+        check(f'courtesy_delta: {name}', got is want, f'got {got}, want {want} -- {why}')
+
     print('while still merging what it does have a model for')
     resolved, unresolved, dropped, after = resolve_one('OvmfPkg/OvmfPkgX64.dsc',
                                                        DSC_CONFLICT)

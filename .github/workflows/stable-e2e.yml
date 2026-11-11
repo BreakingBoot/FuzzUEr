@@ -7,11 +7,17 @@
 # tianocore release and apply the port to it -- and runs every stage, fuzzing and triage
 # included, rather than stopping at `qualify-only`.
 #
-# One release, pinned. The weekly sweep in fuzz-edk2.yml covers four of them and takes
-# about sixteen hours; this is the gate you want before tagging, so it is scoped to finish
-# in well under an hour.
+# ONE release, pinned, and deliberately the whole pipeline rather than several versions of
+# part of it. The other two shapes are elsewhere:
 #
-# Push a branch whose name starts with "ci-stable-" to run it, or dispatch it.
+#   * cross-version.yml (ci-versions-**) qualifies SEVERAL releases -- port, build,
+#     instrument, detect -- without a fuzzing budget. That is where a release moving under
+#     the port shows up, and it reads its refs out of the README's version table, so
+#     STABLE_REF below being in that table is what keeps the two in step.
+#   * fuzz-edk2.yml (ci-sweep-**) fuzzes four refs weekly and takes about sixteen hours.
+#
+# This is the gate you want before tagging, so it is scoped to finish in well under an
+# hour. Push a branch whose name starts with "ci-stable-" to run it, or dispatch it.
 name: Stable release end-to-end
 
 on:

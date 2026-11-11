@@ -1,0 +1,318 @@
+# Qualify the pipeline on SEVERAL clean upstream edk2 releases in one job.
+#
+# The claim this exists to keep honest is that the automation works end to end on
+# different versions of edk2. Nothing checked that. What CI could reach without a GitHub
+# API token gated exactly ONE release:
+#
+#   * stable-e2e.yml   (ci-stable-**) one release, pinned, fuzzing and triage included
+#   * fuzz-edk2.yml    (ci-sweep-**)  the newest release, qualify-only
+#   * uses-smoke.yml   (ci-uses-**)   edk2-stable202608, qualify-only
+#   * action-smoke.yml (ci-**)        this repository's own fork, which already carries
+#                                     the port -- so its `port` stage has nothing to do
+#
+# All three of the first group resolve to the newest release, and the README's version
+# table claims fourteen. Every other row in that table is a one-off that is never
+# revisited, so a regression on any of them reaches a consumer before it reaches us.
+#
+# It is not a hypothetical. Upstream deleted OvmfPkg/OvmfPkgIa32.dsc at edk2-stable202511;
+# the port carries a one-line AsanLibNull resolution for that file, so `git apply` reported
+# "does not exist in index" and the port stage hard-failed on edk2-stable202511, 202602,
+# 202605, 202608 and master, while edk2-stable202302 through 202508.01 were untouched. Both
+# ends of the range had to be in a gate for that shape to be visible at all: the newest
+# release is where upstream churn lands, and the oldest is the only thing that can show a
+# repair written for a new release did not break the old ones.
+#
+# QUALIFY-ONLY, deliberately. The runner takes one job at a time and a fuzzing budget is
+# hours, so a multi-version gate that fuzzed would be a sweep -- that is fuzz-edk2.yml's
+# weekly. Here each ref runs port, build, instrumented, discover, image and detects, which
+# is every stage that can notice a release moving under the port, and skips only the two
+# that spend the budget. Minutes per ref on a warm runner.
+#
+# Push a branch whose name starts with "ci-versions-" to run it, or dispatch it.
+name: Cross-version qualify
+
+on:
+  # The prefix exists because nothing here can be dispatched without an API token. It is
+  # deliberately NOT a sub-prefix of another workflow's: action-smoke.yml matches `ci-**`
+  # and excludes the dedicated prefixes one by one, so `!ci-versions-**` is in its list.
+  # Without that, a branch pushed to run this would start a second firmware build on a
+  # single-concurrency runner -- the way a `fuzzuer-cleanup-**` branch once matched
+  # `fuzzuer-**` and started a campaign.
+  push:
+    branches: ['ci-versions-**']
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'How many claimed releases to qualify (plus master)'
+        required: false
+        default: '4'
+      refs:
+        description: 'Space separated refs to qualify instead of the chosen spread'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  cross-version:
+    runs-on: [self-hosted, linux, x64]
+    # Four releases plus master. A qualify run is about eight minutes on a warm runner and
+    # includes a firmware build, so this is sized for a cold-ish one rather than the best
+    # case, and still well short of the weekly sweep's 24h.
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # Images, the fuzzer binary, the builder container, and the `tianocore` remote on
+      # eval_source/edk2 that the step below fetches from. Seconds on a warm runner.
+      - name: Bootstrap the runner
+        run: scripts/bootstrap_runner.sh
+
+      # cglosner/edk2 carries no upstream tags of its own, so the releases have to be
+      # fetchable before they can be named -- and --pick only ever chooses a ref this
+      # checkout can resolve, which without this step would be none of them.
+      - name: Make the upstream releases reachable
+        run: git -C eval_source/edk2 fetch --tags --depth=1 tianocore
+
+      # Out of the workspace. actions/checkout runs `git clean -ffdx` and .gitignore
+      # ignores results/*, so the next job to land on this runner deletes the output of
+      # this one -- measured, and it cost the only copy of a completed sweep.
+      - name: Where to keep the results
+        id: where
+        run: echo "out=$HOME/fuzzuer-cross-out/$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Qualify each version
+        id: sweep
+        env:
+          FIRNESS_CONTAINER_PREFIX: ci
+          OUTDIR: ${{ steps.where.outputs.out }}
+          LEDGER: ${{ runner.temp }}/cross.rc
+          # Through the environment rather than interpolated into the script: an input is
+          # whatever the person typed, and a ref like $(...) would otherwise be pasted
+          # straight into this shell.
+          IN_COUNT: ${{ github.event.inputs.count }}
+          IN_REFS: ${{ github.event.inputs.refs }}
+        run: |
+          set -uo pipefail
+          # Deliberately NOT errexit, which GitHub turns on by default for a `run:` step.
+          # The loop below has to carry on past a ref that failed and record what it did:
+          # with -e the first failure aborts the step, the later refs are never tried, and
+          # the ledger is short -- which sweep_verdict.py cannot tell from a loop that
+          # never ran.
+          set +e
+          mkdir -p "$OUTDIR"
+          : > "$LEDGER"
+          # An input's default applies to workflow_dispatch and nothing else, so on a push
+          # every one of these arrives as an empty string.
+          COUNT="${IN_COUNT:-4}"
+          REFS="${IN_REFS:-}"
+          if [ -z "${REFS// /}" ]; then
+            # Read out of the tree, not hardcoded. The releases come from the README's own
+            # version table -- the project's claim about which versions work -- narrowed
+            # to the ones this checkout can resolve, and spread across the range. A literal
+            # list here is what went five releases stale in the weekly sweep and still
+            # named releases that did not exist.
+            PICKED="$(python3 scripts/sweep_verdict.py --pick "$COUNT" \
+                        --source eval_source/edk2)" || {
+              echo "::error::could not choose any release to qualify"; exit 1; }
+            # master last, and included on purpose: upstream's moving tip is early warning
+            # for the next release, and sweep_verdict.py already treats a moving ref's
+            # failure as a warning rather than as a regression here.
+            #
+            # The space before it is load-bearing: command substitution strips the
+            # trailing newline, so appending straight onto the translated list produced
+            # the single ref "edk2-stable202305master" -- which fetches, fails, and reads
+            # as the oldest release having broken.
+            REFS="$(printf '%s' "$PICKED" | tr '\n' ' ') master"
+          fi
+          echo "qualifying: $REFS"
+          for ref in $REFS; do
+            echo "::group::$ref"
+            # --out explicitly, so the results land where the verdict step looks for them
+            # whatever the driver's own default does. The slug is the driver's: every
+            # character outside [A-Za-z0-9._-] becomes a dash.
+            slug="$(printf '%s' "$ref" | tr -c 'A-Za-z0-9._-' '-')"
+            python3 scripts/fuzz_edk2.py --ref "$ref" \
+              --skip-fuzz \
+              --out "$OUTDIR/fuzz-$slug"
+            # Recorded, not acted on: 0 clean, 2 degraded, 1 failed, and which of those
+            # fails this JOB is a policy that lives in scripts/sweep_verdict.py where
+            # --selftest asserts it, not in this shell where nothing could.
+            printf '%s %s\n' "$ref" "$?" >> "$LEDGER"
+            echo "::endgroup::"
+          done
+          echo '--- ledger ---'
+          cat "$LEDGER"
+
+      # The verdict. Shared with the weekly sweep, because "a release hard-failed is red,
+      # a degraded run and a broken upstream master are warnings" is one policy and two
+      # copies of it would drift. A WARN stage exiting 1 is what made the weekly red on
+      # every run it ever completed.
+      - name: Did every version qualify
+        if: always()
+        shell: bash
+        run: |
+          python3 scripts/sweep_verdict.py \
+            --ledger '${{ runner.temp }}/cross.rc' \
+            --results '${{ steps.where.outputs.out }}'
+
+      # The verdict above judges exit codes. This asks what a QUALIFY gate is for: that
+      # the four stages which can notice a release moving under the port actually ran and
+      # passed, for every ref that was not written off. A driver that skipped `detects`
+      # would otherwise leave every exit code at 0 and the whole gate green, having
+      # checked that the firmware builds and nothing about whether ASan is in it.
+      - name: The qualifying stages ran on every version
+        if: always()
+        shell: bash
+        env:
+          RESULTS: ${{ steps.where.outputs.out }}
+          LEDGER: ${{ runner.temp }}/cross.rc
+        run: |
+          set -uo pipefail
+          python3 - "$RESULTS" "$LEDGER" <<'PY'
+          import json, os, re, sys
+          root, ledger = sys.argv[1], sys.argv[2]
+          # port: the merge landed. build: it compiles. instrumented: the modules carry
+          # __asan_load/__asan_store, which is the thing a successful build does NOT
+          # imply. detects: the sanitizer reports a deliberate error in the firmware that
+          # was just built, which is the thing instrumentation does not imply either.
+          WANT = ('port', 'build', 'instrumented', 'detects')
+          slug = lambda ref: re.sub(r'[^A-Za-z0-9._-]', '-', ref)
+          rows = []
+          try:
+              for line in open(ledger, encoding='utf-8', errors='replace'):
+                  parts = line.split()
+                  if len(parts) == 2 and parts[1].lstrip('-').isdigit():
+                      rows.append((parts[0], int(parts[1])))
+          except OSError as exc:
+              sys.exit(f'::error::cannot read the ledger: {exc}')
+          if not rows:
+              sys.exit('::error::the ledger is empty -- no ref was qualified, and a gate '
+                       'that checked nothing must not be green')
+          bad = []
+          for ref, rc in rows:
+              path = os.path.join(root, f'fuzz-{slug(ref)}', 'run.json')
+              try:
+                  stages = {s['name']: s for s in json.load(open(path))['stages']}
+              except (OSError, ValueError, KeyError) as exc:
+                  # A ref that hard-failed before writing one is already an error in the
+                  # verdict step; saying it twice is noise. A ref that exited 0 or 2 and
+                  # has no run.json is not.
+                  if rc not in (0, 2):
+                      print(f'  [--  ] {ref:<22} exit {rc}, no readable run.json '
+                            f'(the verdict step owns this one)')
+                      continue
+                  bad.append(f'{ref}: exit {rc} and no readable run.json ({exc})')
+                  continue
+              # ok is True, False, or None for a stage that did not run, plus 'warn' for
+              # one that did its job but not for everything. Under --skip-fuzz these four
+              # are never skipped, so None here means the run stopped before reaching
+              # them -- which `not ok` would have called a failure and `ok is not True`
+              # would have called one for a WARN that is a pass.
+              marks = []
+              for name in WANT:
+                  got = stages.get(name)
+                  if got is None:
+                      marks.append(f'{name}=absent')
+                  elif got['ok'] is True or got['ok'] == 'warn':
+                      continue
+                  elif got['ok'] is None:
+                      marks.append(f'{name}=skipped')
+                  else:
+                      marks.append(f'{name}=FAILED')
+              shown = ', '.join(f"{n}:{str(stages[n]['detail'])[:34]}"
+                                for n in WANT if n in stages)
+              print(f'  [{"FAIL" if marks else "ok  "}] {ref:<22} {shown}')
+              if marks:
+                  bad.append(f'{ref}: ' + ', '.join(marks))
+          # A release is expected to work; master is upstream's tip and its breakage is
+          # news. Same split as the verdict step, for the same reason.
+          release = re.compile(r'^edk2-stable\d{6}(\.\d+)?$')
+          hard = [b for b in bad if release.match(b.split(':')[0])]
+          for note in bad:
+              print(f'::{"error" if note in hard else "warning"}::{note}')
+          if hard:
+              sys.exit(f'::error::{len(hard)} release(s) did not qualify: a stage that '
+                       f'proves the port landed, the firmware built, the modules carry '
+                       f'ASan checks, or ASan reports -- did not run or did not pass')
+          print(f'  {len(rows)} ref(s), every qualifying stage ran')
+          PY
+
+      - name: Summarise
+        if: always()
+        shell: bash
+        env:
+          RESULTS: ${{ steps.where.outputs.out }}
+        run: |
+          set -uo pipefail
+          python3 - "$RESULTS" <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob, json, os, sys
+          names = ['port', 'build', 'instrumented', 'discover', 'image', 'detects']
+          rows = []
+          for path in sorted(glob.glob(os.path.join(sys.argv[1], 'fuzz-*', 'run.json'))):
+              try:
+                  run = json.load(open(path))
+              except (OSError, ValueError):
+                  continue
+              rows.append((run.get('ref', '?'), {s['name']: s for s in run['stages']}))
+          if not rows:
+              print('No version produced a run.json.')
+          else:
+              print('| version | ' + ' | '.join(names) + ' |')
+              print('|---' * (len(names) + 1) + '|')
+              for ref, stages in rows:
+                  cells = []
+                  for n in names:
+                      s = stages.get(n)
+                      if s is None:
+                          cells.append('—')
+                      elif s['ok'] == 'warn':
+                          cells.append('⚠️ ' + str(s['detail'])[:70])
+                      elif s['ok'] is True:
+                          cells.append('✅ ' + str(s['detail'])[:70])
+                      elif s['ok'] is None:
+                          cells.append('⏭️ ' + str(s['detail'])[:40])
+                      else:
+                          cells.append('❌ ' + str(s['detail'])[:60])
+                  print(f'| `{ref}` | ' + ' | '.join(cells) + ' |')
+          PY
+
+      - name: Keep the runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-version-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            ${{ steps.where.outputs.out }}/fuzz-*/run.json
+            ${{ steps.where.outputs.out }}/fuzz-*/port.log
+            ${{ steps.where.outputs.out }}/fuzz-*/pipeline.log
+            ${{ steps.where.outputs.out }}/fuzz-*/bench_cases.log
+            ${{ steps.where.outputs.out }}/fuzz-*/presence.csv
+
+      # The pipeline writes a git worktree at eval_source/edk2-<ref> per ref, and in a
+      # GitHub workspace that is the same directory the NEXT job checks out. A left-behind
+      # registration is what makes the following run fail at `fetch` with a bare
+      # "fatal: '<path>'" and nothing on disk to explain it. Nothing is deleted from the
+      # workspace here -- the build context lives under --work, outside it.
+      - name: Put the workspace back
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          for sub in eval_source/edk2 firness uefi_asan tsffs; do
+            [ -e "$sub/.git" ] || continue
+            git -C "$sub" worktree prune 2>/dev/null || true
+            for wt in $(git -C "$sub" worktree list --porcelain 2>/dev/null \
+                        | awk '/^worktree /{print $2}'); do
+              case "$wt" in
+                "$GITHUB_WORKSPACE"/*) git -C "$sub" worktree remove --force "$wt" \
+                                         2>/dev/null || true ;;
+              esac
+            done
+          done
+          echo "workspace size: $(du -sh . 2>/dev/null | cut -f1)"

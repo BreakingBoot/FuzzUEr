@@ -30,6 +30,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
 
 # A supported release: edk2-stable202608, and the occasional edk2-stable202508.01. Anything
@@ -42,6 +43,90 @@ OK, DEGRADED, FAILED = 'ok', 'degraded', 'failed'
 
 def kind(ref):
     return 'release' if RELEASE.match(ref or '') else 'moving'
+
+
+# ---------------------------------------------------------------------------
+# Which refs a multi-version gate should qualify.
+#
+# Selection lives here rather than in the workflow's shell for the same reason the verdict
+# does: a list written inline in YAML is a list nothing tests. The weekly sweep's used to
+# be literal and went five releases stale -- it still named edk2-stable202502/202505/
+# 202511 while its own description promised "the three newest", and it left out
+# edk2-stable202608, the only release anything had ever gated on.
+# ---------------------------------------------------------------------------
+
+# A row of the README's "Which versions it works on" table, which is this project's claim
+# about which releases the pipeline handles. The gate reads the claim rather than keeping a
+# list beside it, so a version that is claimed can be chosen and a version that is not
+# cannot. `master` is in that table too and is deliberately NOT matched here: it is a
+# moving ref, the caller adds it, and kind() already decides what its failure means.
+CLAIMED_ROW = re.compile(r'^\|\s*`?(edk2-stable\d{6}(?:\.\d+)?)`?\s*\|')
+
+
+def version_key(ref):
+    found = RELEASE.match(ref or '')
+    if not found:
+        return (0, 0)
+    return (int(ref[len('edk2-stable'):len('edk2-stable') + 6]),
+            int((found.group(1) or '.0')[1:]))
+
+
+def claimed_versions(readme):
+    """The releases the README claims the pipeline works on, in table order."""
+    out = []
+    with open(readme, encoding='utf-8', errors='replace') as handle:
+        for line in handle:
+            found = CLAIMED_ROW.match(line.strip())
+            if found and found.group(1) not in out:
+                out.append(found.group(1))
+    return out
+
+
+def pick(claimed, available, count):
+    """Choose `count` releases to qualify, newest first, plus what is claimed and absent.
+
+    The oldest claimed release, the newest, and an even spread between them -- because the
+    two ends fail for opposite reasons and a gate that tests only one end cannot see both:
+
+      * the NEWEST is where upstream churn lands. Upstream deleted OvmfPkg/OvmfPkgIa32.dsc
+        at edk2-stable202511 and the port stage then hard-failed on every release from
+        there on, while everything older was untouched.
+      * the OLDEST is where a change to the resolver regresses. Every repair in
+        apply_asan.py is keyed on something a NEW release needed, and nothing but an old
+        release can show that the repair did not break the releases that were already
+        working.
+
+    Newest first, so a job cut short by its timeout has spent its minutes on the release
+    that matters most rather than on the oldest one.
+
+    `available` is what the checkout can actually resolve. A claimed release the tree
+    cannot reach is returned separately rather than chosen: picking it would fail the gate
+    for a fetch that did not happen, and dropping it silently would let the README go on
+    claiming a release that does not exist.
+    """
+    order = sorted(set(claimed) & set(available), key=version_key)
+    missing = [r for r in claimed if r not in available]
+    if not order:
+        return [], missing
+    span = len(order)
+    count = max(1, min(int(count), span))
+    if count == 1:
+        wanted = [span - 1]                                  # the newest
+    else:
+        wanted = sorted({round(i * (span - 1) / (count - 1)) for i in range(count)})
+    return [order[i] for i in reversed(wanted)], missing
+
+
+def resolvable(source, refs):
+    """The subset of `refs` this checkout can resolve to a commit."""
+    out = []
+    for ref in refs:
+        done = subprocess.run(
+            ['git', '-C', source, 'rev-parse', '--verify', '--quiet',
+             f'{ref}^{{commit}}'], capture_output=True, text=True)
+        if done.returncode == 0 and done.stdout.strip():
+            out.append(ref)
+    return out
 
 
 def state(rc):
@@ -145,6 +230,26 @@ def selftest():
          'a SHA is a moving ref: it warns beside a clean release'),
         ([('edk2-stable202608', 0), ('master', 137)], False,
          'any non-zero that is not 2 is a hard failure, including a signal'),
+        # The cross-version gate's shapes. It qualifies several releases plus master in
+        # one job, so its ledger is wider than the weekly sweep's and the same policy has
+        # to hold across it.
+        ([('edk2-stable202302', 0), ('edk2-stable202411', 0),
+          ('edk2-stable202602', 0), ('edk2-stable202608', 0), ('master', 0)], False,
+         'the cross-version gate, all green'),
+        ([('edk2-stable202302', 0), ('edk2-stable202411', 0),
+          ('edk2-stable202602', 0), ('edk2-stable202608', 0), ('master', 1)], False,
+         'upstream master broke: early warning, not this project regressing'),
+        ([('edk2-stable202302', 0), ('edk2-stable202411', 0),
+          ('edk2-stable202602', 0), ('edk2-stable202608', 1), ('master', 0)], True,
+         'the newest release failed -- exactly the OvmfPkgIa32.dsc shape, where every '
+         'release from 202511 on hard-failed and everything older was fine'),
+        ([('edk2-stable202302', 1), ('edk2-stable202411', 0),
+          ('edk2-stable202602', 0), ('edk2-stable202608', 0), ('master', 0)], True,
+         'the OLDEST release failed: a resolver repair for a new release regressed an '
+         'old one, which is the half a newest-only gate cannot see'),
+        ([('edk2-stable202302', 2), ('edk2-stable202411', 2),
+          ('edk2-stable202602', 2), ('edk2-stable202608', 2), ('master', 2)], False,
+         'every ref degraded and none failed: a report to read, not a red gate'),
     ]
     bad = 0
     for entries, want, why in cases:
@@ -164,11 +269,66 @@ def selftest():
         if got != want:
             print(f'  [FAIL] kind({ref!r}) = {got}, want {want}')
             bad = 1
+    bad |= selection_selftest()
     # The contract this whole policy rests on. state() maps the driver's exit code to a
     # meaning; if the driver ever changes what it returns, every classification above
     # silently becomes wrong while every case here still passes. So ask the driver.
     bad |= driver_contract()
     print('  sweep verdict policy: ' + ('FAILED' if bad else 'OK'))
+    return bad
+
+
+def selection_selftest():
+    """pick() spans the claimed versions, and the README still parses as a version table."""
+    bad = 0
+    # Eight releases, so a spread is visibly a spread rather than "all of them".
+    span = ['edk2-stable202302', 'edk2-stable202305', 'edk2-stable202311',
+            'edk2-stable202405', 'edk2-stable202411', 'edk2-stable202505',
+            'edk2-stable202602', 'edk2-stable202608']
+    cases = [
+        (span, span, 4, ['edk2-stable202608', 'edk2-stable202505', 'edk2-stable202311',
+                         'edk2-stable202302'],
+         'four of eight: both ends and an even spread, newest first'),
+        (span, span, 1, ['edk2-stable202608'], 'one means the newest'),
+        (span, span, 2, ['edk2-stable202608', 'edk2-stable202302'],
+         'two means the two ends -- never the newest twice'),
+        (span, span, 99, list(reversed(span)), 'more than there are means all of them'),
+        (span, span[:1], 4, ['edk2-stable202302'],
+         'only one resolvable: no duplicates padding the list out'),
+        # The table is claimed in whatever order it is written; the spread is by version.
+        (list(reversed(span)), span, 3,
+         ['edk2-stable202608', 'edk2-stable202411', 'edk2-stable202302'],
+         'the table order does not decide the spread, the version does'),
+        (span, [], 4, [], 'nothing resolvable is not a selection'),
+    ]
+    for claimed, available, count, want, why in cases:
+        got, _ = pick(claimed, available, count)
+        if got != want:
+            print(f'  [FAIL] pick({count}) = {got}, want {want} -- {why}')
+            bad = 1
+        else:
+            print(f'  [ok  ] pick {count:<3} {why}')
+    # A claimed release the tree cannot reach is reported, not chosen. Silently dropping
+    # it is how a table goes on naming a release that does not exist.
+    chosen, missing = pick(span, span[:-1], 4)
+    if 'edk2-stable202608' in chosen or missing != ['edk2-stable202608']:
+        print(f'  [FAIL] an unresolvable claimed release was not reported: '
+              f'chosen={chosen} missing={missing}')
+        bad = 1
+    else:
+        print('  [ok  ] an unresolvable claimed release is reported, not chosen')
+    # And against the real README, because the regex is the whole of the coupling: if the
+    # table is reformatted this returns too few and the gate would quietly shrink.
+    readme = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          'README.md')
+    if os.path.isfile(readme):
+        found = claimed_versions(readme)
+        if len(found) < 4 or any(not RELEASE.match(r) for r in found):
+            print(f'  [FAIL] the README version table parsed as {found}')
+            bad = 1
+        else:
+            print(f'  [ok  ] the README claims {len(found)} release(s), '
+                  f'{found[0]}..{found[-1]}')
     return bad
 
 
@@ -204,6 +364,43 @@ def driver_contract():
     return bad
 
 
+def do_pick(args):
+    """Print the refs a multi-version gate should qualify, one per line.
+
+    Only the refs go to stdout, so a shell can take the whole of it; everything else is an
+    annotation or a comment line. A gate that got no refs must not run an empty loop and
+    call it a pass, so this exits non-zero instead -- see the "no ref produced a verdict"
+    case below, which is the same failure one stage later.
+    """
+    readme = args.readme or os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'README.md')
+    if not os.path.isfile(readme):
+        print(f'::error::no {readme} to read the claimed versions out of', file=sys.stderr)
+        return 1
+    claimed = claimed_versions(readme)
+    # Four is arbitrary as a number and not as a floor: with fewer than that the table is
+    # not a version table, and the likeliest reason is that its format changed under this
+    # regex -- which would otherwise show up as a gate quietly testing one release.
+    if len(claimed) < 4:
+        print(f'::error::{readme} lists {len(claimed)} claimed release(s); the version '
+              f'table is missing or its shape changed', file=sys.stderr)
+        return 1
+    chosen, missing = pick(claimed, resolvable(args.source, claimed), args.pick)
+    for ref in missing:
+        print(f'::warning::{ref} is in the README version table and {args.source} cannot '
+              f'resolve it: either the tag fetch did not run or the table names a release '
+              f'that does not exist', file=sys.stderr)
+    if not chosen:
+        print(f'::error::none of the {len(claimed)} claimed release(s) are resolvable in '
+              f'{args.source}', file=sys.stderr)
+        return 1
+    print(f'# {len(chosen)} of {len(claimed)} claimed release(s), newest first',
+          file=sys.stderr)
+    for ref in chosen:
+        print(ref)
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -211,12 +408,23 @@ def main():
     ap.add_argument('--results', default='results',
                     help='where the per-ref fuzz-<ref>/run.json live')
     ap.add_argument('--selftest', action='store_true', help='assert the policy and exit')
+    ap.add_argument('--pick', type=int, metavar='N',
+                    help='print N releases to qualify, newest first, instead of judging '
+                         'a ledger. Chosen from the versions the README claims that '
+                         '--source can resolve')
+    ap.add_argument('--source', default='eval_source/edk2',
+                    help='the edk2 checkout --pick resolves refs in')
+    ap.add_argument('--readme', default='',
+                    help='where the claimed-versions table lives (default: README.md '
+                         'beside this repository)')
     args = ap.parse_args()
 
     if args.selftest:
         return selftest()
+    if args.pick is not None:
+        return do_pick(args)
     if not args.ledger:
-        ap.error('--ledger is required unless --selftest')
+        ap.error('--ledger is required unless --selftest or --pick')
 
     entries = read_ledger(args.ledger) if os.path.isfile(args.ledger) else []
     red, rows = verdict(entries)

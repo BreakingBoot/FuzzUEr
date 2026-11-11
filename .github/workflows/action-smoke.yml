@@ -16,7 +16,7 @@ on:
     # pushed to run ONE of them runs this as well, and each is a firmware build on the same
     # runner -- so a targeted test silently costs two builds and queues behind itself.
     branches: ['ci-**', '!ci-uses-**', '!ci-stable-**', '!ci-sweep-**',
-               '!ci-private-**', '!ci-smi-**']
+               '!ci-private-**', '!ci-smi-**', '!ci-versions-**']
   workflow_dispatch:
 
 permissions:
