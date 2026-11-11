@@ -222,6 +222,10 @@ jobs:
         shell: bash
         run: python3 scripts/smi_generator_parity_check.py
 
+      - name: A comm buffer's trailing member is fuzzed as a payload
+        shell: bash
+        run: python3 scripts/payload_fill_check.py
+
       - name: A finding's evidence reaches the branch its issue links to
         shell: bash
         run: python3 scripts/evidence_push_check.py
