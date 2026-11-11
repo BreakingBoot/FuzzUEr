@@ -62,6 +62,31 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 
 
+def results_base():
+    """The directory `--out` defaults into, one `fuzz-<slug>` per ref.
+
+    The repository from a shell: that is where the hand-written write-ups and every
+    older campaign already live, and nothing there deletes them.
+
+    NOT the repository in CI, where the repository IS the workspace actions/checkout
+    owns. checkout@v4 runs `git clean -ffdx`, -x removes IGNORED files too, and
+    .gitignore ignores `results/*` -- so the next job to land on a self-hosted runner
+    deletes the results of the one before it. Measured 2026-11-11: run 42999334016, the
+    only SMI sweep that has ever completed, finished at 14:47 UTC and a Checks job that
+    started 42 seconds later wiped results/fuzz-master. The 90-day artifact was the only
+    copy left of it.
+
+    So in CI this is $HOME/fuzzuer-sweep/$GITHUB_RUN_ID -- outside the workspace, where
+    nothing cleans, and keyed by the run so two runs on one runner cannot land on each
+    other. It is the same shape eval1_edk2/.github/workflows/fuzzuer.yml and the weekly
+    in cglosner/edk2 use, and the output of those is all still on disk.
+    """
+    run_id = os.environ.get('GITHUB_RUN_ID', '')
+    if os.environ.get('GITHUB_ACTIONS') == 'true' and run_id:
+        return os.path.join(os.path.expanduser('~'), 'fuzzuer-sweep', run_id)
+    return os.path.join(REPO, 'results')
+
+
 # A stage can end three ways, not two. PASS and FAIL are obvious; WARN is "this did its
 # job, but not for everything it was asked about" -- a sweep where 239 of 243 campaigns
 # fuzzed and four lost their boot to a timeout. Treating that as FAIL stopped the run, so
@@ -967,7 +992,7 @@ def main():
     # characters for a local volume name". The default is already absolute, so only an
     # explicit --out could trip it -- and when it did, it failed the run at the detects
     # stage, after the image had already been rebuilt.
-    out = os.path.abspath(args.out or os.path.join(REPO, 'results', f'fuzz-{slug}'))
+    out = os.path.abspath(args.out or os.path.join(results_base(), f'fuzz-{slug}'))
     work = os.path.abspath(args.work) if args.work else REPO
     os.makedirs(work, exist_ok=True)
     # Both of these used to be unconditionally inside REPO. In CI that is the checkout, and

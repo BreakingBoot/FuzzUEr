@@ -133,6 +133,17 @@ jobs:
         shell: bash
         run: python3 scripts/degraded_path_check.py
 
+      # The sweep used to write its only on-disk copy into the checkout, where the next
+      # job's actions/checkout deleted it: `git clean -ffdx` and -x takes ignored files,
+      # and .gitignore ignores results/*. Run 42999334016, the only SMI sweep that has
+      # ever completed, was wiped 42 seconds after it finished. This runs the sweep step's
+      # own shell against a stub driver and then runs the real readers -- the verdict, the
+      # summary and every artifact pattern -- over what it left behind, because the
+      # failure here is a GREEN run holding nothing.
+      - name: Does the sweep's output survive the next job
+        shell: bash
+        run: python3 scripts/sweep_output_check.py
+
       # One unreachable submodule used to poison every other submodule in the tree:
       # `git submodule update` aborts on the failure, the abort lands before the checkout
       # pass, and the rest are left at their branch tip rather than the recorded commit.

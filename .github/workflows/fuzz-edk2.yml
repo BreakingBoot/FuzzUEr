@@ -205,9 +205,47 @@ jobs:
           # which is exactly the failure that default exists to prevent.
           BOOT=''
           [ -n "${IN_BOOT_TIMEOUT:-}" ] && BOOT="--boot-timeout ${IN_BOOT_TIMEOUT}"
+          # Where the results are KEPT: outside the workspace, keyed by the run.
+          #
+          # The driver used to default to <workspace>/results/fuzz-<slug> and this step
+          # passed no --out, so the sweep wrote its only on-disk copy into the checkout.
+          # actions/checkout@v4 runs `git clean -ffdx` and -x removes ignored files, and
+          # .gitignore ignores `results/*` -- so the next job to land on this self-hosted
+          # runner deleted it. Measured 2026-11-11: run 42999334016, the only SMI sweep
+          # that has ever completed, finished at 14:47 UTC and a Checks job that started
+          # at 14:47:42 wiped results/fuzz-master. Nothing was left of it but the 90-day
+          # artifact. $HOME/<name>/$GITHUB_RUN_ID is what eval1_edk2's fuzzuer.yml and
+          # the weekly in cglosner/edk2 both use, and every run of those is still on disk.
+          #
+          # Keyed by the run id because this runner takes one sweep after another and two
+          # of them writing fuzz-master is the same collision from a different direction.
+          KEEP="$HOME/fuzzuer-sweep/${GITHUB_RUN_ID:?the keep directory is keyed by the run id}"
+          mkdir -p "$KEEP" results
+          echo "keeping the results in $KEEP"
           for ref in $REFS; do
             echo "::group::$ref"
+            # The slug the consumers look up BY NAME: sweep_verdict.py reads
+            # results/fuzz-<slug>/run.json for each ledger ref, so this is a contract and
+            # not a label. Same expression action.yml derives its own OUT with.
+            SLUG=$(printf '%s' "$ref" | tr -c 'A-Za-z0-9._-' '-')
+            mkdir -p "$KEEP/fuzz-$SLUG"
+            # The workspace gets a LINK to it, not a copy. Three consumers glob
+            # `results/fuzz-*` -- sweep_verdict.py --results results, the Summarise step
+            # and the upload-artifact paths at the end of this file -- and through the
+            # link they find exactly the paths they always have, while the bytes land
+            # outside the workspace as they are written. A copy-back step instead would
+            # duplicate tens of gigabytes of campaign output, and would not run at all on
+            # the path that matters most: the 24h timeout killing the job.
+            #
+            # Removed rather than created over: a real directory left here by an earlier
+            # run on a dirty workspace would refuse the link, and the consumers would
+            # then read a stale run.json while this sweep's landed outside.
+            rm -rf "results/fuzz-$SLUG"
+            ln -s "$KEEP/fuzz-$SLUG" "results/fuzz-$SLUG" || \
+              echo "::error::could not link results/fuzz-$SLUG to $KEEP/fuzz-$SLUG: this" \
+                   "ref's output will be on the runner but in neither the verdict nor the artifact"
             python3 scripts/fuzz_edk2.py --ref "$ref" \
+              --out "$KEEP/fuzz-$SLUG" \
               --budget "$BUDGET" \
               --jobs "$JOBS" \
               --harness-timing "$TIMING" \
@@ -295,4 +333,11 @@ jobs:
             results/fuzz-*/campaigns/*/run.log
             results/fuzz-*/campaigns/*/fuzz.txt
             results/fuzz-*/reproducers/**
-          if-no-files-found: warn
+          # error, not warn. The upload globs `results/fuzz-*`, which are now symlinks
+          # out of the workspace, and @actions/glob is configured omitBrokenSymbolicLinks:
+          # true -- so a link that did not resolve contributes NOTHING and `warn` would
+          # leave a green run holding an empty artifact. That is the same silent loss this
+          # file's KEEP directory exists to stop, arriving by a different route: run
+          # 42999334016 looked fine and had nothing in it. Nothing legitimately produces an
+          # empty set here -- a sweep that got as far as uploading has a run.json per ref.
+          if-no-files-found: error
