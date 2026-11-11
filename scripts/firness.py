@@ -1168,7 +1168,15 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
                 # 64 bytes is spent inside the first call; the harness then breaks out
                 # of its step loop and every execution is a single call. The guest buffer
                 # is 0x1000, so seed near it and let the mutator trim.
-                seed_size = int(os.environ.get('FIRNESS_SEED_SIZE', '1024'))
+                #
+                # 2048, not 1024. An SMI harness reads its comm buffer's whole payload
+                # region now, so one call costs about 150 bytes where it used to cost one,
+                # and FirnessMain runs up to eight calls per input. At 1024 the input ran
+                # out mid-sequence and ReadBytes zero-filled the rest -- which is not
+                # neutral, because a zeroed length selector leaves MessageLength at
+                # sizeof(the parameter block) and the handler refuses it on size. Measured
+                # on run 42933720452: 8 x 216 bytes wanted against a 1024-byte seed.
+                seed_size = int(os.environ.get('FIRNESS_SEED_SIZE', '2048'))
                 generate_seeds(corpus, targets, seed_size)
         except Exception as error:
             print(f'Warning: could not build a per-target corpus ({error})')

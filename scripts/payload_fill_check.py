@@ -135,6 +135,34 @@ def main():
           tpl.PAYLOAD_FILL_BYTES >= 64,
           'a fill shorter than the struct leaves its tail fields to whatever the last '
           'iteration wrote')
+    check('the fill does not exceed the plant window',
+          tpl.PAYLOAD_FILL_BYTES <= tpl.PAYLOAD_PLANT_WINDOW,
+          f'{tpl.PAYLOAD_FILL_BYTES} filled against a {tpl.PAYLOAD_PLANT_WINDOW}-byte '
+          f'window: the extra bytes cost input budget and no plant can reach them')
+
+    # The invariant that actually broke, and it spans two files. One harness call now reads
+    # the whole payload region, FirnessMain runs up to eight calls per input, and when the
+    # input runs out ReadBytes zero-fills -- which is NOT neutral: a zeroed length selector
+    # leaves MessageLength at sizeof(the block) and the handler refuses it on size. Run
+    # 42933720452 measured 216 bytes a call against a 1024-byte seed.
+    STEPS = 8
+    OTHER_FIELDS = 88          # measured: RWVariable's fields beside the payload region
+    per_call = tpl.PAYLOAD_FILL_BYTES + 3 * tpl.PAYLOAD_PLANTS + OTHER_FIELDS
+    firness = ''
+    for candidate in (os.path.join(HERE, 'firness.py'),
+                      os.path.join(os.path.dirname(HERE), 'scripts', 'firness.py')):
+        if os.path.exists(candidate):
+            with open(candidate, encoding='utf-8', errors='replace') as handle:
+                firness = handle.read()
+            break
+    seed = re.search(r"FIRNESS_SEED_SIZE',\s*'(\d+)'\)", firness)
+    check('the default seed size is readable from firness.py', seed is not None,
+          'without it this invariant cannot be checked and the budget silently regresses')
+    budget = int(seed.group(1)) if seed else 0
+    check(f'{STEPS} calls at {per_call} bytes fit the {budget}-byte default seed',
+          per_call * STEPS <= budget,
+          f'{per_call * STEPS} wanted against {budget}: the tail of every sequence runs '
+          f'on zero-filled input, which parks MessageLength at sizeof(the block)')
 
     print('\nthe plants')
     check('the abutting pointer is tied to its own slot',
