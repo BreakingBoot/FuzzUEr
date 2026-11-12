@@ -188,7 +188,7 @@ jobs:
               lines += ['| run | workflow | branch | queued for | cleared |',
                         '|---|---|---|---|---|']
 
-          cleared = unremovable = denied = 0
+          cleared = unremovable = 0
           for run, age in orphans:
               note = 'not attempted'
               if mode == 'clear':
@@ -206,22 +206,23 @@ jobs:
                       if code in (204, 404):
                           cleared += 1
                           note = 'deleted'
-                      elif code in (401, 403):
-                          # Actionable: the token is short of Actions: write.
-                          denied += 1
-                          note = f'DENIED ({code})'
-                          print(f"::error::run {run['id']} could not be deleted "
-                                f"({code}): {body.get('message')}")
                       else:
-                          # Expected, and the reason this is not a failure. GitHub will
-                          # not delete a run that is still queued, and cancel does
-                          # nothing to one with no job -- so a run in this state cannot
-                          # be removed by any token, and it sits until the retention
-                          # window takes it. Measured on the six from 2026-11-11, which
-                          # survived both calls. The code is printed rather than assumed
-                          # so the next run says what GitHub actually answered.
+                          # A run in this state cannot be removed, and this is not a
+                          # failure of the watchdog. Measured on the six orphans from
+                          # 2026-11-11: cancel is accepted and does nothing because there
+                          # is no job to cancel, and the delete is refused because GitHub
+                          # will not delete a run that is still queued. Two routes, both
+                          # closed, so nothing here can clear them -- they go when the
+                          # retention window takes them.
+                          #
+                          # The code and message are REPORTED rather than classified. The
+                          # first cut guessed that a refusal meant a token short of
+                          # Actions: write and exited 1 on it, which would have turned the
+                          # half-hourly watchdog permanently red over a state no
+                          # permission can change. Whatever GitHub answers is in the
+                          # summary for a person to read.
                           unremovable += 1
-                          note = f'unremovable ({code})'
+                          note = f'unremovable ({code}: {str(body.get("message"))[:40]})'
               print(f"  orphan {run['id']} {run.get('name')} "
                     f"({run.get('head_branch')}), {age:.0f} min -> {note}")
               lines.append(f"| [{run['id']}]({run['html_url']}) | {run.get('name')} | "
@@ -265,9 +266,8 @@ jobs:
           if unknown:
               print(f'::warning::{len(unknown)} queued run(s) could not be classified -- '
                     f'their jobs could not be read')
-          # Red only for something a person can act on. A watchdog that fails every half
-          # hour over a state nobody can change is how a watchdog gets ignored.
-          if denied:
-              sys.exit(f'::error::{denied} run(s) refused the delete on permissions -- '
-                       f'the token needs Actions: write')
+          # Never red for a stuck queue. The queue being stuck is not this workflow
+          # malfunctioning, and a watchdog that fails every half hour over a state nobody
+          # can change is how a watchdog gets ignored -- which is the failure it exists to
+          # prevent. Everything above is a warning and a summary; the exit code stays 0.
           PY
