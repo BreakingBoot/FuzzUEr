@@ -29,6 +29,7 @@ copy would drift; this cannot.
 
 import ast
 import glob
+import inspect
 import json
 import os
 import re
@@ -774,9 +775,92 @@ def sweep_claimed():
     return sweep_verdict.claimed_versions(os.path.join(REPO, 'README.md'))
 
 
+def failure_names_the_case():
+    """A ref that fails `detects` must say WHICH benchmark class regressed.
+
+    The first cross-version sweep failed two of five refs with this, verbatim:
+
+        benchmark 11 of 12 scorable classes detected --  regressed
+
+    There is nothing between the dash and the word. The stage collected the failing
+    cases by filtering for MISS and WRONG, which are two of the EIGHT verdicts
+    bench_cases.py scores as a non-detection, and the case that actually failed was
+    `control FAIL` -- the positive control reporting on correct firmware, which is the
+    single most important row on the board. The run said a class regressed and named
+    none, on a gate whose whole output is that one line.
+
+    Reading the verdict set from bench_cases rather than copying it is the fix for the
+    class of bug, not just this instance: a copy is what goes stale the next time a
+    verdict is added, and the symptom is again a silent omission rather than an error.
+    """
+    bad = 0
+    sys.path.insert(0, HERE)
+    import bench_cases
+    import fuzz_edk2
+    name = fuzz_edk2.regressed_cases
+
+    # Both shapes the log writes a verdict in: the running list, where the verdict ends
+    # the line, and the summary table, where evidence follows it. The real log carries
+    # every case in BOTH, so a case must be named once.
+    log = ('Scoring 3 case(s), one boot each, 2 at a time\n'
+           '  heap-buffer-overflow     PASS\n'
+           '  control                  FAIL\n'
+           '  smm-control              MISS\n'
+           '\n'
+           'CASE                     VERDICT  EVIDENCE\n'
+           '-----------------------------------------\n'
+           'control                  FAIL     reported on correct code\n'
+           'heap-buffer-overflow     PASS     bug_descr=heap-buffer-overflow\n'
+           'smm-control              MISS     the SMI did not arrive\n'
+           '-----------------------------------------\n'
+           '1 of 3 scorable classes detected\n')
+    got = name(log)
+    if got != ['control FAIL', 'smm-control MISS']:
+        print(f'  [FAIL] a failing detects stage names {got!r}')
+        print('         expected the FAIL and the MISS, once each, with their verdicts')
+        bad = 1
+    else:
+        print('  [ok  ] a failing stage names every non-detecting case, with its verdict')
+
+    if any(e.startswith('heap-buffer-overflow') for e in got):
+        print('  [FAIL] a PASS was reported as a regression')
+        bad = 1
+
+    # The property that keeps it true: EVERY non-PASS verdict bench_cases scores is
+    # recognised here. A literal list in fuzz_edk2 would drop the next one added.
+    missing = []
+    for verdict in bench_cases.SCORED:
+        if verdict == 'PASS':
+            continue
+        probe = f'thecase                  {verdict}     some evidence\n'
+        if name(probe) != [f'thecase {verdict}']:
+            missing.append(verdict)
+    if missing:
+        print(f'  [FAIL] these scored verdicts are not recognised as a regression: '
+              f'{", ".join(missing)}')
+        print('         bench_cases.py scores them as a non-detection, so a stage that '
+              'fails on one of them names nothing')
+        bad = 1
+    else:
+        print(f'  [ok  ] all {len(bench_cases.SCORED) - 1} non-detecting verdicts are '
+              f'named, read from bench_cases rather than copied')
+
+    for exempt in bench_cases.EXEMPT:
+        if name(f'thecase                  {exempt}     not scorable\n'):
+            print(f'  [FAIL] {exempt} is an exemption and was reported as a regression')
+            bad = 1
+
+    source = inspect.getsource(fuzz_edk2.regressed_cases)
+    if 'bench_cases.SCORED' not in source:
+        print('  [FAIL] regressed_cases does not read bench_cases.SCORED')
+        print('         a second copy of the verdict set is the bug this check exists for')
+        bad = 1
+    return bad
+
+
 def main():
     bad = (stable_gate() | cross_gate() | paired_verdict() | shell_plumbing()
-           | triggers() | action_pins())
+           | triggers() | action_pins() | failure_names_the_case())
     print('  end-to-end gates: ' + ('FAILED' if bad else 'OK'))
     return bad
 

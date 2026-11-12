@@ -47,6 +47,7 @@ went unread.
 """
 
 import argparse
+import csv
 import hashlib
 import json
 import os
@@ -57,6 +58,8 @@ import signal
 import subprocess
 import sys
 import time
+
+import bench_cases
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
@@ -753,7 +756,83 @@ def grow_dxe_fv(tree, required, block=0x10000, headroom=0x80000):
 SMI_TARGET = 'DiscoveredSmi'
 
 
-def pick_targets(evalset, limit, smi, explicit=()):
+def absent_targets(presence):
+    """The protocols a presence census says this firmware does not install.
+
+    Only 'absent' is returned. 'unknown' means the census could not tell, and dropping
+    those would quietly shrink the candidate set on exactly the trees the census
+    understands least -- the whole network stack scores unknown, because those
+    protocols are installed on demand.
+
+    protocol_presence.py writes the file with CRLF. Read through csv, which owns the
+    line terminator, rather than by splitting the text: this is opened with newline=''
+    because that is what csv requires, and splitting THAT by hand leaves a carriage
+    return on every status, matches no row, and reports a firmware that installs
+    everything.
+    """
+    if not presence or not os.path.isfile(presence):
+        return set()
+    gone = set()
+    try:
+        with open(presence, newline='') as handle:
+            for row in csv.DictReader(handle):
+                if (row.get('status') or '').strip() == 'absent':
+                    gone.add((row.get('protocol') or '').strip())
+    except (OSError, csv.Error):
+        return set()
+    gone.discard('')
+    return gone
+
+
+def regressed_cases(bench_text):
+    """Every scored benchmark case that did not detect, named with its verdict.
+
+    The first version of this filtered on MISS and WRONG. Those are two of the EIGHT
+    non-detecting verdicts bench_cases.py scores, so a stage failed by any of the other
+    six reported an EMPTY list: the first cross-version sweep said "benchmark 11 of 12
+    scorable classes detected --  regressed" on two refs, and the case that actually
+    failed -- control FAIL, the positive control reporting on correct firmware -- was
+    nowhere in the message. The verdict set is taken from bench_cases itself rather than
+    copied, because a copy is what goes stale when a verdict is added.
+
+    Reads both shapes the log writes a verdict in: the running list, where the verdict
+    ends the line, and the summary table, where evidence follows it.
+    """
+    bad = tuple(v for v in bench_cases.SCORED if v != 'PASS')
+    out, seen = [], set()
+    for line in bench_text.splitlines():
+        name, _, tail = line.strip().partition(' ')
+        tail = tail.strip()
+        if not name or name in seen:
+            continue
+        for verdict in bad:
+            if tail == verdict or tail.startswith(verdict + ' '):
+                out.append(f'{name} {verdict}')
+                seen.add(name)
+                break
+    return out
+
+
+def bound_refusal(limit, explicit, chosen, discovered):
+    """Why a bounded run must stop before spending anything, or '' to go ahead.
+
+    An empty selection means "every discovered target" to fuzz_batch, which is right
+    when nobody asked for a bound and wrong the moment the presence filter empties a
+    bounded one: a census that marked every discovered protocol absent would turn
+    --max-targets 2 into the full matrix, silently, on a gate that chose a bound to stay
+    inside its runner's wall clock.
+
+    A function rather than two lines in the stage because the stage cannot be called
+    without the pipeline around it, and a policy that can only be asserted by reading
+    the source for a substring is one a mutation like `if False and ...` leaves intact.
+    """
+    if limit > 0 and not explicit and not chosen:
+        return (f'--max-targets {limit} selected nothing: this firmware installs none '
+                f'of the {discovered} discovered target(s), by presence.csv')
+    return ''
+
+
+def pick_targets(evalset, limit, smi, explicit=(), presence=''):
     """Which discovered targets to fuzz: all of them, the first `limit`, or named ones.
 
     Returns [] for "every target discovered", which is what passing no -p to fuzz_batch
@@ -771,13 +850,25 @@ def pick_targets(evalset, limit, smi, explicit=()):
     is a regression rather than a different draw. Under --smi the handler list goes first:
     it is the target that mode exists to fuzz, and taking the alphabetical head without it
     would fuzz protocols while reporting an SMI run.
+
+    `presence` is the census this stage has already taken, and bounding WITHOUT it is
+    what the first cross-version sweep measured: the alphabetical head of the discovered
+    set is AndroidBootImg and ArmScmiBase, two EmbeddedPkg/ArmPkg protocols OvmfPkgX64
+    does not build. fuzz_batch dropped both as not installed, launched nothing, and the
+    stage failed with "no campaign produced a log.json" on all three refs that got that
+    far -- a bounded run that fuzzed zero targets, on a gate whose whole job is to prove
+    the pipeline still fuzzes. Deterministic selection has to mean the first `limit`
+    targets this firmware can actually reach, not the first `limit` filenames.
     """
     if explicit:
         return list(explicit)
     if limit <= 0:
         return []
+    gone = absent_targets(presence)
     names = sorted(f[:-len('.txt')] for f in os.listdir(evalset)
                    if f.endswith('.txt') and f[:-len('.txt')] != SMI_TARGET)
+    names = [n for n in names if n not in gone]
+    # Not filtered: the SMI harness is not a protocol and the census has no row for it.
     if smi:
         names.insert(0, SMI_TARGET)
     return names[:limit]
@@ -1791,10 +1882,17 @@ def main():
             return WARN, detail + ' -- the benchmark reached no verdict, see bench_cases.log'
         found = re.search(r'(\d+) of (\d+)', verdict[0])
         if found and found.group(1) != found.group(2):
-            missed = [l.split()[0] for l in bench_text.splitlines()
-                      if ' MISS ' in l or ' WRONG ' in l]
+            regressed = regressed_cases(bench_text)
+            if not regressed:
+                # The count disagrees with the table. Saying so beats an empty list,
+                # which is what the earlier "MISS or WRONG only" filter produced.
+                named = 'the table names no failing case -- read bench_cases.log'
+            else:
+                named = ', '.join(regressed[:6])
+                if len(regressed) > 6:
+                    named += f' and {len(regressed) - 6} more'
             return False, (f'{detail}; benchmark {verdict[0].strip()} -- '
-                           f'{", ".join(missed[:6])} regressed')
+                           f'{named} regressed')
         return True, f'{detail}; benchmark {verdict[0].strip()}'
 
     def scale_boot_timeout():
@@ -1908,7 +2006,12 @@ def main():
             argv.append('--smi')
         if presence:
             argv += ['--presence', presence]
-        chosen = pick_targets(run.evalset, args.max_targets, args.smi, args.targets)
+        chosen = pick_targets(run.evalset, args.max_targets, args.smi,
+                              args.targets, presence)
+        refusal = bound_refusal(args.max_targets, args.targets, chosen,
+                                run.target_count)
+        if refusal:
+            return False, refusal
         if chosen and not args.targets:
             print(f'  fuzzing {len(chosen)} of {run.target_count} discovered target(s): '
                   f'{", ".join(chosen)}')
