@@ -357,6 +357,22 @@ def score_one(args, case, expect, unreachable, work):
     # 'control' row as N/A, which took the one row that proves the runtime is not crying
     # wolf out of the denominator altogether. Measured: 12 of 12 became 11 of 11, still
     # n of n, still green, and no longer scoring the control.
+    # stale-protocol-interface is OFF unless the image was built for it, so the row is
+    # exempt rather than a miss. Measured 2026-11-12 on run 43227236777: the class fired
+    # three times during the BOOT, at the same addresses in every case's log, and took
+    # the `control` row -- the row whose entire job is to report nothing on correct code
+    # -- to FAIL. UninstallProtocolInterface unbinds a handle from an interface and says
+    # nothing about the storage, which stays the owner's to keep using, so a read after
+    # uninstall is not a defect. FwSanDxe now poisons only under -D ASAN_STALE_INTERFACE.
+    #
+    # Still SCORED when asked for: a campaign hunting a suspected stale-interface bug in
+    # one driver is reasonable, and this row is what says whether the class still works.
+    if case == 'stale-interface' and not getattr(args, 'stale_interface', False):
+        return dict(case=case, verdict='N/A',
+                    detail='off unless built with -D ASAN_STALE_INTERFACE -- the class '
+                           'reports correct firmware and cost the control row',
+                    reports=reports[:4])
+
     if case == 'control' or case.endswith('-control'):
         if reports:
             return dict(case=case, verdict='FAIL',
@@ -436,6 +452,11 @@ def main():
                              'a few contend and a contended boot times out before BDS')
     parser.add_argument('--case', action='append', default=[],
                         help='score only this case (repeatable)')
+    parser.add_argument('--stale-interface', action=argparse.BooleanOptionalAction,
+                        default=False,
+                        help='score the stale-protocol-interface row. Only meaningful on '
+                             'an image built with -D ASAN_STALE_INTERFACE; the class is '
+                             'off by default because it reports correct firmware')
     parser.add_argument('--smm', action=argparse.BooleanOptionalAction, default=False,
                         help='boot q35 with SMM on, plus the SMM varstore globals, for '
                              'an image built with -D SMM_REQUIRE -- which does not boot '
