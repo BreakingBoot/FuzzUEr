@@ -188,7 +188,7 @@ jobs:
               lines += ['| run | workflow | branch | queued for | cleared |',
                         '|---|---|---|---|---|']
 
-          cleared = stuck = 0
+          cleared = unremovable = denied = 0
           for run, age in orphans:
               note = 'not attempted'
               if mode == 'clear':
@@ -206,12 +206,22 @@ jobs:
                       if code in (204, 404):
                           cleared += 1
                           note = 'deleted'
+                      elif code in (401, 403):
+                          # Actionable: the token is short of Actions: write.
+                          denied += 1
+                          note = f'DENIED ({code})'
+                          print(f"::error::run {run['id']} could not be deleted "
+                                f"({code}): {body.get('message')}")
                       else:
-                          stuck += 1
-                          note = f'STUCK ({code})'
-                          print(f"::warning::run {run['id']} ({run.get('name')} on "
-                                f"{run.get('head_branch')}) could not be cancelled or "
-                                f"deleted: {body.get('message')}")
+                          # Expected, and the reason this is not a failure. GitHub will
+                          # not delete a run that is still queued, and cancel does
+                          # nothing to one with no job -- so a run in this state cannot
+                          # be removed by any token, and it sits until the retention
+                          # window takes it. Measured on the six from 2026-11-11, which
+                          # survived both calls. The code is printed rather than assumed
+                          # so the next run says what GitHub actually answered.
+                          unremovable += 1
+                          note = f'unremovable ({code})'
               print(f"  orphan {run['id']} {run.get('name')} "
                     f"({run.get('head_branch')}), {age:.0f} min -> {note}")
               lines.append(f"| [{run['id']}]({run['html_url']}) | {run.get('name')} | "
@@ -222,6 +232,11 @@ jobs:
               lines.append('These were created and never expanded into jobs, so no runner '
                            'was ever offered them. An orphaned run does not recover: '
                            're-push the branch to get a fresh one.')
+              if unremovable:
+                  lines.append('')
+                  lines.append(f'{unremovable} of them cannot be removed by any token -- '
+                               f'a queued run cannot be deleted and a jobless one cannot '
+                               f'be cancelled. They age out with the retention window.')
           if waiting:
               lines.append('')
               lines.append(f'{len(waiting)} run(s) are waiting for a runner, oldest '
@@ -243,9 +258,16 @@ jobs:
           elif orphans:
               print(f'::warning::{len(orphans)} run(s) are queued with zero jobs and will '
                     f'never start (mode={mode}, nothing was cleared)')
+          if unremovable:
+              print(f'::warning::{unremovable} orphaned run(s) cannot be removed at all: '
+                    f'GitHub will not delete a run that is still queued, and cancelling '
+                    f'one with no job does nothing. They clear with the retention window')
           if unknown:
               print(f'::warning::{len(unknown)} queued run(s) could not be classified -- '
                     f'their jobs could not be read')
-          if stuck:
-              sys.exit(f'::error::{stuck} orphaned run(s) could not be cleared at all')
+          # Red only for something a person can act on. A watchdog that fails every half
+          # hour over a state nobody can change is how a watchdog gets ignored.
+          if denied:
+              sys.exit(f'::error::{denied} run(s) refused the delete on permissions -- '
+                       f'the token needs Actions: write')
           PY
