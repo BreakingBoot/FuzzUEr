@@ -988,15 +988,28 @@ def main():
           flat.field_handlers() == (),
           'empty means do not narrow, so every other class keeps what it had')
 
-    # AsanReportFirmwareClass is declared in NO header, so every caller writes its own
-    # prototype and nothing made them agree. FwSanDxe.c's omitted `Detail`, the second
+    # AsanReportFirmwareClass used to be declared in NO header, so every caller wrote its
+    # own prototype and nothing made them agree. FwSanDxe.c's omitted `Detail`, the second
     # parameter, so every argument shifted by one: the reported address landed where a
     # CONST CHAR8 * was expected and the banner walked it as a string, Addr and Size
     # arrived as 0, IsWrite got the return address, and Ip -- the dedup key and the ip in
     # the crashes.csv row -- was never passed. It executed: results/bench-scoreboard.md
     # scores `variable-size-trusted` PASS off a line FwSanReport prints immediately before
-    # making that call. Compare every hand-written prototype against the definition rather
-    # than trusting them to match.
+    # making that call.
+    #
+    # It is declared in MdeModulePkg/Include/Library/Asan.h now, beside its siblings, and
+    # AsanLib's Asan.c includes that header -- so the DEFINITION is checked against the
+    # declaration by the compiler and the next disagreement there cannot build. What is
+    # asserted here is the part a compiler still cannot see:
+    #
+    #   * the header's declaration and the definition agree, since the header is only an
+    #     authority while it matches;
+    #   * FwSanDxe.c, which can include the header and is where the defect was, keeps no
+    #     prototype of its own to drift;
+    #   * the two weak definitions in MdePkg still match. Those CANNOT be replaced by an
+    #     include -- MdePkg must not depend on MdeModulePkg, and an undefined weak leaves
+    #     a relocation GenFw rejects, so they have to define rather than declare. They are
+    #     the remaining copies and this is the only thing comparing them.
     params = re.compile(r'AsanReportFirmwareClass\s*\(\s*(?P<params>[^)]*?)\)\s*[;{]', re.S)
     def signature(text):
         """[(type, name)] of the first AsanReportFirmwareClass parameter list in text."""
@@ -1015,9 +1028,32 @@ def main():
     check('the definition still takes Detail second',
           want is not None and len(want) >= 2 and want[1][1] == 'Detail',
           str(want))
+    header = os.path.join('uefi_asan', 'Asan.h')
+    got = signature(open(os.path.join(ROOT, header), errors='replace').read())
+    check('the header declares the same parameters as the definition',
+          got == want, f'{got} != {want} -- a header is an authority only while it '
+                       f'matches the definition it stands for')
+    head_text = open(os.path.join(ROOT, header), errors='replace').read()
+    check('the header also declares AsanSignalSolution',
+          'AsanSignalSolution' in head_text,
+          'FwSanDxe.c dropped its own declaration of it in favour of this header')
+
+    # The call site that had the defect. Its correct state is now the ABSENCE of a
+    # prototype: signature() finds a declaration or definition, never a call, so None
+    # here means nothing local shadows the header.
+    fw = os.path.join('eval_source', 'edk2', 'MdeModulePkg', 'Universal', 'FwSanDxe',
+                      'FwSanDxe.c')
+    fw_text = open(os.path.join(ROOT, fw), errors='replace').read()
+    check(f'{fw} includes the header rather than declaring the call',
+          '#include <Library/Asan.h>' in fw_text,
+          'without the include the call is unprototyped and the arguments are '
+          'whatever the call site happens to pass')
+    check(f'{fw} keeps no prototype of its own',
+          signature(fw_text) is None,
+          f'{signature(fw_text)} -- a local prototype shadows the header and can drift '
+          f'from it again, which is the whole defect')
+
     callers = [
-        os.path.join('eval_source', 'edk2', 'MdeModulePkg', 'Universal', 'FwSanDxe',
-                     'FwSanDxe.c'),
         os.path.join('uefi_asan', 'AsanMemoryLib', 'AsanHelper.c'),
         os.path.join('uefi_asan', 'AsanMemoryLibRepStr', 'AsanHelper.c'),
     ]
@@ -1030,8 +1066,8 @@ def main():
         got = signature(open(path, errors='replace').read())
         check(f'{rel} declares the same parameters as the definition',
               got == want, f'{got} != {want}')
-    check('every known caller was compared', seen == len(callers),
-          f'{seen} of {len(callers)} -- a caller that moved is a caller nothing checks')
+    check('every remaining hand-written copy was compared', seen == len(callers),
+          f'{seen} of {len(callers)} -- a copy that moved is a copy nothing checks')
 
     print(f'{len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
