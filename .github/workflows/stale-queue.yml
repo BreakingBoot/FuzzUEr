@@ -78,6 +78,16 @@ jobs:
               watchdog-force*)  MODE='cancel-stale' ;;
               *)                MODE='cancel-idle'  ;;
             esac
+            # A trailing number in the branch name is the threshold in minutes, because a
+            # push carries no inputs and the default is wrong for the forced sweep. Work
+            # queued behind a cross-version run waits legitimately for HOURS -- at the
+            # 45-minute default a forced sweep would cancel exactly the long jobs it is
+            # meant to protect. `watchdog-force-600` clears only what has been queued for
+            # ten hours, which no legitimate queue on one runner ever is.
+            case "$BRANCH" in
+              *-[0-9]|*-[0-9][0-9]|*-[0-9][0-9][0-9]|*-[0-9][0-9][0-9][0-9])
+                AGE="${BRANCH##*-}" ;;
+            esac
           fi
           case "$AGE" in ''|*[!0-9]*)
             echo "::error::max_age_minutes must be a whole number, got '$AGE'"; exit 1 ;;
