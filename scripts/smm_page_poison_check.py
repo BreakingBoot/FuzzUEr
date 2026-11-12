@@ -1534,6 +1534,27 @@ def main():
           f'double free is only unmarkable because the free list node overwrites offset '
           f'0; if Signature moved, mark the header instead')
 
+    # The init-time bulk poison, which is a DELIBERATE divergence from the DXE core and
+    # reads like an oversight. SmmAddMemoryRegion frees the whole SMRAM region through
+    # SmmInternalFreePagesEx with AddRegion TRUE, and the poison is NOT gated on it, so
+    # every byte of free SMRAM is poisoned before anything is ever allocated. Gating on
+    # !AddRegion would match the DXE model and look tidier, and it would LOSE the
+    # detection this buys: a read of SMRAM that was never allocated is caught only
+    # because the init poison got there first, which is most of what makes a use-after-
+    # free in SMM visible before any free has happened.
+    #
+    # Safe is settled -- the SMM builds boot with it and campaigns run, 288/290 images
+    # instrumented. What it DETECTS is still pending the smm-* benchmark rows, so the
+    # gate is asserted rather than the benefit.
+    free_pages = body(page, 'SmmInternalFreePagesEx')
+    poison_line = re.search(r'^ {2,4}PoisonPool \(PoisonStart', free_pages, re.M)
+    guard = re.search(r'if \(\s*!?\s*AddRegion\s*\)', free_pages)
+    check('the page poison is not gated on AddRegion',
+          poison_line is not None
+          and (guard is None or guard.start() > poison_line.start()),
+          'gating the poison on !AddRegion would skip the init-time bulk poison of free '
+          'SMRAM, which is what catches a read of memory that was never allocated')
+
     # And the premise that it bypasses the quarantine at all.
     check('a block over MAX_POOL_SIZE still goes straight to the page allocator',
           re.search(r'if \(FreePoolHdr->Header\.Size > MAX_POOL_SIZE\) \{'
