@@ -176,20 +176,30 @@ jobs:
               else:
                   waiting.append((run, age))
 
-          print(f'{len(queued)} queued: {len(orphans)} orphaned, {len(waiting)} waiting '
-                f'for a runner, {len(young)} inside the {grace}m grace, '
-                f'{len(unknown)} unreadable')
+          # Fresh orphans are the signal: something has just broken, and that is what a
+          # half-hourly watchdog is for. Older ones are RESIDUE -- already attempted,
+          # unclearable, and waiting on the retention window -- so they are counted rather
+          # than tabled. Without this split the six from 2026-11-11 would be six table
+          # rows and a warning every thirty minutes for ninety days, which is how a
+          # watchdog stops being read.
+          residue = [(r, a) for r, a in orphans if a >= 24 * 60]
+          fresh = [(r, a) for r, a in orphans if a < 24 * 60]
+
+          print(f'{len(queued)} queued: {len(fresh)} newly orphaned, {len(residue)} '
+                f'older than a day, {len(waiting)} waiting for a runner, {len(young)} '
+                f'inside the {grace}m grace, {len(unknown)} unreadable')
 
           lines = ['### Stale queue', '',
                    f'- mode `{mode}`, grace {grace} min',
-                   f'- {len(orphans)} orphaned (queued with **zero jobs**), '
+                   f'- {len(fresh)} newly orphaned (queued with **zero jobs**), '
+                   f'{len(residue)} older than a day, '
                    f'{len(waiting)} waiting for a runner', '']
-          if orphans:
+          if fresh:
               lines += ['| run | workflow | branch | queued for | cleared |',
                         '|---|---|---|---|---|']
 
           cleared = unremovable = 0
-          for run, age in orphans:
+          for run, age in fresh:
               note = 'not attempted'
               if mode == 'clear':
                   # Cancel first. It is accepted with 202 and does nothing on a jobless
@@ -228,7 +238,7 @@ jobs:
               lines.append(f"| [{run['id']}]({run['html_url']}) | {run.get('name')} | "
                            f"`{run.get('head_branch')}` | {age:.0f} min | {note} |")
 
-          if orphans:
+          if fresh:
               lines.append('')
               lines.append('These were created and never expanded into jobs, so no runner '
                            'was ever offered them. An orphaned run does not recover: '
@@ -253,11 +263,21 @@ jobs:
           # Loud, because silence is what cost seventeen hours. A notice rather than a
           # failure: the queue being stuck is not this workflow malfunctioning, and a red
           # watchdog every half hour trains people to ignore it.
-          if orphans and mode == 'clear':
-              print(f'::warning::{len(orphans)} run(s) were queued with zero jobs and '
-                    f'will never start; cleared {cleared}. Re-push to re-run them.')
-          elif orphans:
-              print(f'::warning::{len(orphans)} run(s) are queued with zero jobs and will '
+          if residue:
+              oldest = max(a for _, a in residue) / (24 * 60)
+              # One line, not a warning. Nothing can be done about these and saying so
+              # every half hour is noise, not information.
+              lines.append('')
+              lines.append(f'{len(residue)} orphaned run(s) older than a day, oldest '
+                           f'{oldest:.1f} days. Neither cancellable nor deletable; they '
+                           f'go with the retention window. Not re-attempted.')
+              print(f'  {len(residue)} older orphan(s) left alone, oldest '
+                    f'{oldest:.1f} days')
+          if fresh and mode == 'clear':
+              print(f'::warning::{len(fresh)} run(s) were queued with zero jobs and will '
+                    f'never start; cleared {cleared}. Re-push to re-run them.')
+          elif fresh:
+              print(f'::warning::{len(fresh)} run(s) are queued with zero jobs and will '
                     f'never start (mode={mode}, nothing was cleared)')
           if unremovable:
               print(f'::warning::{unremovable} orphaned run(s) cannot be removed at all: '
