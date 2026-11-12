@@ -1562,6 +1562,60 @@ def main():
           'if this arm ever routed through the quarantine the block would be marked '
           'and the signature check above would be the wrong mechanism')
 
+    print('\nthe SMI has to be raised from the published communication region')
+    drive_src = read(os.path.join(FORK, 'MdeModulePkg', 'Application', 'SanBenchDrive',
+                                  'SanBenchDrive.c'))
+    raise_body = body(drive_src, 'SmmRaise')
+    check('the comm buffer comes from the published region, not AllocatePool',
+          'SmmCommRegion (' in raise_body and 'AllocatePool (' not in raise_body,
+          'SmmMemLib rejects a pool buffer: SmmIsBufferOutsideSmmValid requires the '
+          'buffer to be inside EDKII_PI_SMM_COMMUNICATION_REGION_TABLE, and the SMM '
+          'core calls it on gSmmCorePrivate->CommunicationBuffer BEFORE SmiManage. '
+          'With a pool buffer every smm-* row missed, for the whole life of those rows, '
+          'while the firmware printed "Not in ValidCommunicationRegion" every boot')
+    check('and the region is found by the GUID the firmware publishes it under',
+          'gEdkiiPiSmmCommunicationRegionTableGuid' in drive_src
+          and 'PiSmmCommunicationRegionTable.h' in drive_src)
+    # The comparison, not the token: this file's own comment names the type, and a
+    # substring test passes while the code selects any entry at all.
+    check('only a free entry in the region is used',
+          re.search(r'Entry->Type\s*==\s*EfiConventionalMemory',
+                    body(drive_src, 'SmmCommRegion')) is not None,
+          'the other entries are regions already handed to another consumer, and '
+          'writing a comm buffer over one corrupts whatever is using it')
+    check('the region is not freed',
+          'FreePool (Buffer)' not in raise_body,
+          'it is firmware-published shared memory and freeing it corrupts the next '
+          'consumer of the same region')
+    check('a failed Communicate prints its status',
+          'status=' in raise_body,
+          'without it the scoreboard can only say the SMI did not arrive, which is how '
+          'a rejected buffer read as a missing handler')
+
+    print('\nand the scoreboard names the refusal instead of guessing')
+    for status, wanted in (('0F', 'EFI_ACCESS_DENIED'),
+                           ('0E', 'EFI_NOT_FOUND'),
+                           ('03', 'EFI_UNSUPPORTED'),
+                           ('02', 'EFI_INVALID_PARAMETER')):
+        got = verdict('smm-pool-overflow', log('smm-pool-overflow',
+                      [f'SanBenchDrive: the SMI was not delivered, status={status} '
+                       f'-- not attempted']))
+        check(f'status {status} is named {wanted}',
+              got['verdict'] == 'MISS' and wanted in got['detail'],
+              f"{got['verdict']}: {got['detail']}")
+    got = verdict('smm-pool-overflow', log('smm-pool-overflow',
+                  ['SanBenchDrive: no SMM communication region -- not attempted']))
+    check('a missing REGION is not reported as a missing PROTOCOL',
+          'region' in got['detail'] and 'no communication protocol' not in got['detail'],
+          f"{got['detail']} -- the two messages share a prefix, and matching the prefix "
+          f'names the wrong cause')
+    got = verdict('smm-pool-overflow', log('smm-pool-overflow',
+                  ['SanBenchDrive: the SMI was not delivered -- not attempted']))
+    check('an older driver with no status says so rather than inventing a cause',
+          got['verdict'] == 'MISS' and 'does not say' in got['detail'],
+          f"{got['detail']} -- \"it reached no handler\" was the one cause that was "
+          f'NOT happening, and it was printed for weeks')
+
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
 

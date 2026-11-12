@@ -266,6 +266,34 @@ def boot(args, case, work):
     return read(serial), read(debug)
 
 
+# The low byte of the EFI_STATUS SanBenchDrive prints when Communicate() fails. These
+# are four different failures and this row used to call all of them "it reached no
+# handler" -- which named the one cause that was NOT happening. The real one for the
+# whole life of the smm-* rows was 0F: the core rejecting a comm buffer that was not
+# inside the published communication region, long before SmiManage ran.
+SMI_REFUSAL = {
+    '02': 'EFI_INVALID_PARAMETER -- the core would not call SmiManage',
+    '03': 'EFI_UNSUPPORTED -- the software SMI never triggered',
+    '04': 'EFI_BAD_BUFFER_SIZE -- the payload is larger than SMM accepts',
+    '0E': 'EFI_NOT_FOUND -- SmiManage has no handler for that GUID',
+    '0F': 'EFI_ACCESS_DENIED -- the core refused the communication buffer',
+}
+
+
+def smi_refusal(after):
+    """Why SanBenchDrive said the SMI was not attempted, in the driver's own words."""
+    if 'no SMM communication protocol' in after:
+        return 'no communication protocol'
+    if 'no SMM communication region' in after:
+        return 'the firmware published no SMM communication region to raise it from'
+    code = re.search(r'the SMI was not delivered, status=([0-9A-Fa-f]{2})', after)
+    if code:
+        digits = code.group(1).upper()
+        return SMI_REFUSAL.get(digits, f'Communicate() returned 0x{digits}')
+    # An older SanBenchDrive printed no status. Say that rather than inventing a cause.
+    return 'Communicate() failed and this build does not say with what'
+
+
 def score_one(args, case, expect, unreachable, work):
     serial, debug = boot(args, case, work)
 
@@ -343,10 +371,8 @@ def score_one(args, case, expect, unreachable, work):
                         reports=[])
         if 'not attempted' in after:
             return dict(case=case, verdict='MISS',
-                        detail='SanBenchSmm IS in this image but the SMI did not arrive: '
-                               + ('no communication protocol'
-                                  if 'no SMM communication' in after
-                                  else 'it reached no handler'),
+                        detail='SanBenchSmm IS in this image but the SMI did not '
+                               'arrive: ' + smi_refusal(after),
                         reports=reports[:4])
 
     # A control must be silent. Tested on the NAME, because the third column of CASES is
