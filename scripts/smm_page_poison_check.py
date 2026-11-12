@@ -1456,6 +1456,91 @@ def main():
           {'NO BOOT', 'ERROR'} <= set(bench.SCORED),
           f'SCORED={bench.SCORED}')
 
+    # ------------------------------------------------------------------
+    # A bad free must report, not deadloop the SMI.
+    #
+    # Upstream answers a free of something that is not a live pool head with an ASSERT,
+    # and PcdDebugPropertyMask is 0x2F in this build: ASSERT takes the deadloop arm, and
+    # a CpuDeadLoop inside an SMI never returns to the guest. The report would be on the
+    # wire and every later iteration of the campaign lost.
+    #
+    # The ORDER is the whole property and nothing about the code reads as order
+    # dependent, which is why it is asserted here. Two shapes reach it:
+    #
+    #   * a page-backed block, Size > MAX_POOL_SIZE, double freed. It never enters the
+    #     quarantine -- that arm calls SmmInternalFreePages directly -- so it is never
+    #     marked, and once its pages are freed their first 24 bytes become the
+    #     FREE_PAGE_LIST node. Signature is at OFFSET 0 of POOL_HEADER, so
+    #     Link.ForwardLink overwrites it and the second free arrives with a pointer
+    #     there: not the quarantine signature, not POOL_HEAD_SIGNATURE.
+    #   * a bucket block whose quarantine slot was evicted, which is back on
+    #     mSmmPoolLists with Available set.
+    # ------------------------------------------------------------------
+    print()
+    free_pool = body(pool, 'SmmInternalFreePool')
+    check('SmmInternalFreePool was found to inspect', bool(free_pool))
+
+    def at(pattern):
+        found = re.search(r'^ {2,4}%s' % pattern, free_pool, re.M)
+        return found.start() if found else -1
+
+    bad_sig = at(r'if \(FreePoolHdr->Header\.Signature != POOL_HEAD_SIGNATURE\) \{')
+    bad_avail = at(r'if \(FreePoolHdr->Header\.Available\) \{')
+    assert_sig = at(r'ASSERT \(FreePoolHdr->Header\.Signature == POOL_HEAD_SIGNATURE\);')
+    assert_avail = at(r'ASSERT \(!FreePoolHdr->Header\.Available\);')
+    tail_read = at(r'PoolTail = HEAD_TO_TAIL')
+
+    check('a free of something that is not a live pool head is reported',
+          bad_sig > 0 and 'bug_descr=invalid-free' in free_pool,
+          'without this a page-backed double free is a CpuDeadLoop in an SMI')
+    check('the report comes BEFORE the signature ASSERT',
+          0 < bad_sig < assert_sig,
+          f'report at {bad_sig}, ASSERT at {assert_sig} -- after it the ASSERT has '
+          f'already deadlooped and the campaign is over')
+    check('a free of a block the allocator already holds is reported',
+          bad_avail > 0 and free_pool.count('bug_descr=double-free') >= 2,
+          'an evicted quarantine slot is back on mSmmPoolLists with Available set')
+    check('that report comes BEFORE the Available ASSERT',
+          0 < bad_avail < assert_avail,
+          f'report at {bad_avail}, ASSERT at {assert_avail}')
+    check('both come before any POOL_TAIL read',
+          0 < bad_sig < tail_read and 0 < bad_avail < tail_read,
+          f'tail read at {tail_read} -- the tail of a block in this state is not '
+          f'readable, and reading it is a report about the sanitizer rather than '
+          f'about the firmware')
+    check('both escalate so a campaign scores them',
+          free_pool.count('AsanSignalSolution ();') >= 3,
+          f"{free_pool.count('AsanSignalSolution ();')} call(s) -- the quarantine "
+          f"double free plus these two")
+    check('both return EFI_INVALID_PARAMETER rather than carrying on',
+          free_pool.count('return EFI_INVALID_PARAMETER;') >= 4,
+          'carrying on would run the allocator over a block it cannot describe')
+
+    # The structural fact the page-backed case rests on. If Signature stopped being the
+    # first member, a marker WOULD survive the free and the cheaper fix would be to mark
+    # the header instead of checking for garbage -- so this is the premise, not trivia.
+    header = read(os.path.join(SMM, 'PiSmmCore.h'))
+    # Anchored on the NEAREST opening brace, not the first in the file: a non-greedy
+    # `typedef struct \{(.*?)\} POOL_HEADER;` starts at whichever struct comes first in
+    # PiSmmCore.h and spans every one between, so its "first member" is another type's.
+    end = header.find('} POOL_HEADER;')
+    start = header.rfind('typedef struct {', 0, end) if end > 0 else -1
+    members = [l.strip() for l in header[start:end].splitlines()[1:] if l.strip()] \
+        if start > 0 else []
+    check('Signature is still the first member of POOL_HEADER',
+          bool(members) and members[0].split()[0] == 'UINT32'
+          and members[0].split()[1].rstrip(';') == 'Signature',
+          f'first member is {members[0] if members else "unreadable"} -- the page-backed '
+          f'double free is only unmarkable because the free list node overwrites offset '
+          f'0; if Signature moved, mark the header instead')
+
+    # And the premise that it bypasses the quarantine at all.
+    check('a block over MAX_POOL_SIZE still goes straight to the page allocator',
+          re.search(r'if \(FreePoolHdr->Header\.Size > MAX_POOL_SIZE\) \{'
+                    r'.*?SmmInternalFreePages \(', free_pool, re.S) is not None,
+          'if this arm ever routed through the quarantine the block would be marked '
+          'and the signature check above would be the wrong mechanism')
+
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
 
