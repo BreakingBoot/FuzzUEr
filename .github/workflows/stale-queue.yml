@@ -1,0 +1,228 @@
+# Notice when a workflow run is queued that will never start, and clear it.
+#
+# Measured 2026-11-11/12. Six runs were pushed between 20:28 and 20:41, the self-hosted
+# runner finished its last job at 21:58, and at 13:11 the next day all six were still
+# `queued` with `updated_at` never having moved -- seventeen hours. The runner was alive
+# and idle the whole time and had been offered nothing: all three runners on that machine
+# tore down and re-created their broker sessions overnight, and GitHub never re-dispatched
+# the runs that were already queued when it happened.
+#
+# The important part is that an orphaned run NEVER recovers. Restarting the runner does not
+# bring it back -- measured: a restart at 13:14 left all six queued, while a branch pushed
+# at 13:19 was picked up in 35 seconds. The only cure is a fresh run, so the only thing
+# this can usefully do is make the condition loud and stop the dead runs cluttering the
+# queue. It deliberately does not re-dispatch anything: these are hours-long firmware jobs
+# and a watchdog that silently started several of them would be worse than the fault.
+#
+# RUNS ON A GITHUB-HOSTED RUNNER, which is the whole point. A watchdog on the self-hosted
+# runner cannot report that the self-hosted runner is not picking up work -- it would sit
+# in the same queue it is supposed to be watching. This needs no firmware, no disk and no
+# container: it reads the API and exits.
+name: Stale queue
+
+on:
+  schedule:
+    # Every half hour. `schedule` only fires from the default branch, which is where this
+    # file lives; the cost is seconds of a hosted runner.
+    - cron: '7,37 * * * *'
+  # Push `watchdog-report-<anything>` to look without touching anything,
+  # `watchdog-force-<anything>` to clear stale runs even while the runner is busy, or
+  # `watchdog-<anything>` for the ordinary idle-runner sweep.
+  #
+  # Use the FORCE variant from a push. checks.yml triggers on every branch -- deliberately,
+  # and e2e_gate_check.py asserts it -- so pushing a branch here starts a Checks job on the
+  # self-hosted runner, the runner is then busy, and the idle sweep correctly finds nothing
+  # to do. The scheduled runs push nothing and so see the real idle state; that is the path
+  # this exists for, and the push triggers are for driving it by hand.
+  push:
+    branches: ['watchdog-**']
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'report | cancel-idle | cancel-stale'
+        required: false
+        default: 'cancel-idle'
+      max_age_minutes:
+        description: 'A queued run older than this is a candidate'
+        required: false
+        default: '45'
+
+# To cancel a run, and to read the runners' own state. Nothing else.
+permissions:
+  actions: write
+
+jobs:
+  stale-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Find queued runs that will never start
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLUG: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          BRANCH: ${{ github.ref_name }}
+          SELF: ${{ github.run_id }}
+          IN_MODE: ${{ github.event.inputs.mode }}
+          IN_AGE: ${{ github.event.inputs.max_age_minutes }}
+        run: |
+          set -uo pipefail
+          MODE="${IN_MODE:-cancel-idle}"
+          AGE="${IN_AGE:-45}"
+          # From the branch name on a push, which carries no inputs. Matched, never
+          # evaluated: a branch name is attacker-controlled text in the general case.
+          if [ "$EVENT" = 'push' ]; then
+            case "$BRANCH" in
+              watchdog-report*) MODE='report'       ;;
+              watchdog-force*)  MODE='cancel-stale' ;;
+              *)                MODE='cancel-idle'  ;;
+            esac
+          fi
+          case "$AGE" in ''|*[!0-9]*)
+            echo "::error::max_age_minutes must be a whole number, got '$AGE'"; exit 1 ;;
+          esac
+          echo "mode=$MODE max_age=${AGE}m"
+          python3 - "$SLUG" "$MODE" "$AGE" "$SELF" <<'PY'
+          import json, os, sys, urllib.error, urllib.request
+          from datetime import datetime, timezone
+
+          slug, mode, age, me = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+          token = os.environ['GH_TOKEN']
+          api = 'https://api.github.com'
+
+          def call(method, path):
+              req = urllib.request.Request(f'{api}{path}', method=method)
+              req.add_header('Authorization', f'Bearer {token}')
+              req.add_header('Accept', 'application/vnd.github+json')
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as got:
+                      body = got.read()
+                      return got.status, (json.loads(body) if body else {})
+              except urllib.error.HTTPError as exc:
+                  return exc.code, {'message': exc.read().decode('utf-8', 'replace')[:200]}
+              except OSError as exc:
+                  return 0, {'message': str(exc)}
+
+          now = datetime.now(timezone.utc)
+
+          def minutes(stamp):
+              when = datetime.strptime(stamp, '%Y-%m-%dT%H:%M:%SZ').replace(
+                  tzinfo=timezone.utc)
+              return (now - when).total_seconds() / 60.0
+
+          # This workflow's own runs are excluded everywhere below. It runs on a hosted
+          # runner, so counting it as in-progress work would make the self-hosted runner
+          # look busy for as long as the watchdog itself takes -- and the watchdog would
+          # then never find anything.
+          mine = os.environ.get('GITHUB_WORKFLOW', 'Stale queue')
+
+          runs, page = [], 1
+          while page <= 10:
+              status, body = call('GET', f'/repos/{slug}/actions/runs'
+                                         f'?per_page=100&page={page}')
+              if status != 200:
+                  sys.exit(f'::error::cannot list runs ({status}): '
+                           f'{body.get("message")}')
+              batch = body.get('workflow_runs') or []
+              if not batch:
+                  break
+              runs.extend(batch)
+              page += 1
+
+          queued = [r for r in runs
+                    if r['status'] in ('queued', 'pending', 'waiting')
+                    and str(r['id']) != me and r.get('name') != mine]
+          busy_runs = [r for r in runs
+                       if r['status'] == 'in_progress'
+                       and str(r['id']) != me and r.get('name') != mine]
+
+          # The runners' own state is the decisive signal. A run queued behind a 7-hour
+          # cross-version job is not orphaned however old it is, and age alone cannot
+          # tell the two apart -- which is why this asks the runners rather than guessing
+          # from a threshold.
+          status, body = call('GET', f'/repos/{slug}/actions/runners')
+          runners = body.get('runners') or [] if status == 200 else []
+          if status != 200:
+              print(f'::warning::cannot read the runners ({status}): '
+                    f'{body.get("message")} -- falling back to age alone')
+          online = [r for r in runners if r.get('status') == 'online']
+          busy = [r for r in online if r.get('busy')]
+          print(f'{len(runs)} run(s) known: {len(queued)} queued, '
+                f'{len(busy_runs)} in progress')
+          for runner in runners:
+              print(f"  runner {runner.get('name')}: {runner.get('status')}, "
+                    f"busy={runner.get('busy')}")
+          if runners and not online:
+              print('::error::every registered runner is OFFLINE, so nothing queued here '
+                    'can start -- the machine or its runner service is down')
+
+          idle = bool(runners) and not busy and not busy_runs
+          stale = [r for r in queued if minutes(r['created_at']) >= age]
+
+          # cancel-idle: the measured fault. Queued work, a runner that is online and not
+          # busy, and nothing in progress -- so there is no job it could be waiting for.
+          # cancel-stale: the same age filter without the idle requirement, for clearing
+          # runs already known to be dead while something unrelated occupies the runner.
+          if mode == 'cancel-stale':
+              doomed = stale
+          elif mode == 'cancel-idle':
+              doomed = stale if idle else []
+          else:
+              doomed = []
+
+          lines = ['### Stale queue', '',
+                   f'- mode `{mode}`, threshold {age} min',
+                   f'- {len(queued)} queued, {len(busy_runs)} in progress, '
+                   f'runners: {len(online)} online / {len(busy)} busy', '']
+          if queued:
+              lines += ['| run | workflow | branch | queued for |', '|---|---|---|---|']
+              for r in sorted(queued, key=lambda r: r['created_at']):
+                  lines.append(f"| [{r['id']}]({r['html_url']}) | {r.get('name')} | "
+                               f"`{r.get('head_branch')}` | "
+                               f"{minutes(r['created_at']):.0f} min |")
+              lines.append('')
+
+          cancelled = failed = 0
+          for r in doomed:
+              status, body = call('POST', f"/repos/{slug}/actions/runs/{r['id']}/cancel")
+              # 409 is "already finished" -- it started or was cancelled between the
+              # listing and now, which is a race and not a failure.
+              if status in (202, 409):
+                  cancelled += 1
+                  print(f"  cancelled {r['id']} {r.get('name')} "
+                        f"({r.get('head_branch')})")
+              else:
+                  failed += 1
+                  print(f"::warning::could not cancel {r['id']} ({status}): "
+                        f"{body.get('message')}")
+
+          if doomed:
+              lines.append(f'Cancelled {cancelled} of {len(doomed)}'
+                           + (f', {failed} failed' if failed else '') + '.')
+              lines.append('')
+              lines.append('An orphaned run never recovers, so these were cleared rather '
+                           'than waited on. Re-push the branch to get a fresh run.')
+          elif stale and not idle:
+              lines.append(f'{len(stale)} run(s) past the threshold, but the runner is '
+                           f'busy -- treated as a legitimate queue, not as orphaned.')
+
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary, 'a', encoding='utf-8') as handle:
+                  handle.write('\n'.join(lines) + '\n')
+          print('\n'.join(lines))
+
+          # Loud, because silence is what cost seventeen hours. A notice rather than a
+          # failure: the queue being stuck is not this workflow malfunctioning, and a red
+          # watchdog every half hour trains people to ignore it.
+          if doomed:
+              print(f'::warning::cleared {cancelled} orphaned run(s) -- queued work with '
+                    f'an idle runner. Re-push to re-run them.')
+          elif stale and idle:
+              print(f'::warning::{len(stale)} run(s) queued over {age} min with an idle '
+                    f'runner, and this run did not clear them (mode={mode})')
+          if failed:
+              sys.exit('::error::some runs could not be cancelled -- the token needs '
+                       'Actions: write')
+          PY

@@ -28,6 +28,7 @@ copy would drift; this cannot.
 """
 
 import ast
+import glob
 import json
 import os
 import re
@@ -724,6 +725,49 @@ def shell_plumbing():
     return bad
 
 
+def action_pins():
+    """Every `uses:` that names this action must name it in a form GitHub will resolve.
+
+    A SHORTENED commit SHA is not one. `uses: BreakingBoot/FuzzUEr@d02e72e2` fails with
+    "the provided ref `d02e72e2` is the shortened version of a commit SHA, which is not
+    supported", and it fails FOUR SECONDS into the job -- after the queue wait, after the
+    checkout -- so it reads as the campaign having died rather than as a bad pin. Measured
+    2026-11-12 on BreakingBoot/eval1_edk2, which had been pinned by a full SHA until the
+    pin was bumped by hand.
+
+    It matters most in examples/: that file is what a consumer copies, and a short SHA
+    there breaks every repository that copies it, in a way nothing in this repository runs.
+    """
+    print('and every action pin is in a form GitHub resolves')
+    bad = 0
+    pin = re.compile(r'uses:\s*([A-Za-z0-9._-]+/[A-Za-z0-9._-]+)@(\S+)')
+    seen = 0
+    for path in sorted(glob.glob(os.path.join(FLOW, '*.yml'))
+                       + glob.glob(os.path.join(REPO, 'examples', '*.yml'))
+                       + glob.glob(os.path.join(REPO, 'examples', '*.yaml'))):
+        for number, line in enumerate(
+                open(path, encoding='utf-8', errors='replace'), start=1):
+            hit = pin.search(line)
+            if not hit:
+                continue
+            repo, ref = hit.group(1), hit.group(2).strip().strip('"\'')
+            seen += 1
+            # A full SHA, or a name. The failure mode is the thing in between: hex, and
+            # short enough to look like a convenient abbreviation.
+            hexish = all(c in '0123456789abcdefABCDEF' for c in ref)
+            if hexish and len(ref) != 40 and len(ref) >= 6:
+                print(f'  [FAIL] {os.path.basename(path)}:{number} {repo}@{ref} '
+                      f'is a shortened SHA ({len(ref)} chars) -- GitHub refuses it, '
+                      f'four seconds into the job')
+                bad = 1
+    if not seen:
+        print('  [FAIL] no `uses: owner/repo@ref` pin was found to check at all')
+        bad = 1
+    else:
+        print(f'  [ok  ] {seen} pin(s), none a shortened SHA')
+    return bad
+
+
 def sweep_claimed():
     sys.path.insert(0, HERE)
     import sweep_verdict
@@ -732,7 +776,7 @@ def sweep_claimed():
 
 def main():
     bad = (stable_gate() | cross_gate() | paired_verdict() | shell_plumbing()
-           | triggers())
+           | triggers() | action_pins())
     print('  end-to-end gates: ' + ('FAILED' if bad else 'OK'))
     return bad
 
