@@ -27,6 +27,7 @@ So this EXTRACTS the live gates out of the workflows and runs them against fixtu
 copy would drift; this cannot.
 """
 
+import ast
 import json
 import os
 import re
@@ -158,10 +159,16 @@ def stable_gate():
 # cross-version.yml
 #
 # The verdict step there judges exit codes, and sweep_verdict.py --selftest already
-# asserts that policy. What is asserted here is the OTHER half: that the four stages which
-# can notice a release moving under the port actually ran. Under --skip-fuzz every exit
-# code can be 0 while `detects` never ran, and the whole gate would be green having
-# proved the firmware compiles and nothing about whether ASan is in it.
+# asserts that policy. What is asserted here is the OTHER half: that the six stages which
+# can notice a release moving under the port actually ran. Every exit code can be 0 while
+# a stage never ran, and the whole gate would be green having proved the firmware compiles
+# and nothing about whether ASan is in it, or whether a harness can be built for that
+# release at all.
+#
+# `fuzz` and `triage` are in that set since the gate stopped being qualify-only. They are
+# the only per-version evidence that a HARNESS can be generated, built and driven against
+# the release's own headers, which no amount of firmware checking implies -- so a ref that
+# skipped them must not qualify, and the fuzz-skipped case below is what holds that.
 # ---------------------------------------------------------------------------
 
 QUALIFIED = [{'name': 'port', 'ok': True, 'detail': '22 clean, 9 resolved, 0 unresolved'},
@@ -169,8 +176,9 @@ QUALIFIED = [{'name': 'port', 'ok': True, 'detail': '22 clean, 9 resolved, 0 unr
              {'name': 'instrumented', 'ok': True, 'detail': '246/246 modules'},
              {'name': 'discover', 'ok': True, 'detail': '244 protocol(s)'},
              {'name': 'detects', 'ok': True, 'detail': 'benchmark 12 of 12'},
-             {'name': 'fuzz', 'ok': None, 'detail': 'not run: --skip-fuzz'},
-             {'name': 'triage', 'ok': None, 'detail': 'not run: --skip-fuzz'}]
+             {'name': 'fuzz', 'ok': True, 'detail': FUZZED},
+             {'name': 'triage', 'ok': True,
+              'detail': '0 candidate(s) from 0 cluster(s)'}]
 
 SPREAD = ['edk2-stable202305', 'edk2-stable202405', 'edk2-stable202508',
           'edk2-stable202608']
@@ -234,10 +242,40 @@ CROSS_CASES = [
                                                 ('master', 0, QUALIFIED)], 0,
      'a ref that died before writing one is the VERDICT step\'s error, and saying it '
      'twice is noise -- paired_verdict() asserts the job is still red'),
+    ('fuzz-skipped',
+     [(r, 0, QUALIFIED) for r in SPREAD[:3]]
+     + [(SPREAD[3], 0, with_stage('fuzz', None, 'not run: --skip-fuzz')),
+        ('master', 0, QUALIFIED)], 1,
+     'the hole the bounded gate exists to close: the firmware stages all passed and no '
+     'harness was ever generated for the newest release, with every exit code 0'),
+    ('triage-skipped',
+     [(r, 0, QUALIFIED) for r in SPREAD[:3]]
+     + [(SPREAD[3], 0, with_stage('triage', None, 'not run')),
+        ('master', 0, QUALIFIED)], 1,
+     'a campaign that ran and was never read is not a result'),
+    ('fuzz-degraded',
+     [(r, 0, QUALIFIED) for r in SPREAD[:3]]
+     + [(SPREAD[3], 2, with_stage('fuzz', 'warn',
+                                  '3/4 campaign(s) fuzzed the harness')),
+        ('master', 0, QUALIFIED)], 0,
+     'a campaign short of its targets RAN. No full-size sweep has ever come back '
+     'without one, so rejecting a WARN here would make this red on every run'),
     ('empty-ledger', [], 1,
      'no ref was qualified at all, which must never be green -- the failure a loop that '
      'never ran produces'),
 ]
+
+
+def gate_wants(source):
+    """The stage names cross-version.yml's own step insists on, read from its source.
+
+    A literal list here is a second copy of a policy, and the copy is what goes stale.
+    """
+    for node in ast.walk(ast.parse(source)):
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and getattr(node.targets[0], 'id', '') == 'WANT'):
+            return tuple(ast.literal_eval(node.value))
+    raise AssertionError('cross-version.yml\'s stage step declares no WANT tuple')
 
 
 def lay_out(root, ledger_path, refs):
@@ -301,6 +339,12 @@ def paired_verdict():
     source = extract(CROSS, 'The qualifying stages ran on every version', argc=2)
     bad = 0
     with tempfile.TemporaryDirectory() as tmp:
+        # The gate's own list, not a copy of it. This was spelled out here as
+        # ('port', 'build', 'instrumented', 'detects') and silently disagreed with the
+        # workflow the moment the gate started demanding fuzz and triage: every case
+        # using the clean fixture then went red while this still expected green, and the
+        # check failed in CI rather than reporting what changed.
+        want_stages = gate_wants(source)
         for name, refs, want, why in CROSS_CASES:
             root = os.path.join(tmp, name)
             os.makedirs(root)
@@ -318,10 +362,8 @@ def paired_verdict():
                 release.match(ref) and (code not in (0, 2) or stages is None
                                         or any(s['ok'] in (False, None)
                                                for s in stages
-                                               if s['name'] in ('port', 'build',
-                                                                'instrumented',
-                                                                'detects'))
-                                        or {'port', 'build', 'instrumented', 'detects'}
+                                               if s['name'] in want_stages)
+                                        or set(want_stages)
                                         - {s['name'] for s in stages})
                 for ref, code, stages in refs)
             if job_red != should:
@@ -500,7 +542,14 @@ os.makedirs(out, exist_ok=True)
 stages = [{'name': n, 'ok': True, 'detail': f'{n} ok'} for n in
           ('ready', 'fetch', 'submodules', 'port', 'vendor', 'sync', 'build',
            'instrumented', 'discover', 'image', 'detects')]
-stages += [{'name': n, 'ok': None, 'detail': 'not run: --skip-fuzz'}
+# Modelled on the driver's own contract rather than fixed: the gate fuzzes a bounded
+# subset by default and passes --skip-fuzz only when asked for 0 targets, so a stub that
+# always reported a skipped campaign would assert the gate against a shape it no longer
+# produces -- which is exactly how this check went stale.
+skipped = '--skip-fuzz' in sys.argv
+stages += [{'name': n,
+            'ok': None if skipped else True,
+            'detail': 'not run: --skip-fuzz' if skipped else f'{n} ok'}
            for n in ('fuzz', 'triage')]
 plan = dict(p.split('=') for p in os.environ.get('STUB_RC', '').split(',') if p)
 rc = int(plan.get(ref, 0))
