@@ -2,21 +2,33 @@
 #
 # Measured 2026-11-11/12. Six runs were pushed between 20:28 and 20:41, the self-hosted
 # runner finished its last job at 21:58, and at 13:11 the next day all six were still
-# `queued` with `updated_at` never having moved -- seventeen hours. The runner was alive
-# and idle the whole time and had been offered nothing: all three runners on that machine
-# tore down and re-created their broker sessions overnight, and GitHub never re-dispatched
-# the runs that were already queued when it happened.
+# `queued` with `updated_at` never once having moved -- seventeen hours.
 #
-# The important part is that an orphaned run NEVER recovers. Restarting the runner does not
-# bring it back -- measured: a restart at 13:14 left all six queued, while a branch pushed
-# at 13:19 was picked up in 35 seconds. The only cure is a fresh run, so the only thing
-# this can usefully do is make the condition loud and stop the dead runs cluttering the
-# queue. It deliberately does not re-dispatch anything: these are hours-long firmware jobs
-# and a watchdog that silently started several of them would be worse than the fault.
+# The cause is not the runner, which was the first and wrong conclusion. Those six runs
+# have NO JOBS AT ALL:
+#
+#     GET /actions/runs/43096224516/jobs  ->  total_count: 0
+#
+# while every run queued normally that day reports total_count 1, including ones waiting
+# behind a multi-hour job. GitHub created the run and never expanded it into jobs, so
+# there was never anything for a runner to be offered. That explains the whole shape of
+# it: restarting the runner changed nothing (measured -- a restart at 13:14 left all six
+# queued, while a branch pushed at 13:19 was picked up in 35 seconds), and POST .../cancel
+# is accepted with 202 and leaves the run queued, because there is no job to cancel.
+#
+# So the test is exact and needs no heuristic: queued, and zero jobs. A run waiting
+# legitimately behind a seven-hour cross-version build has a job and is left alone however
+# old it is, which is what an age threshold alone could never get right -- the first cut of
+# this file used one, and would have cancelled the long jobs it exists to protect.
+#
+# It deliberately does not re-dispatch anything. An orphaned run never recovers and the
+# only cure is a fresh run, but these are hours-long firmware jobs and a watchdog that
+# silently started several of them would be worse than the fault. It reports; a human
+# re-pushes.
 #
 # RUNS ON A GITHUB-HOSTED RUNNER, which is the whole point. A watchdog on the self-hosted
-# runner cannot report that the self-hosted runner is not picking up work -- it would sit
-# in the same queue it is supposed to be watching. This needs no firmware, no disk and no
+# runner cannot report that work is not reaching the self-hosted runner -- it would sit in
+# the same queue it is supposed to be watching. This needs no firmware, no disk and no
 # container: it reads the API and exits.
 name: Stale queue
 
@@ -25,29 +37,23 @@ on:
     # Every half hour. `schedule` only fires from the default branch, which is where this
     # file lives; the cost is seconds of a hosted runner.
     - cron: '7,37 * * * *'
-  # Push `watchdog-report-<anything>` to look without touching anything,
-  # `watchdog-force-<anything>` to clear stale runs even while the runner is busy, or
-  # `watchdog-<anything>` for the ordinary idle-runner sweep.
-  #
-  # Use the FORCE variant from a push. checks.yml triggers on every branch -- deliberately,
-  # and e2e_gate_check.py asserts it -- so pushing a branch here starts a Checks job on the
-  # self-hosted runner, the runner is then busy, and the idle sweep correctly finds nothing
-  # to do. The scheduled runs push nothing and so see the real idle state; that is the path
-  # this exists for, and the push triggers are for driving it by hand.
+  # Push `watchdog-report-<anything>` to look without touching anything, or
+  # `watchdog-<anything>` to clear what it finds.
   push:
     branches: ['watchdog-**']
   workflow_dispatch:
     inputs:
       mode:
-        description: 'report | cancel-idle | cancel-stale'
+        description: 'report | clear'
         required: false
-        default: 'cancel-idle'
-      max_age_minutes:
-        description: 'A queued run older than this is a candidate'
+        default: 'clear'
+      grace_minutes:
+        description: 'Ignore runs younger than this, so a run whose jobs have not
+                      appeared yet is not mistaken for one that will never have any'
         required: false
-        default: '45'
+        default: '10'
 
-# To cancel a run, and to read the runners' own state. Nothing else.
+# To cancel or delete a run, and to read the runners' own state. Nothing else.
 permissions:
   actions: write
 
@@ -65,39 +71,28 @@ jobs:
           BRANCH: ${{ github.ref_name }}
           SELF: ${{ github.run_id }}
           IN_MODE: ${{ github.event.inputs.mode }}
-          IN_AGE: ${{ github.event.inputs.max_age_minutes }}
+          IN_GRACE: ${{ github.event.inputs.grace_minutes }}
         run: |
           set -uo pipefail
-          MODE="${IN_MODE:-cancel-idle}"
-          AGE="${IN_AGE:-45}"
+          MODE="${IN_MODE:-clear}"
+          GRACE="${IN_GRACE:-10}"
           # From the branch name on a push, which carries no inputs. Matched, never
           # evaluated: a branch name is attacker-controlled text in the general case.
           if [ "$EVENT" = 'push' ]; then
             case "$BRANCH" in
-              watchdog-report*) MODE='report'       ;;
-              watchdog-force*)  MODE='cancel-stale' ;;
-              *)                MODE='cancel-idle'  ;;
-            esac
-            # A trailing number in the branch name is the threshold in minutes, because a
-            # push carries no inputs and the default is wrong for the forced sweep. Work
-            # queued behind a cross-version run waits legitimately for HOURS -- at the
-            # 45-minute default a forced sweep would cancel exactly the long jobs it is
-            # meant to protect. `watchdog-force-600` clears only what has been queued for
-            # ten hours, which no legitimate queue on one runner ever is.
-            case "$BRANCH" in
-              *-[0-9]|*-[0-9][0-9]|*-[0-9][0-9][0-9]|*-[0-9][0-9][0-9][0-9])
-                AGE="${BRANCH##*-}" ;;
+              watchdog-report*) MODE='report' ;;
+              *)                MODE='clear'  ;;
             esac
           fi
-          case "$AGE" in ''|*[!0-9]*)
-            echo "::error::max_age_minutes must be a whole number, got '$AGE'"; exit 1 ;;
+          case "$GRACE" in ''|*[!0-9]*)
+            echo "::error::grace_minutes must be a whole number, got '$GRACE'"; exit 1 ;;
           esac
-          echo "mode=$MODE max_age=${AGE}m"
-          python3 - "$SLUG" "$MODE" "$AGE" "$SELF" <<'PY'
-          import json, os, sys, urllib.error, urllib.request
+          echo "mode=$MODE grace=${GRACE}m"
+          python3 - "$SLUG" "$MODE" "$GRACE" "$SELF" <<'PY'
+          import json, os, sys, time, urllib.error, urllib.request
           from datetime import datetime, timezone
 
-          slug, mode, age, me = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+          slug, mode, grace, me = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
           token = os.environ['GH_TOKEN']
           api = 'https://api.github.com'
 
@@ -121,101 +116,117 @@ jobs:
                   tzinfo=timezone.utc)
               return (now - when).total_seconds() / 60.0
 
-          # This workflow's own runs are excluded everywhere below. It runs on a hosted
-          # runner, so counting it as in-progress work would make the self-hosted runner
-          # look busy for as long as the watchdog itself takes -- and the watchdog would
-          # then never find anything.
+          # This workflow's own runs are excluded. It runs on a hosted runner, so counting
+          # it would report the watchdog as work the self-hosted runner owes.
           mine = os.environ.get('GITHUB_WORKFLOW', 'Stale queue')
 
-          runs, page = [], 1
-          while page <= 10:
-              status, body = call('GET', f'/repos/{slug}/actions/runs'
-                                         f'?per_page=100&page={page}')
-              if status != 200:
-                  sys.exit(f'::error::cannot list runs ({status}): '
-                           f'{body.get("message")}')
-              batch = body.get('workflow_runs') or []
-              if not batch:
-                  break
-              runs.extend(batch)
-              page += 1
+          def queued_runs():
+              out, page = [], 1
+              while page <= 10:
+                  status, body = call('GET', f'/repos/{slug}/actions/runs'
+                                             f'?status=queued&per_page=100&page={page}')
+                  if status != 200:
+                      sys.exit(f'::error::cannot list runs ({status}): '
+                               f'{body.get("message")}')
+                  batch = body.get('workflow_runs') or []
+                  if not batch:
+                      break
+                  out.extend(batch)
+                  page += 1
+              return [r for r in out if str(r['id']) != me and r.get('name') != mine]
 
-          queued = [r for r in runs
-                    if r['status'] in ('queued', 'pending', 'waiting')
-                    and str(r['id']) != me and r.get('name') != mine]
-          busy_runs = [r for r in runs
-                       if r['status'] == 'in_progress'
-                       and str(r['id']) != me and r.get('name') != mine]
+          def job_count(run_id):
+              """How many jobs GitHub expanded this run into. None if it cannot be read."""
+              status, body = call('GET', f'/repos/{slug}/actions/runs/{run_id}'
+                                         f'/jobs?per_page=1')
+              return body.get('total_count') if status == 200 else None
 
-          # The runners' own state is the decisive signal. A run queued behind a 7-hour
-          # cross-version job is not orphaned however old it is, and age alone cannot
-          # tell the two apart -- which is why this asks the runners rather than guessing
-          # from a threshold.
+          def status_of(run_id):
+              status, body = call('GET', f'/repos/{slug}/actions/runs/{run_id}')
+              return body.get('status') if status == 200 else None
+
+          queued = queued_runs()
+
+          # Reported, not acted on. A run with jobs is waiting for a runner, which is
+          # ordinary; the runners' own state is printed so a genuinely offline runner is
+          # visible in the same place rather than inferred from the queue.
           status, body = call('GET', f'/repos/{slug}/actions/runners')
-          runners = body.get('runners') or [] if status == 200 else []
+          runners = (body.get('runners') or []) if status == 200 else []
           if status != 200:
               print(f'::warning::cannot read the runners ({status}): '
-                    f'{body.get("message")} -- falling back to age alone')
-          online = [r for r in runners if r.get('status') == 'online']
-          busy = [r for r in online if r.get('busy')]
-          print(f'{len(runs)} run(s) known: {len(queued)} queued, '
-                f'{len(busy_runs)} in progress')
+                    f'{body.get("message")}')
           for runner in runners:
               print(f"  runner {runner.get('name')}: {runner.get('status')}, "
                     f"busy={runner.get('busy')}")
-          if runners and not online:
+          if runners and not any(r.get('status') == 'online' for r in runners):
               print('::error::every registered runner is OFFLINE, so nothing queued here '
                     'can start -- the machine or its runner service is down')
 
-          idle = bool(runners) and not busy and not busy_runs
-          stale = [r for r in queued if minutes(r['created_at']) >= age]
+          orphans, waiting, young, unknown = [], [], [], []
+          for run in sorted(queued, key=lambda r: r['created_at']):
+              age = minutes(run['created_at'])
+              if age < grace:
+                  young.append((run, age))
+                  continue
+              count = job_count(run['id'])
+              if count is None:
+                  unknown.append((run, age))
+              elif count == 0:
+                  orphans.append((run, age))
+              else:
+                  waiting.append((run, age))
 
-          # cancel-idle: the measured fault. Queued work, a runner that is online and not
-          # busy, and nothing in progress -- so there is no job it could be waiting for.
-          # cancel-stale: the same age filter without the idle requirement, for clearing
-          # runs already known to be dead while something unrelated occupies the runner.
-          if mode == 'cancel-stale':
-              doomed = stale
-          elif mode == 'cancel-idle':
-              doomed = stale if idle else []
-          else:
-              doomed = []
+          print(f'{len(queued)} queued: {len(orphans)} orphaned, {len(waiting)} waiting '
+                f'for a runner, {len(young)} inside the {grace}m grace, '
+                f'{len(unknown)} unreadable')
 
           lines = ['### Stale queue', '',
-                   f'- mode `{mode}`, threshold {age} min',
-                   f'- {len(queued)} queued, {len(busy_runs)} in progress, '
-                   f'runners: {len(online)} online / {len(busy)} busy', '']
-          if queued:
-              lines += ['| run | workflow | branch | queued for |', '|---|---|---|---|']
-              for r in sorted(queued, key=lambda r: r['created_at']):
-                  lines.append(f"| [{r['id']}]({r['html_url']}) | {r.get('name')} | "
-                               f"`{r.get('head_branch')}` | "
-                               f"{minutes(r['created_at']):.0f} min |")
-              lines.append('')
+                   f'- mode `{mode}`, grace {grace} min',
+                   f'- {len(orphans)} orphaned (queued with **zero jobs**), '
+                   f'{len(waiting)} waiting for a runner', '']
+          if orphans:
+              lines += ['| run | workflow | branch | queued for | cleared |',
+                        '|---|---|---|---|---|']
 
-          cancelled = failed = 0
-          for r in doomed:
-              status, body = call('POST', f"/repos/{slug}/actions/runs/{r['id']}/cancel")
-              # 409 is "already finished" -- it started or was cancelled between the
-              # listing and now, which is a race and not a failure.
-              if status in (202, 409):
-                  cancelled += 1
-                  print(f"  cancelled {r['id']} {r.get('name')} "
-                        f"({r.get('head_branch')})")
-              else:
-                  failed += 1
-                  print(f"::warning::could not cancel {r['id']} ({status}): "
-                        f"{body.get('message')}")
+          cleared = stuck = 0
+          for run, age in orphans:
+              note = 'not attempted'
+              if mode == 'clear':
+                  # Cancel first. It is accepted with 202 and does nothing on a jobless
+                  # run -- measured -- so the result is CHECKED rather than assumed, and
+                  # the run is then deleted, which is the only thing that removes it.
+                  call('POST', f"/repos/{slug}/actions/runs/{run['id']}/cancel")
+                  time.sleep(2)
+                  if status_of(run['id']) not in ('queued', 'pending', 'waiting', None):
+                      cleared += 1
+                      note = 'cancelled'
+                  else:
+                      code, body = call('DELETE',
+                                        f"/repos/{slug}/actions/runs/{run['id']}")
+                      if code in (204, 404):
+                          cleared += 1
+                          note = 'deleted'
+                      else:
+                          stuck += 1
+                          note = f'STUCK ({code})'
+                          print(f"::warning::run {run['id']} ({run.get('name')} on "
+                                f"{run.get('head_branch')}) could not be cancelled or "
+                                f"deleted: {body.get('message')}")
+              print(f"  orphan {run['id']} {run.get('name')} "
+                    f"({run.get('head_branch')}), {age:.0f} min -> {note}")
+              lines.append(f"| [{run['id']}]({run['html_url']}) | {run.get('name')} | "
+                           f"`{run.get('head_branch')}` | {age:.0f} min | {note} |")
 
-          if doomed:
-              lines.append(f'Cancelled {cancelled} of {len(doomed)}'
-                           + (f', {failed} failed' if failed else '') + '.')
+          if orphans:
               lines.append('')
-              lines.append('An orphaned run never recovers, so these were cleared rather '
-                           'than waited on. Re-push the branch to get a fresh run.')
-          elif stale and not idle:
-              lines.append(f'{len(stale)} run(s) past the threshold, but the runner is '
-                           f'busy -- treated as a legitimate queue, not as orphaned.')
+              lines.append('These were created and never expanded into jobs, so no runner '
+                           'was ever offered them. An orphaned run does not recover: '
+                           're-push the branch to get a fresh one.')
+          if waiting:
+              lines.append('')
+              lines.append(f'{len(waiting)} run(s) are waiting for a runner, oldest '
+                           f'{max(a for _, a in waiting):.0f} min. That is an ordinary '
+                           f'queue and nothing was done to them.')
 
           summary = os.environ.get('GITHUB_STEP_SUMMARY')
           if summary:
@@ -226,13 +237,15 @@ jobs:
           # Loud, because silence is what cost seventeen hours. A notice rather than a
           # failure: the queue being stuck is not this workflow malfunctioning, and a red
           # watchdog every half hour trains people to ignore it.
-          if doomed:
-              print(f'::warning::cleared {cancelled} orphaned run(s) -- queued work with '
-                    f'an idle runner. Re-push to re-run them.')
-          elif stale and idle:
-              print(f'::warning::{len(stale)} run(s) queued over {age} min with an idle '
-                    f'runner, and this run did not clear them (mode={mode})')
-          if failed:
-              sys.exit('::error::some runs could not be cancelled -- the token needs '
-                       'Actions: write')
+          if orphans and mode == 'clear':
+              print(f'::warning::{len(orphans)} run(s) were queued with zero jobs and '
+                    f'will never start; cleared {cleared}. Re-push to re-run them.')
+          elif orphans:
+              print(f'::warning::{len(orphans)} run(s) are queued with zero jobs and will '
+                    f'never start (mode={mode}, nothing was cleared)')
+          if unknown:
+              print(f'::warning::{len(unknown)} queued run(s) could not be classified -- '
+                    f'their jobs could not be read')
+          if stuck:
+              sys.exit(f'::error::{stuck} orphaned run(s) could not be cleared at all')
           PY
