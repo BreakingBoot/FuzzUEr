@@ -1432,29 +1432,46 @@ def main():
             return False, (build_error(text)[:160] or 'build did not finish')
         return True, text
 
+    def build_fitting(defines, logname):
+        """build_firmware, growing DXEFV once if the volume overflowed.
+
+        A volume that overflowed is the one build failure the pipeline can fix by itself,
+        and it has to: the port sizes the volumes for its own configuration, so turning
+        SMM on made every build fail at GenFv with the volume 1.6 MB short. GenFv states
+        what it needed, so there is nothing to guess at.
+
+        Shared, because the retry used to live in the campaign build alone while the
+        DETECT PROBE -- which is the LARGER image, carrying SanBenchSmm, SanBenchDrive and
+        FwSanDxe on top of the same SMM configuration -- called build_firmware directly
+        and had none of it. Measured on run 43226389330: the campaign image built at
+        70% full and the probe then failed with 'the required fv image size 0x26933e0
+        exceeds the set fv image size', so the SMM benchmark could not be scored at all
+        and the stage reported a build failure rather than a volume that needed 2 MB.
+        Returns (ok, text_or_reason).
+        """
+        ok_, text = build_firmware(defines, logname)
+        if ok_:
+            return True, text
+        short = re.search(r'required fv image size 0x([0-9A-Fa-f]+) exceeds the set '
+                          r'fv image size 0x([0-9A-Fa-f]+)', text)
+        if not short:
+            return False, text
+        grew = grow_dxe_fv(tree, int(short.group(1), 16))
+        if not grew:
+            return False, (f'the firmware volume needs 0x{short.group(1)} and is '
+                           f'0x{short.group(2)}, and this [FD.MEMFD] layout is '
+                           f'not one the resize understands -- enlarge DXEFV by '
+                           f'hand')
+        print(f'  the firmware volume was too small; {grew}')
+        ok_sync, _ = sync()
+        if not ok_sync:
+            return False, text
+        return build_firmware(defines, logname)
+
     def build():
         defines = ('-D ASAN_SCOPE=full -D ASAN_FUZZER=qemu -D FIRNESS_QEMU_CRASH=TRUE'
                    + bench_defines + smm_defines)
-        ok_, text = build_firmware(defines, 'build.log')
-        # A volume that overflowed is the one build failure the pipeline can fix by
-        # itself, and it has to: the port sizes the volumes for its own configuration, so
-        # turning SMM on made every build fail at GenFv with the volume 1.6 MB short.
-        # GenFv states what it needed, so there is nothing to guess at.
-        if not ok_:
-            short = re.search(r'required fv image size 0x([0-9A-Fa-f]+) exceeds the set '
-                              r'fv image size 0x([0-9A-Fa-f]+)', text)
-            if short:
-                grew = grow_dxe_fv(tree, int(short.group(1), 16))
-                if grew:
-                    print(f'  the firmware volume was too small; {grew}')
-                    ok_sync, _ = sync()
-                    if ok_sync:
-                        ok_, text = build_firmware(defines, 'build.log')
-                else:
-                    return False, (f'the firmware volume needs 0x{short.group(1)} and is '
-                                   f'0x{short.group(2)}, and this [FD.MEMFD] layout is '
-                                   f'not one the resize understands -- enlarge DXEFV by '
-                                   f'hand')
+        ok_, text = build_fitting(defines, 'build.log')
         if not ok_:
             return False, text
         # The campaign's own builds have to be this configuration, not a guess at it.
@@ -1686,9 +1703,9 @@ def main():
         # and this build replaces only the probe firmware, never the campaign image, so
         # asking for them here cannot put a positive control in front of the fuzzer.
         probe_defines = ' -D SAN_BENCH=TRUE -D FW_SAN=TRUE'
-        ok_, text = build_firmware('-D ASAN_SCOPE=full -D ASAN_FUZZER=none'
-                                   + probe_defines + smm_defines,
-                                   'detect-build.log')
+        ok_, text = build_fitting('-D ASAN_SCOPE=full -D ASAN_FUZZER=none'
+                                  + probe_defines + smm_defines,
+                                  'detect-build.log')
         if not ok_:
             return False, f'the check build failed: {text}'
         dest = in_builder()

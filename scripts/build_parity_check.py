@@ -123,6 +123,41 @@ def main():
     elif dockerfile:
         print('  [OK]   the image build is still the one copied into qemu_fw')
 
+    # Every firmware build must be able to grow DXEFV. The port sizes the volumes for
+    # its own configuration, so a build that adds modules -- SMM, or the detect probe's
+    # SanBench drivers on top of it -- overflows GenFv, and the pipeline recovers by
+    # taking GenFv's own required size and enlarging the volume. That retry lived in the
+    # campaign build alone while the PROBE, which is the larger image, called the raw
+    # builder: measured on run 43226389330, the campaign built at 70% full and the probe
+    # then failed, so the SMM benchmark could not be scored and the stage reported a
+    # build failure rather than a volume two megabytes short.
+    source = open(DRIVER, encoding='utf-8').read()
+    direct = [number for number, line in enumerate(source.split('\n'), start=1)
+              if re.search(r'(?<![_a-zA-Z])build_firmware\s*\(', line)
+              and 'def build_firmware' not in line]
+    inside = [number for number, line in enumerate(source.split('\n'), start=1)
+              if re.search(r'return build_firmware\s*\(|ok_, text = build_firmware\s*\(',
+                           line)]
+    # The only callers allowed are the ones inside the growth wrapper itself.
+    wrapper = re.search(r'def build_fitting\(.*?\n(?=    def |\nclass |\Z)', source,
+                        re.S)
+    if not wrapper:
+        print('::error::fuzz_edk2.py has no build_fitting() wrapper, so a firmware build '
+              'that overflows its volume has nothing to recover it')
+        bad = 1
+    else:
+        span = source[:wrapper.start()].count('\n') + 1, \
+            source[:wrapper.end()].count('\n') + 1
+        stray = [n for n in direct if not span[0] <= n <= span[1]]
+        if stray:
+            print(f'::error::fuzz_edk2.py calls build_firmware() directly at line(s) '
+                  f'{", ".join(map(str, stray))} -- outside build_fitting(), so that '
+                  f'build cannot grow DXEFV and overflows as a bare build failure')
+            bad = 1
+        else:
+            print(f'  [OK]   every firmware build goes through build_fitting() '
+                  f'({len(direct)} call(s), all inside it)')
+
     return bad
 
 
