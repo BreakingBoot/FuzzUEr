@@ -267,6 +267,10 @@ jobs:
         shell: bash
         run: python3 scripts/smm_attribution_check.py
 
+      - name: A source line is not reported when the line table disagrees
+        shell: bash
+        run: python3 scripts/line_table_check.py
+
       - name: A finding's evidence reaches the branch its issue links to
         shell: bash
         run: python3 scripts/evidence_push_check.py

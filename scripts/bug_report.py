@@ -642,7 +642,7 @@ class Report:
     # that -- carries the defaults and renders as it always did.
     __slots__ = ('protocol', 'phase', 'module', 'path', 'line', 'asan', 'kind',
                  'message', 'count', 'field', 'field_note', 'field_handlers',
-                 'first_site')
+                 'first_site', 'func')
 
     def __init__(self, row, protocol):
         self.protocol = protocol
@@ -651,6 +651,11 @@ class Report:
         self.path = (row.get('File') or '').strip()
         self.line = (row.get('Line') or '').strip()
         self.asan = (row.get('Asan Msg') or '').strip()
+        # The routine the faulting address falls in, from the symbol table rather than the
+        # line table. firness.py writes it because the two disagree and the symbol table
+        # is the one that was right: see symbolise() there. It is the only location an
+        # address-only report has, so the keying below leans on it.
+        self.func = (row.get('Function') or '').strip()
         self.kind = (row.get('ErrorType') or '').strip() or 'ubsan'
         self.message = (row.get('Message') or '').strip()
         try:
@@ -665,6 +670,16 @@ class Report:
     @property
     def basename(self):
         return os.path.basename(self.path)
+
+    @property
+    def located(self):
+        """Does this row name a source FILE, as opposed to a placeholder?
+
+        'asan-outline-instrumentation' and 'fwsan' are what the sanitizer prints when the
+        check it inserted has no source position of its own, and both arrive here in the
+        File column. The slash is the test: a real path has one and neither of those does.
+        """
+        return '/' in self.path
 
     @property
     def ip(self):
@@ -715,6 +730,12 @@ class Report:
         klass = self.bug_type()
         if any(name in self.basename for name in INTERCEPTOR_SOURCES):
             return (self.module, klass, 'via:' + (self.ip or self.basename))
+        # An address-only row used to group on the placeholder, so every such finding in a
+        # module landed in one bucket whatever routine it came from. The function keeps
+        # them apart AND is stable across builds, which the address is not -- that is what
+        # cluster_id needs from a key, and it is the whole reason a fingerprint works.
+        if not self.located and self.func:
+            return (self.module, klass, 'fn:' + self.func)
         return (self.module, klass, self.basename)
 
 
@@ -746,6 +767,13 @@ class Cluster:
     @property
     def site(self):
         first = self.reports[0]
+        # With no source file the "line numbers" are raw addresses, so appending them
+        # produces "asan-outline-instrumentation:533070167" -- the placeholder and the
+        # decimal ip, neither of which is a place. Name the routine instead.
+        if not first.located:
+            func = next((r.func for r in self.reports if r.func), '')
+            if func:
+                return func
         nums = sorted(r.line_number() for r in self.reports if r.line_number() >= 0)
         if not nums:
             return first.basename
@@ -1050,14 +1078,34 @@ def merge_by_ip(reports):
     The row that knows the source is the one kept. It adopts the other's class when that
     class is the more specific of the two, so a stack-buffer-overflow still reads as one
     and arrives with a file and a line instead of an address.
+
+    When NEITHER twin has a source file there is still a keeper, and skipping that case
+    was costing half of every such finding. firness.py drops a line it cannot trust --
+    four SMI handlers resolved into UefiDriverModel.c on run 43280109497 -- and names the
+    function instead, so both twins arrive unlocated. Pairing only on a path left them as
+    two clusters: SmmSpi's write reported x42 and x18 where the access really happened 84
+    and 36 times, and the leftover twin showed up again further down the list as a bare
+    __asan_store0x08 with an address for a site. A function is less than a line and a
+    great deal more than nothing, so it keeps the pair together.
     """
-    located = {}
+    located, named = {}, {}
     for report in reports:
-        if report.ip and '/' in report.path:
+        if not report.ip:
+            continue
+        if report.located:
             located.setdefault(report.ip, report)
+        elif report.func:
+            # Of two unlocated twins, keep the one whose Line holds the address: that is
+            # what the offset resolver downstream has to work with, and the other row
+            # carries 0 there.
+            rival = named.get(report.ip)
+            if rival is None or report.line_number() > rival.line_number():
+                named[report.ip] = report
     kept = []
     for report in reports:
-        twin = located.get(report.ip) if report.ip and '/' not in report.path else None
+        twin = None
+        if report.ip and not report.located:
+            twin = located.get(report.ip) or named.get(report.ip)
         if twin is None or twin is report:
             kept.append(report)
             continue
@@ -1170,6 +1218,11 @@ def load(root, build_dirs=()):
                 return report
             name, offset = found[0], found[1]
             answer = symbolise_offset(f'{name}.efi', f'+{offset:#x}', build_dirs)
+            # The function comes back even when the path does not: symbolise_offset
+            # returns the name alone when the line table named a file that does not
+            # contain it. Keeping it is the difference between a finding that reads
+            # "SmmSpiHandler" and one that reads "asan-outline-instrumentation".
+            report.func = report.func or answer.split(' -- ', 1)[0].strip()
             where = answer.split(' -- ', 1)[1] if ' -- ' in answer else ''
             if ':' in where:
                 path, _, line = where.rpartition(':')
@@ -1400,6 +1453,34 @@ def calibrate(serial_logs, build_dirs):
         _CALIBRATION.update(resolve_modules.calibration(serial_logs, build_dirs))
 
 
+_MENTIONS_CACHE = {}
+
+
+def mentions(path, func):
+    """Does this source file mention this function name at all?
+
+    Not a parse: a mention is enough to tell a plausible attribution from a line table
+    that has fallen back to an unrelated file. A file this process cannot open gets the
+    benefit of the doubt, because "cannot check" is not "wrong".
+
+    firness.py carries its own copy rather than importing this one. The image installs it
+    at /workspace/firness.py with the rest of scripts/ under /workspace/scripts/, so an
+    import of a sibling module there resolves against the wrong directory and fails at
+    startup -- which would take the whole campaign down, not just the attribution.
+    """
+    key = (path, func)
+    if key in _MENTIONS_CACHE:
+        return _MENTIONS_CACHE[key]
+    answer = True
+    try:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+            answer = func in handle.read()
+    except OSError:
+        answer = True
+    _MENTIONS_CACHE[key] = answer
+    return answer
+
+
 def symbolise_offset(module, site, build_dirs):
     """"Function -- path:line" for "+0xNNN" in module, or '' when it cannot be resolved.
 
@@ -1433,13 +1514,24 @@ def symbolise_offset(module, site, build_dirs):
             lines = [l.strip() for l in done.stdout.splitlines() if l.strip()]
             if len(lines) >= 2 and not lines[0].startswith('??'):
                 func, where = lines[0], lines[1]
+                # Checked while the path is still absolute, which is the only moment it
+                # can be opened. The line table is not always right: on run 43280109497
+                # four SMI findings in four images resolved to lines 957, 897, 1338 and
+                # 1525 of MdePkg/Library/UefiLib/UefiDriverModel.c, all at column 24,
+                # naming gBS->InstallMultipleProtocolInterfaces inside driver-binding
+                # installers that cannot run during an SMI -- and UefiLib is in none of
+                # those modules' [LibraryClasses]. The symbol table named the handlers.
+                # This function already says an uncertain base is worse than none; the
+                # same holds for an uncertain line, so the function goes out alone.
+                trusted = mentions(where.split(':', 1)[0], func)
                 for marker in ('/edk2/', '/edk2-master/', '/edk2-platforms/'):
                     if marker in where:
                         where = where.split(marker, 1)[1]
                         break
                 # a trailing ":0:0" is "no line known"; rstrip would eat the zero off
                 # a real line number like ":10:0" and leave ":1"
-                answer = f'{func} -- {re.sub(r"(:0)+$", "", where)}'
+                answer = (f'{func} -- {re.sub(r"(:0)+$", "", where)}' if trusted
+                          else func)
             if answer:
                 break
     _OFFSET_CACHE[key] = answer

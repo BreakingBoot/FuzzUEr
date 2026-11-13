@@ -615,12 +615,20 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
     # A CPU exception's row has no File: the handler knows the faulting address and
     # nothing else. Triage resolved it against the build's .debug and persisted it, so
     # read that rather than printing "no source line to show" about a site we did name.
-    function = ''
+    # The routine the address falls in, which firness.py takes from the symbol table.
+    # Preferred over anything derived below because it is the one location that was
+    # measured right: on run 43280109497 the line table put four SMI handlers in
+    # UefiDriverModel.c and the symbol table named SmmSpiHandler, RWVariableHandler and
+    # SmmLockBoxHandler. An issue that names the handler is actionable; one that names a
+    # driver-binding installer that cannot run during an SMI sends the reader to the wrong
+    # file entirely.
+    function = (first.get('Function') or '').strip()
     if not rel:
         path, found_line = named_source(cand.get('source'))
         resolved = ev.resolve(source, path) if (source and path) else None
         if resolved:
-            rel, function = resolved, (cand.get('source') or '').split(' -- ')[0]
+            rel = resolved
+            function = function or (cand.get('source') or '').split(' -- ')[0]
             if found_line:
                 line = found_line
     phase = (first.get('Phase') or '?').strip()

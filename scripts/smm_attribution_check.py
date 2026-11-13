@@ -97,6 +97,17 @@ def main():
     print('\nattribution comes from the report, not from its neighbour')
     # The exact shape that misfiled: three reports queued, resolved off one ip.
     crashes = {i: Entry(ip) for i, (ip, _) in enumerate(OBSERVED)}
+    # Stubbed rather than lifted. The real one shells out to llvm-symbolizer against a
+    # build tree, which is not here; what this check owns is the wiring -- that the pass
+    # asks about each report's OWN address, in the image that address falls in. Recording
+    # the arguments is how that is asserted at all.
+    asked = []
+
+    def spy(module, rva):
+        asked.append((module, rva))
+        return ('', '', f'Fn_{module}_{rva:#x}')
+
+    ns['symbolise'] = spy
     fixed = ns['attribute_from_own_ip'](crashes, modules)
     check('the pass reports how many it corrected', fixed == 3, f'returned {fixed}')
     for i, (ip, want) in enumerate(OBSERVED):
@@ -107,6 +118,20 @@ def main():
           len({e.module for e in crashes.values()}) == 3,
           f'{sorted({e.module for e in crashes.values()})} -- one module across ips in '
           f'different images is the bug this guards')
+
+    print('\nthe routine is resolved from the same ip as the module')
+    check('every report was symbolised', len(asked) == len(OBSERVED), f'{len(asked)}')
+    bases = dict((name, base) for base, name in modules)
+    for (ip, want), (module, rva) in zip(OBSERVED, asked):
+        check(f'ip 0x{ip:08X} asked about {want}', module == want, f'asked {module!r}')
+        check(f'ip 0x{ip:08X} asked at its offset into {want}',
+              rva == ip - bases.get(want, 0),
+              f'asked {rva:#x}, wanted {ip - bases.get(want, 0):#x} -- a raw ip here '
+              f'names a line in whatever function sits at that offset instead')
+    check('each report keeps the routine for its own address',
+          all(crashes[i].func == f'Fn_{want}_{ip - bases.get(want, 0):#x}'
+              for i, (ip, want) in enumerate(OBSERVED)),
+          f'{[crashes[i].func for i in range(len(OBSERVED))]}')
 
     print('\na wrong module already set is corrected, not kept')
     wrong = {0: Entry(0x1F901170, module='SmmLockBox.efi')}

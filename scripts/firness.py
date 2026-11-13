@@ -51,6 +51,10 @@ class AsanError:
         # the loaded image the faulting address falls in; distinguishes a report raised
         # inside the harness from one raised in the firmware under test
         self.module = module
+        # the function the address falls in, from the symbol table. Carried separately
+        # from file and line because the two disagree: see symbolise(), where a line
+        # table named UefiDriverModel.c for four SMI handlers in four different images.
+        self.func = ''
 
 
 def generate_includes(src):
@@ -1762,8 +1766,11 @@ def reproduce_crash(simics_dir, testcase=None):
 
 
 def save_crashes_to_file(crashes, output_dir=None):
-    crash_list = [['Phase', 'AtBoot', 'Module', 'File', 'Line', 'Asan Msg', 'ErrorType',
-                   'Message', 'Count']]
+    # Function sits beside Module because that is the pair a reader acts on. The line
+    # table cannot be trusted on its own -- symbolise() has the measurement -- so a row
+    # whose File is an address still names the routine it happened in.
+    crash_list = [['Phase', 'AtBoot', 'Module', 'Function', 'File', 'Line', 'Asan Msg',
+                   'ErrorType', 'Message', 'Count']]
     # a site that also reported during boot is firmware doing what it does anyway; the
     # harness starting does not make it a finding
     #
@@ -1782,7 +1789,8 @@ def save_crashes_to_file(crashes, output_dir=None):
                            and (getattr(crash, 'module', ''),
                                 getattr(crash, 'site', crash.file),
                                 crash.line) in at_boot) else ''
-        crash_list.append([crash.phase, repeat, getattr(crash, 'module', ''), crash.file,
+        crash_list.append([crash.phase, repeat, getattr(crash, 'module', ''),
+                           getattr(crash, 'func', ''), crash.file,
                            f'{crash.line}', crash.asan_msg,
                            crash.error_type, crash.message, f'{crash.count}'])
     path = os.path.join(output_dir, 'crashes.csv') if output_dir else 'crashes.csv'
@@ -1880,10 +1888,24 @@ def attribute_from_own_ip(crashes, modules):
         own = REPORT_IP.search(getattr(entry, 'message', '') or '')
         if not own:
             continue
-        owner = module_for(modules, int(own.group(1), 16))
+        address = int(own.group(1), 16)
+        owner = module_for(modules, address)
         if owner and owner != getattr(entry, 'module', ''):
             entry.module = owner
             fixed += 1
+        # The routine, for every row that has an ip -- not just the one shape that was
+        # symbolised on the way past. The sanitizer writes TWO rows per access: the check
+        # names a position and the typed report names only the address, and they are the
+        # same instruction. Naming the function on both is what lets bug_report group them
+        # as one finding; filling it on one left the twins in separate clusters, which is
+        # the double-row half of the UefiDriverModel.c defect symbolise() describes.
+        #
+        # It also pays off where nothing was ever symbolised: every fwsan row on run
+        # 43280109497 carried an address and no position at all.
+        if not getattr(entry, 'func', ''):
+            image = image_for(modules, address)
+            if image:
+                entry.func = symbolise(image[1], address - image[0])[2]
     return fixed
 
 
@@ -1939,33 +1961,90 @@ def _debug_index():
     return _DEBUG_INDEX
 
 
-def symbolise(module, rva):
-    """(source path, line) for an offset into a module, or ('', '').
+_DEFINES_CACHE = {}
 
-    The .debug and the image in the firmware are the same build, so the offset is the
-    same in both. Nothing here is fatal: a tree without debug output, or a symbolizer
-    that is not installed, just leaves the address as the only thing said about the site.
+
+def mentions(path, func):
+    """Does this source file mention this function name at all?
+
+    Not a parse, and deliberately not one: a mention is enough to tell a plausible
+    attribution from a line table that has fallen back to an unrelated file, and that is
+    the only judgement being made here. A file that is not on this disk -- a path
+    symbolised against a build tree this process cannot see -- gets the benefit of the
+    doubt rather than being dropped, because "cannot check" is not "wrong".
+    """
+    key = (path, func)
+    if key in _DEFINES_CACHE:
+        return _DEFINES_CACHE[key]
+    answer = True
+    try:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+            answer = func in handle.read()
+    except OSError:
+        answer = True
+    _DEFINES_CACHE[key] = answer
+    return answer
+
+
+def symbolise(module, rva):
+    """(source path, line, function) for an offset into a module, or ('', '', '').
+
+    The .debug and the image in the firmware are the same build, so the offset is the same
+    in both, and that is checked rather than assumed: on run 43280109497 SmmSpi.efi loaded
+    at 0x1FC5F000 with its entry point at 0x1FC677E8, so rva 0x87E8, and the ELF's own
+    recorded entry is 0x87E8. ip minus base is the right offset and needs no adjustment.
+
+    The FUNCTION is asked for as well as the line because on that run the line was wrong
+    and the function was right. Four SMI findings in four different images -- SmmSpi,
+    RWVariable, SmmLockBox and SmmFaultTolerantWriteDxe -- resolved to lines 957, 897,
+    1338 and 1525 of MdePkg/Library/UefiLib/UefiDriverModel.c, every one of them at
+    column 24. Those lines are gBS->InstallMultipleProtocolInterfaces inside the
+    driver-binding installers, which cannot run during an SMI, and UefiLib is in none of
+    those modules' [LibraryClasses]. One file and one column shared by four unrelated
+    images is a line table falling back, not attribution. The symbol table for the same
+    four addresses gave SmmSpiHandler, RWVariableHandler, SmmLockBoxHandler and a BaseLib
+    routine -- the handlers themselves, which is the thing someone reading the issue needs
+    and the thing --functions=none threw away.
+
+    So the line is kept only when it survives a check: the file the symbolizer named must
+    actually contain the function the symbolizer named. That separates the two cases on
+    this evidence -- Unaligned.c does define ReadUnaligned32, UefiDriverModel.c does not
+    define SmmSpiHandler -- and it costs one read of a file already on disk. When the line
+    is dropped the address survives as the site, which is what bug_report.py resolves
+    against the build tree anyway, so nothing is lost but the wrong answer.
+
+    Nothing here is fatal: a tree without debug output, or a symbolizer that is not
+    installed, just leaves the address as the only thing said about the site.
     """
     key = (module, rva)
     if key in _SYMBOL_CACHE:
         return _SYMBOL_CACHE[key]
-    answer = ('', '')
+    answer = ('', '', '')
     debug = _debug_index().get(module[:-len('.efi')] if module.endswith('.efi')
                                else module)
     if debug:
         for tool in SYMBOLIZERS:
             try:
-                done = subprocess.run([tool, f'--obj={debug}', '--functions=none',
-                                       hex(rva)],
+                done = subprocess.run([tool, f'--obj={debug}',
+                                       '--functions=linkage', hex(rva)],
                                       capture_output=True, text=True, timeout=30)
             except (OSError, subprocess.SubprocessError):
                 continue
-            first = [l.strip() for l in done.stdout.splitlines() if l.strip()]
-            if first and ':' in first[0] and not first[0].startswith('??'):
-                path, _, tail = first[0].rpartition(':')
-                path, _, line = path.rpartition(':')
-                if path and line.isdigit():
-                    answer = (path, line)
+            # --functions=linkage prints two lines per address: the function, then
+            # file:line:column. --functions=none prints only the second, which is why the
+            # name was never available before.
+            got = [l.strip() for l in done.stdout.splitlines() if l.strip()]
+            func = got[0] if got and not got[0].startswith('?') else ''
+            where = got[1] if len(got) > 1 else ''
+            path, line = '', ''
+            if where and not where.startswith('??') and ':' in where:
+                head, _, _column = where.rpartition(':')
+                path, _, line = head.rpartition(':')
+                if not (path and line.isdigit()):
+                    path, line = '', ''
+            if path and func and not mentions(path, func):
+                path, line = '', ''
+            answer = (path, line, func)
             break
     _SYMBOL_CACHE[key] = answer
     return answer
@@ -2008,7 +2087,7 @@ def collect_unique_crashes(log_file, output_dir=None):
     phase = 'boot'
 
     def record(path, line_text, asan_msg, error_type='', message='', module='',
-               site=''):
+               site='', func=''):
         path = path.strip()
         # A compiler-inserted check names no source file -- only the routine that failed
         # and the address it failed at -- so "no path" cannot mean "not a report". It is
@@ -2033,6 +2112,7 @@ def collect_unique_crashes(log_file, output_dir=None):
             # none. The boot baseline is compared on this, not on the file alone, or
             # every address-only finding would match every other one.
             existing.site = path or site
+            existing.func = func
             crashes[key] = existing
         else:
             existing.count += 1
@@ -2097,14 +2177,15 @@ def collect_unique_crashes(log_file, output_dir=None):
                     # and line outright: "DevicePathUtilities.c:130" is a thing someone
                     # can go and read, and "ip 0x1D984B34" is not.
                     owner = image_for(modules, int(found_ip, 16))
-                    where, at = ('', '')
+                    where, at, func = ('', '', '')
                     if owner:
-                        where, at = symbolise(owner[1], int(found_ip, 16) - owner[0])
+                        where, at, func = symbolise(owner[1],
+                                                    int(found_ip, 16) - owner[0])
                     # an int, not the string: record() reads a line number as hex
                     # first, which is right for the UBSan shape's "line:0x0D1F" and
                     # would turn the symbolizer's decimal 130 into 304
                     record(where, int(at) if at else '', pending_callback, 'asan',
-                           f'ip {found_ip}', site=found_ip)
+                           f'ip {found_ip}', site=found_ip, func=func)
                     pending_callback = ''
                 if pending:
                     # The ip belongs to ONE report -- the one whose header was printed
