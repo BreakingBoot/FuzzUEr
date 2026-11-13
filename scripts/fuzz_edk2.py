@@ -23,6 +23,33 @@ than merely absent. They are run in order and each one says PASS or FAIL with wh
   fuzz         the campaigns
   triage       cluster, separate the harness and the PCI hole from the firmware, name a driver
 
+--triage-only runs the last of those and nothing else, over campaigns already on disk:
+
+    python3 scripts/fuzz_edk2.py --ref <the ref that run used> --out <that run's results>
+                                 --triage-only
+
+Triage is code, and it changes: the day the double-fetch filter learned that a second read
+only matters where a concurrent writer can exist, the same campaigns went from 91
+candidates to 24 and every site key moved with them. Re-reading crash CSVs that are
+already on disk should not cost a fetch, a port, a build and a fuzzing campaign -- on a
+138-target sweep that is about ten hours to re-read a few megabytes.
+
+So this mode fetches nothing, builds nothing and launches no campaign. It needs two things
+that already exist and refuses rather than making either: the campaigns under
+<out>/campaigns, and the campaign image for this ref. The image is not optional and not
+interchangeable -- a sanitizer report is a module and an offset, and only the .debug images
+of the build that was running turn that into a file and a line, so triaging run A's
+campaigns against run B's image produces confident source lines that point at the wrong
+code. It is named in the output and in run.json for that reason.
+
+The triage CODE, though, comes from this checkout and not from the image: the image was
+built with whatever scripts/ existed when it was built, which on a re-triage is precisely
+the version being replaced.
+
+What it writes is what triage writes -- bugs.json, bugs.md, triage.log -- plus its own
+run.json. The run.json it replaces is copied to run-fuzz.json first, once, because that
+one describes the campaign this data came from and this one does not.
+
 A stage that fails stops the run, because everything after it would report a number that
 looks like a result and is not one.
 
@@ -158,7 +185,13 @@ class Run:
         if getattr(self, 'base_image', ''):
             reown(self.out, self.base_image)
         with open(os.path.join(self.out, 'run.json'), 'w') as handle:
+            # `image` is the campaign image this run's triage symbolised against. It is
+            # recorded rather than merely printed because a re-triage can be pointed at
+            # another run's campaigns, and then every source line in bugs.md is resolved
+            # against the wrong .debug files -- which is not visible in the report itself.
+            # The reader of a bugs.md needs to be able to ask which build it describes.
             json.dump({'ref': self.ref,
+                       'image': getattr(self, 'image', ''),
                        'stages': [{'name': s.name, 'ok': s.ok, 'detail': s.detail,
                                    'seconds': round(s.seconds, 1)} for s in self.stages]},
                       handle, indent=2)
@@ -371,6 +404,80 @@ def reown(path, image):
 
 def docker(container, script, timeout=None):
     return sh(['docker', 'exec', container, 'bash', '-lc', script], timeout=timeout)
+
+
+def image_present(image):
+    return sh(['docker', 'image', 'inspect', image]).returncode == 0
+
+
+def mount_visible(path, image, probe='.mount-probe'):
+    """Can a container see a file written here.
+
+    On this host a bind mount from /tmp silently yields an EMPTY directory inside the
+    container, so a campaign writes its results into nowhere and triage reads a directory
+    with no campaigns in it. The symptom points at the wrong thing every time -- missing
+    files, or a run that found nothing -- so it is asked directly.
+    """
+    os.makedirs(path, exist_ok=True)
+    marker = os.path.join(path, probe)
+    with open(marker, 'w') as handle:
+        handle.write('probe')
+    try:
+        seen = sh(['docker', 'run', '--rm', '-v', f'{os.path.abspath(path)}:/probe',
+                   '--entrypoint', 'sh', image, '-c',
+                   f'test -f /probe/{probe} && echo VISIBLE'], timeout=120)
+    finally:
+        os.remove(marker)
+    return 'VISIBLE' in seen.stdout
+
+
+def reusable(campaigns, image, out='', present=image_present, visible=mount_visible):
+    """What --triage-only is about to re-read, and the build it will read it against.
+
+    Both of these already exist or the mode has nothing to do, and NEITHER is made here:
+    the whole point is that a re-triage does not rebuild or re-fuzz. So this refuses, by
+    name, rather than letting a later stage create what is missing.
+
+    The failure this is really written against is the silent one. A re-triage that finds
+    no campaigns, touches nothing and exits 0 is indistinguishable in CI from a re-triage
+    that read everything and reported the same findings as before -- so the counts are
+    part of the answer, and an empty input is a FAIL and not a clean run.
+
+    The image matters as much as the data. A report is a module and an offset; the .debug
+    files that turn it into a file and a line are in the image, so the WRONG image gives
+    source lines that are wrong in the one way a reader cannot detect -- they look
+    resolved. Hence both the refusal when the tag is absent and the tag in the detail.
+
+    Returns a (ok, detail) pair in the shape a stage returns.
+    """
+    if not present(image):
+        return False, (f'{image} is not on this host, so there is nothing to triage '
+                       f'against. That tag is the campaign image for this ref, and it is '
+                       f'what holds the .debug files an address is resolved with -- '
+                       f'another run\'s image would answer with source lines from a '
+                       f'different build. Re-triage the ref whose image is still here, '
+                       f'or build it again with a full run; --triage-only will not.')
+    if not os.path.isdir(campaigns):
+        return False, (f'no campaign data: {campaigns} does not exist. --triage-only '
+                       f're-reads a run that already happened and never fuzzes, so --out '
+                       f'has to name that run\'s results directory.')
+    found = [d for d in sorted(os.listdir(campaigns))
+             if os.path.isdir(os.path.join(campaigns, d))]
+    if not found:
+        return False, (f'no campaign data: {campaigns} holds no campaign directory. '
+                       f'--triage-only re-reads a run that already happened and never '
+                       f'fuzzes, so there is nothing here to re-read.')
+    reports = [d for d in found
+               if os.path.isfile(os.path.join(campaigns, d, 'crashes.csv'))]
+    # Asked of the results directory, which is where bugs.json is about to be written and
+    # where the campaigns are read from. A mount that comes back empty inside the
+    # container reads as "no campaigns" -- the one answer this mode must never invent.
+    if out and not visible(out, image):
+        return False, (f'{out} cannot be bind mounted into a container: a file written '
+                       f'there is not visible inside one. On this host that is what any '
+                       f'path under /tmp does, and the campaigns would read as absent.')
+    return True, (f'{len(found)} campaign(s) under {campaigns}, {len(reports)} with a '
+                  f'crashes.csv; triaging against {image}')
 
 
 # The child currently running under sh_log, so a signal can take it down too.
@@ -995,7 +1102,27 @@ def main():
                              'versions without spending a full budget on each')
     parser.add_argument('--skip-fuzz', action='store_true',
                         help='qualify a version without spending the fuzzing budget')
+    parser.add_argument('--triage-only', action='store_true',
+                        help='re-run triage over the campaigns already in --out, against '
+                             'the campaign image this ref already has, and stop. Nothing '
+                             'is fetched, ported, built or fuzzed. For when TRIAGE '
+                             'changed -- a filter, a site key, an issue body -- and the '
+                             'report has to be rebuilt from the same data: re-fuzzing a '
+                             '138-target sweep to re-read crash CSVs already on disk is '
+                             'ten hours to learn nothing new about the firmware. Refuses '
+                             'if --out holds no campaigns or the image is gone, because '
+                             'making either would be a different run')
     args = parser.parse_args()
+
+    # Both flags are about not fuzzing and they mean opposite things to triage, which is
+    # exactly why the combination has to be refused rather than resolved: --skip-fuzz
+    # makes triage return "not run", so --triage-only --skip-fuzz would read no
+    # campaigns, write no report and exit 0 -- a run that did nothing and said nothing,
+    # which from CI is indistinguishable from a re-triage that found the same thing.
+    if args.triage_only and args.skip_fuzz:
+        sys.exit('--triage-only and --skip-fuzz contradict each other: --skip-fuzz tells '
+                 'triage not to run, and triage is the only thing --triage-only runs. '
+                 'The result would be a run that read nothing and still exited 0.')
 
     # The boot competes with every other campaign booting at the same time, so a fixed
     # budget is really a different budget at every --jobs. Measured on a 72-core box over
@@ -1141,8 +1268,15 @@ def main():
     # .git at all.
     tree = os.path.join(work, 'eval_source', f'edk2-{slug}')
     os.makedirs(os.path.dirname(tree), exist_ok=True)
+    image_tag = f'fuzzuer-{slug.lower()}:latest'
     run = Run(args.ref, out)
-    run.base_image = args.base_image
+    # The image this run's triage symbolises against, named before anything can fail, so
+    # that even a run that stops early records which build its report would describe.
+    run.image = image_tag
+    # reown() gives the results back to this user, and it needs an image that is here.
+    # In --triage-only the base image may well not be -- nothing is built from it -- and
+    # the campaign image certainly is, because the mode refuses to start without it.
+    run.base_image = image_tag if args.triage_only else args.base_image
 
     # Several stages hand `out` and `work` to "docker run -v". On this host a bind mount
     # from /tmp silently yields an EMPTY directory inside the container, so the detect probe
@@ -1152,29 +1286,32 @@ def main():
     # Before the probe, not after: the probe runs a container from this image, so a host
     # that simply has not been bootstrapped yet would otherwise be reported as a bind mount
     # failure -- blaming the path, and sending the reader to /tmp, for a missing image.
-    if sh(['docker', 'image', 'inspect', args.base_image]).returncode:
-        sys.exit(f'{args.base_image} is not present, so nothing can run in a container yet '
-                 f'-- run scripts/bootstrap_runner.sh')
-    for name, path in (('--out', out), ('--work', work)):
-        os.makedirs(path, exist_ok=True)
-        probe = os.path.join(path, '.mount-probe')
-        with open(probe, 'w') as handle:
-            handle.write('probe')
-        seen = sh(['docker', 'run', '--rm', '-v', f'{path}:/probe',
-                   '--entrypoint', 'sh', args.base_image, '-c',
-                   'test -f /probe/.mount-probe && echo VISIBLE'], timeout=120)
-        os.remove(probe)
-        if 'VISIBLE' not in seen.stdout:
-            sys.exit(f'{name} {path} cannot be bind mounted into a container: a file written '
-                     f'there is not visible inside one. On this host that is what any path '
-                     f'under /tmp does. Use a path under the repository or the runner, and '
-                     f'note the failure it would otherwise cause is reported as missing '
-                     f'files rather than as a mount problem.')
+    #
+    # --triage-only asks neither question here. It needs the campaign image rather than the
+    # base, and it writes nothing into `work` at all -- no worktree, no build context -- so
+    # both are checked by the `reuse` stage instead, where the refusal reaches run.json and
+    # the stage table rather than only stderr.
+    if not args.triage_only:
+        if sh(['docker', 'image', 'inspect', args.base_image]).returncode:
+            sys.exit(f'{args.base_image} is not present, so nothing can run in a '
+                     f'container yet -- run scripts/bootstrap_runner.sh')
+        for name, path in (('--out', out), ('--work', work)):
+            if not mount_visible(path, args.base_image):
+                sys.exit(f'{name} {path} cannot be bind mounted into a container: a file '
+                         f'written there is not visible inside one. On this host that is '
+                         f'what any path under /tmp does. Use a path under the '
+                         f'repository or the runner, and note the failure it would '
+                         f'otherwise cause is reported as missing files rather than '
+                         f'as a mount problem.')
     run.evalset = ''
     run.target_count = 0
-    image_tag = f'fuzzuer-{slug.lower()}:latest'
     os.makedirs(out, exist_ok=True)
-    print(f'=== fuzzing edk2 {args.ref} -> {out} ===')
+    if args.triage_only:
+        print(f'=== re-triaging edk2 {args.ref} in {out} against {image_tag} ===')
+        print('    nothing is fetched, built or fuzzed; the campaigns on disk are the '
+              'input')
+    else:
+        print(f'=== fuzzing edk2 {args.ref} -> {out} ===')
 
     def ready():
         """Say what is missing before spending an hour finding out."""
@@ -2242,25 +2379,65 @@ def main():
             inner += ['--known', '/workspace/scripts/known-bugs.json']
         argv = ['docker', 'run', '--rm',
                 '-v', f'{os.path.abspath(campaigns)}:/campaigns:ro',
-                '-v', f'{os.path.abspath(out)}:/out',
-                '--entrypoint', 'python3', image_tag] + inner[1:]
+                '-v', f'{os.path.abspath(out)}:/out']
+        # The image carries the tree and its .debug files, which is why triage runs in it
+        # -- but it also carries the scripts/ it was BUILT with, and on a re-triage that is
+        # the very version being replaced. A full run cannot tell the difference, because
+        # the image stage copies this checkout's scripts/ in minutes earlier; a
+        # --triage-only against a sweep from this morning runs this morning's triage and
+        # reports exactly what it reported before, which looks like a result and is a
+        # no-op. So the code comes from the checkout and only the build stays in the image.
+        if args.triage_only:
+            argv += ['-v', f'{os.path.join(REPO, "scripts")}:/workspace/scripts:ro']
+        argv += ['--entrypoint', 'python3', image_tag] + inner[1:]
         code = sh_log(argv, os.path.join(out, 'triage.log'), timeout=3600)
         report = os.path.join(out, 'bugs.json')
         if code != 0 or not os.path.isfile(report):
             return False, 'triage produced no report -- see triage.log'
         found = json.load(open(report))
+        # How much was read, not only what came out of it. A triage over no campaigns at
+        # all produces an empty report and a cheerful "0 candidate(s)", and that reads
+        # from CI exactly like a run that re-read everything and found nothing new.
+        read = len([d for d in sorted(os.listdir(campaigns))
+                    if os.path.isdir(os.path.join(campaigns, d))]) \
+            if os.path.isdir(campaigns) else 0
         # Zero candidates is a real answer, not a failure: it says this version, fuzzed
         # this long, showed nothing the filters did not explain.
         return True, (f'{len(found["candidates"])} candidate(s) from '
-                      f'{found["clusters"]} cluster(s)')
+                      f'{found["clusters"]} cluster(s) over {read} campaign(s), '
+                      f'symbolised against {image_tag}')
 
+    def reuse():
+        """The two things --triage-only needs to already exist, and what they hold."""
+        return reusable(os.path.join(out, 'campaigns'), image_tag, out=out)
+
+    # A re-triage replaces this directory's run.json with its own two stages, the same way
+    # it replaces bugs.json and triage.log -- the directory now holds the new report. But
+    # run.json is also the only machine-readable account of the run that PRODUCED the data
+    # in here: which stages ran, how many campaigns fuzzed, how long each took, which is
+    # exactly what sweep_verdict.py reads. A re-triage is cheap and will be run again; the
+    # record of the ten-hour run that filled the directory should not be what pays for it.
+    # Written once, so the second re-triage does not overwrite the original with a copy of
+    # a re-triage.
+    if args.triage_only:
+        keep = os.path.join(out, 'run-fuzz.json')
+        if os.path.isfile(os.path.join(out, 'run.json')) and not os.path.isfile(keep):
+            shutil.copyfile(os.path.join(out, 'run.json'), keep)
+
+    # --triage-only runs the end of the pipeline over the output of an earlier run of all
+    # of it. The stages it leaves out are not skipped-and-degraded, they are not part of
+    # this run at all: nothing is fetched, ported, built, imaged or fuzzed, so listing
+    # them as SKIP would only invite a reader to wonder what went wrong. What it does run
+    # answers for itself -- `reuse` says what it found and `triage` says what came out.
+    plan = ((('reuse', reuse), ('triage', triage)) if args.triage_only else
+            (('ready', ready),
+             ('fetch', fetch), ('submodules', submodules), ('port', port),
+             ('vendor', vendor),
+             ('sync', sync), ('build', build), ('instrumented', instrumented),
+             ('discover', discover), ('image', stage_image),
+             ('detects', detects), ('fuzz', fuzz), ('triage', triage)))
     ok = True
-    for name, fn in (('ready', ready),
-                     ('fetch', fetch), ('submodules', submodules), ('port', port),
-                     ('vendor', vendor),
-                     ('sync', sync), ('build', build), ('instrumented', instrumented),
-                     ('discover', discover), ('image', stage_image),
-                     ('detects', detects), ('fuzz', fuzz), ('triage', triage)):
+    for name, fn in plan:
         if run_stage(run, name, fn) is False:
             ok = False
             break

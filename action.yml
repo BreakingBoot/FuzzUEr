@@ -58,6 +58,19 @@ inputs:
     description: 'Run every stage except the fuzzing. Minutes instead of hours -- use this first'
     required: false
     default: 'false'
+  triage-only:
+    description: 'Re-run triage, and the issue filing, over the campaigns already in
+                  `out` -- nothing is fetched, ported, built or fuzzed. For when TRIAGE
+                  changed rather than the firmware: a new filter moves the findings and
+                  their site keys, and re-fuzzing a 138-target sweep to re-read crash CSVs
+                  that are already on disk is ten hours spent learning nothing new. Needs
+                  `out` pointing at the finished run''s results directory -- the default
+                  is under RUNNER_TEMP, which does not survive the job that made it -- and
+                  needs that run''s campaign image still on the runner, since the .debug
+                  files that turn an address into a source line live in it. Refuses, by
+                  name, if either is missing'
+    required: false
+    default: 'false'
   smm:
     description: 'Build with SMM_REQUIRE=TRUE so the image has an SMM core for SMI handlers'
     required: false
@@ -377,8 +390,13 @@ runs:
         echo "home=$HOME_DIR" >> "$GITHUB_OUTPUT"
         echo "running from $HOME_DIR"
 
+    # Not on a re-triage. triage-only refuses to start unless the campaign image is
+    # already on this runner, so there is nothing here left to build -- and bootstrapping
+    # is hours on a runner that happens to be missing the BASE image, which a re-triage
+    # never touches. Re-reading crash CSVs is the one mode that must not be able to turn
+    # into a build.
     - name: Bootstrap the runner
-      if: inputs.bootstrap == 'true'
+      if: inputs.bootstrap == 'true' && inputs.triage-only != 'true'
       shell: bash
       working-directory: ${{ steps.home.outputs.home }}
       run: scripts/bootstrap_runner.sh
@@ -398,6 +416,7 @@ runs:
         IN_BOOT: ${{ inputs.boot-timeout }}
         IN_TARGETS: ${{ inputs.targets }}
         IN_QUALIFY: ${{ inputs.qualify-only }}
+        IN_TRIAGE_ONLY: ${{ inputs.triage-only }}
         IN_SMM: ${{ inputs.smm }}
         IN_SMI: ${{ inputs.smi }}
         IN_STANDALONE_MM: ${{ inputs.standalone-mm }}
@@ -485,6 +504,10 @@ runs:
                --jobs "$JOBS" --out "$OUT" --work "$SCRATCH"
         [ -n "${IN_BOOT:-}" ]   && set -- "$@" --boot-timeout "$IN_BOOT"
         [ "${IN_QUALIFY:-}" = 'true' ] && set -- "$@" --skip-fuzz
+        # Re-read what is in $OUT instead of producing it. The driver refuses if there is
+        # nothing there or the campaign image for this ref is gone, so this cannot quietly
+        # degrade into a run that triages an empty directory and reports zero findings.
+        [ "${IN_TRIAGE_ONLY:-}" = 'true' ] && set -- "$@" --triage-only
         [ "${IN_SMM:-}" = 'true' ]     && set -- "$@" --smm
         [ "${IN_SMI:-}" = 'true' ]     && set -- "$@" --smi
         [ "${IN_STANDALONE_MM:-}" = 'true' ] && set -- "$@" --standalone-mm
@@ -508,7 +531,11 @@ runs:
         # shellcheck disable=SC2086
         [ -n "${IN_TARGETS:-}" ] && set -- "$@" --targets $IN_TARGETS
 
-        echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
+        if [ "${IN_TRIAGE_ONLY:-}" = 'true' ]; then
+          echo "re-triaging the campaigns already in $OUT -- no build, no campaign"
+        else
+          echo "fuzzing $JOBS target(s) at once on $(nproc) core(s)"
+        fi
         # Tee'd into the results directory, not just the console. The driver's narration --
         # which stage it reached, which target it was on, what the build said -- lived only
         # in the step log, so reading it needed the job log, and a run that died before the

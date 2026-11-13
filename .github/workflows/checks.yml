@@ -303,6 +303,10 @@ jobs:
         shell: bash
         run: python3 scripts/silent_campaign_check.py
 
+      - name: A re-triage reuses a finished run and cannot do nothing quietly
+        shell: bash
+        run: python3 scripts/retriage_check.py
+
       - name: No pipeline function reads a name that is never bound
         shell: bash
         run: python3 scripts/unbound_name_check.py
