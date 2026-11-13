@@ -645,6 +645,28 @@ def main():
           f'{edk2.pick_targets(evalset, 4, True)} -- naming a target with no request '
           f'file costs a container, an analysis and a build to find that out')
 
+    print('\nand it reaches the generator, which is the last hop and the easiest to lose')
+    firness = load_guarded(os.path.join(HERE, 'firness.py'))
+    spoken = io.StringIO()
+    with contextlib.redirect_stdout(spoken):
+        firness['generate_harness'](work, work, 'DiscoveredSwSmi.txt',
+                                    smi=True, sw_smi=True)
+        firness['generate_harness'](work, work, 'DiscoveredSwSmi.txt',
+                                    smi=False, sw_smi=True)
+    # Picked out by name: generate_harness also shells out to `cp -r` afterwards, and
+    # taking the last command recorded asserts on the copy rather than on the generator
+    # invocation -- which passes whatever flags the generator was given.
+    asked, alone = [c for c in firness['subprocess'].commands if 'main.py' in c][:2]
+    check('firness.py puts --sw-smi on the generator command line',
+          ' --sw-smi' in asked,
+          f'{asked[-200:]!r} -- the batch gives firness.py the flag and firness.py builds '
+          f'the generator command; dropped here, the campaign runs the comm-buffer '
+          f'harness under the software SMI target\'s name and reports coverage for it')
+    check('with --smi beside it, and never on its own',
+          ' --smi ' in asked and ' --sw-smi' not in alone,
+          f'{alone[-200:]!r} -- the generator refuses the pair, so a command line '
+          f'carrying one alone dies at startup with the campaign already launched')
+
     print('\nthe flag is refused where it would silently do nothing')
     #
     # Read as a guard, not run as a process: firness.py imports matplotlib and main.py
@@ -684,6 +706,40 @@ def main():
 def seen_far(space, tree):
     """The generator-side scan's answer for the cross-file constant."""
     return (space['sw_smi_commands'](tree)[0].get('FarHandler') or {}).get('value')
+
+
+def load_guarded(path):
+    """firness.py's command builder, without importing the module.
+
+    firness.py imports matplotlib at module scope, which a runner does not have. Only the
+    function that assembles the generator command line is lifted, and it is run for real:
+    this is the hop between the flag the batch passes and the flag the generator reads,
+    and losing it gives a campaign that runs the WRONG harness under the right name.
+    """
+    return lift(path, ['generate_harness', 'HARNESS_TIMING'],
+                {'subprocess': _Subprocess(), 'shutil': shutil, 'sys': sys})
+
+
+class _Result:
+    stdout = b''
+    stderr = b''
+    returncode = 0
+
+
+class _Subprocess:
+    """Enough of subprocess for generate_harness to build and 'run' its command.
+
+    The command string is what is asserted on, so it is kept rather than executed.
+    """
+
+    PIPE = -1
+
+    def __init__(self):
+        self.commands = []
+
+    def run(self, command, **_kwargs):
+        self.commands.append(command)
+        return _Result()
 
 
 def refuses(path):
