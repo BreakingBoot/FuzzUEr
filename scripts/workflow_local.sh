@@ -63,13 +63,20 @@ STEP=$((STEP+1)); echo "[$STEP] discovery"
 python3 "$REPO/scripts/gen_protocol_inputs.py" -s "$TREE" -o "$OUT/evalset" -m 1 \
   > "$OUT/discover.log" 2>&1
 python3 "$REPO/scripts/discover_smi.py" -s "$TREE" -o "$OUT/evalset/DiscoveredSmi.txt" \
+  --sw-output "$OUT/evalset/DiscoveredSwSmi.txt" \
   --with-source >> "$OUT/discover.log" 2>&1
-NP=$(ls "$OUT/evalset"/*.txt 2>/dev/null | wc -l)
+# The two Discovered*.txt are SMI handler lists, not protocol request files; they are
+# counted on their own lines below. Without the filter adding the second one made the
+# protocol count go up by one on a tree whose protocols had not changed.
+NP=$(ls "$OUT/evalset"/*.txt 2>/dev/null | grep -vc '/Discovered.*Smi\.txt$')
 NS=$(grep -cv '^$' "$OUT/evalset/DiscoveredSmi.txt" 2>/dev/null || echo 0)
-echo "      $NP protocol request files, $NS SMI handlers"
+# Written only when something was found, so an absent file is a tree with no statically
+# addressable software SMI handler rather than a scan that did not run.
+NW=$(grep -cv '^$' "$OUT/evalset/DiscoveredSwSmi.txt" 2>/dev/null || echo 0)
+echo "      $NP protocol request files, $NS SMI handlers, $NW on the software SMI port"
 [ "$NP" -gt 0 ] && pass "protocols discovered" || fail "no protocols"
 [ "$NS" -gt 0 ] && pass "SMI handlers discovered" || fail "no SMI handlers"
 
-echo "$LABEL,$NP,$NS,$INST" >> "$REPO/results/workflow-summary.csv"
+echo "$LABEL,$NP,$NS,$INST,$NW" >> "$REPO/results/workflow-summary.csv"
 echo "=== $LABEL: $([ $FAILED -eq 0 ] && echo OK || echo FAILED) ==="
 exit $FAILED

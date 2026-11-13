@@ -276,6 +276,8 @@ python firness.py -h
   --backend BACKEND     Fuzzer the generated harness targets:
                         tsffs (default) | qemu | nyx | none
   --smi                 Fuzz SMI handlers instead of protocols
+  --sw-smi              With --smi: raise software SMIs by writing the ports
+                        rather than by filling a comm buffer
   --max-steps N         Calls chained per fuzzing iteration
   --seed-corpus DIR     Start the corpus from a previous campaign's
   --snapshot            Restore projects/example/booted.ckpt instead of booting
@@ -884,6 +886,45 @@ Each of these asserts something a passing build does not:
 the SMM Core private data and raises the SMI, which is what `SmmCommunicationCommunicate`
 does; a plain write to the command port dispatches on whatever the last DXE caller left
 behind.
+
+### Two channels into SMM
+
+A handler is reached one of two ways and a harness can only drive the one it was built
+for, so there are two targets.
+
+| target | how a handler is addressed | what the fuzzer controls |
+|---|---|---|
+| `DiscoveredSmi` | a GUID in an `EFI_SMM_COMMUNICATE_HEADER` | the comm buffer: its length and every field of the handler's parameter block |
+| `DiscoveredSwSmi` | a command byte registered on `EFI_SMM_SW_DISPATCH2_PROTOCOL` | the data byte at port `0xB3`, and which registered command byte goes to port `0xB2` |
+
+The second is `--smi --sw-smi`. Writing `0xB2` from ring 0 is the software SMI, the most
+exposed SMM entry point on real hardware, and no comm-buffer harness can produce it: a
+handler on the software dispatch protocol has no GUID and no caller buffer at all -- the
+dispatcher builds its `EFI_MM_SW_CONTEXT` from the two port reads. Before this target
+existed, every such handler was reported as unharnessable, which is true of the comm-buffer
+channel and reads as a statement about the firmware.
+
+**The command byte comes from discovery and is confined to it.** `scripts/discover_smi.py
+--sw-output` finds every `SwSmiInputValue` assignment that feeds a dispatch `Register` call,
+resolves it through the tree's own `#define`s, and writes `DiscoveredSwSmi.txt` with the
+byte beside the handler and the registration it was read out of. The harness writes nothing
+else, and that is a safety property rather than a tuning choice: port `0xB2` is shared with
+the platform. `ICH9_APM_CNT_CPU_HOTPLUG` (`0x04`) reaches `CpuHotplugSmm`, whose error paths
+`CpuDeadLoop()` inside SMM and take the guest with them, and `0x00` is what OVMF's own
+`SmmControl2` `Trigger` writes for every `SmmCommunicate`. A byte nothing registered reaches
+no handler either way -- both dispatchers log `No handler for SMI value` and return -- so a
+sweep of `0..255` buys no coverage and can forfeit a campaign's whole budget.
+
+Most registrations in edk2 proper are written `SwContext.SwSmiInputValue = (UINTN)-1`, which
+asks the dispatcher for the next free byte **at registration time**. There is no static
+answer to that, so those handlers are counted, named in `smi-handler-inventory.json` with
+their channel, and left out of the target list rather than guessed at. On the EVAL-1 tree
+that is one target (`B2SmiDispatchHandle`, `0xB4`, `OvmfPkg/B2SmiDispatch/B2SmiDispatch.c:238`)
+and four handlers with no static address.
+
+`scripts/sw_smi_check.py` asserts the discovery, the confinement, the port order -- the data
+byte first, because writing `0xB2` is what raises the SMI -- and that `IoLib` survives the
+INF's library pruning, which drops every class the emitted harness never calls.
 
 **Driving SMI handlers is not yet end to end, but the harness generates.** It did not used
 to: the generator needs `smi-function-guid-map.json`, the C++ analyser builds that from the

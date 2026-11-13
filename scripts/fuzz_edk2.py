@@ -754,6 +754,11 @@ def grow_dxe_fv(tree, required, block=0x10000, headroom=0x80000):
 
 
 SMI_TARGET = 'DiscoveredSmi'
+# The software SMI target. A second SMI campaign on a second channel, so it is bounded the
+# same way and for the same reason -- it is not a protocol, the presence census has no row
+# for it, and the alphabetical head of the discovered set must not push it out of a
+# bounded run that was asked for --smi.
+SW_SMI_TARGET = 'DiscoveredSwSmi'
 
 
 def absent_targets(presence):
@@ -866,10 +871,16 @@ def pick_targets(evalset, limit, smi, explicit=(), presence=''):
         return []
     gone = absent_targets(presence)
     names = sorted(f[:-len('.txt')] for f in os.listdir(evalset)
-                   if f.endswith('.txt') and f[:-len('.txt')] != SMI_TARGET)
+                   if f.endswith('.txt')
+                   and f[:-len('.txt')] not in (SMI_TARGET, SW_SMI_TARGET))
     names = [n for n in names if n not in gone]
-    # Not filtered: the SMI harness is not a protocol and the census has no row for it.
+    # Not filtered: the SMI harnesses are not protocols and the census has no row for
+    # either. The software SMI one goes in only when discovery wrote its request file,
+    # which it does not do for a tree that registers no resolvable command byte -- naming
+    # a target with no file costs a container, an analysis and a build to discover it.
     if smi:
+        if os.path.isfile(os.path.join(evalset, f'{SW_SMI_TARGET}.txt')):
+            names.insert(0, SW_SMI_TARGET)
         names.insert(0, SMI_TARGET)
     return names[:limit]
 
@@ -1647,19 +1658,28 @@ def main():
             argv += ['--packages'] + packages
         sh(argv, timeout=3600)
         smi = os.path.join(evalset, 'DiscoveredSmi.txt')
+        # Two SMI request files, one per channel. The software SMI list carries the
+        # command byte each handler registered for as well as its name, because that byte
+        # is the only thing that addresses a handler with no GUID; discovery writes no
+        # file at all when it can resolve none, so an absent file here means "this tree
+        # has nothing to aim at" rather than "the scan did not run".
+        swsmi = os.path.join(evalset, 'DiscoveredSwSmi.txt')
         sh([sys.executable, os.path.join(HERE, 'discover_smi.py'),
-            '-s', tree, '-o', smi], timeout=3600)
+            '-s', tree, '-o', smi, '--sw-output', swsmi], timeout=3600)
         # DiscoveredSmi.txt shares this directory with the protocol request files but is
         # not one: it is the handler list written just above. Counting it made the planned
         # campaign count one too many, and the batch fuzzed it as a protocol -- a
         # container, a full analysis and a build spent to die in the generator with "no
         # target functions were resolved". fuzz_batch.py skips it by name for the same
         # reason, unless it is running in --smi mode, which is what the file is for.
+        smi_files = {os.path.basename(smi), os.path.basename(swsmi)}
         protos = len([f for f in os.listdir(evalset)
-                      if f.endswith('.txt') and f != os.path.basename(smi)]) \
+                      if f.endswith('.txt') and f not in smi_files]) \
             if os.path.isdir(evalset) else 0
         handlers = len([l for l in open(smi).read().split('\n') if l.strip()]) \
             if os.path.isfile(smi) else 0
+        sw_handlers = len([l for l in open(swsmi).read().split('\n') if l.strip()]) \
+            if os.path.isfile(swsmi) else 0
         if protos == 0:
             return False, 'no protocols discovered'
         run.evalset = evalset
@@ -1667,7 +1687,8 @@ def main():
         # DiscoveredSmi.txt by name and firness.py --smi generates every handler in it into
         # a single harness, dispatched by the selector byte. Counting it matters because the
         # fuzz stage sizes its own timeout from this number.
-        run.target_count = protos + (1 if args.smi and handlers else 0)
+        run.target_count = protos + (1 if args.smi and handlers else 0) \
+            + (1 if args.smi and sw_handlers else 0)
         scope = f' from {len(packages)} package(s)' if packages else ''
         if args.smi:
             if not handlers:
@@ -1694,9 +1715,19 @@ def main():
             # campaign ended early only because its 21st input ASSERTed inside SMM and
             # CpuDeadLoop()ed the guest -- which SHARED_PCDS now prevents. Leaving the note
             # in place would tell the next reader to disregard a result that is real.
+            # The software SMI count is a SUBSET of the handler count, not a second
+            # population: discovery finds every registration, and these are the ones
+            # registered on the software dispatch protocol for a command byte it could
+            # resolve. Zero of them is a normal answer for an upstream tree, where almost
+            # every registration asks the dispatcher for the next free byte instead.
+            port = (f'{sw_handlers} of them register a software SMI command byte this '
+                    f'pass can resolve and are the DiscoveredSwSmi target'
+                    if sw_handlers else
+                    'none of them registers a software SMI command byte a static pass '
+                    'can resolve, so there is no DiscoveredSwSmi target')
             return True, (f'{protos} protocols{scope}, {handlers} SMI handlers found in '
                           f'source; the SMI harness generates and campaigns on this image '
-                          f'do reach it')
+                          f'do reach it. {port}')
         # Said plainly, because the count on its own reads as though they were targets:
         # without --smi these are discovered and then left alone.
         return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '

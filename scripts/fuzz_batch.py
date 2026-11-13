@@ -29,6 +29,24 @@ DEFAULT_IMAGE = 'fuzzuer-cur:latest'
 SMI_REQUEST_FILE = 'DiscoveredSmi.txt'
 SMI_PROTOCOL = SMI_REQUEST_FILE[:-len('.txt')]
 
+# The software SMI target. Same reasoning as above and a different channel: its request
+# file carries handler names AND the command byte each one is registered for, because a
+# software SMI handler has no GUID and the command byte is the only thing that addresses
+# it. It is a target only under --smi, like the comm-buffer one, and it is given --sw-smi
+# on top, which is what swaps the harness body for the port writes.
+SW_SMI_REQUEST_FILE = 'DiscoveredSwSmi.txt'
+SW_SMI_PROTOCOL = SW_SMI_REQUEST_FILE[:-len('.txt')]
+
+# Every request file that is an SMI target rather than a protocol, mapped to the firness.py
+# flags it needs. Keyed here rather than tested by name in three places: the last time one
+# of these decisions was spelled out twice, naming the target without the flag kept a
+# setting that firness.py then refused at startup.
+SMI_TARGETS = {
+    SMI_PROTOCOL: ' --smi',
+    SW_SMI_PROTOCOL: ' --smi --sw-smi',
+}
+SMI_REQUEST_FILES = {SMI_REQUEST_FILE, SW_SMI_REQUEST_FILE}
+
 
 # Launching against an image built before a flag existed wastes a whole batch: every
 # container exits instantly with "unrecognized arguments" and the run looks like a fuzzing
@@ -159,9 +177,9 @@ def launch(protocol, args):
     # Per target, the pipeline does what it already says it does: fuzz_edk2.py counts the
     # SMI harness as one target BESIDE the protocols, and its --smi help says "also fuzz
     # the SMI handlers, not just the protocols".
-    smi_campaign = args.smi and protocol == SMI_PROTOCOL
+    smi_campaign = args.smi and protocol in SMI_TARGETS
     if smi_campaign:
-        command += ' --smi'
+        command += SMI_TARGETS[protocol]
     if args.backend != 'tsffs':
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
@@ -322,7 +340,8 @@ def resolve_requests(args):
     subprocess.run([sys.executable, os.path.join(here, 'gen_protocol_inputs.py'),
                     '-s', tree, '-o', out, '-m', '1'], check=False)
     subprocess.run([sys.executable, os.path.join(here, 'discover_smi.py'),
-                    '-s', tree, '-o', os.path.join(out, 'DiscoveredSmi.txt')], check=False)
+                    '-s', tree, '-o', os.path.join(out, SMI_REQUEST_FILE),
+                    '--sw-output', os.path.join(out, SW_SMI_REQUEST_FILE)], check=False)
     if not os.path.isdir(out) or not os.listdir(out):
         print('  discovery found nothing; falling back to the carried request set')
         return os.path.join(args.repo, 'eval_source', 'evalset')
@@ -484,7 +503,7 @@ def main():
     else:
         todo = sorted(f[:-4] for f in os.listdir(requests)
                       if f.endswith('.txt')
-                      and (args.smi or f != SMI_REQUEST_FILE))
+                      and (args.smi or f not in SMI_REQUEST_FILES))
     print(f'  {len(todo)} target(s) from {requests}')
 
     # A protocol the firmware never installs cannot be fuzzed: the harness's opening

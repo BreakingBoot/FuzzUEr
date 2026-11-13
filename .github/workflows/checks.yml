@@ -231,6 +231,10 @@ jobs:
         shell: bash
         run: python3 scripts/smi_inventory_check.py
 
+      - name: A software SMI is raised only with a command byte the tree registers
+        shell: bash
+        run: python3 scripts/sw_smi_check.py
+
       - name: The harness reaches the DXE firmware volume, unconditionally
         shell: bash
         run: python3 scripts/fv_harness_check.py

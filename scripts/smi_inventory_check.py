@@ -246,7 +246,12 @@ def reported(space):
 def main():
     space = lift(['smi_inventory', 'write_smi_inventory', 'not_harnessed_reason',
                   'load_smi_inventory', 'report_smi_coverage', 'DEFINITE_DISPATCH',
-                  '_dispatch_reason', 'DISPATCH_REASON'])
+                  '_dispatch_reason', 'DISPATCH_REASON',
+                  # The channel fields. Lifted even though this check drives the writer
+                  # with no sw_commands: smi_inventory names them unconditionally, so
+                  # leaving them out is a NameError rather than a different answer.
+                  'DISPATCH_CHANNEL', 'SW_COMMAND_PORT', 'SW_DATA_PORT',
+                  '_channel_of', '_sw_smi_reason'])
     entries, text, work = written(space)
     harnessable = sorted(n for n, e in entries.items() if e.get('Harnessable'))
 

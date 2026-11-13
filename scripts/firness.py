@@ -687,7 +687,7 @@ HARNESS_TIMING = os.environ.get('FIRNESS_HARNESS_TIMING', 'application')
 
 
 def generate_harness(src, output_dir, input_file, random: bool = False, smi: bool = False,
-                     backend: str = 'tsffs', max_steps: int = 0):
+                     backend: str = 'tsffs', max_steps: int = 0, sw_smi: bool = False):
     dst = output_dir
     edk2_dir = os.path.join(src, 'edk2')
     # all of the paths to the static analysis results are fixed
@@ -695,6 +695,11 @@ def generate_harness(src, output_dir, input_file, random: bool = False, smi: boo
     generate_cmd = f'python3 /workspace/harness_generator/main.py -d {output_dir}/call-database.json -g {output_dir}/generator-database.json -gd {output_dir}/generators.json -t {output_dir}/types.json -a {output_dir}/aliases.json -m {output_dir}/macros.json -e {output_dir}/enums.json -i {input_file} -s {output_dir}/cast-map.json -in {output_dir}/includes.json -f {output_dir}/functions.json --edk2 {edk2_dir} -o {dst}'
     if smi:
         generate_cmd += f' --smi -sm {output_dir}/smi-function-guid-map.json'
+    # Only alongside --smi, and the parser already refuses the pair the other way round.
+    # The generator makes the same check and says the same thing, because this is the
+    # kind of flag that gets passed by hand to the generator alone.
+    if smi and sw_smi:
+        generate_cmd += ' --sw-smi'
     if random:
         generate_cmd += ' -r'
     # the harness compiles against whichever fuzzer it will run under
@@ -2529,6 +2534,14 @@ def main():
                              'HARNESS_START before giving up (default: 2700)')
     parser.add_argument('-e', '--eval', action='store_true', help='Evaluate the results of the static analysis tool')
     parser.add_argument('--smi', action='store_true', help='Run the SMI fuzzer')
+    parser.add_argument('--sw-smi', dest='sw_smi', action='store_true',
+                        help='Fuzz the SOFTWARE SMI channel instead of the comm-buffer '
+                             'one: the harness writes a data byte and a registered '
+                             'command byte to the software SMI ports rather than filling '
+                             'a buffer and calling SmmCommunication. Needs --smi, which '
+                             'is what carries the SMM build and the SMI analysis. This is '
+                             'the channel the handlers on the software dispatch protocol '
+                             'are raised by, and no comm-buffer harness can reach them.')
     parser.add_argument('--backend', type=str, default='qemu',
                         choices=['tsffs', 'qemu', 'nyx', 'none'],
                         help='Fuzzer the generated harness targets. QEMU by default: it '
@@ -2559,6 +2572,13 @@ def main():
     # boot never reached the harness" -- the same sentence as a bad depex, a missing
     # protocol and a hung boot. Rejecting it is the difference between one clear error and
     # a whole sweep of unreadable ones.
+    if args.sw_smi and not args.smi:
+        print('Error: --sw-smi needs --smi. --smi is what selects the SMI analysis and '
+              'builds the firmware with SMM in it; --sw-smi only decides whether the '
+              'harness raises its SMIs by filling a comm buffer or by writing the '
+              'software SMI ports. Without --smi the generator would read the request '
+              'file as a protocol list and build a protocol harness.')
+        return 1
     if HARNESS_TIMING == 'dxe' and not args.smi:
         print(f'Error: FIRNESS_HARNESS_TIMING=dxe needs --smi. The dxe harness is a '
               f'DXE_DRIVER whose depex floor is gEfiSmmCommunicationProtocolGuid, which '
@@ -2634,7 +2654,7 @@ def main():
                   f'stage first (-a, or no stage flags at all).')
             return 1
         log += generate_harness(tmp_dir, output, input_file, False, args.smi, args.backend,
-                                args.max_steps)
+                                args.max_steps, args.sw_smi)
         # Stop here when the generator produced nothing. Carrying on builds an edk2 tree
         # with no Firness in it -- a minute spent to print a failure that names no cause --
         # and then measures whatever Firness.efi the image already carried against this
