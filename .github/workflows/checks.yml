@@ -291,6 +291,10 @@ jobs:
         shell: bash
         run: python3 scripts/double_fetch_check.py
 
+      - name: A finding reported against the instrumentation still shows its code
+        shell: bash
+        run: python3 scripts/issue_body_check.py
+
       - name: No pipeline function reads a name that is never bound
         shell: bash
         run: python3 scripts/unbound_name_check.py
