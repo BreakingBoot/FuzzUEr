@@ -318,6 +318,10 @@ jobs:
         shell: bash
         run: python3 scripts/silent_campaign_check.py
 
+      - name: A protocol installed inside SMRAM is not scheduled as a DXE target
+        shell: bash
+        run: python3 scripts/presence_channel_check.py
+
       - name: A re-triage reuses a finished run and cannot do nothing quietly
         shell: bash
         run: python3 scripts/retriage_check.py

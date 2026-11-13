@@ -522,16 +522,32 @@ def main():
             return 1
         stale = [p for p in todo if p not in status]
         absent = [p for p in todo if status.get(p) == 'absent']
-        todo = [p for p in todo if status.get(p) != 'absent']
-        if absent:
-            print(f'Skipping {len(absent)} protocol(s) this firmware does not install: '
-                  f'{", ".join(absent[:6])}{"..." if len(absent) > 6 else ""}')
+        # Installed, but inside SMRAM, where gBS->LocateProtocol does not look. Skipped for
+        # a DIFFERENT reason and said differently: "not installed" would be false about the
+        # firmware, and a reader who believes it goes looking for a driver that is there.
+        # Keeping them cost 67 minutes of boot and budget each on sweep 43454245046 -- ten
+        # campaigns that fuzzed thousands of inputs against their own LocateProtocol early
+        # exit -- and the SMI harness is the channel that reaches them.
+        in_smram = [p for p in todo if status.get(p) == 'smm-only']
+        todo = [p for p in todo if status.get(p) not in ('absent', 'smm-only')]
+        if absent or in_smram:
+            if absent:
+                print(f'Skipping {len(absent)} protocol(s) this firmware does not install: '
+                      f'{", ".join(absent[:6])}{"..." if len(absent) > 6 else ""}')
+            if in_smram:
+                print(f'Skipping {len(in_smram)} protocol(s) installed only inside SMRAM, '
+                      f'which a protocol campaign cannot locate -- fuzz them with --smi: '
+                      f'{", ".join(in_smram[:6])}{"..." if len(in_smram) > 6 else ""}')
             os.makedirs(args.output, exist_ok=True)
             with open(os.path.join(args.output, 'skipped.csv'), 'w', newline='') as handle:
                 writer = csv.writer(handle)
                 writer.writerow(['protocol', 'reason'])
                 for name in absent:
                     writer.writerow([name, 'protocol not installed by this firmware'])
+                for name in in_smram:
+                    writer.writerow([name, 'installed inside SMRAM only -- not in the DXE '
+                                           'handle database, so LocateProtocol cannot find '
+                                           'it; reachable through the SMI harness'])
         if stale:
             # a census taken against different firmware would silently mis-skip
             print(f'Warning: {len(stale)} protocol(s) are absent from the census '

@@ -27,7 +27,18 @@ import sys
 GUID_DECL = re.compile(
     r'(g\w+Guid)\s*=\s*\{\s*(0x[0-9a-fA-F]+)\s*,\s*(0x[0-9a-fA-F]+)\s*,'
     r'\s*(0x[0-9a-fA-F]+)\s*,\s*\{([^}]*)\}')
-INSTALLED = re.compile(r'InstallProtocolInterface:\s*([0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12})')
+# (?<!Smm) because the SMM core's line is `SmmInstallProtocolInterface:` and CONTAINS the
+# DXE spelling, so an unanchored pattern counts an interface installed inside SMRAM as one
+# a DXE harness can locate. It cannot: gBS->LocateProtocol searches the DXE handle database
+# and an MM protocol was never put there. On the 138-target sweep 43454245046 that made ten
+# protocols -- EdkiiSmmCpuRendezvous, EdkiiSmmMemoryAttribute, EfiMmCpu, EfiMmCpuIo and the
+# rest -- read as `present`, so each was scheduled as a DXE campaign that booted, fuzzed
+# thousands of inputs with every one of them returning at the LocateProtocol early exit,
+# and then reported as a boot failure. The two spellings are counted apart here and the
+# census says which side a protocol is on.
+GUID_TAIL = r'([0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12})'
+INSTALLED = re.compile(r'(?<!Smm)(?<!Mm)InstallProtocolInterface:\s*' + GUID_TAIL)
+IN_SMRAM = re.compile(r'(?:Smm|Mm)InstallProtocolInterface:\s*' + GUID_TAIL)
 # the harness names the guid it locates, which beats the naming convention when available
 LOCATED = re.compile(r'LocateProtocol\(&(g\w+Guid)')
 
@@ -84,8 +95,15 @@ def binding_guid_for(protocol, names):
 
 
 def installed_guids(capture):
+    """(installed in DXE, installed only inside SMRAM) -- the two are different channels.
+
+    A protocol on BOTH is reported present: the DXE handle has it and the harness can call
+    it. One seen only in SMRAM is reachable through the SMI harness and through nothing a
+    protocol campaign can do.
+    """
     text = open(capture, errors='ignore').read().replace('\x00', '')
-    return {g.upper() for g in INSTALLED.findall(text)}
+    dxe = {g.upper() for g in INSTALLED.findall(text)}
+    return dxe, {g.upper() for g in IN_SMRAM.findall(text)} - dxe
 
 
 def main():
@@ -116,14 +134,14 @@ def main():
         return 1
 
     names = guid_map(root)
-    present = installed_guids(args.capture)
+    present, in_smram = installed_guids(args.capture)
     if not present:
         print(f'Error: {args.capture} has no InstallProtocolInterface lines -- it is not a '
               f'boot capture, so every protocol would look absent.')
         return 1
 
     rows = [['protocol', 'guid', 'status']]
-    counts = {'present': 0, 'absent': 0, 'unknown': 0}
+    counts = {'present': 0, 'absent': 0, 'unknown': 0, 'smm-only': 0}
     bindings = []
     for path in sorted(glob.glob(os.path.join(evalset, '*.txt'))):
         protocol = os.path.basename(path)[:-4]
@@ -133,6 +151,11 @@ def main():
             status = 'unknown'
         elif guid is not None and guid in present:
             status = 'present'
+        elif guid is not None and guid in in_smram:
+            # Installed, and not where a DXE campaign looks. Not 'absent', which would say
+            # the firmware does not have it, and not 'present', which costs a full boot and
+            # budget to discover otherwise.
+            status = 'smm-only'
         elif binding is not None and binding in present:
             # the driver is bound and the harness supplies the CreateChild the boot never
             # needed, so this is reachable even though the child protocol is not installed
@@ -159,9 +182,15 @@ def main():
         counts[status] += 1
         rows.append([protocol, guid or '', status])
 
-    print(f'{len(present)} protocols installed by this firmware')
+    print(f'{len(present)} protocols installed by this firmware'
+          + (f', and {len(in_smram)} more only inside SMRAM' if in_smram else ''))
     print(f'  present: {counts["present"]}   absent: {counts["absent"]}   '
-          f'unresolved guid: {counts["unknown"]}')
+          f'unresolved guid: {counts["unknown"]}'
+          + (f'   smm-only: {counts["smm-only"]}' if counts['smm-only'] else ''))
+    if counts['smm-only']:
+        print(f'  {counts["smm-only"]} protocol(s) are installed inside SMRAM only, so '
+              f'gBS->LocateProtocol cannot find them and a protocol campaign on one fuzzes '
+              f'its own early exit. They are reachable through the SMI harness (--smi).')
     if bindings:
         print(f'  {len(bindings)} present via a service binding the harness creates a '
               f'child on: {", ".join(bindings)}')
