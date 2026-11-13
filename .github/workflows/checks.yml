@@ -227,6 +227,10 @@ jobs:
         shell: bash
         run: python3 scripts/smi_dispatch_check.py
 
+      - name: The SMI inventory counts the harnesses that were built
+        shell: bash
+        run: python3 scripts/smi_inventory_check.py
+
       - name: The harness reaches the DXE firmware volume, unconditionally
         shell: bash
         run: python3 scripts/fv_harness_check.py
@@ -282,6 +286,10 @@ jobs:
       - name: A sanitizer detection cannot be announced without being reported
         shell: bash
         run: python3 scripts/fwsan_report_check.py
+
+      - name: A double fetch is reported as what it is, and once per routine
+        shell: bash
+        run: python3 scripts/double_fetch_check.py
 
       - name: No pipeline function reads a name that is never bound
         shell: bash

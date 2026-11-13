@@ -165,8 +165,12 @@ def main():
           re.search(r'ofstream\s+\w+\s*\(\s*filename\s*\+\s*"/smi-handler-inventory\.json"',
                     osrc) is not None,
           'nothing writes smi-handler-inventory.json')
-    check('the inventory says whether a handler can be driven',
-          '"Harnessable"' in osrc)
+    # Named for what this pass can tell on its own. Whether a handler is harnessed is
+    # decided after it, in harness_generator, which recovers handlers this analysis
+    # recorded without a type and drops ones whose payload it cannot carry -- and which
+    # writes its own answer back into the same file. See scripts/smi_inventory_check.py.
+    check('the inventory says what the analysis could resolve',
+          '"AnalyzerTyped"' in osrc)
 
     kinds = sorted({k for _, k in SPELLINGS if k} | {'', 'RootHandler'})
     for kind in kinds:
@@ -447,6 +451,26 @@ def main():
           'CommBufferLocals.insert(DRE2->getDecl()->getNameAsString());' in sfsrc,
           'HwLight gates on CommunicationData, one assignment from CommBuffer; without '
           'that name the base check rejects every field and nothing is collected')
+
+    # Both spellings of the cast, and asserted against the source with its comments taken
+    # out: the arm below is explained by a comment that quotes the declaration it reads,
+    # and a grep of the raw file finds the explanation whether or not the code is there.
+    stmts = re.sub(r'//[^\n]*', '', sfsrc)
+    check('a comm buffer cast in an assignment is read',
+          'if (BO->getOpcode() == BO_Assign) {' in stmts
+          and 'if(HasCommBuffer(BO->getRHS()))' in stmts)
+    check('and one made in the declaration that holds it',
+          'if (!HasCommBuffer(VD->getInit())) {' in stmts,
+          'VariableSmm.c assigns and SmmSpi.c declares -- reading only the assignment '
+          'leaves the declared one with no type, and a handler with no type is dropped '
+          'from smi-function-guid-map.json before the generator ever sees it')
+    check('only a pointer declaration is taken for the buffer',
+          '!VD->getType()->isPointerType()' in stmts,
+          'UINTN Size = ((HEADER *)CommBuffer)->Size; also mentions the buffer, and '
+          'UINTN as the shape of a comm buffer is worse than no answer')
+    check('and the declared local is recorded as a comm buffer too',
+          'CommBufferLocals.insert(VD->getNameAsString());' in stmts,
+          'the field pass tells the comm buffer\'s members apart by this set')
     check('and the writer emits them',
           'smiJson["FieldConstants"] = constants;' in fosrc,
           'collected and then dropped on the floor')
