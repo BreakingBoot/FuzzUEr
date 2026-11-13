@@ -631,6 +631,25 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
             function = function or (cand.get('source') or '').split(' -- ')[0]
             if found_line:
                 line = found_line
+    # Last, and only on a site that still has no file. The sanitizer's outline
+    # instrumentation reports against itself, so a heap overflow it catches records no
+    # path at all -- which on this project is the whole SMI handler class, the findings
+    # most worth reading. The routine name survives that, because firness.py takes it from
+    # the symbol table, and edk2's style makes a definition findable from a name. The line
+    # it gives is the definition, not the access, so `line` is replaced with it and the
+    # section heading below says which of the two the reader is looking at.
+    #
+    # A line of 0 counts as no line, not as line zero. The line table puts one there for an
+    # access the compiler could not attribute -- on run 43452927684 that was Font.c:0,
+    # Handle.c:0 and Timer.c:0 -- and resolve() still finds the file, so the reader was
+    # told "that path is not in this tree", which is both wrong and unhelpful about a path
+    # that plainly is. Treat it the same as having no file: the routine is what is left.
+    defined_at = False
+    located = str(line).isdigit() and int(line) >= 1
+    if (not rel or not located) and function:
+        found, at = ev.define_site(source, function)
+        if found:
+            rel, line, defined_at = found, at, True
     phase = (first.get('Phase') or '?').strip()
     at_boot = (first.get('AtBoot') or '').strip()
 
@@ -640,7 +659,9 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
            f"| reported by | `{first.get('Asan Msg') or cand.get('class', '?')}` |",
            f"| site | `{cand.get('site', '?')}` |"]
     if rel:
-        out.append(f'| source | `{rel}` line {line} |')
+        out.append(f'| source | `{rel}` line {line}'
+                   + (' (the definition; the report carries no line)' if defined_at else '')
+                   + ' |')
     if function:
         out.append(f'| function | `{function}` |')
     out += [f"| reports at this site | {cand.get('hits', '?')} |",
@@ -649,11 +670,24 @@ def body_for(cand, ref, run_id, run_url, artifact, source, results, base):
             f"| detail | {first.get('Message') or cand.get('detail', '')} |", '']
 
     # --- the code -------------------------------------------------------------------
-    out += ['### The code at that line', '']
+    out += ['### Where this routine is defined' if defined_at else '### The code at that line',
+            '']
+    if defined_at:
+        out += [f'The sanitizer reported this against `{recorded or "its own instrumentation"}` '
+                f'rather than a source file, so there is no crashing line to quote. What it '
+                f'does carry is the routine, read out of the symbol table, and this is where '
+                f'that routine is defined -- the access is somewhere inside it. The '
+                f'instruction pointer in `detail` narrows it further against the build\'s '
+                f'DEBUG directory.', '']
     text = ev.snippet(source, rel, line) if (source and rel) else None
     if text:
         lang = 'c' if rel.endswith(('.c', '.h')) else ''
         out += [f'`{rel}`:', '', f'```{lang}', text, '```', '']
+    elif rel:
+        out += [f'The build resolved this site to `{rel}`, but recorded no usable line '
+                f'number for it -- the line table attributes this access to line '
+                f'{line}, which is the table saying it does not know. There is a file to '
+                f'read and no line in it to point at.', '']
     elif recorded and '/' in recorded:
         out += [f'The build recorded `{recorded}`, which is not in this tree at any '
                 f'matching path -- the file is generated, or came from a submodule the '

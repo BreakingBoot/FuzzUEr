@@ -15,6 +15,7 @@ import csv
 import glob
 import os
 import re
+import subprocess
 
 # crashes.csv records the path as the BUILD saw it, inside the container
 # (/workspace/tmp/edk2/MdeModulePkg/...). The tree on disk here is the caller's checkout at
@@ -30,6 +31,54 @@ def resolve(source, recorded):
         if rel and os.path.isfile(os.path.join(source, rel)):
             return rel
     return None
+
+
+# The site of a finding the sanitizer reported against itself. A heap overflow caught by
+# the outline instrumentation records the File column as `asan-outline-instrumentation`,
+# which resolve() correctly refuses -- so the highest-severity findings on this project,
+# the SMI handler overflows, are exactly the ones with no file to quote. What they do have
+# is a routine name, which firness.py reads out of the ELF symbol table and triage carries
+# through as the site. edk2's coding style puts a function's name alone at column 0 of the
+# line above its parameter list, so the definition is findable from the name alone.
+#
+# Only .c files, and only a match at column 0: a header's prototype is written the same way
+# and would send the reader to a declaration instead of the body. A name that resolves to
+# more than one definition is left unresolved rather than guessed at -- a static function
+# of the same name in two drivers is ordinary in edk2, and quoting the wrong driver's copy
+# is worse than quoting nothing.
+DEFINITION = '^{name}[ \t]*\('
+
+
+def define_site(source, function, _cache={}):
+    """('path', 'line') of the .c file that defines `function`, else (None, None)."""
+    if not source or not function or not re.fullmatch(r'[A-Za-z_]\w*', function):
+        return None, None
+    key = (source, function)
+    if key in _cache:
+        return _cache[key]
+    pattern = DEFINITION.format(name=re.escape(function))
+    found = []
+    # git grep first because it reads the index rather than walking the tree, and an edk2
+    # checkout is large enough for that to be the difference between a lookup and a stall.
+    # It needs a work tree, so a source directory that is not a repository -- a copy, an
+    # extracted tarball -- falls through to the walk.
+    for argv in (['git', '-C', source, 'grep', '-nE', '--', pattern, '--', '*.c'],
+                 ['grep', '-rnE', '--include=*.c', '--', pattern, '.']):
+        try:
+            done = subprocess.run(argv, cwd=source, capture_output=True, text=True,
+                                  timeout=120)
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if done.returncode > 1:
+            continue
+        for row in done.stdout.splitlines():
+            bits = row.split(':', 2)
+            if len(bits) >= 2 and bits[1].isdigit():
+                found.append((bits[0].lstrip('./'), bits[1]))
+        break
+    answer = found[0] if len(found) == 1 else (None, None)
+    _cache[key] = answer
+    return answer
 
 
 def crash_rows(results):
@@ -59,11 +108,29 @@ def rows_for(cand, rows):
     Matched on site first -- which is how triage names it -- and on module only to break a
     tie, because a module column can come back empty on a report whose address no map
     covers, and dropping those loses the very rows that carry the source path.
+
+    A candidate whose site is a ROUTINE rather than file:line is matched on the Function
+    column instead. Triage names a site that way when the line table could not be believed
+    and the symbol table could, so site_of -- which builds file:line out of the row -- can
+    never equal it. Matching only on site drops every row of such a candidate, and an issue
+    built from no rows silently loses its phase, its ErrorType, the sanitizer's own message
+    and the routine name, which is the one fact those findings do carry. On run
+    43452927684 that was the entire SMI handler class, the highest-severity findings there.
     """
     site = cand.get('site', '')
     hit = [r for r in rows if site_of(r) == site]
+    if not hit and site and ':' not in site:
+        hit = [r for r in rows if (r.get('Function') or '').strip() == site]
     exact = [r for r in hit if (r.get('Module') or '') == (cand.get('module') or '')]
-    return exact or hit
+    # Stable, so a site whose rows are all of one kind keeps the order the campaigns wrote.
+    # One access produces two rows: the instrumentation callback that fired, whose Asan Msg
+    # is `__asan_store0x08` and whose Message is only an ip, and the sanitizer's own report,
+    # which names the bug class and the address and the width. Callers read the FIRST row
+    # for the detail line and the reported-by line, so a marker row in front of its own
+    # report turns `heap-buffer-overflow -- write of 8 bytes at 0x1FE616C8` into
+    # `__asan_store0x08 -- ip 0x1FC60157`: true, and nothing a reader can act on.
+    return sorted(exact or hit,
+                  key=lambda r: (r.get('Asan Msg') or '').startswith('__asan'))
 
 
 def snippet(source, rel, line, context=6):
