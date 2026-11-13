@@ -27,6 +27,7 @@ DEFAULT_IMAGE = 'fuzzuer-cur:latest'
 # target functions were resolved". It is a target only under --smi, which is the mode it
 # was written for.
 SMI_REQUEST_FILE = 'DiscoveredSmi.txt'
+SMI_PROTOCOL = SMI_REQUEST_FILE[:-len('.txt')]
 
 
 # Launching against an image built before a flag existed wastes a whole batch: every
@@ -93,6 +94,9 @@ def running(names, keep=False):
 
 
 _ANNOUNCED = False
+# Said once per batch, not once per campaign: a mixed run has one SMI campaign and many
+# protocol ones, and repeating the timing note for each of them buries the launches.
+_TIMING_NOTED = False
 
 
 def launch(protocol, args):
@@ -143,7 +147,20 @@ def launch(protocol, args):
         f'-i /input/{args.request_rel}/{protocol}.txt {stages(args, protocol)} '
         f'-t {args.budget} --boot-timeout {args.boot_timeout}'
     )
-    if args.smi:
+    # --smi belongs to the SMI TARGET, not to the batch. Forwarded to every campaign it
+    # made the generator build the SMI harness for all of them, because
+    # harness_generator/main.py branches on the flag and re-reads -i <Protocol>.txt as a
+    # handler list instead of a protocol request. Run 42140097717 launched 63 campaigns
+    # and 44 of them wrote a byte-identical FirnessHarnesses.c -- one md5 across
+    # DiscoveredSmi, EdkiiBootLogo2, EdkiiFormBrowserEx and the rest. The run was green,
+    # the protocols were never fuzzed, and nothing in the output said so, which is the
+    # worst shape a defect can take here.
+    #
+    # Per target, the pipeline does what it already says it does: fuzz_edk2.py counts the
+    # SMI harness as one target BESIDE the protocols, and its --smi help says "also fuzz
+    # the SMI handlers, not just the protocols".
+    smi_campaign = args.smi and protocol == SMI_PROTOCOL
+    if smi_campaign:
         command += ' --smi'
     if args.backend != 'tsffs':
         command += f' --backend {args.backend}'
@@ -220,6 +237,23 @@ def launch(protocol, args):
     # repeats per protocol. Noted at both ends because a reader at one of them could not
     # otherwise tell the other existed.
     env.setdefault('FIRNESS_QEMU_ICOUNT', 'shift=6,sleep=off')
+    # The dxe timing is the SMI harness's placement and firness.py refuses it without
+    # --smi: the dxe harness is a DXE_DRIVER whose depex floor is
+    # gEfiSmmCommunicationProtocolGuid, and without the flag the generator would build a
+    # UEFI_APPLICATION that nothing in the firmware volume ever runs. Now that --smi is
+    # per target, a batch carrying dxe would kill every protocol campaign at startup with
+    # that error. The timing follows the flag it depends on.
+    # Keyed on smi_campaign, not on the name: the two decisions are one decision. Gated
+    # on the name alone, naming DiscoveredSmi in -p WITHOUT --smi kept dxe for a campaign
+    # that was not getting the flag, and firness.py then refused it at startup -- the
+    # exact error this pop exists to prevent, reintroduced through the one door left open.
+    if not smi_campaign and env.get('FIRNESS_HARNESS_TIMING') == 'dxe':
+        env.pop('FIRNESS_HARNESS_TIMING')
+        global _TIMING_NOTED
+        if not _TIMING_NOTED:
+            _TIMING_NOTED = True
+            print('  protocol campaigns run at the application timing: dxe is the SMI '
+                  'harness placement and firness.py rejects it without --smi')
     # Said out loud, once. Every configuration question about a campaign -- which machine,
     # which icount, which backend -- is answered by this list, and none of it was recorded
     # anywhere: a run whose guest was missing SMM looked exactly like a run whose boot was

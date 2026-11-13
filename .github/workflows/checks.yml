@@ -271,6 +271,10 @@ jobs:
         shell: bash
         run: python3 scripts/line_table_check.py
 
+      - name: The SMI mode belongs to the SMI target, not to the batch
+        shell: bash
+        run: python3 scripts/smi_per_target_check.py
+
       - name: A finding's evidence reaches the branch its issue links to
         shell: bash
         run: python3 scripts/evidence_push_check.py
