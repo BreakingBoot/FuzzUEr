@@ -11,9 +11,12 @@ for a native target, adapted to what a UEFI campaign actually records:
 
   cluster   reports that differ only by line, or by which protocol provoked them, are one
             bug. Nine adjacent pointer-overflow sites in ExportPackageList are one defect,
-            not nine.
+            not nine, and ten double fetches inside one routine are one loop.
   filter    a report attributed to the harness image, to a library linked into the harness
-            and never called, or to a known scanner is not a firmware bug.
+            and never called, or to a known scanner is not a firmware bug. Neither is a
+            double fetch in a caller that has no concurrent writer: the class needs
+            something able to change the value between the two reads, and a DXE protocol
+            argument has nothing that can.
   rank      what is left is ordered by how much it looks like a memory-safety defect
             rather than a contract violation.
 
@@ -46,6 +49,13 @@ WRITE_RE = re.compile(r'is_write (0x[0-9A-Fa-f]+)')
 # ExportPackageList raises the identical construct at 3277, 3290, 3303 ... 13 lines apart,
 # once per Export*Packages call; they are one defect with one fix.
 CLUSTER_WINDOW = 32
+
+# How many source lines a cluster names before the rest are counted rather than listed.
+# A double fetch is clustered by the routine it happened in, so one finding can carry a
+# routine's worth of lines; HiiStringToImage raises ten between Font.c:2913 and :2955.
+# Printing all of them is what lets a reader find the loop, and the ones past this are
+# still counted, because "and 4 more" is the part that says this is a loop at all.
+LINE_LIST = 12
 
 # Reports that are the harness, not the firmware. Each entry is (match, reason).
 HARNESS_SOURCES = [
@@ -431,12 +441,19 @@ class CommBufferJoin:
         # ordinary case.
         self.handlers = {}
         self.why = ''
+        # Whether the buffer the harness registered is an SMM comm buffer at all. The
+        # handler map is what says so: a campaign that carries one drove SMI handlers, and
+        # one that does not drove a protocol member with an argument the harness built.
+        # Kept apart from `handlers` because the two answer different questions -- a comm
+        # buffer whose handler named no parameter block still has the OS writing it.
+        self.comm = False
         smi = self._read(campaign_dir, 'smi-function-guid-map.json')
         if not isinstance(smi, dict) or not smi:
             self.why = ('no smi-function-guid-map.json in the campaign, so the registered '
                         'buffer is a protocol argument rather than a comm buffer and has '
                         'no handler layout')
             return
+        self.comm = True
         raw_types = self._read(campaign_dir, 'types.json')
         aliases = self._read(campaign_dir, 'aliases.json')
         if not isinstance(raw_types, list) or not raw_types:
@@ -595,11 +612,40 @@ def _types_from_json(raw):
     return built
 
 
-# Said once per double-fetch row, because it is the reason the row is a finding at all and
-# a reader who has not met the class cannot act on a field name without it.
+# Said once per comm-buffer double-fetch row, because it is the reason the row is a finding
+# at all and a reader who has not met the class cannot act on a field name without it.
+#
+# It is a claim about the caller, not about the class, and it is only true of one caller.
+# An SMI runs with the OS live on the other cores and the comm buffer mapped and writable
+# for the whole dispatch, so the value really can change between the two reads. A DXE
+# protocol call has no OS, no other thread and a buffer the calling firmware owns, and
+# saying this beside one of those describes something that cannot happen -- which is what
+# a reader meant by "not helpful by themselves for a developer to understand what to
+# patch". 82 of the 91 candidates on run 43452927684 carried this sentence and ~75 of them
+# were DXE protocol arguments.
 TOCTOU = ('a caller-controlled field read twice is a TOCTOU risk: the OS can rewrite the '
           'buffer between the read that validated the value and the read that uses it, so '
           'what passed the check is not what acts')
+
+# What is true instead when the caller was a DXE protocol member.
+DXE_REREAD = ('both reads are in a DXE caller, where there is no OS and nothing runs '
+              'between them: the buffer is an argument the calling firmware owns, so '
+              'nothing rewrites the value in the window and no check is bypassed here')
+
+# ... and why one of those is still worth a developer's time. The re-read was seen in DXE
+# and the object code it was seen in is linked into an SMI handler too, where the caller is
+# the OS and the window is real.
+SMM_LINKED = ('it is a finding because this file is also compiled into {count} module(s) '
+              'that run in SMRAM -- {names} -- where the same code reads a comm buffer '
+              'the OS can rewrite from another core while the handler runs; read it there')
+
+# The third state, which is neither: nothing in the run could say which modules compile
+# this file, so the finding stays and says that rather than being dropped on a guess.
+SMM_UNCHECKED = ('whether this file is also compiled into a module that runs in SMRAM, '
+                 'where the same re-read does have a concurrent writer, could not be '
+                 'asked here -- the report names no source file, or the run carries no '
+                 'build tree to read the link maps out of -- so this is kept rather than '
+                 'dropped on a guess')
 
 
 def untrusted_payload(cluster):
@@ -642,7 +688,7 @@ class Report:
     # that -- carries the defaults and renders as it always did.
     __slots__ = ('protocol', 'phase', 'module', 'path', 'line', 'asan', 'kind',
                  'message', 'count', 'field', 'field_note', 'field_handlers',
-                 'first_site', 'func')
+                 'first_site', 'func', 'protocol_arg')
 
     def __init__(self, row, protocol):
         self.protocol = protocol
@@ -666,6 +712,11 @@ class Report:
         self.field_note = ''
         self.field_handlers = ()
         self.first_site = ''
+        # Whether the buffer this report's untrusted offset was measured against is a
+        # protocol argument rather than an SMM comm buffer. load() sets it from the
+        # campaign's own files, which are the only thing that knows which of the two the
+        # harness registered; the default leaves a hand-built Report rendering as it did.
+        self.protocol_arg = False
 
     @property
     def basename(self):
@@ -730,6 +781,16 @@ class Report:
         klass = self.bug_type()
         if any(name in self.basename for name in INTERCEPTOR_SOURCES):
             return (self.module, klass, 'via:' + (self.ip or self.basename))
+        # A double fetch is one finding per ROUTINE. The class reports the second read of
+        # a value, and a routine that walks a caller's structure re-reads several of its
+        # fields within a few lines of each other: LinkedList.c:596, :597 and :598 are
+        # three consecutive lines of one list walk and were filed as issues #105, #106 and
+        # #109, and HiiStringToImage raised ten between Font.c:2913 and :2955, one issue
+        # each. One fix closes a routine's worth of them, so one finding names the routine
+        # -- and Cluster.line_list prints every line inside it, because the routine is
+        # what gets fixed and the lines are what gets read.
+        if 'double-fetch' in klass and self.func:
+            return (self.module, klass, 'fn:' + self.func)
         # An address-only row used to group on the placeholder, so every such finding in a
         # module landed in one bucket whatever routine it came from. The function keeps
         # them apart AND is stable across builds, which the address is not -- that is what
@@ -747,6 +808,12 @@ class Cluster:
         self.lines = set()
         self.phases = set()
         self.hits = 0
+        # Filled in by load() from the firmware's own link maps: the SMM modules this
+        # cluster's file is also compiled into, and whether the run carried enough to
+        # answer that at all. The defaults read as "nothing was asked", which is what a
+        # Cluster built by hand gets, and never as "no SMM module compiles it".
+        self.smm_modules = ()
+        self.smm_checked = False
 
     def add(self, report):
         self.reports.append(report)
@@ -767,11 +834,17 @@ class Cluster:
     @property
     def site(self):
         first = self.reports[0]
+        func = next((r.func for r in self.reports if r.func), '')
+        # A double fetch is keyed on its routine, so the site has to be the routine too,
+        # or the key and the place a reader is sent name different things and one loop
+        # arrives as several findings again. No line is lost: line_list() puts all of them
+        # in the detail, which is where a developer reads them anyway.
+        if func and 'double-fetch' in self.klass.lower():
+            return func
         # With no source file the "line numbers" are raw addresses, so appending them
         # produces "asan-outline-instrumentation:533070167" -- the placeholder and the
         # decimal ip, neither of which is a place. Name the routine instead.
         if not first.located:
-            func = next((r.func for r in self.reports if r.func), '')
             if func:
                 return func
         nums = sorted(r.line_number() for r in self.reports if r.line_number() >= 0)
@@ -838,6 +911,75 @@ class Cluster:
                 return report.message[:90] + suffix
         return suffix.strip() or ''
 
+    def line_list(self):
+        """Every source line this cluster covers, as `LinkedList.c:596, 597, 598`.
+
+        A double-fetch cluster names a routine, which is the thing one fix covers; a
+        developer still has to find the reads inside it. The count past LINE_LIST is said
+        rather than the lines, because "and 4 more" is what tells a reader this is a loop
+        and a list that stops silently sends them to the first line of ten.
+
+        The line is read out of the path for a row locate() resolved. symbolise_offset
+        answers "path:line:col", and locate() splits only the column off it -- so the path
+        ends in ":596" and the Line column holds 10, which is a column. Taking the Line
+        column for the line is how one cluster covering 596, 597 and 598 printed
+        "LinkedList.c:596:10, 17, 41": one line and three columns, with two of the three
+        reads unnamed. Columns are dropped; a developer reads a line.
+
+        Empty for a cluster whose reports carry no source position -- every number in
+        those rows is an address, and printing one as a line is how `Timer.c:533070167`
+        got written in the first place.
+        """
+        name, lines = '', []
+        for report in self.reports:
+            if not report.located:
+                continue
+            base, _, tail = report.basename.partition(':')
+            where = tail.split(':')[0] if tail else report.line
+            name = name or base
+            if where.isdigit() and int(where) > 0 and where not in lines:
+                lines.append(where)
+        if not lines:
+            return ''
+        lines.sort(key=int)
+        shown = ', '.join(lines[:LINE_LIST])
+        if len(lines) > LINE_LIST:
+            shown += f' and {len(lines) - LINE_LIST} more'
+        return f'{name}:{shown}' if name else shown
+
+    def protocol_argument(self):
+        """Was every report here about a buffer the harness passed to a protocol member?
+
+        All of them, not any: a cluster can collect reports from several campaigns, and
+        one sighting through an SMM comm buffer means the OS can write that buffer while
+        the handler runs whatever the other sightings were. The strong claim needs every
+        report to agree, and the default on a Report built by hand is False, so nothing
+        that was not measured ends up here.
+        """
+        return bool(self.reports) and all(
+            getattr(r, 'protocol_arg', False) for r in self.reports)
+
+    def why_it_matters(self, report):
+        """The sentence saying what this re-read can do, for the caller it happened in.
+
+        Three situations wear one class name and only the first is the one TOCTOU
+        describes. Saying the same thing about all three is what made 82 rows of a run
+        look alike, and the two that are not TOCTOU each have something else true to say:
+        one names the SMM modules that compile the same file, the other says plainly that
+        nothing could rewrite the buffer here.
+        """
+        if not getattr(report, 'protocol_arg', False):
+            return TOCTOU
+        if self.smm_modules:
+            names = ', '.join(self.smm_modules[:4])
+            if len(self.smm_modules) > 4:
+                names += f' and {len(self.smm_modules) - 4} more'
+            return (DXE_REREAD + ' -- '
+                    + SMM_LINKED.format(count=len(self.smm_modules), names=names))
+        if not self.smm_checked:
+            return DXE_REREAD + ' -- ' + SMM_UNCHECKED
+        return DXE_REREAD
+
     def field_handlers(self):
         """Handlers whose parameter block has a field where this cluster's reports read.
 
@@ -879,7 +1021,12 @@ class Cluster:
             # to use it is the same word read twice, and the two sizes are what say so.
             read += f', {field["first_bytes"]} byte(s) there'
         said.append(f'{read}; re-read at {self.site}')
-        said.append(TOCTOU)
+        # The lines, now that the site is a routine for this class. Said only when it adds
+        # something: a cluster of one line already named it in the site.
+        lines = self.line_list()
+        if lines and lines != self.site:
+            said.append(f'read again at {lines}')
+        said.append(self.why_it_matters(report))
         return ' -- ' + ' -- '.join(said)
 
 
@@ -1133,6 +1280,10 @@ def load(root, build_dirs=()):
     """
     groups = defaultdict(list)
     rows = 0
+    # Once for the run, not once per campaign: every campaign booted the same firmware, so
+    # which modules run in SMRAM and what they are built from is one answer. Walking the
+    # build trees is not cheap and this walks them once.
+    linkage = SmmLinkage(build_dirs)
     for protocol in sorted(os.listdir(root)):
         path = os.path.join(root, protocol, 'crashes.csv')
         serial = os.path.join(root, protocol, 'fuzz.txt')
@@ -1186,6 +1337,11 @@ def load(root, build_dirs=()):
             report.field_note = join.describe(report.field['offset'], width)
             report.field_handlers = join.handler_names(report.field['offset'], width)
             report.first_site = source_of(report.field.get('first_ip', 0))
+            # Which kind of buffer the offset is measured against travels with the report,
+            # because the campaign directory is the only place that knows and the row is
+            # read again long after this loop. The join already decided it; it was simply
+            # never recorded, so every row was rendered as though it were a comm buffer.
+            report.protocol_arg = not join.comm
             return report
 
         def locate(report):
@@ -1286,24 +1442,217 @@ def load(root, build_dirs=()):
 
     clusters = {}
     for base, reports in groups.items():
-        runs, current, previous = [], [], None
-        for report in sorted(reports, key=lambda r: r.line_number()):
-            line = report.line_number()
-            if current and previous is not None and line >= 0 and previous >= 0 \
-                    and line - previous > CLUSTER_WINDOW:
+        # A group keyed on the routine is one site by construction, so there is nothing
+        # for proximity to add and a great deal for it to get wrong. Both keys that name a
+        # routine land here. One is the fallback for a row with no source position at all,
+        # where the Line column holds the ip instead: SmmSpi.efi's two reports of its own
+        # overflow carry 533070167 and 533070366, which are 0x1FC60157 and 0x1FC6021E, and
+        # 199 apart is over the window -- so one defect at one faulting address became
+        # issues #68 and #69, split on a difference of two instructions. The other is a
+        # double fetch, where the routine IS the finding and the lines inside it are the
+        # loop. A key built because the line could not be trusted must not then be split
+        # by that line.
+        if str(base[2]).startswith('fn:'):
+            runs = [list(reports)]
+        else:
+            runs, current, previous = [], [], None
+            for report in sorted(reports, key=lambda r: r.line_number()):
+                line = report.line_number()
+                if current and previous is not None and line >= 0 and previous >= 0 \
+                        and line - previous > CLUSTER_WINDOW:
+                    runs.append(current)
+                    current = []
+                current.append(report)
+                previous = line
+            if current:
                 runs.append(current)
-                current = []
-            current.append(report)
-            previous = line
-        if current:
-            runs.append(current)
         for index, run in enumerate(runs):
             key = base if len(runs) == 1 else (base[0], base[1], f'{base[2]}~{index}')
             cluster = Cluster(key)
             for report in run:
                 cluster.add(report)
+            # The file is the cluster's, so the linkage answer is too. Asked here rather
+            # than in verdict() so that both the verdict and the sentence under the
+            # finding read the same answer, and so a Cluster built by hand keeps the
+            # defaults that mean "nothing was asked".
+            #
+            # Checked means the question could be ASKED of this cluster, which needs both
+            # an inventory and a file to look up. A cluster whose reports name no source
+            # file -- UsbBusDxe's two, reported against UsbFindChild with the placeholder
+            # where the path goes -- is not a file no SMM module compiles; it is a file
+            # nothing here can name, and the two must not come out the same.
+            where = next((r.path for r in cluster.reports if r.located), '')
+            cluster.smm_checked = linkage.known and bool(where)
+            cluster.smm_modules = linkage.modules_for(where)
             clusters[key] = cluster
     return clusters, rows
+
+
+# ---------------------------------------------------------------------------------------
+# Whether a file a DXE caller read twice is also compiled into a module that runs in SMRAM.
+#
+# This is the one question that separates a double fetch worth filing from the 75 per run
+# that are not. The class needs a writer that can change the value between the two reads,
+# and which callers have one is a property of the file, not of the report:
+#
+#   a comm buffer   the OS keeps running on the other cores for the whole dispatch and the
+#                   buffer stays mapped and writable, so the second read can see something
+#                   the first did not. This is the case TOCTOU describes.
+#   a DXE argument  no OS, no concurrency, and the buffer belongs to the firmware that
+#                   called. Nothing can write it in the window.
+#
+# But a library is compiled once and linked into both. MdePkg/Library/BaseLib/Unaligned.c
+# is in all 17 SMM modules of an OvmfPkgX64 SMM_REQUIRE build and in most of the DXE ones,
+# so a re-read a DXE campaign happens to reach there is the same object code that runs
+# inside an SMI handler on the comm buffer. The DXE sighting is evidence about a file that
+# also executes where the window is real.
+#
+# Answered from the firmware that was built, not from a list of library names. A module's
+# link map names every object the linker pulled into that image, and the module's own INF
+# says whether that image runs in SMRAM, so "does any SMM module compile this file" is a
+# question the build tree triage is already given can answer exactly. A list would have to
+# be maintained against a tree that moves: measured on run 43452927684, DevicePathLib
+# resolves to UefiDevicePathLib for DXE and to UefiDevicePathLibDevicePathProtocol for
+# DXE_SMM_DRIVER, so DevicePathUtilities.c is in two DXE images and in no SMM one -- which
+# no amount of reading the library class name would have shown.
+# ---------------------------------------------------------------------------------------
+
+# One archive member of a link map, as the linker writes it under "Archive member included
+# to satisfy reference by file (symbol)":
+#
+#   /...X64/MdePkg/Library/BaseLib/BaseLib/OUTPUT/BaseLib.lib(Unaligned.obj)
+#
+# Anchored at both ends so the later sections cannot match: those name the same member
+# again with .text and two addresses in front of it, and a member matched there would be
+# the same answer at a hundred times the cost.
+MAP_MEMBER = re.compile(r'^(\S+\.lib)\(([^()\s]+)\.obj\)$')
+
+# The MODULE_TYPEs whose image is relocated into SMRAM and dispatched by the SMM core.
+# MM_STANDALONE and its core are here for a tree that uses the standalone MM dispatcher:
+# neither is in OvmfPkgX64 today, and a build that has them has the same window for the
+# same reason.
+SMM_MODULE_TYPES = ('DXE_SMM_DRIVER', 'SMM_CORE', 'MM_STANDALONE', 'MM_CORE_STANDALONE')
+
+MODULE_TYPE_RE = re.compile(r'^\s*MODULE_TYPE\s*=\s*(\S+)', re.M)
+
+
+class SmmLinkage:
+    """Which source files this firmware compiles into a module that runs in SMRAM.
+
+    Built from the same build trees --build already hands triage for the .debug images, by
+    the same structural rule SourceMap uses: a module is built into
+    <Pkg>/<dir>/<InfStem>/OUTPUT, its INF sits beside that directory, and a library member
+    in its map resolves to the directory that library's sources live in.
+
+    Two states are kept apart on purpose. "No SMM module compiles this file" is an answer
+    and drops a finding; "this run carries nothing to answer with" is not, and keeps it.
+    Triage run on a host with no build tree, or against an output directory whose INFs are
+    not beside it, is the second -- and a filter that cannot tell the two apart would drop
+    every double fetch in a run that simply did not carry the evidence.
+    """
+
+    def __init__(self, build_dirs):
+        # (source directory, object stem) -> the SMM modules that compile it. Only SMM
+        # modules are recorded: the question is never "which DXE driver has this file".
+        self.modules = {}
+        self.smm = []
+        self.typed = 0
+        self.images = 0
+        seen = set()
+        for root in build_dirs or ():
+            # Walk <root>/Build when that exists and <root> itself otherwise, exactly as
+            # _debug_index does -- a campaign image is handed the tree, a docker cp of one
+            # is often just the output directory.
+            start = os.path.join(root, 'Build')
+            if not os.path.isdir(start):
+                start = root
+            for base, dirs, files in os.walk(start):
+                if os.path.basename(base) != 'OUTPUT':
+                    continue
+                # Nothing below a module's OUTPUT directory is another module.
+                dirs[:] = []
+                for name in files:
+                    if not name.endswith('.map') or name in seen:
+                        continue
+                    seen.add(name)
+                    self._read(root, os.path.join(base, name))
+
+    def _read(self, root, path):
+        """Record one module's map, and its objects when that module runs in SMRAM."""
+        where = resolve_modules.package_relative(
+            os.path.dirname(os.path.dirname(path)))
+        if not where:
+            return
+        self.images += 1
+        kind = ''
+        try:
+            with open(os.path.join(root, where + '.inf'), errors='replace') as handle:
+                found = MODULE_TYPE_RE.search(handle.read())
+            kind = found.group(1) if found else ''
+        except OSError:
+            kind = ''
+        if not kind:
+            return
+        self.typed += 1
+        if kind not in SMM_MODULE_TYPES:
+            return
+        name = os.path.basename(path)[:-len('.map')]
+        self.smm.append(name)
+        try:
+            with open(path, errors='replace') as handle:
+                for line in handle:
+                    member = MAP_MEMBER.match(line.strip())
+                    if not member:
+                        continue
+                    # <Pkg>/<dir>/<InfStem>/OUTPUT/<Lib>.lib -> <Pkg>/<dir>, which is the
+                    # directory that library instance's sources are in.
+                    lib = resolve_modules.package_relative(os.path.dirname(
+                        os.path.dirname(os.path.dirname(member.group(1)))))
+                    if lib:
+                        self.modules.setdefault((lib, member.group(2)), []).append(name)
+        except OSError:
+            return
+
+    @property
+    def known(self):
+        """Whether this run carries enough for an absence to mean anything.
+
+        A module whose type was read is the unit of evidence, not a map that was found: a
+        build tree handed over without its INFs produces maps nobody can classify, and
+        counting those would turn "could not tell" into "no SMM module", silently.
+        """
+        return self.typed > 0
+
+    def modules_for(self, source_path):
+        """The SMM modules that compile this source file, most linked first, or ().
+
+        A module keeps sources in subdirectories -- DxeCore's Hand/Handle.c belongs to
+        MdeModulePkg/Core/Dxe, BaseLib's X64 sources to MdePkg/Library/BaseLib -- so the
+        directory walks up until one is a directory something was built from, the way
+        SourceMap.resolve does. The package root is the floor.
+        """
+        rel = resolve_modules.package_relative(
+            (source_path or '').replace('\\', '/').split(':')[0])
+        if not rel or '/' not in rel:
+            return ()
+        where, _, base = rel.rpartition('/')
+        stem = base.rsplit('.', 1)[0]
+        while where:
+            found = self.modules.get((where, stem))
+            if found:
+                return tuple(sorted(set(found)))
+            if '/' not in where:
+                return ()
+            where = where.rsplit('/', 1)[0]
+        return ()
+
+    def why(self, source_path):
+        """One clause saying what the inventory knows about this file."""
+        if not self.known:
+            return ('no module in this run could be classified -- triage was given no '
+                    'build tree, or one without the INFs beside it')
+        return (f'none of the {len(self.smm)} SMM module(s) this firmware builds compiles '
+                f'{resolve_modules.package_relative(source_path or "") or "that file"}')
 
 
 # The 32-bit PCI hole. A BAR mapped here is device memory, and the shadow only covers
@@ -1347,6 +1696,26 @@ def verdict(cluster, boot_keys, ubiquity):
         if module and module != cluster.module:
             continue
         return 'artefact', why
+    # A double fetch of a protocol argument, in a file nothing that runs in SMRAM
+    # compiles. The class needs a writer that can act between the two reads and this
+    # caller has none: DXE is single threaded, there is no OS yet, and the buffer belongs
+    # to the firmware that passed it. The same report against a comm buffer stays a
+    # finding, and so does one in a file an SMM module also compiles -- both are decided
+    # above this, on the campaign's own files and the firmware's own link maps, not on the
+    # class name. Dropped here rather than left in with softer wording because the
+    # complaint was the volume: 75 of these on one run, one GitHub issue each.
+    if 'double-fetch' in cluster.klass.lower() and cluster.protocol_argument() \
+            and not cluster.smm_modules and cluster.smm_checked:
+        where = next((r.path for r in cluster.reports if r.located), '')
+        # Without the line locate() appended to it: the reason is about the file, and
+        # "compiles Timer.c:54" reads as a claim about one line of it.
+        where = (where or '').split(':')[0]
+        name = resolve_modules.package_relative(where) or (where or 'that file')
+        return 'artefact', (f'the re-read is in a DXE caller: no OS, nothing concurrent, '
+                            f'and the buffer is an argument the calling firmware owns, so '
+                            f'nothing can change the value between the two reads -- and '
+                            f'no module running in SMRAM compiles {name}, so this code '
+                            f'never runs where a concurrent writer exists')
     if len(cluster.protocols) >= ubiquity:
         # Before the background drop below, not after. A real defect can be ubiquitous:
         # the ExportPackageList pointer overflow fires under every protocol that touches
@@ -1553,6 +1922,16 @@ def cluster_source(cluster, build_dirs):
         return (symbolise_offset(cluster.module, cluster.site, build_dirs)
                 or 'no source -- symbolise the offset')
     where = cluster.reports[0].path or ''
+    # A placeholder is not a path and must not be offered as one. "fwsan" and
+    # "asan-outline-instrumentation" are what the sanitizer writes where a file would go
+    # when the check it inserted has no source position, and printing one in a column
+    # headed `source` tells a reader to open a file that does not exist -- file_issues.py
+    # then wrote "the build resolved this site to asan-outline-instrumentation, but that
+    # path is not in this tree" about the instrumentation naming itself. Saying nothing
+    # sends it down the branch that already explains that case, and the location column
+    # still names the routine.
+    if '/' not in where:
+        return ''
     # the repo-relative path is what a reader can actually open
     for marker in ('/edk2/', '/edk2-platforms/'):
         if marker in where:
@@ -1730,7 +2109,11 @@ def write_markdown(path, title, preamble, buckets, rows, clusters, build_dirs=()
         protocols = ', '.join(sorted(cluster.protocols)[:4])
         if len(cluster.protocols) > 4:
             protocols += f' +{len(cluster.protocols) - 4}'
-        return (f'| {cluster.module or "(unattributed)"} | `{where}` | {cluster.site} | '
+        # An empty source is not an empty code span. cluster_source says nothing rather
+        # than offering a placeholder as a path, and `` in a table cell is a stray pair of
+        # backticks; the location column already names the routine for those rows.
+        shown = f'`{where}`' if where else '(no source file)'
+        return (f'| {cluster.module or "(unattributed)"} | {shown} | {cluster.site} | '
                 f'{cluster.klass} | {cluster.hits} | {protocols} | {detail} {note} |')
 
     with open(path, 'w') as handle:
