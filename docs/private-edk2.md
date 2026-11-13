@@ -268,6 +268,7 @@ protocols — which is exactly what qualify checks.
 | `jobs` | a quarter of the cores | targets fuzzed at once |
 | `targets` | everything discovered | space separated protocol names |
 | `qualify-only` | `false` | every stage except the fuzzing |
+| `triage-only` | `false` | triage and file over campaign data ALREADY in `out`, reusing that run's image. Nothing is fetched, built or fuzzed. This is how a tree gets re-triaged after the triage code changes -- ten seconds against the ten hours a re-fuzz costs -- and how findings are refiled after their site keys move. It refuses rather than rebuilds: no campaigns in `out`, or no image for `ref` on this host, and it stops |
 | `smm` | `false` | see below |
 | `fail-on-findings` | `false` | fail the step when triage reports candidates |
 | `fail-on-degraded` | `false` | fail the step when a stage ran but not for every target |
@@ -333,7 +334,9 @@ outputs come from the filing step, which runs only when `candidates` is neither 
 
 `stages` reads `11/11` on a `qualify-only` run and `13/13` on a full one: the pipeline has
 thirteen stages and qualify deliberately skips `fuzz` and `triage`, which are not counted
-rather than counted as passes.
+rather than counted as passes. A `triage-only` run reads `2/2` -- it plans two stages and
+runs both, rather than planning thirteen and skipping eleven, so the denominator is what it
+set out to do and a reader cannot mistake it for a full sweep that mostly failed.
 
 `fail-on-findings` is off by default on purpose. A candidate is something to read, not a
 confirmed defect, and a sweep that goes red on the first one stops reporting the rest.

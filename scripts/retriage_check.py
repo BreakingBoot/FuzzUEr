@@ -352,6 +352,45 @@ def main():
               'steps.run.outputs.candidates' in str(issues.get('if', '')),
               'a re-triage that files nothing leaves the tracker on the old site keys')
 
+    print('\nthe triage that runs is the triage in this checkout, on BOTH paths')
+    # The re-triage path is explicit about this -- it mounts the checkout's scripts over
+    # the image's, because the image's copy is whatever existed when the image was built,
+    # which on a re-triage is exactly the triage being replaced. Measured: without the
+    # mount the same campaigns come back as 91 candidates instead of 24, which is the
+    # no-op failure wearing the result it was supposed to produce.
+    #
+    # The FULL path relies on a different mechanism and nothing said so: the image stage
+    # copies this checkout's scripts/ into the build context and runs docker build every
+    # time, so the image's copy cannot be stale. That invariant is one "the image already
+    # exists, skip the build" optimisation away from silently triaging with old code, and
+    # the symptom would be a sweep reporting the previous release's findings. Both
+    # mechanisms are asserted here so neither can be removed on its own.
+    body = code(source('fuzz_edk2'))
+    check('the image stage copies this checkout\'s scripts into the build context',
+          "os.path.join(REPO, 'scripts'), 'scripts'" in body,
+          'the image\'s /workspace/scripts is the only copy a full run\'s triage reads')
+    check('and builds the image rather than reusing one that exists',
+          "'docker', 'build', '-t', image_tag" in body
+          and 'image_present(image_tag)' not in
+              body[body.index("'docker', 'build', '-t', image_tag") - 900:
+                   body.index("'docker', 'build', '-t', image_tag")],
+          'a reuse branch here would make the copy above dead and the triage stale')
+    # One expression, binding the host path to the container path to read-only. Three
+    # separate substring tests would each stay true while the line that joins them was
+    # rewritten -- which is what a mutation of the first of four /workspace/scripts
+    # occurrences demonstrated: every part present, the mount gone.
+    check('the re-triage mounts THIS checkout at the path triage reads from',
+          re.search(r'os\.path\.join\(REPO,\s*"scripts"\)\}:/workspace/scripts:ro',
+                    body) is not None,
+          'a re-triage cannot rebuild the image, so the mount is its only way to be new, '
+          'and it has to land on the path bug_report.py is invoked from')
+    check('and triage is invoked from that same path',
+          "'/workspace/scripts/bug_report.py'" in body,
+          'a mount somewhere else is a mount that changes nothing')
+    check('and the build tree stays the image\'s, because the .debug images live there',
+          "'--build', '/workspace/tmp/edk2'" in body,
+          'symbolising an address needs the build that ran, not the code that triages')
+
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
 

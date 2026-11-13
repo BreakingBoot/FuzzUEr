@@ -35,7 +35,9 @@ already runs firmware CI on machines it controls.
   [SECURITY.md](SECURITY.md) says what a candidate is and is not.
 - **A full sweep of one tree is most of a working day.** Measured: 6.5 to 11.5 hours,
   depending on parallelism. There is a `qualify-only` mode that is about eight minutes, and
-  it is what you should run first.
+  it is what you should run first. Once a sweep has run, `triage-only` re-reads its
+  campaigns with the current triage code in about ten seconds -- so a change to how findings
+  are clustered, filtered or filed is checked against real data without fuzzing again.
 
 If any of that is a surprise rather than a cost you were expecting, this is the wrong tool
 for the job you have.
