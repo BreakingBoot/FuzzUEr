@@ -1035,6 +1035,61 @@ def qemu_bios_dir():
 
 HARNESS_MARKER = b'FIRNESS: fuzzing starts'
 
+# Three outcomes, not two.
+#
+# HARNESS_MARKER is printed by FirnessSanitizer(TRUE), and the generator emits that call
+# AFTER the LocateProtocol early return in every Fuzz<Member>():
+#
+#     Status = ...LocateProtocol(&gEdkiiVariableLockProtocolGuid, NULL, &Protocol);
+#     if (EFI_ERROR(Status)) { return Status; }      <- FirnessHarnesses.c:17
+#     ...
+#     FirnessSanitizer(TRUE);                        <- FirnessHarnesses.c:64
+#
+# So a harness whose protocol is not installed in the DXE handle database still boots,
+# still starts, still runs every input the fuzzer sends it -- and never prints the marker,
+# because every iteration returns at that early exit. Measured on run 43454245046:
+# EdkiiSmmCpuRendezvous had run 18882 inputs and EdkiiSmmMemoryAttribute 5092 with zero
+# markers between them, and a census of that sweep's detect capture found ten of its 138
+# targets installed only by SmmInstallProtocolInterface -- inside SMRAM, where a DXE
+# LocateProtocol can never reach them.
+#
+# Reporting that as "the boot did not reach the harness" is false in both halves, and it
+# is expensive: the guest keeps narrating, so the stall check never fires and the slot is
+# held to the extension ceiling, 3 x 5863s. Reporting it as "reached" would be cheaper and
+# worse -- it would throw away the only discriminator there is. So it gets its own name.
+HARNESS_REACHED = 'reached'
+HARNESS_UNLOCATABLE = 'unlocatable'
+HARNESS_ABSENT = 'absent'
+
+# fuzz_edk2.py greps a campaign's run.log for this phrase to tell the second outcome from
+# the first, the same way it greps for "no target functions were resolved". Keep the two
+# spellings in step.
+UNLOCATABLE_NOTE = 'LocateProtocol never succeeded'
+
+
+def fuzzer_executions(raw):
+    """How many inputs the fuzzer says it has run so far, from its own heartbeat.
+
+    The CLIENT line and not the GLOBAL one, for the same reason the post-run tally in
+    run_qemu_fuzzer reads CLIENT: the broker prints a GLOBAL line even with no client
+    attached. Same regex as that tally, so the number reported while waiting and the
+    number reported afterwards cannot drift apart.
+
+    Returns 0 for a log that does not exist yet, which is most of the boot.
+    """
+    ran = 0
+    try:
+        with open(raw, 'r', errors='ignore') as handle:
+            for line in handle:
+                if 'CLIENT' not in line:
+                    continue
+                match = re.search(r'executions:\s*(\d+)', line)
+                if match:
+                    ran = max(ran, int(match.group(1)))
+    except OSError:
+        pass
+    return ran
+
 
 def guest_narrated(paths):
     """How many bytes the GUEST has produced so far, across the logs it writes.
@@ -1053,8 +1108,9 @@ def guest_narrated(paths):
 
 
 def wait_for_qemu_harness(process, serial, raw, boot_timeout, debugcon='',
-                          stall_grace=120, extend_max=3, tick=2.0):
-    """Block until the guest reaches the harness, or give up. Returns (reached, why).
+                          stall_grace=120, extend_max=3, tick=2.0,
+                          dead_grace=1800, locate_grace=90):
+    """Block until the guest reaches the harness, or give up. Returns (outcome, why).
 
     The boot is not free and it is not fuzzing. An instrumented OVMF emits megabytes of
     serial before the harness runs, every byte an emulated 16550 write, and under a
@@ -1079,8 +1135,47 @@ def wait_for_qemu_harness(process, serial, raw, boot_timeout, debugcon='',
     sits there -- so the common failure costs nothing extra. The ceiling is still a ceiling:
     firmware that narrates forever (an ASan report storm will) must not hold a slot all day.
 
-    Returns (False, why) rather than bare False so the caller can say which of the two it
-    was, because that is the whole difference between "too slow" and "stuck".
+    outcome is one of the three HARNESS_* names, never a bool, because the interesting
+    middle case is neither. HARNESS_UNLOCATABLE means the harness is RUNNING -- the fuzzer
+    is counting executions -- and is still not printing the marker, which can only happen
+    when every Fuzz<Member>() is taking its LocateProtocol early return. That campaign has
+    nothing to buy with the rest of its budget, so it stops here, but it is not a boot
+    failure and must never be reported as one. See the HARNESS_* comments above.
+
+    locate_grace is how long the harness is allowed to run inputs with no marker before
+    that call is made. It guards one race: the emulator truncates the serial capture when
+    it restarts the guest, so a campaign that HAS located its protocol can, for an instant,
+    show executions and no marker. 90s is three of LibAFL's 30s heartbeats; on the slowest
+    campaign of run 43454245046 (EdkiiSmmMemoryAttribute, 2.49 exec/s) that is some 220
+    executions, and the harness prints the marker twice per call -- and recovering from a
+    truncation costs a whole boot, 479-3113s on that sweep, so the window cannot be
+    straddled by accident.
+
+    dead_grace is the other half of the same honesty. stall_grace only applies PAST the
+    allowance, so a guest that dies at second 60 of a 5863s allowance still holds its slot
+    for 5863s and reports zero iterations. A guest that has written nothing at all for
+    dead_grace seconds is given up on whatever the clock says.
+
+    1800s, and the number is the whole design, because killing a working boot is the
+    failure to design against and a live boot goes quiet for far longer than it looks.
+    Three measurements off run 43454245046, in increasing order of authority:
+
+      * sampling six live campaigns' guest logs every ten seconds, the longest stretch
+        with not one byte on either serial or the debug port was 505s -- EdkiiVariablePolicy,
+        which then went on writing. A first two-minute sample had said 95s, which is how a
+        900s grace came to look generous.
+      * the five campaigns of that sweep that have been given up on say, in their own
+        message, how long they had been quiet when the allowance ran out: 276s, 495s,
+        497s, 667s and 1203s. 1203s is the longest silence this firmware has ever been
+        measured in.
+      * EfiAcpiTable and EfiAcpiSdt sat at that same plateau for over two hours, going
+        quiet for ~110s at a time, and then reached the harness and fuzzed. A grace near
+        the pauses would have thrown both away.
+
+    So 1800s is 1.5x the longest silence ever seen and 3.6x the longest one a guest came
+    back from. It fires on nothing that sweep did, which is the point: it is a bound on a
+    guest that has genuinely stopped, 1800s instead of the whole 5863s allowance, and not
+    a tighter clock for a slow one.
 
     tick is the poll interval, a parameter only so the self-check can drive this in
     milliseconds rather than taking a minute per case.
@@ -1091,37 +1186,79 @@ def wait_for_qemu_harness(process, serial, raw, boot_timeout, debugcon='',
     narrates = [path for path in (serial, debugcon) if path]
     seen = guest_narrated(narrates)
     moved = began
+    running_since = None
     announced = False
     while True:
         now = time.time()
-        if process.poll() is not None:
-            return False, 'the fuzzer exited before the harness came up'
+        marker = False
         for path in (serial, raw):
             try:
                 with open(path, 'rb') as handle:
                     if HARNESS_MARKER in handle.read():
-                        return True, ''
+                        marker = True
+                        break
             except OSError:
                 pass
+        # Before the exit check, not after: a fuzzer that printed the marker and then died
+        # reached the harness, and saying otherwise discards a campaign that worked.
+        if marker:
+            return HARNESS_REACHED, ''
+        ran = fuzzer_executions(raw)
+        if process.poll() is not None:
+            if ran:
+                return HARNESS_UNLOCATABLE, (
+                    f'the fuzzer exited having run {ran} input(s) and {UNLOCATABLE_NOTE} '
+                    f'in any of them')
+            return HARNESS_ABSENT, 'the fuzzer exited before the harness came up'
+        # The harness is running and the protocol is not there. Executions are counted by
+        # the fuzzer, which cannot see inside the guest; the marker is printed by the
+        # harness, which only gets that far once LocateProtocol has returned a protocol.
+        # One without the other, held for locate_grace, is that and nothing else.
+        if ran:
+            if running_since is None:
+                running_since = now
+            elif now - running_since >= locate_grace:
+                return HARNESS_UNLOCATABLE, (
+                    f'the harness has run {ran} input(s) over {now - running_since:.0f}s '
+                    f'and {UNLOCATABLE_NOTE} in one of them, so every iteration returned '
+                    f'at the harness\'s LocateProtocol early exit without calling the '
+                    f'protocol -- it is not installed where a DXE harness can find it '
+                    f'(an SMM-only protocol is installed inside SMRAM and looks exactly '
+                    f'like this)')
         size = guest_narrated(narrates)
-        if size > seen:
+        # Any CHANGE, not growth. The emulator truncates the serial capture when it
+        # restarts the guest, and "> seen" never recovers from that: once the recorded
+        # high-water mark is above the file, every later poll reads as no movement and a
+        # narrating guest is given up on as quiet. Seen on run 43454245046 --
+        # EdkiiFormDisplayEngine's serial went 53087 -> 0 -> 489 -> 12476 and EfiBdsArch's
+        # 52663 -> 0, both while the guest was still writing.
+        if size != seen:
             seen, moved = size, now
         quiet = now - moved
+        # Independent of the allowance, and deliberately so. The check below only asks
+        # whether the guest is alive once the allowance is spent, which charges a guest
+        # that died in the first minute the whole of it.
+        if quiet >= dead_grace:
+            return HARNESS_ABSENT, (
+                f'the guest has written nothing for {quiet:.0f}s, which is past the '
+                f'{dead_grace}s it is given to be quiet in -- it is not booting slowly, '
+                f'it has stopped')
         # Quiet first, and the ceiling second. The other order reads the same until
         # someone sets FIRNESS_BOOT_EXTEND=1 to get the old wall back: ceiling then equals
         # the allowance, fires first, and a guest that stopped dead in early DXE is
         # reported as "STILL NARRATING". A diagnostic that inverts under a supported
         # setting is worse than none.
         if now >= soft and quiet >= stall_grace:
-            return False, (f'the guest last wrote anything {quiet:.0f}s ago and the '
-                           f'{boot_timeout}s boot allowance is spent -- the protocol '
-                           f'may not be installed, or the boot stopped at the step the '
-                           f'debug port names below')
+            return HARNESS_ABSENT, (
+                f'the guest last wrote anything {quiet:.0f}s ago and the {boot_timeout}s '
+                f'boot allowance is spent -- the protocol may not be installed, or the '
+                f'boot stopped at the step the debug port names below')
         if now >= ceiling:
-            return False, (f'the guest was STILL NARRATING at the '
-                           f'{ceiling - began:.0f}s ceiling, which is {max(1, extend_max)}x '
-                           f'the {boot_timeout}s boot allowance -- this boot is slow, not '
-                           f'stuck, so raise --boot-timeout or FIRNESS_BOOT_EXTEND')
+            return HARNESS_ABSENT, (
+                f'the guest was STILL NARRATING at the {ceiling - began:.0f}s ceiling, '
+                f'which is {max(1, extend_max)}x the {boot_timeout}s boot allowance -- '
+                f'this boot is slow, not stuck, so raise --boot-timeout or '
+                f'FIRNESS_BOOT_EXTEND')
         if now >= soft:
             if not announced:
                 announced = True
@@ -1247,18 +1384,30 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
         started_at = time.time()
         process = subprocess.Popen([QEMU_FUZZER], stdout=log, stderr=subprocess.STDOUT,
                                    env=environment, cwd=work)
-        reached, why = wait_for_qemu_harness(
+        outcome, why = wait_for_qemu_harness(
             process, serial_path, raw_path, boot_timeout,
             debugcon=environment.get('FIRNESS_DEBUGCON', ''),
-            # Both overridable, because the right grace depends on how chatty the build
+            # All overridable, because the right grace depends on how chatty the build
             # is and the right ceiling on how much of the budget a slot is worth.
             stall_grace=int(os.environ.get('FIRNESS_BOOT_STALL', '120')),
-            extend_max=int(os.environ.get('FIRNESS_BOOT_EXTEND', '3')))
-        if reached:
+            extend_max=int(os.environ.get('FIRNESS_BOOT_EXTEND', '3')),
+            dead_grace=int(os.environ.get('FIRNESS_DEAD_GRACE', '1800')),
+            locate_grace=int(os.environ.get('FIRNESS_LOCATE_GRACE', '90')))
+        if outcome == HARNESS_REACHED:
             print(f'++++ Harness reached after {time.time() - started_at:.0f}s of boot; '
                   f'fuzzing for {timeout}s ++++')
+        elif outcome == HARNESS_UNLOCATABLE:
+            # Its own sentence, and deliberately not either of the other two. This
+            # campaign booted, built, started and fuzzed; what it never did was call the
+            # protocol it is named after. Printing "Harness reached" here would put it in
+            # fuzz_edk2.py's fuzzed bucket beside campaigns that worked, and printing "the
+            # boot did not reach the harness" is the 316-minute lie this replaces.
+            print(f'++++ The harness ran, but {why}. Stopping after '
+                  f'{time.time() - started_at:.0f}s rather than spending the {timeout}s '
+                  f'budget on iterations that cannot reach the protocol. ++++')
         else:
             print(f'++++ The boot did not reach the harness: {why}. ++++')
+        if outcome != HARNESS_REACHED:
             # The serial log is not where the boot narrates itself. OVMF writes DEBUG to
             # the ISA debug port, and only AsanLib's own SerialOutput reaches serial -- so
             # a boot that stops after the console switch looks, on serial, like a boot
@@ -1278,7 +1427,7 @@ def run_qemu_fuzzer(harness, output, timeout, seed_corpus='', boot_timeout=2700)
                     for line in tail:
                         print(f'    | {line[:160]}')
         try:
-            process.wait(timeout=timeout if reached else 5)
+            process.wait(timeout=timeout if outcome == HARNESS_REACHED else 5)
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait()

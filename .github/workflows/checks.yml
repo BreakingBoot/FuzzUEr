@@ -191,6 +191,17 @@ jobs:
         shell: bash
         run: python3 scripts/boot_wait_check.py
 
+      # "The harness was reached" was decided by a marker the generator emits AFTER the
+      # LocateProtocol early return, so a harness whose protocol is not installed fuzzed
+      # thousands of inputs and was reported as a boot that never got there -- 17589s a
+      # campaign, on ten of one sweep's 138 targets. The fix that merely stops the clock
+      # (call one iteration "reached") would delete the only discriminator there is, so
+      # there are three outcomes now and this keeps them three, from the wait loop through
+      # the sentence it prints to the bucket fuzz_edk2.py puts it in.
+      - name: A harness that never located its protocol is told from one that did
+        shell: bash
+        run: python3 scripts/harness_outcome_check.py
+
       - name: Every SMI handler is harnessed or explained
         shell: bash
         run: python3 scripts/smi_coverage_check.py

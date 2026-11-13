@@ -72,7 +72,11 @@ def classify(logs):
     a copy here would keep passing after the real loop changed.
     """
     text = source('fuzz_edk2')
-    start = text.index('        LINE = re.compile(')
+    # From the constants, not from LINE. They used to be handed in from here, and the
+    # moment fuzz_edk2 grew a second one the lifted loop raised NameError on a constant
+    # this file could not see -- a check that crashes is not a check. Lift them with the
+    # loop and there is only ever one spelling.
+    start = text.index("        NO_CALL_SITES = 'no target functions")
     end = text.index('        # How good the coverage signal', start)
     body = text[start:end]
     # The loop reads os.listdir(campaigns) and opens each run.log; feed it a directory.
@@ -82,8 +86,7 @@ def classify(logs):
         os.makedirs(os.path.join(holder.name, name), exist_ok=True)
         with open(os.path.join(holder.name, name, 'run.log'), 'w') as handle:
             handle.write(content)
-    namespace = {'re': re, 'os': os, 'campaigns': holder.name,
-                 'NO_CALL_SITES': 'no target functions were resolved'}
+    namespace = {'re': re, 'os': os, 'campaigns': holder.name}
     exec('\n'.join(line[8:] for line in body.splitlines()), namespace)
     holder.cleanup()
     return namespace

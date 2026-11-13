@@ -2219,6 +2219,24 @@ def main():
         #
         NO_CALL_SITES = 'no target functions were resolved'
         #
+        # A bucket of its own, and not that one. NO_CALL_SITES is a STATIC absence: the
+        # analysis found no call sites, so no harness was ever generated and nothing ran.
+        # This is a RUNTIME one: the call sites existed, the harness generated, compiled,
+        # booted and ran thousands of inputs, and LocateProtocol failed in every one of
+        # them -- so each iteration returned at the harness's early exit without ever
+        # touching the protocol. The two need opposite responses. A protocol nothing calls
+        # is expected on a platform that does not carry its driver and is simply dropped;
+        # a protocol that is called but cannot be located at DXE time is reachable by some
+        # other channel -- ten of run 43454245046's 138 targets are installed only by
+        # SmmInstallProtocolInterface, inside SMRAM, and want the SMI harness instead.
+        #
+        # They cannot be folded into `fuzzed` either, which is what the marker-only test
+        # in firness.py used to force. Their iterations are real and measure nothing, so
+        # they are counted here and kept out of the sweep's headline total rather than
+        # inflating it: EdkiiSmmCpuRendezvous alone contributed 18882 of them.
+        #
+        NO_PROTOCOL = 'LocateProtocol never succeeded'
+        #
         # Reaching the harness is not the same as fuzzing it. A member that blocks or
         # never returns makes every input time out, and a timeout is recorded as an
         # objective -- so the campaign reports a handful of iterations, every one of them
@@ -2235,6 +2253,7 @@ def main():
         #
         LINE = re.compile(r'Fuzzed (\d+) iteration\(s\), (\d+) edge\(s\), (\d+) solution\(s\)')
         fuzzed, iterations, absent, silent, stuck = 0, 0, [], [], []
+        unlocatable, unlocated_runs = [], 0
         for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
             log = os.path.join(campaigns, name, 'run.log')
             if not os.path.isfile(log):
@@ -2245,6 +2264,13 @@ def main():
             if not runs:
                 count = max((int(n) for n in re.findall(r'Fuzzed (\d+) iteration', text)),
                             default=0)
+            # First, because it is the most specific thing the campaign knows about
+            # itself. Every arm below is a guess made from iteration and edge counts; this
+            # one is the harness reporting that it never got past LocateProtocol.
+            if NO_PROTOCOL in text:
+                unlocatable.append(name)
+                unlocated_runs += count
+                continue
             iterations += count
             if count and edges:
                 fuzzed += 1
@@ -2299,7 +2325,19 @@ def main():
             shown = ', '.join(stuck[:5]) + ('...' if len(stuck) > 5 else '')
             detail += (f', {len(stuck)} reached the harness but never came back out of '
                        f'the call ({shown})')
+        if unlocatable:
+            shown = ', '.join(unlocatable[:5]) + ('...' if len(unlocatable) > 5 else '')
+            detail += (f', {len(unlocatable)} ran the harness but never located their '
+                       f'protocol ({unlocated_runs} iteration(s) that never reached the '
+                       f'call: {shown})')
         if not fuzzed:
+            if unlocatable:
+                # Not a boot failure, and saying so would send whoever reads this at the
+                # boot allowance for a week. These campaigns booted and ran.
+                return False, (detail + ' -- no campaign called the protocol it is named '
+                               'after; the harnesses ran and LocateProtocol failed in '
+                               'every one, so look at where the protocol is installed, '
+                               'not at the boot')
             return False, (detail + ' -- every boot spent its budget without reaching '
                            'the harness; each run.log says how far it got')
 
