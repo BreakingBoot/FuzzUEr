@@ -326,6 +326,10 @@ jobs:
         shell: bash
         run: python3 scripts/presence_channel_check.py
 
+      - name: Campaign concurrency is capped at the point more campaigns stop helping
+        shell: bash
+        run: python3 scripts/jobs_cap_check.py
+
       - name: A re-triage reuses a finished run and cannot do nothing quietly
         shell: bash
         run: python3 scripts/retriage_check.py

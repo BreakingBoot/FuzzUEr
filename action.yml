@@ -43,7 +43,7 @@ inputs:
     required: false
     default: '600'
   jobs:
-    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4'
+    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4, cap 8 -- measured, past 8 more campaigns means fewer results'
     required: false
     default: ''
   boot-timeout:
@@ -481,10 +481,31 @@ runs:
         # Sized to the runner rather than fixed. A campaign is one QEMU plus a harness build,
         # so a quarter of the cores keeps the box busy without making every boot compete for
         # it -- and the driver's boot timeout scales with this number for the same reason.
+        #
+        # CAPPED, because past a point more campaigns is fewer results. Measured on a
+        # 72-core box, same tree, same image, same budget, same icount setting:
+        #
+        #   --jobs 4    4 campaigns in 46m38s = 5.15/h, boots 132-330s, 4 of 4 reached
+        #   --jobs 18   7.76/h gross, but only 10 of 18 ever reached the harness, so the
+        #               useful rate is 4.3/h -- BELOW the 4-job rate
+        #
+        # The CPU-bound stages barely moved between the two (analysis+generation+build was
+        # 677s mean at 4 and 750-777s at 18, +12%) and the box was 91% idle at 18, so this
+        # is not a core shortage: the emulator is what degrades, boots going from ~230s to
+        # past 3000s. A boot that slow then collides with the boot timeout, and a campaign
+        # that loses its boot spends its whole slot producing nothing.
+        #
+        # 8 is the knee the two points bracket, not a measured optimum: boot cost rose
+        # about 212s per added job, so boot(8) ~= 1080s, well inside the allowance, giving
+        # ~61 min per campaign and ~7.9/h with essentially every campaign reaching its
+        # harness. The quarter-of-cores rule still applies below that; the cap only binds
+        # on a box with more than 32 cores, where it is the difference between finishing a
+        # sweep and being killed by the job timeout with nothing triaged.
         JOBS="${IN_JOBS:-}"
         if [ -z "$JOBS" ]; then
           JOBS=$(( $(nproc) / 4 ))
           [ "$JOBS" -lt 4 ] && JOBS=4
+          [ "$JOBS" -gt 8 ] && JOBS=8
         fi
 
         # Outside the workspace by default. The pipeline writes a git worktree, a docker
