@@ -2118,7 +2118,18 @@ def main():
             elif NO_CALL_SITES in text:
                 absent.append(name)
             else:
-                silent.append(name)
+                # WHY it produced nothing, not just that it did. A campaign reaches this
+                # arm for reasons that need opposite fixes -- a harness that did not
+                # compile is a code-generator defect, a boot that ran out of time is a
+                # budget or contention one -- and "produced nothing" names neither. Every
+                # refusal firness.py can print starts with "Error: ", so the last one in
+                # the log is the campaign's own account of where it stopped. Measured on
+                # run 43454245046, where EdkiiVariableLock stopped at an incompatible
+                # integer to pointer conversion in the generated harness and the run would
+                # otherwise have reported it in the same breath as a slow boot.
+                why = [line.strip() for line in text.splitlines()
+                       if line.strip().startswith('Error: ')]
+                silent.append((name, why[-1][len('Error: '):] if why else ''))
         # How good the coverage signal was, not just how much of it there was. The
         # fuzzer reports edges_stability every 30s into each campaign's qemu/run.txt and
         # nothing here ever read it -- so a sweep where three quarters of every observed
@@ -2180,11 +2191,23 @@ def main():
                           f'testcase, so their coverage and findings are functions of the '
                           f'input length alone: {shown}')
         if silent:
-            shown = ', '.join(silent[:6]) + ('...' if len(silent) > 6 else '')
+            # Grouped by cause, because the counts are the actionable part of this line.
+            # "9 produced nothing: A, B, C, D, E, F..." reads as six unlucky boots when it
+            # may be nine instances of one generator defect, and a sweep is exactly where
+            # that difference is invisible by eye.
+            causes = {}
+            for name, why in silent:
+                causes.setdefault(why, []).append(name)
+            said = []
+            for why, names in sorted(causes.items(), key=lambda kv: -len(kv[1])):
+                head = ', '.join(names[:3]) + ('...' if len(names) > 3 else '')
+                said.append(f'{len(names)} at "{why[:90]}" ({head})' if why
+                            else f'{len(names)} with no refusal in the log ({head})')
             # Degraded, not failed. The campaigns that did fuzz are exactly what the run
             # exists to produce, and discarding their triage because one boot in two
             # hundred ran out of time throws away the report to punish the gap.
-            return WARN, detail + f' -- {len(silent)} produced nothing: {shown}'
+            return WARN, (detail + f' -- {len(silent)} produced nothing: '
+                          + '; '.join(said))
         if code != 0:
             return WARN, detail + f' -- the batch exited {code}'
         # Below this the coverage feedback is mostly jitter, the corpus grows on noise

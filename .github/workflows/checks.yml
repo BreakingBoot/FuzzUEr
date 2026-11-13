@@ -299,6 +299,10 @@ jobs:
         shell: bash
         run: python3 scripts/issue_body_check.py
 
+      - name: A campaign that produced nothing says why, grouped by cause
+        shell: bash
+        run: python3 scripts/silent_campaign_check.py
+
       - name: No pipeline function reads a name that is never bound
         shell: bash
         run: python3 scripts/unbound_name_check.py
