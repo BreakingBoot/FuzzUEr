@@ -246,6 +246,10 @@ jobs:
         shell: bash
         run: python3 scripts/smi_inventory_check.py
 
+      - name: A handler the harness cannot lay out costs that handler and no other
+        shell: bash
+        run: python3 scripts/payload_layout_check.py
+
       - name: A software SMI is raised only with a command byte the tree registers
         shell: bash
         run: python3 scripts/sw_smi_check.py

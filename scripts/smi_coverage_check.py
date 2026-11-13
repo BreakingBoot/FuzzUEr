@@ -21,6 +21,7 @@ build_sweep.sh. This is the unit-level guard that the logic still does what it s
 
 import ast
 import os
+import re
 import sys
 import tempfile
 import textwrap
@@ -29,7 +30,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GEN = os.path.join(HERE, '..', 'firness', 'harness_generator')
 sys.path.insert(0, GEN)
 
-from common.vendor_types import resolve, render, bare_name, split_array  # noqa: E402
+from common.vendor_types import (resolve, render, bare_name, split_array,  # noqa: E402
+                                 NO_PAYLOAD)
 
 FAILURES = []
 
@@ -73,7 +75,8 @@ def lift(names):
                           for node in want)]
     if missing:
         raise SystemExit(f'analyze_smi.py no longer defines: {", ".join(missing)}')
-    space = {'os': os, 'print': print, 'Dict': dict, 'List': list,
+    space = {'os': os, 're': re, 'print': print, 'Dict': dict, 'List': list,
+             'NO_PAYLOAD': NO_PAYLOAD,
              'SmiInfo': lambda name, type, guid, file='': TI(name, [], file),
              'TypeInfo': TI}
     exec(compile(ast.Module(body=want, type_ignores=[]), 'analyze_smi.py', 'exec'), space)
@@ -136,7 +139,8 @@ def main():
           bare_name('CONST EFI_GUID *') == 'EFI_GUID')
 
     print('reading a handler that types its own comm buffer')
-    space = lift(['_DEFN', '_handler_source', '_body_of', '_payload_casts',
+    space = lift(['_DEFN', '_COMMENT', '_IDENTIFIER', '_handler_source', '_body_of',
+                  '_buffer_body', '_buffer_names', '_payload_casts',
                   'payload_from_source',
                   'recover_missing_handlers', 'lifecycle_gate',
                   '_enclosing_function', 'load_discovered'])
