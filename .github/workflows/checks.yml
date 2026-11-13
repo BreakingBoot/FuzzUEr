@@ -226,6 +226,10 @@ jobs:
         shell: bash
         run: python3 scripts/scalar_choice_check.py
 
+      - name: A fuzzed pointer keeps its declarator and is registered for its size
+        shell: bash
+        run: python3 scripts/untrusted_extent_check.py
+
       - name: The port edits edk2 without rewriting it
         shell: bash
         run: python3 scripts/port_merge_check.py
