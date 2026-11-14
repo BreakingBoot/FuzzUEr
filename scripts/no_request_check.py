@@ -400,7 +400,7 @@ def main():
     check('a GUID whose struct this header does not hold gets nothing',
           written(gpi, NOSTRUCT_TREE) == [],
           f'{written(gpi, NOSTRUCT_TREE)} -- this is gEfiSmmReadyToLockProtocolGuid, and '
-          f'54 of the 69 look like it')
+          f'56 of the 69 look like it -- no struct the GUID names, at all')
     check('a function-pointer member of ANOTHER struct is not the protocol\'s',
           written(gpi, CALLBACK_TREE) == [],
           f'{written(gpi, CALLBACK_TREE)} -- this is gEfiRuntimeArchProtocolGuid; the '

@@ -219,7 +219,8 @@ INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"]+)[>"]', re.M)
 # largest single one at 69 on all three. But 69 is not the size of the hole: of those 69,
 # exactly THREE have any callable member at all, even when the typedef set is widened to
 # every function-pointer typedef in the tree -- gEdkiiSmmVarCheckProtocolGuid (3 members),
-# gEfiSmmVariableProtocolGuid (4) and gEfiLoadedImageProtocolGuid (1). The other 66 are
+# gEfiSmmVariableProtocolGuid (4) and gEfiLoadedImageProtocolGuid (1). The other 66 split
+# 56 that name no struct in their header at all and 10 whose struct is data only, and are
 # GUID-only signal protocols (gEfiSmmReadyToLockProtocolGuid, gEdkiiSmmLegacyBootProtocol-
 # Guid), architectural protocols installed with a NULL interface (gEfiResetArchProtocol-
 # Guid, gEfiRuntimeArchProtocolGuid), data-only structs (gEfiEdidActiveProtocolGuid,
