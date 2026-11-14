@@ -5,12 +5,12 @@ import argparse
 
 # a protocol header declares its GUID as
 #     extern EFI_GUID  gEfiBlockIoProtocolGuid;
-# and its callable surface as struct members whose type is a function-pointer typedef
-# declared in the same header:
+# and its callable surface as struct members whose type is a function-pointer typedef:
 #     typedef EFI_STATUS (EFIAPI *EFI_BLOCK_READ)(...);
 #     ...
 #     EFI_BLOCK_READ  ReadBlocks;
-# that pair is all firness needs to build a target list
+# that pair is all firness needs to build a target list. the typedef is not always in the
+# same file as the member -- see INCLUDE_DEPTH below
 GUID_RE = re.compile(r'extern\s+EFI_GUID\s+(g\w*ProtocolGuid)\s*;')
 FPTYPE_RE = re.compile(r'\(\s*EFIAPI\s*\*\s*(\w+)\s*\)')
 MEMBER_RE = re.compile(r'^\s*([A-Za-z_]\w*)\s+([A-Za-z_]\w*)\s*;\s*$')
@@ -131,7 +131,146 @@ def struct_members(src, guid, fptypes):
     return expand_members(blocks.get(want, []), blocks, fptypes, seen=(want,))
 
 
-def scan_header(path):
+# ---------------------------------------------------------------------------------------
+# The function-pointer typedefs a protocol's members name are not always declared in the
+# protocol's own header. scan_header() built its fptypes set from the one file it had open,
+# so a member typed from an #include was not recognised as callable, and was therefore not
+# requested, not harnessed and not fuzzed, with nothing in any log saying so.
+#
+# Measured over the request files this script emits, before vs after, on three trees
+# (eval1_edk2 271 files / 1315 member lines, edk2-master 274, eval_source/edk2 268): the
+# same 11 members across the same 2 protocols on all three.
+#
+#   EFI_EAP_MANAGEMENT2_PROTOCOL asked for GetKey and nothing else, 1 of 9. The other 8 --
+#   GetSystemConfiguration, SetSystemConfiguration, InitializePort, UserLogon, UserLogoff,
+#   GetSupplicantStatus, SetSupplicantConfiguration, GetSupplicantStatistics -- are typed
+#   by EFI_EAP_* typedefs that EapManagement2.h takes from <Protocol/EapManagement.h>.
+#   EDKII_FORM_BROWSER_EXTENSION2_PROTOCOL asked for 3 of 6; SetScope, RegisterHotKey and
+#   RegiserExitHandler are typed from <Protocol/FormBrowserEx.h>.
+#
+# Both are one edk2 idiom -- the second revision of a protocol includes the first and
+# re-uses its typedefs -- so this is a shape, not two odd headers.
+#
+# INCLUDE_DEPTH bounds the walk, and the bound is chosen from the measurement: every
+# member the hole hid on all three trees resolves at depth 1, because the typedef sits in
+# the header the protocol header includes DIRECTLY. Depth 2 is that plus one hop, for a
+# header that reaches a shared typedef through an intermediate. It is a cap and not the
+# full closure because the closure keeps growing without buying anything -- SmmVarCheck.h
+# reaches 2 headers at depth 1, 11 at depth 3 and 23 unbounded, and the gain past depth 1
+# is measured at zero on all three trees, while every extra name is one the member walk
+# might reclassify. Cost over the 353 protocol headers of eval1_edk2: 539 header reads at
+# depth 1, 668 at depth 2, 1220 unbounded, each file parsed once (header_facts memoises).
+# Measured, five runs each: scan_roots -- the only pass this touches -- goes from 149 ms
+# to 341 ms, of which 81 ms is building the include index; the whole generator goes from
+# 3.15 s to 3.11 s, which is to say the difference does not show against the full-tree
+# walks struct_index() and consumed_guids() already do.
+#
+# Two things are deliberately NOT widened.
+#
+#   * Which GUIDs scan_header reports. Every branch below is still decided by the typedefs
+#     declared IN the header: a header with none of its own is still not a protocol
+#     header, a GUID that owned no struct under the local set still owns none, and the
+#     whole-header fallback still runs exactly when it ran before. Only the member lists
+#     are resolved wider. That is not caution for its own sake -- with the decision
+#     widened too, gEdkiiSmmVarCheckProtocolGuid becomes a request file on every tree,
+#     because SmmVarCheck.h declares a GUID and a three-member struct and not one typedef
+#     of its own. Discovering a protocol is a separate question from which members an
+#     existing target asks for, and a protocol nobody chose costs a container, an
+#     analysis, a build and a whole boot budget. This is the second question, as the
+#     nested-member fix was.
+#   * structs_in() and the install-site pass it feeds, for that same reason one level
+#     down: that index is what scan_installations() recognises a struct by, so widening it
+#     adds protocols. It is untouched, and so is every member list it produces.
+#
+# Finally, a resolved name that collides with a struct defined in this header is dropped,
+# so a typedef declared elsewhere cannot reclassify a by-value sub-struct as a function
+# pointer and undo the nested walk above -- the two fixes have to compose.
+INCLUDE_DEPTH = 2
+
+INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"]+)[>"]', re.M)
+
+# path -> (the function-pointer typedefs declared there, the paths it includes)
+_HEADER_FACTS = {}
+
+
+def include_index(roots):
+    """{the path an #include spells: the file on disk} for the Include trees in scope.
+
+    Keyed the way a header spells it -- `Protocol/EapManagement.h` -- which is the path
+    relative to the package's Include directory, so the index is built from the Include
+    ancestors of the Protocol directories the scan was already given rather than from
+    another walk of the tree. A root that is not under an Include directory contributes
+    nothing, and resolution then falls back to the including header's own directory, which
+    is also what a quoted include means.
+    """
+    index = {}
+    for root in sorted({os.path.dirname(r) for r in roots}):
+        if os.path.basename(root) != 'Include':
+            continue
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in ('.git', 'Build')]
+            for name in files:
+                if not name.endswith('.h'):
+                    continue
+                rel = os.path.relpath(os.path.join(base, name), root)
+                index.setdefault(rel.replace(os.sep, '/'), os.path.join(base, name))
+    return index
+
+
+def header_facts(path):
+    """(typedefs declared in `path`, the paths it includes), read and parsed once.
+
+    A header on the closure of two hundred protocol headers would otherwise be re-read
+    two hundred times. The typedef set is a frozenset so that a caller unioning it into
+    its own set cannot mutate the cached one -- which it does, and which silently made
+    every header after the first report the union of all of them.
+    """
+    if path not in _HEADER_FACTS:
+        try:
+            with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                src = f.read()
+        except OSError:
+            src = ''
+        _HEADER_FACTS[path] = (frozenset(FPTYPE_RE.findall(src)),
+                               tuple(INCLUDE_RE.findall(src)))
+    return _HEADER_FACTS[path]
+
+
+def resolved_fptypes(path, src, includes=None, depth=INCLUDE_DEPTH):
+    """The function-pointer typedefs this header declares plus those it includes.
+
+    `seen` carries the headers already resolved, so a pair of headers that include each
+    other -- which the include guards make legal and common -- terminates inside the depth
+    budget instead of spending it.
+    """
+    local = set(FPTYPE_RE.findall(src))
+    found, seen = set(local), {path}
+    frontier = list(INCLUDE_RE.findall(src))
+    for _ in range(depth):
+        following = []
+        for spelled in frontier:
+            target = (includes or {}).get(spelled.replace('\\', '/'))
+            if not target:
+                beside = os.path.join(os.path.dirname(path), spelled)
+                target = beside if os.path.isfile(beside) else None
+            if not target or target in seen:
+                continue
+            seen.add(target)
+            more, deeper = header_facts(target)
+            found |= more
+            following += deeper
+        frontier = following
+        if not frontier:
+            break
+    # a struct this header defines is a struct, whatever a typedef elsewhere calls that
+    # name; otherwise expand_members would take the sub-struct for a function pointer and
+    # drop the leaves below it. the local set is never filtered, so with depth 0 this
+    # returns exactly what the pre-change scan used
+    here = set(struct_blocks(src))
+    return local | {name for name in found - local if normalize(name) not in here}
+
+
+def scan_header(path, includes=None):
     with open(path, 'r', encoding='utf-8', errors='ignore') as f:
         src = f.read()
     guids = GUID_RE.findall(src)
@@ -140,6 +279,7 @@ def scan_header(path):
     fptypes = set(FPTYPE_RE.findall(src))
     if not fptypes:
         return None
+    resolved = resolved_fptypes(path, src, includes)
     # a header often declares the service binding guid before the protocol's own, and the
     # callable methods belong to the protocol, not to the binding: Tls.h declares
     # gEfiTlsServiceBindingProtocolGuid then gEfiTlsProtocolGuid, and SetSessionData is a
@@ -151,21 +291,33 @@ def scan_header(path):
     # stopping at the first meant the second was never discovered and so never fuzzed.
     owned = []
     for guid in guids:
-        found = struct_members(src, guid, fptypes)
-        if found and guid not in [g for g, _ in owned]:
-            owned.append((guid, found))
+        # the gate is the LOCAL typedef set and the list reported is the resolved one, so
+        # that widening resolution cannot add a GUID to the result -- only members to one
+        # already in it
+        if not struct_members(src, guid, fptypes):
+            continue
+        if guid in [g for g, _ in owned]:
+            continue
+        owned.append((guid, struct_members(src, guid, resolved)))
     if owned:
         return owned
 
-    members = []
-    if not members:
-        # no block matched the guid name, so fall back to every function-pointer member in
-        # the header rather than dropping the protocol entirely
-        for line in src.splitlines():
-            m = MEMBER_RE.match(line)
-            if m and m.group(1) in fptypes and m.group(2) not in members:
-                members.append(m.group(2))
-    if not members:
+    # no block matched the guid name, so fall back to every function-pointer member in the
+    # header rather than dropping the protocol entirely. same split: whether this header
+    # yields a protocol at all is decided by its own typedefs, while the member list is
+    # resolved. EDKII_FORM_BROWSER_EXTENSION2_PROTOCOL arrives here -- its struct is named
+    # _EDKII_FORM_BROWSER_EXTENSION2_PROTOCOL and its GUID gEdkiiFormBrowserEx2ProtocolGuid,
+    # which guid_struct_key cannot match -- and it is 3 of the 11 members measured
+    members, local = [], []
+    for line in src.splitlines():
+        m = MEMBER_RE.match(line)
+        if not m:
+            continue
+        if m.group(1) in resolved and m.group(2) not in members:
+            members.append(m.group(2))
+        if m.group(1) in fptypes and m.group(2) not in local:
+            local.append(m.group(2))
+    if not local:
         return None
     return [(guids[0], members)]
 
@@ -342,6 +494,9 @@ BENCH_TARGETS = {'SanBench.h'}
 
 def scan_roots(roots, skip=NOT_TARGETS):
     protocols = {}
+    # built once for the whole scan, from the Include ancestors of these roots, so that a
+    # typedef a protocol header includes is resolvable without a second walk of the tree
+    includes = include_index(roots)
     for root in roots:
         if not os.path.isdir(root):
             continue
@@ -349,7 +504,7 @@ def scan_roots(roots, skip=NOT_TARGETS):
             for name in sorted(files):
                 if not name.endswith('.h') or name in skip:
                     continue
-                hit = scan_header(os.path.join(dirpath, name))
+                hit = scan_header(os.path.join(dirpath, name), includes)
                 for guid, members in (hit or []):
                     # a header can be scanned twice via different roots; keep the richest
                     if guid not in protocols or len(members) > len(protocols[guid][1]):

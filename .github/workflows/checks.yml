@@ -238,6 +238,10 @@ jobs:
         shell: bash
         run: python3 scripts/nested_member_check.py
 
+      - name: A member whose typedef is in an included header is requested
+        shell: bash
+        run: python3 scripts/include_typedef_check.py
+
       - name: The port edits edk2 without rewriting it
         shell: bash
         run: python3 scripts/port_merge_check.py
