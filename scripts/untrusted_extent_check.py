@@ -138,9 +138,14 @@ def emit(args, random=False):
     block = COMMON.FunctionBlock(args, 'Fuzz', 'protocol', [], 'EFI_STATUS')
     tracked = []
     declared = []
+    # the array-ness and the span are taken from the same two functions call_function
+    # takes them from. Telling declare_var less than the call is told is how the two
+    # statements of one number came apart in the first place, and the pair assertion
+    # below would then be comparing the fixture's mistake with the generator's answer.
+    span = TEMPLATE.dimension_span(args) if TEMPLATE.has_dimension_arg(args) else 0
     for key, entry in args.items():
         declared += TEMPLATE.declare_var('Fuzz', key, entry, tracked, False, False, False,
-                                         random, TEMPLATE.has_dimension_arg(args))
+                                         random, TEMPLATE.walks_as_array(args, key), span)
     called = TEMPLATE.call_function('Fuzz', block, {'Fuzz': block}, 'Protocol', tracked,
                                     False, '')
     return declared, [line for line in called if 'FirnessUntrusted' in line]
@@ -365,9 +370,16 @@ def main():
                                      param_name='BltBuffer'),
                    'Arg_1': argument('UINTN', param_name='Width')}
     declared, registered = emit(dimensioned)
-    check('the call carrying a dimension allocates a page',
-          allocation_of(declared) == '4096', f'got {allocation_of(declared)!r}')
-    check('and registers the page it allocated',
+    # Not the bare page any more: the dimensions are bounded by a constant, so 16 x 16 of
+    # a 32 byte element is 8192 and the allocation is what has to carry the element size.
+    # It is a maximum, so it is never smaller than the page it was.
+    check('the call carrying a dimension allocates at least a page',
+          (allocation_of(declared) or '').startswith('(4096 > '),
+          f'got {allocation_of(declared)!r}')
+    check('and the element size is in that allocation',
+          'sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL)' in (allocation_of(declared) or ''),
+          f'got {allocation_of(declared)!r}')
+    check('and registers what it allocated',
           extent_of(registered) == allocation_of(declared),
           f'registered {extent_of(registered)!r}')
     # The same pixel buffer without the dimension argument: one attribute apart, and the

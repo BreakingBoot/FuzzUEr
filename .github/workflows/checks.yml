@@ -230,6 +230,10 @@ jobs:
         shell: bash
         run: python3 scripts/untrusted_extent_check.py
 
+      - name: A count argument is bounded by its buffer's elements, not its bytes
+        shell: bash
+        run: python3 scripts/element_count_check.py
+
       - name: The port edits edk2 without rewriting it
         shell: bash
         run: python3 scripts/port_merge_check.py
