@@ -33,33 +33,102 @@ def normalize(name):
     return (name or '').lstrip('_').replace('_', '').upper()
 
 
-# members declared inside the protocol's own struct. a header also declares config and
-# packet structs whose members are function pointers too, and those are not callable entry
-# points -- EFI_DHCP4_CONFIG_DATA.Dhcp4Callback is a callback, not a protocol method
-def struct_members(src, guid, fptypes):
-    want = guid_struct_key(guid)
-    depth = 0
-    opened_as = None
-    current = []
+def struct_blocks(src):
+    """{normalized struct name: [(member type, member name)]} for one header.
+
+    Every member MEMBER_RE matches, not only the function-pointer ones, because a member
+    whose type is another struct is the way into the nested surface below. A struct is
+    registered under the name at its opening and the name at its closing, first
+    registration winning, which is how a header that spells the protocol
+    `struct _EFI_X_PROTOCOL {` and one that spells it `} EFI_X_PROTOCOL;` both resolve.
+    """
+    found, depth, opened_as, current = {}, 0, None, []
     for line in src.splitlines():
         opening = STRUCT_OPEN_RE.match(line)
         if opening and depth == 0:
-            depth = 1
-            opened_as = opening.group(1)
-            current = []
+            depth, opened_as, current = 1, opening.group(1), []
             continue
-        if depth:
-            closing = STRUCT_END_RE.match(line)
-            if closing:
-                if normalize(opened_as) == want or normalize(closing.group(1)) == want:
-                    return current
-                depth = 0
-                opened_as = None
-                continue
-            member = MEMBER_RE.match(line)
-            if member and member.group(1) in fptypes and member.group(2) not in current:
-                current.append(member.group(2))
-    return []
+        if not depth:
+            continue
+        closing = STRUCT_END_RE.match(line)
+        if closing:
+            for name in (opened_as, closing.group(1)):
+                if name and current:
+                    found.setdefault(normalize(name), list(current))
+            depth, opened_as, current = 0, None, []
+            continue
+        member = MEMBER_RE.match(line)
+        if member:
+            current.append((member.group(1), member.group(2)))
+    return found
+
+
+# A protocol's callable surface is not always flat, and when it is not, every member below
+# the top level used to be dropped without a word. EFI_PCI_IO_PROTOCOL has no Read and no
+# Write: it has Mem, Io and Pci, each a by-value struct holding a Read and a Write, so the
+# member is reached as ProtocolVariable->Mem.Read. Measured over the request files the
+# script emits for the EVAL-1 tree: 8 members across 4 protocols -- EFI_PCI_IO_PROTOCOL,
+# EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL, EFI_DEVICE_IO_PROTOCOL and EFI_ISA_IO_PROTOCOL -- and
+# 22 distinct (Width, Address, Count, Buffer) access paths, never requested, so never
+# harnessed and never fuzzed. That is the shape memory-safety findings have already come
+# out of on EFI_CPU_IO2_PROTOCOL, which only escaped because its struct has no direct
+# function-pointer member at all and so fell through to the whole-header fallback below.
+#
+# The spelling is the LEAF name, `gEfiPciIoProtocolGuid:Read`, not `Mem.Read`. That is not
+# a choice: it is the one convention already in use end to end. firness's load_functions()
+# splits a request line on the colon and compares the right-hand side to the callee name
+# the analysis recorded, and a call site writes mCpuIo->Mem.Read(...), which the analysis
+# records as the leaf "Read" (call-database.json for the EfiCpuIo2 campaign of run
+# 43454245046: "Function": "Read"). The access path is then recovered by the generator's
+# own protocol_member_paths(), which walks the struct and emits every path to that leaf --
+# `case 0: ProtocolVariable->Mem.Read; case 1: ProtocolVariable->Io.Read;` in that
+# campaign's FirnessHarnesses.c. A dotted request line would reach harness_match() as the
+# function name "Mem.Read", match no callee, and silently drop the member instead.
+#
+# Three things bound the walk, and all three have to be there:
+#   * NEST_DEPTH, set to the same 3 the generator's protocol_member_paths() uses. A member
+#     deeper than the generator can resolve is a member the harness cannot call, so
+#     requesting it only buys a dropped target.
+#   * the `seen` set of structs already on the path, so a struct that reaches itself --
+#     directly or through a cycle of two -- terminates inside the depth budget rather than
+#     spending it.
+#   * MEMBER_RE, which matches `TYPE NAME;` and nothing else. A pointer member is written
+#     `TYPE *NAME;` and never matches, so an opaque or self-referential pointer is never
+#     walked into; and struct_blocks() indexes `struct` bodies only, so a union member
+#     resolves to nothing and is skipped. This is the same rule the generator applies --
+#     it descends only into members held by value, because a pointer member is a separate
+#     object the protocol is entitled to leave NULL.
+NEST_DEPTH = 3
+
+
+def expand_members(members, blocks, fptypes, depth=NEST_DEPTH, seen=()):
+    """Leaf function-pointer member names, in declaration order, deduped."""
+    out = []
+    for kind, name in members:
+        if kind in fptypes:
+            if name not in out:
+                out.append(name)
+            continue
+        key = normalize(kind)
+        if depth <= 0 or key in seen or key not in blocks:
+            continue
+        for leaf in expand_members(blocks[key], blocks, fptypes,
+                                   depth - 1, tuple(seen) + (key,)):
+            if leaf not in out:
+                out.append(leaf)
+    return out
+
+
+# members declared inside the protocol's own struct, at any depth. a header also declares
+# config and packet structs whose members are function pointers too, and those are not
+# callable entry points -- EFI_DHCP4_CONFIG_DATA.Dhcp4Callback is a callback, not a
+# protocol method -- so the walk starts at the struct the guid names and goes no wider
+def struct_members(src, guid, fptypes):
+    blocks = struct_blocks(src)
+    want = guid_struct_key(guid)
+    # the protocol's own struct goes into `seen` before the walk starts, so a struct that
+    # reaches itself is refused at the first step rather than one level in
+    return expand_members(blocks.get(want, []), blocks, fptypes, seen=(want,))
 
 
 def scan_header(path):
@@ -127,7 +196,10 @@ def scan_header(path):
 
 INSTALL_RE = re.compile(
     r'\bInstall(?:Multiple)?ProtocolInterfaces?\s*\(([^;]*?)\)\s*;', re.S)
-TYPEDEF_CLOSE_RE = re.compile(r'^\s*\}\s*([A-Za-z_]\w*)\s*;')
+# there used to be a TYPEDEF_CLOSE_RE here, matching a closing brace that names the
+# struct. STRUCT_END_RE is the same pattern with the name optional, so it matches
+# everything that did and reports the same group, and both struct walks now share
+# struct_blocks()
 
 
 def split_args(text):
@@ -184,28 +256,21 @@ def interface_type(src, variable):
 
 
 def structs_in(src):
-    """{normalized struct name: [function-pointer members]} for one header."""
+    """{normalized struct name: [function-pointer members, nested ones included]}."""
     fptypes = set(FPTYPE_RE.findall(src))
     if not fptypes:
         return {}
-    found, depth, opened_as, current = {}, 0, None, []
-    for line in src.splitlines():
-        opening = STRUCT_OPEN_RE.match(line)
-        if opening and depth == 0:
-            depth, opened_as, current = 1, opening.group(1), []
-            continue
-        if not depth:
-            continue
-        closing = TYPEDEF_CLOSE_RE.match(line) or STRUCT_END_RE.match(line)
-        if closing:
-            for name in (opened_as, closing.group(1)):
-                if name and current:
-                    found.setdefault(normalize(name), list(current))
-            depth, opened_as, current = 0, None, []
-            continue
-        member = MEMBER_RE.match(line)
-        if member and member.group(1) in fptypes and member.group(2) not in current:
-            current.append(member.group(2))
+    blocks = struct_blocks(src)
+    found = {}
+    for name, members in blocks.items():
+        # the gate is the DIRECT members, deliberately, while the list reported is the
+        # expanded one. this index is what scan_installations() recognises a struct by at
+        # an install call, so a struct whose whole callable surface is nested would become
+        # a protocol the header scan never matched and this pass never used to report --
+        # an addition to the target set, which is a different question from which members
+        # an existing target asks for. the hole being closed here is the second.
+        if any(kind in fptypes for kind, _ in members):
+            found[name] = expand_members(members, blocks, fptypes)
     return found
 
 

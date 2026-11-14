@@ -234,6 +234,10 @@ jobs:
         shell: bash
         run: python3 scripts/element_count_check.py
 
+      - name: A member reached through a nested struct is requested by its leaf name
+        shell: bash
+        run: python3 scripts/nested_member_check.py
+
       - name: The port edits edk2 without rewriting it
         shell: bash
         run: python3 scripts/port_merge_check.py
