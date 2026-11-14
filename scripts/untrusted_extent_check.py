@@ -191,13 +191,17 @@ def harnessed(recorded, declared_type):
         io.open(path, 'w', encoding='utf-8').write(json.dumps([site, site]))
         declaration = {}
         if declared_type:
-            declaration['RequestToLock'] = COMMON.Function(
+            declared = COMMON.Function(
                 'RequestToLock',
                 {'Arg_0': [COMMON.Argument('IN', 'EDKII_VARIABLE_LOCK_PROTOCOL *', '',
                                            '', '', '')],
                  'Arg_1': [COMMON.Argument('IN', declared_type, '', '', '',
                                            'VariableName')]},
                 'EFI_STATUS', 'protocol', [])
+            # keyed the way load_function_declares keys it -- by the protocol its first
+            # parameter names AND the member -- because UEFI members share names and one
+            # entry per name meant a member's declared types came from another protocol
+            declaration[ANALYZE.declaration_key(declared)] = declared
         _data, template = ANALYZE.load_data(
             path, {'Protocols': [('RequestToLock', 'gEdkiiVariableLockProtocolGuid')]},
             {}, False, False, declaration)

@@ -368,6 +368,18 @@ jobs:
         shell: bash
         run: python3 scripts/emitted_harness_check.py
 
+      # Three ways a member stopped belonging to its own protocol. Declarations were keyed
+      # by the bare member name, and UEFI reuses those -- EfiCpuIo2's Read was described
+      # by EFI_FILE_PROTOCOL's out of VirtioFsDxe.h, 122 of 635 requested members across
+      # the 142 cached campaigns. The anonymous-typedef fallback was anchored at its end,
+      # so PciIo.h's second access struct answered with the first one's body and
+      # EfiPciIo/EfiPciRootBridgeIo did not compile. And a bus address was bounded by the
+      # size of the buffer beside it, which through the Io arm of EFI_CPU_IO2_PROTOCOL is
+      # the legacy I/O page: that campaign managed 111 iterations of an 1800s budget.
+      - name: A protocol member belongs to its own protocol
+        shell: bash
+        run: python3 scripts/protocol_member_check.py
+
       # The release gate in stable-e2e.yml, run against fixtures. It is extracted from
       # the workflow rather than restated, because a restatement drifts -- and that gate
       # has been wrong three times, every time by ACCEPTING a run it should have
