@@ -182,6 +182,14 @@ def struct_members(src, guid, fptypes):
 #     down: that index is what scan_installations() recognises a struct by, so widening it
 #     adds protocols. It is untouched, and so is every member list it produces.
 #
+# One caveat, measured rather than argued. --min-methods counts members, and a member list
+# that grows can cross it: at -m 1, which fuzz_edk2.py, fuzz_batch.py and
+# workflow_local.sh all pass, the set of request FILES is identical before and after on
+# all three trees; at -m 2 or the argparse default of 3, EfiEapManagement2.txt appears,
+# because 1 member was under the floor and 9 is over it. Nothing calls the generator that
+# way, and a protocol with nine methods is not one -m 3 meant to exclude, but it is a
+# change to the set under a flag and is written down here rather than left to be found.
+#
 # Finally, a resolved name that collides with a struct defined in this header is dropped,
 # so a typedef declared elsewhere cannot reclassify a by-value sub-struct as a function
 # pointer and undo the nested walk above -- the two fixes have to compose.

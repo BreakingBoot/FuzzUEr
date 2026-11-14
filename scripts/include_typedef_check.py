@@ -322,12 +322,12 @@ def members(gpi, files, guid):
     return found(gpi, files).get(guid, ('', []))[1]
 
 
-def written(gpi, files):
+def written(gpi, files, min_methods=1):
     """The request file NAMES write_inputs produces for a fixture tree."""
     out = tempfile.mkdtemp()
     HOLDERS.append(out)
     with quiet():
-        gpi.write_inputs(found(gpi, files), out, 1, 0)
+        gpi.write_inputs(found(gpi, files), out, min_methods, 0)
     return sorted(os.listdir(out))
 
 
@@ -496,6 +496,20 @@ def main():
         check(f'the same request files exist with resolution on as with it off ({label})',
               written(gpi, files) == shut, f'{written(gpi, files)} vs {shut}')
 
+    print('\nand the one way a growing member list CAN move the set is written down')
+    check('at --min-methods 1, which every caller passes, the set is the same',
+          written(gpi, INCLUDED_TREE, 1) == ['EfiInc.txt']
+          and _with_flat(gpi, lambda: written(gpi, INCLUDED_TREE, 1)) == ['EfiInc.txt'],
+          f'{written(gpi, INCLUDED_TREE, 1)}')
+    check('above it a protocol can cross the floor, because its member count grew',
+          written(gpi, INCLUDED_TREE, 2) == ['EfiInc.txt']
+          and _with_flat(gpi, lambda: written(gpi, INCLUDED_TREE, 2)) == [],
+          f'{written(gpi, INCLUDED_TREE, 2)} vs '
+          f'{_with_flat(gpi, lambda: written(gpi, INCLUDED_TREE, 2))} -- this is real, it '
+          f'is EfiEapManagement2 at -m 3, and nothing calls the generator that way')
+    check('and the comment says so rather than leaving it to be found',
+          'min-methods counts members' in raw and 'EfiEapManagement2.txt appears' in raw)
+
     print('\nthe whole-header fallback is gated the same way')
     fb = members(gpi, FALLBACK_TREE, 'gEdkiiFbProtocolGuid')
     check('a header whose GUID name does not match its struct still falls back',
@@ -637,6 +651,12 @@ def main():
         shutil.rmtree(holder, ignore_errors=True)
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
+
+
+def _with_flat(gpi, call):
+    """`call()` with resolution off. A function, so a mutation cannot reorder the two."""
+    with flat(gpi):
+        return call()
 
 
 def _added_only(after, before_text):
