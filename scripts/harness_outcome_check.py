@@ -365,7 +365,13 @@ def main():
           got['fuzzed'] == 1 and got.get('unlocatable') == ['Unlocated'])
 
     print('\nand the run says so in its own words')
-    state = dict(fuzzed=1, planned=3, iterations=18882, stability=[],
+    # Every name the lifted region reads has to be in here, or the exec below raises
+    # NameError from inside a lifted body and this file reports a traceback instead of a
+    # verdict. campaign_accounting_check.py asserts that this dict still covers the
+    # region, so the next name added to it fails as a named check rather than as a crash.
+    # planned is the LAUNCHED count and discovered/skipped are what explain it.
+    state = dict(fuzzed=1, planned=3, discovered=5, skipped=2, launch_failed=0,
+                 iterations=18882, stability=[],
                  absent=[], stuck=[], silent=[], unlocatable=['Unlocated'],
                  unlocated_runs=18882)
     ok, detail = verdict(**state)

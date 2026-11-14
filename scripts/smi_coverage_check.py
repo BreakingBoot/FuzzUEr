@@ -20,6 +20,7 @@ build_sweep.sh. This is the unit-level guard that the logic still does what it s
 """
 
 import ast
+import builtins
 import os
 import re
 import sys
@@ -44,6 +45,16 @@ def check(name, condition, detail=''):
         FAILURES.append(name)
 
 
+def summary():
+    """The one exit path, so an early return still prints a verdict."""
+    print()
+    if FAILURES:
+        print(f'{len(FAILURES)} check(s) failed: ' + ', '.join(FAILURES))
+        return 1
+    print('SMI coverage checks passed')
+    return 0
+
+
 class TI:
     def __init__(self, name, fields, file):
         self.name, self.fields, self.file = name, fields, file
@@ -54,31 +65,122 @@ class FI:
         self.name, self.type = name, type
 
 
-def lift(names):
+class LiftError(Exception):
+    """A region of analyze_smi.py could not be lifted, and which symbol stopped it.
+
+    An exception of its own because the two outcomes need different reports. A lifted
+    function that now behaves differently is the defect this file exists to find; a
+    lifted function that cannot be RUN here is this file's own plumbing, and the two must
+    not look alike from CI.
+    """
+
+
+def _defines(node):
+    """The module-level names this statement binds."""
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        return [node.name]
+    if isinstance(node, ast.Assign):
+        return [n.id for t in node.targets for n in ast.walk(t)
+                if isinstance(n, ast.Name)]
+    if isinstance(node, ast.AnnAssign):
+        return [n.id for n in ast.walk(node.target) if isinstance(n, ast.Name)]
+    return []
+
+
+def _binds(node):
+    """Every name `node` binds somewhere inside itself.
+
+    Over-approximated deliberately -- a comprehension target and a nested function's
+    parameter are counted as bound here even though their real scope is narrower. The
+    error is one-sided and it is the safe side: a name wrongly counted as bound is simply
+    not looked for in the namespace, which is exactly the behaviour this had before, while
+    a name wrongly counted as free would fail the lift over nothing at all. A check that
+    goes red for its own plumbing is a check people learn to skip.
+    """
+    out = {node.name} if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                           ast.ClassDef)) else set()
+    for inner in ast.walk(node):
+        if isinstance(inner, ast.Name) and not isinstance(inner.ctx, ast.Load):
+            out.add(inner.id)
+        elif isinstance(inner, ast.arg):
+            out.add(inner.arg)
+        elif isinstance(inner, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(inner.name)
+        elif isinstance(inner, (ast.Global, ast.Nonlocal)):
+            out.update(inner.names)
+        elif isinstance(inner, ast.ExceptHandler) and inner.name:
+            out.add(inner.name)
+        elif isinstance(inner, (ast.Import, ast.ImportFrom)):
+            out.update((alias.asname or alias.name).split('.')[0]
+                       for alias in inner.names)
+    return out
+
+
+def needs(node):
+    """The names `node` reads and does not bind itself."""
+    return {n.id for n in ast.walk(node)
+            if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)} - _binds(node)
+
+
+def lift(names, path=None):
     """Run the named top-level defs out of analyze_smi.py without importing it.
 
     analyze_smi.py imports fuzzywuzzy at module scope, which is not installed on a runner
     and has nothing to do with deciding which handlers can be harnessed. This compiles the
     real source of the real functions, so the check still fails when they change.
+
+    `names` is what this file WANTS, not the full list of what the lifted code needs.
+    That list used to be hand-maintained, and twice this week a new module-level helper in
+    analyze_smi.py made a lifted body raise NameError at call time -- which arrives as a
+    traceback with no verdict after it, so the battery went red for a reason that had
+    nothing to do with the behaviour under test. What a region needs is derivable: walk
+    the names it reads, pull in any the module defines itself, and repeat.
+
+    What that cannot supply is a name the module gets from an import, because the imports
+    are the reason this is a lift and not an import. Those are named, one by one, with
+    the instruction to add them -- a clear red beats a confusing one, and both beat a
+    NameError thrown from inside a body that compiled.
+
+    `path` is analyze_smi.py unless a caller names another module. The only caller that
+    does is campaign_accounting_check.py, which drives this against fixtures: the
+    derivation cannot be asserted against the real file, because asserting that a new
+    helper is picked up means ADDING one, and the real file belongs to the generator.
     """
-    path = os.path.join(GEN, 'data_analysis', 'analyze_smi.py')
+    path = path or os.path.join(GEN, 'data_analysis', 'analyze_smi.py')
     tree = ast.parse(open(path, encoding='utf-8').read())
-    want = [node for node in tree.body
-            if isinstance(node, (ast.FunctionDef, ast.Assign))
-            and (getattr(node, 'name', None) in names
-                 or (isinstance(node, ast.Assign)
-                     and any(getattr(t, 'id', None) in names for t in node.targets)))]
-    missing = [n for n in names
-               if not any(getattr(node, 'name', None) == n
-                          or (isinstance(node, ast.Assign)
-                              and any(getattr(t, 'id', None) == n for t in node.targets))
-                          for node in want)]
+    defined = {}
+    for node in tree.body:
+        for name in _defines(node):
+            defined.setdefault(name, node)
+    whose = os.path.basename(path)
+    missing = [n for n in names if n not in defined]
     if missing:
-        raise SystemExit(f'analyze_smi.py no longer defines: {", ".join(missing)}')
+        raise LiftError(f'{whose} no longer defines: {", ".join(missing)} '
+                        f'-- this check has gone blind, and the names it asks for have '
+                        f'to be brought back into step with the module')
+    chosen, queue = {}, list(names)
+    while queue:
+        node = defined.get(queue.pop(0))
+        if node is None or id(node) in chosen:
+            continue
+        chosen[id(node)] = node
+        queue.extend(sorted(name for name in needs(node) if name in defined))
+    want = [node for node in tree.body if id(node) in chosen]
     space = {'os': os, 're': re, 'print': print, 'Dict': dict, 'List': list,
              'NO_PAYLOAD': NO_PAYLOAD,
              'SmiInfo': lambda name, type, guid, file='': TI(name, [], file),
              'TypeInfo': TI}
+    short = sorted({name for node in want for name in needs(node)
+                    if name not in defined and name not in space
+                    and not hasattr(builtins, name)})
+    if short:
+        raise LiftError(
+            f'the lifted region of {whose} reads {", ".join(short)}, which {whose} does '
+            f'not define at module level -- it comes from an import, and the imports are '
+            f'what this lift exists to avoid. Add a stand-in for {short[0]} to lift()\'s '
+            f'namespace in scripts/smi_coverage_check.py; without one the lifted code '
+            f'raises NameError when it runs and this check reports a traceback instead '
+            f'of a verdict')
     exec(compile(ast.Module(body=want, type_ignores=[]), 'analyze_smi.py', 'exec'), space)
     return space
 
@@ -139,11 +241,20 @@ def main():
           bare_name('CONST EFI_GUID *') == 'EFI_GUID')
 
     print('reading a handler that types its own comm buffer')
-    space = lift(['_DEFN', '_COMMENT', '_IDENTIFIER', '_handler_source', '_body_of',
-                  '_buffer_body', '_buffer_names', '_payload_casts',
-                  'payload_from_source',
-                  'recover_missing_handlers', 'lifecycle_gate',
-                  '_enclosing_function', 'load_discovered'])
+    try:
+        space = lift(['_DEFN', '_COMMENT', '_IDENTIFIER', '_handler_source', '_body_of',
+                      '_buffer_body', '_buffer_names', '_payload_casts',
+                      'payload_from_source',
+                      'recover_missing_handlers', 'lifecycle_gate',
+                      '_enclosing_function', 'load_discovered'])
+    except LiftError as error:
+        # Red, with a verdict and a summary under it. Letting this out of main() would
+        # end the run on a traceback, and a reader cannot tell a check that crashed from
+        # a check that caught something -- so the failure is counted like any other and
+        # everything that does not depend on the lift is left to say its piece.
+        check('the handler-reading region of analyze_smi.py lifts into this namespace',
+              False, str(error))
+        return summary()
     with tempfile.TemporaryDirectory() as tree:
         os.makedirs(os.path.join(tree, 'Drv'))
         open(os.path.join(tree, 'Drv', 'A.c'), 'w').write(textwrap.dedent('''
@@ -388,12 +499,7 @@ def main():
           '__FIRNESS_VENDORED_TYPES__' in open(
               os.path.join(GEN, 'common', 'vendor_types.py'), encoding='utf-8').read())
 
-    print()
-    if FAILURES:
-        print(f'{len(FAILURES)} check(s) failed: ' + ', '.join(FAILURES))
-        return 1
-    print('SMI coverage checks passed')
-    return 0
+    return summary()
 
 
 if __name__ == '__main__':

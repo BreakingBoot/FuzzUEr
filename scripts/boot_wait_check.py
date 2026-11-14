@@ -9,14 +9,30 @@ campaign(s) fuzzed the harness ... the protocol may not be installed", which is 
 boot that stopped dead in early DXE also reads as.
 
 So the allowance became a floor: past it, a guest still writing keeps its slot up to a
-ceiling, and a guest that has gone quiet is given up on at once. Six cases, each a few
+ceiling, and a guest that has gone quiet is given up on at once. Seven cases, each a few
 hundred milliseconds, because every one of them is a property a 2h campaign would
-otherwise be the only way to test.
+otherwise be the only way to test:
 
-The wait returns an outcome name rather than a bool now, because a harness that runs
-inputs its protocol is not installed for is neither reached nor a boot failure. That third
-outcome has a check of its own, harness_outcome_check.py; what is asserted here is that
-adding it did not move any of the timings below.
+  1, 2. the harness marker is seen on the serial capture, and on run.txt, and either one
+        is the reached outcome;
+     3. a guest that has gone quiet is given up on AT the allowance, not past it -- the
+        ordinary failure, so it must cost neither the grace nor the ceiling;
+     4. a guest that is still narrating is waited for to the ceiling, which is the
+        campaign the plain deadline killed;
+     5. a LibAFL broker heartbeat in run.txt is NOT guest progress -- see below;
+     6. FIRNESS_BOOT_EXTEND=1 makes the ceiling equal the allowance, and the branch
+        order must still call a guest that stopped dead quiet rather than narrating;
+     7. a fuzzer process that has already exited is not waited on at all.
+
+The wait returns one of THREE outcome names rather than a bool, because a harness that
+runs inputs its protocol is not installed for is neither reached nor a boot failure.
+Telling those three apart is harness_outcome_check.py's subject, and so are the two
+graces that decide the third -- dead_grace and locate_grace are pinned to ten times the
+allowance by every case here, far past these sub-second timings, so they cannot fire by
+accident and change what a case measures. What is asserted here is that adding the third
+outcome did not move any of the timings above. That file also imports this one's lift,
+its fake processes and its narrating thread rather than restating them, so a change here
+is a change to both.
 
 The fifth case is the one that matters most. Progress is measured on the GUEST's logs and
 not on run.txt, because LibAFL's broker writes a heartbeat into run.txt every 30s whether

@@ -338,6 +338,16 @@ jobs:
         shell: bash
         run: python3 scripts/jobs_cap_check.py
 
+      # "66/263 campaign(s) fuzzed the harness" on a sweep where 138 campaigns ran: 125
+      # protocols were skipped before launch, so the headline halved the run and could
+      # not be compared with any other run either. Also the other direction -- a #DE the
+      # harness caused by writing fuzzer bytes into the PIT, reported as a severity 4
+      # candidate in CpuIo2Dxe -- and the lift that one new helper in analyze_smi.py
+      # turned into a NameError with no verdict after it.
+      - name: A run counts what it launched and does not credit the harness's own faults
+        shell: bash
+        run: python3 scripts/campaign_accounting_check.py
+
       - name: A re-triage reuses a finished run and cannot do nothing quietly
         shell: bash
         run: python3 scripts/retriage_check.py

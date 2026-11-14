@@ -128,7 +128,12 @@ def triage_detail(tool, found, read, image_tag):
     src = stage_source(tool, 'triage')
     start = src.rindex('        return True, (')
     tail = src[start:].rstrip().split('return True, (', 1)[1]
-    names = {'found': found, 'read': read, 'image_tag': image_tag}
+    # note is the clause the stage adds when it has moved a cluster out of `candidates`
+    # and into the harness bucket -- a fault the harness caused by driving live platform
+    # I/O ports. Empty here, which is the ordinary run: what this file is about is the
+    # four numbers in the sentence, and campaign_accounting_check.py is where the clause
+    # itself is asserted.
+    names = {'found': found, 'read': read, 'image_tag': image_tag, 'note': ''}
     exec('detail = (' + tail, names)
     return names['detail']
 

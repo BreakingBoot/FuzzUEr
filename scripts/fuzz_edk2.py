@@ -992,6 +992,137 @@ def pick_targets(evalset, limit, smi, explicit=(), presence=''):
     return names[:limit]
 
 
+# What fuzz_batch.py says about its own launch loop, in the last line it prints. Read
+# rather than recomputed, because recomputing it means reproducing the presence filter,
+# the already_done filter and the launch failures here -- three things that would then
+# drift apart from the loop that actually ran.
+LAUNCHED_RE = re.compile(r'^launched (\d+), failed to launch (\d+)\s*$', re.M)
+
+
+def launched_campaigns(log):
+    """How many campaigns the batch started and how many it could not, or (None, None).
+
+    None rather than 0 for "the batch never said": a run killed before its summary line
+    has an UNKNOWN launch count, and a zero there would silently become a denominator of
+    nothing. The caller decides what to do about not knowing; this does not guess.
+
+    The last occurrence wins. fuzz.log is appended to across a resumed stage, and the
+    launch loop that matters is the one that just ran.
+    """
+    try:
+        text = open(log, errors='ignore').read()
+    except OSError:
+        return None, None
+    found = LAUNCHED_RE.findall(text)
+    if not found:
+        return None, None
+    return int(found[-1][0]), int(found[-1][1])
+
+
+def skipped_before_launch(path):
+    """How many targets the presence census dropped before any campaign was started.
+
+    fuzz_batch.py writes skipped.csv with a header and one row per protocol it refused to
+    launch -- not installed by this firmware, or installed only inside SMRAM. The file is
+    absent when it skipped nothing, which is the same answer as zero.
+    """
+    if not os.path.isfile(path):
+        return 0
+    try:
+        with open(path, newline='') as handle:
+            rows = [row for row in csv.reader(handle) if row]
+    except OSError:
+        return 0
+    return max(0, len(rows) - 1)
+
+
+# A generated harness that drives the platform's I/O PORT space. The EFI_CPU_IO2_PROTOCOL
+# and EFI_MM_CPU_IO_PROTOCOL expose Io.Read/Io.Write beside Mem.Read/Mem.Write, and the
+# generator emits a member-choice switch that picks between them -- so half the iterations
+# go to Io.*, with an Address argument the harness bounds to the raw-buffer size,
+# FIRNESS_BUFFER_BYTES == 4096. That range is not spare address space on this platform: it
+# is the legacy I/O page. The PIC is at 0x20/0xA0, the PIT at 0x40-0x43, the keyboard
+# controller at 0x60/0x64, the CMOS/RTC index and data ports at 0x70/0x71, PCI config at
+# 0xCF8/0xCFC. Writing fuzzer bytes there reprograms live chipset registers, and what
+# follows is a guest that stops rather than a defect that was found.
+#
+# Measured on run 43454245046: EfiCpuIo2 managed 111 iterations in a 1800s budget --
+# 0.065 exec/s against campaigns of that sweep that reached tens of thousands -- its
+# client stopped reporting executions at 1h39m and reported none for the remaining 27
+# minutes, and its fuzz.txt carries `X64 Exception Type - 00(#DE - Divide Error)` at
+# CpuIo2Dxe+0x5296. That fault was triaged as a severity 4 cpu-exception candidate in
+# firmware code. It is neither: nothing in CpuIo2Dxe or CpuIoCheckParameter divides, and
+# the harness had just written to a port of the platform's own choosing.
+#
+# Two of 138 harnesses on that sweep name one of these members -- EfiCpuIo2 and
+# EfiMmCpuIo, and no others -- so this reads the harness the campaign actually built
+# rather than guessing from a protocol name, and it goes quiet of its own accord once the
+# generator stops emitting the Io.* arm.
+IO_PORT_MEMBERS = ('->Io.Read', '->Io.Write')
+
+
+def io_port_harness(where):
+    """The platform I/O port accessors this campaign's generated harness calls.
+
+    [] for a campaign that drives none, which is all but a couple of them. The harness
+    source is the evidence because the generator decides which members a harness drives:
+    the protocol's name says only that the members exist.
+    """
+    path = os.path.join(where, 'Firness', 'FirnessHarnesses.c')
+    if not os.path.isfile(path):
+        return []
+    try:
+        text = open(path, errors='ignore').read()
+    except OSError:
+        return []
+    return [member for member in IO_PORT_MEMBERS if member in text]
+
+
+IO_PORT_ARTEFACT = (
+    'the harness calls this protocol\'s I/O port accessor ({members}) with an Address it '
+    'bounds to the harness buffer size, so the low 4096 ports -- PIC 0x20/0xA0, PIT '
+    '0x40-0x43, keyboard 0x60/0x64, RTC 0x70/0x71 -- take fuzzer bytes. The fault is the '
+    'harness writing to live platform registers, not a defect in {module}')
+
+
+def harness_io_artefacts(campaigns, found):
+    """Triaged candidates that are a fault the harness caused by driving live I/O ports.
+
+    Narrow on purpose, and in three ways at once. Only a cpu-exception qualifies -- a
+    sanitizer report has an address and an extent behind it and is argued on those. Only
+    a campaign whose own generated harness names an I/O port accessor qualifies. And
+    EVERY protocol the cluster was seen under has to be one of those campaigns, so a
+    fault that also appears from an ordinary target stays a candidate: the same #DE
+    reached from a protocol that drives no ports is evidence about the firmware and this
+    must not swallow it.
+    """
+    drives = {}
+    for name in (sorted(os.listdir(campaigns)) if os.path.isdir(campaigns) else []):
+        members = io_port_harness(os.path.join(campaigns, name))
+        if members:
+            drives[name] = members
+    if not drives:
+        return []
+    out = []
+    for candidate in (found.get('candidates') or []):
+        if not str(candidate.get('class') or '').startswith('cpu-exception'):
+            continue
+        protocols = list(candidate.get('protocols') or [])
+        if not protocols or any(name not in drives for name in protocols):
+            continue
+        members = sorted({m for name in protocols for m in drives.get(name, ())})
+        out.append({'id': candidate.get('id', ''),
+                    'module': candidate.get('module', ''),
+                    'site': candidate.get('site', ''),
+                    'class': candidate.get('class', ''),
+                    'hits': candidate.get('hits', 0),
+                    'protocols': protocols,
+                    'reason': IO_PORT_ARTEFACT.format(
+                        members=', '.join(members),
+                        module=candidate.get('module') or 'the firmware')})
+    return out
+
+
 def main():
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, _stop_child)
@@ -2186,9 +2317,11 @@ def main():
         if chosen:
             argv += ['-p'] + chosen
         # a campaign is its budget plus a boot and a harness build; the queue runs
-        # args.jobs of them at once
-        planned = len(chosen) if chosen else run.target_count
-        rounds = max(1, -(-planned // max(1, args.jobs)))
+        # args.jobs of them at once. This is the number DISCOVERED, which is all that is
+        # known before the batch runs -- the presence census filters it inside fuzz_batch
+        # -- so it sizes the timeout generously and is not the denominator of anything.
+        discovered = len(chosen) if chosen else run.target_count
+        rounds = max(1, -(-discovered // max(1, args.jobs)))
         # The boot allowance is a floor, not a wall: firness.py keeps waiting past it while
         # the guest is still writing to serial or the debug port, up to FIRNESS_BOOT_EXTEND
         # times the allowance. This timeout has to allow for that or it kills the campaign
@@ -2203,6 +2336,29 @@ def main():
             if os.path.isdir(campaigns) else []
         if not made:
             return False, 'no campaign produced a log.json'
+        # The denominator is what was LAUNCHED. It used to be `discovered`, and on run
+        # 43454245046 that read "66/263 campaign(s) fuzzed the harness" for a sweep in
+        # which 138 campaigns ever started: 125 of the 263 discovered protocols were
+        # skipped before launch, because this firmware does not install them or installs
+        # them inside SMRAM. A ratio against the discovered count understates the run by
+        # half and cannot be compared with any other run either, because the gap between
+        # the two numbers moves with the census rather than with the fuzzing.
+        #
+        # Both other numbers stay in the line. Swapping one for the other would trade an
+        # unreadable ratio for a different one: 66/138 alone cannot be told apart on a
+        # 263-protocol tree and on a 138-protocol tree, and that difference is the whole
+        # census. 263 = 125 + 138 is arithmetic a reader can do.
+        #
+        # From fuzz_batch's own summary line and its own skipped.csv, not recomputed here.
+        skipped = skipped_before_launch(os.path.join(campaigns, 'skipped.csv'))
+        launched, launch_failed = launched_campaigns(os.path.join(out, 'fuzz.log'))
+        if launched is None:
+            # The batch did not get as far as saying. Deriving it from the census is the
+            # next most direct account, and the campaigns that produced a log are the
+            # floor under both -- a denominator below the numerator would report more
+            # campaigns fuzzed than ran.
+            launched, launch_failed = max(discovered - skipped, len(made)), 0
+        planned = launched if launched else len(made)
         # A campaign can produce a log and have fuzzed nothing: the boot has a budget of
         # its own, and a firmware that never reaches the harness spends all of it and
         # then reports zero. Counting logs alone makes that run green, which is the one
@@ -2312,6 +2468,13 @@ def main():
                 stability.append(float(seen[-1]))
         detail = (f'{fuzzed}/{planned} campaign(s) fuzzed the harness '
                   f'({iterations} iteration(s))')
+        # Here, not appended at the end, so that the two early returns below carry it as
+        # well. A run where NOTHING fuzzed is exactly where a reader needs to know how
+        # many targets were dropped before a guest ever booted.
+        detail += f' [{discovered} discovered, {skipped} skipped before launch'
+        if launch_failed:
+            detail += f', {launch_failed} failed to launch'
+        detail += ']'
         if stability:
             stability.sort()
             median = stability[len(stability) // 2]
@@ -2439,10 +2602,31 @@ def main():
         read = len([d for d in sorted(os.listdir(campaigns))
                     if os.path.isdir(os.path.join(campaigns, d))]) \
             if os.path.isdir(campaigns) else 0
+        # A fault the harness caused by driving live platform I/O ports is not a finding,
+        # and leaving it among the candidates files an issue against a driver that did
+        # nothing wrong. bug_report.py already has the right bucket for it -- `harness`,
+        # under `filtered` -- so the cluster is moved there with its reason rather than
+        # deleted, and file_issues.py, which reads `candidates` out of this same file,
+        # then does not file it.
+        artefacts = harness_io_artefacts(campaigns, found)
+        note = ''
+        if artefacts:
+            keys = {a['id'] for a in artefacts}
+            found['candidates'] = [c for c in found['candidates']
+                                   if c.get('id') not in keys]
+            found.setdefault('filtered', {}).setdefault('harness', []).extend(
+                {k: v for k, v in a.items() if k != 'protocols'} for a in artefacts)
+            with open(report, 'w') as handle:
+                json.dump(found, handle, indent=2)
+            shown = '; '.join(f'{a["class"]} at {a["module"]}{a["site"]} from '
+                              f'{", ".join(a["protocols"])}' for a in artefacts[:3])
+            note = (f', {len(artefacts)} reported as a harness artefact rather than a '
+                    f'finding ({shown}'
+                    f'{"..." if len(artefacts) > 3 else ""})')
         # Zero candidates is a real answer, not a failure: it says this version, fuzzed
         # this long, showed nothing the filters did not explain.
         return True, (f'{len(found["candidates"])} candidate(s) from '
-                      f'{found["clusters"]} cluster(s) over {read} campaign(s), '
+                      f'{found["clusters"]} cluster(s) over {read} campaign(s){note}, '
                       f'symbolised against {image_tag}')
 
     def reuse():
