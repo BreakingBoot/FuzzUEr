@@ -477,11 +477,18 @@ def main():
         check(f'{what} asks buffer_and_element_for',
               'buffer_and_element_for(' in region,
               'the by-value and by-pointer bounds have drifted apart once already')
-    check('the by-pointer bound asks it too',
-          code(body(gen_source('uefi_harness/harnesses_template.py'),
-                    'def fuzzable_args(')).count('buffer_and_element_for(') >= 2,
-          'one call covers the value branch only; the pointer branch is the one that was '
-          'left unbounded last time')
+    # The by-pointer branch asks through pointer_size_clamp, which the OUTPUT section
+    # asks as well -- an OUT-only size is filled by a different section and had no bound
+    # at all. Both links are asserted, because either one broken puts a branch back on a
+    # bound of its own.
+    check('the by-pointer bound asks it too, through the one statement of it',
+          'pointer_size_clamp(' in code(body(
+              gen_source('uefi_harness/harnesses_template.py'), 'def fuzzable_args('))
+          and 'buffer_and_element_for(' in code(body(
+              gen_source('uefi_harness/harnesses_template.py'),
+              'def pointer_size_clamp(')),
+          'the value branch\'s own call covers the value branch only; the pointer branch '
+          'is the one that was left unbounded last time')
     check('nothing bounds a size by the blanket constant without asking the unit',
           'element_limit(' in template_src,
           'the division by the element size is the whole fix')
