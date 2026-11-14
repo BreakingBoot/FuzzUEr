@@ -197,6 +197,104 @@ INCLUDE_DEPTH = 2
 
 INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"]+)[>"]', re.M)
 
+# ---------------------------------------------------------------------------------------
+# The third hole in the same family, and the first one that changes WHICH protocols get a
+# request rather than which members an existing request asks for.
+#
+# scan_header's opening gate -- `fptypes = set(FPTYPE_RE.findall(src))`, then
+# `if not fptypes: return None` -- reads "a header that declares no function-pointer
+# typedef of its own is not a protocol header". For a protocol whose members are ENTIRELY
+# typed from an included header that is simply false, and the consequence is total: no
+# request file, no campaign, and nothing anywhere saying the protocol was skipped. The
+# worked example is gEdkiiSmmVarCheckProtocolGuid. MdeModulePkg/Include/Protocol/
+# SmmVarCheck.h declares the GUID, declares `struct _EDKII_SMM_VAR_CHECK_PROTOCOL` with
+# three members, and declares not one typedef: all three are EDKII_VAR_CHECK_* taken from
+# <Protocol/VarCheck.h>. It is installed at MdeModulePkg/Universal/Variable/RuntimeDxe/
+# VariableSmm.c:1180.
+#
+# Measured, rather than assumed. Every protocol GUID the tree declares extern or installs
+# at an Install*ProtocolInterface call, against the request files the generator emits
+# (-m 1), on three trees -- eval1_edk2 390 GUIDs / 271 files / 119 with none, edk2-master
+# 395 / 274 / 121, eval_source/edk2 388 / 268 / 120. Six reasons, and this gate is the
+# largest single one at 69 on all three. But 69 is not the size of the hole: of those 69,
+# exactly THREE have any callable member at all, even when the typedef set is widened to
+# every function-pointer typedef in the tree -- gEdkiiSmmVarCheckProtocolGuid (3 members),
+# gEfiSmmVariableProtocolGuid (4) and gEfiLoadedImageProtocolGuid (1). The other 66 are
+# GUID-only signal protocols (gEfiSmmReadyToLockProtocolGuid, gEdkiiSmmLegacyBootProtocol-
+# Guid), architectural protocols installed with a NULL interface (gEfiResetArchProtocol-
+# Guid, gEfiRuntimeArchProtocolGuid), data-only structs (gEfiEdidActiveProtocolGuid,
+# gEfiPartitionInfoProtocolGuid, gXenIoProtocolGuid) and typedef aliases whose struct
+# lives in another header (gEfiSmmCpuIo2ProtocolGuid is EFI_MM_CPU_IO_PROTOCOL from
+# <Protocol/MmCpuIo.h>). None of them is hidden by the typedef scope, so none of them is
+# this fix's business.
+#
+# Of the three, only one is admitted, and the other two are refused on measured grounds
+# rather than on the depth bound:
+#
+#   * gEfiSmmVariableProtocolGuid is typed by EFI_GET_VARIABLE, EFI_SET_VARIABLE,
+#     EFI_GET_NEXT_VARIABLE_NAME and EFI_QUERY_VARIABLE_INFO from Uefi/UefiSpec.h, which
+#     SmmVariable.h does not include -- it includes nothing at all, because every edk2
+#     source file has UefiSpec.h in scope through Uefi.h. So no include closure reaches it
+#     at any depth and only a tree-wide typedef set does. That is a good thing, because a
+#     DXE request for it is a trap: VariableTraditionalMm.c's VariableNotifySmmReady()
+#     installs the GUID into the DXE handle database with a NULL interface as a readiness
+#     signal, and the real interface goes in by gMmst->MmInstallProtocolInterface, inside
+#     SMRAM. The harness does LocateProtocol, gets EFI_SUCCESS and a NULL pointer, and the
+#     next line is ProtocolVariable->SmmGetVariable(...). The presence census cannot save
+#     it either: it reads the DXE InstallProtocolInterface line and reports `present`.
+#   * gEfiLoadedImageProtocolGuid has one callable member, Unload, typed EFI_IMAGE_UNLOAD
+#     from the same UefiSpec.h and equally unreachable by include. It is also optional by
+#     spec and NULL on the image DxeCore installs first, so the same NULL call follows.
+#
+# So the gate change is the narrowest shape available: it runs ONLY for a header whose
+# local typedef set is empty -- the one case the old code refused outright -- and it
+# admits ONLY a GUID that owns a struct in that header by guid_struct_key. Everything
+# else stays exactly as it was:
+#
+#   * A header with no `extern EFI_GUID g<Name>ProtocolGuid;` is still not a protocol
+#     header; that gate is above this one and untouched.
+#   * A header with ANY local typedef takes the old path, decided on the local set, so
+#     e6dd94c6's "gate narrow, list wide" rule still holds everywhere it ever applied and
+#     every existing request file is unchanged by construction, not by measurement.
+#   * A GUID that owns no struct in the header is still refused. That is what keeps the 66
+#     out, and it is load-bearing: the whole-header fallback is NOT reachable from the new
+#     path, so a callback inside a config struct is still never requested.
+#     gEfiRuntimeArchProtocolGuid is the proof. Runtime.h has no local typedef, so it
+#     takes the new path; EFI_RUNTIME_EVENT_ENTRY.NotifyFunction is EFI_EVENT_NOTIFY and
+#     IS a function-pointer typedef under a wide set; and the protocol still gets no
+#     request, because the GUID owns no struct and the fallback never runs.
+#   * consumed_guids() still drops a protocol no .c in the tree mentions (12 on eval1, 17
+#     on edk2-master), and scan_installations() still excludes a NULL interface.
+#
+# Measured effect on the request-file set, -m 1, all three trees: exactly one file added,
+# EdkiiSmmVarCheck.txt, with its three members; no file removed and every other file byte
+# identical. With ADMIT_RESOLVED_ONLY False the output is `diff -r` identical to before on
+# all three trees.
+#
+# Unlike the previous two fixes, the set DOES change under every --min-methods: the new
+# file has 3 members, so it appears at -m 1, -m 2 and the argparse default of 3. That is
+# the point of the change rather than a side effect of it, and is written down here
+# because de728582 recorded the opposite property for the member-list widening.
+#
+# What the request file buys today, and what it does not. firness builds a target either
+# from a call site or, failing that, from the protocol's own header -- and
+# data_analysis/analyze.py's protocol_member_params() reads only the member's own header,
+# so an include-typed member returns None and is dropped. Run offline against the
+# EdkiiVarCheck campaign of sweep 43454245046 (same tree, same databases, same command,
+# only the request file swapped): the DXE sibling EdkiiVarCheck.txt gives "Total
+# Functions: 3" and rc 0, while EdkiiSmmVarCheck.txt gives three "was not able to be
+# harnessed" warnings, "Total Functions: 0" and the ValueError fuzz_edk2.py already
+# classifies as NO_CALL_SITES -- named, and explicitly not a failure. With
+# protocol_member_params() resolving the include in a scratch copy, the same command emits
+# FuzzSmmRegisterSetVariableCheckHandler, FuzzSmmVariablePropertySet and
+# FuzzSmmVariablePropertyGet: 3 of 3. The request file is the prerequisite and the only
+# part of it that lives here; that fix is firness's. Landing this first costs nothing,
+# because the protocol is installed only by gMmst->MmInstallProtocolInterface and the
+# presence census marks it smm-only, which fuzz_batch skips by name into skipped.csv --
+# which is the whole complaint being answered, a protocol that says it was skipped instead
+# of one nobody can see.
+ADMIT_RESOLVED_ONLY = True
+
 # path -> (the function-pointer typedefs declared there, the paths it includes)
 _HEADER_FACTS = {}
 
@@ -286,7 +384,19 @@ def scan_header(path, includes=None):
         return None
     fptypes = set(FPTYPE_RE.findall(src))
     if not fptypes:
-        return None
+        # The header declares no typedef of its own, which used to end the matter. Ask the
+        # resolved set instead -- and only this one question, "does a guid here own a
+        # struct with callable members": no whole-header fallback, so the admission rule
+        # is the narrowest one that takes SmmVarCheck.h and leaves the other 66 out.
+        if not ADMIT_RESOLVED_ONLY:
+            return None
+        admitted, wider = [], resolved_fptypes(path, src, includes)
+        for guid in guids:
+            members = struct_members(src, guid, wider)
+            if not members or guid in [g for g, _ in admitted]:
+                continue
+            admitted.append((guid, members))
+        return admitted or None
     resolved = resolved_fptypes(path, src, includes)
     # a header often declares the service binding guid before the protocol's own, and the
     # callable methods belong to the protocol, not to the binding: Tls.h declares

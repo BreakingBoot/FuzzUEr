@@ -242,6 +242,10 @@ jobs:
         shell: bash
         run: python3 scripts/include_typedef_check.py
 
+      - name: A protocol with no typedef of its own gets a request file
+        shell: bash
+        run: python3 scripts/no_request_check.py
+
       - name: The port edits edk2 without rewriting it
         shell: bash
         run: python3 scripts/port_merge_check.py

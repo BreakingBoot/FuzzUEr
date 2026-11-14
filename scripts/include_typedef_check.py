@@ -31,6 +31,14 @@ declares a GUID and a three-member struct and not one typedef of its own -- a pr
 nobody chose, costing a container, an analysis, a build and a whole boot budget. The
 install-site pass structs_in() feeds is untouched for the same reason one level down.
 
+That last paragraph is now HALF superseded, and the assertions below say which half. A
+later commit went and measured the protocol it names, found it is the only one of 69 in
+that bucket with any callable member and that it is installed only inside SMRAM, and
+admitted it behind a gate of its own, ADMIT_RESOLVED_ONLY -- see no_request_check.py.
+What this fix still owns, and what is still asserted here, is that RESOLUTION is not that
+gate: with the include bound flat, nothing is admitted, and structs_in() is still
+untouched.
+
 Known limitation, measured and not fixed here: firness has the same one-file assumption.
 data_analysis/analyze.py's protocol_member_params() looks for the member's typedef in the
 protocol header's own text, so for a member with no call sites it returns None and the
@@ -472,11 +480,24 @@ def main():
     check('the nested walk still has its own named depth', hasattr(gpi, 'NEST_DEPTH')
           and re.search(r'^NEST_DEPTH = \d+$', gsrc, re.M) is not None)
 
-    print('\nthe protocol SET is untouched -- only the members within one')
-    check('a header with a GUID, a struct and no typedef of its own yields no protocol',
-          written(gpi, NOLOCAL_TREE) == [],
-          f'{written(gpi, NOLOCAL_TREE)} -- this is SmmVarCheck.h, and resolving the '
-          f'decision as well as the list makes it a request file on every tree')
+    # SUPERSEDED, deliberately. This block asserted that a header with a GUID, a struct
+    # and no typedef of its own yields NO protocol -- the SmmVarCheck.h shape -- because
+    # this fix stopped short of changing the set. A later commit opened that case behind
+    # its own named gate, ADMIT_RESOLVED_ONLY, with its own measurement, so the assertion
+    # is now the other way round. What this fix still owns is the SECOND line: resolution
+    # alone, with the depth bound flat, admits nothing. Both are kept, so a mutation that
+    # removes the gate and one that widens resolution into a decision are told apart.
+    print('\nthe protocol SET moves only through the gate that names itself')
+    with flat(gpi):
+        flat_nolocal = written(gpi, NOLOCAL_TREE)
+    check('resolution alone does not admit a header with no typedef of its own',
+          flat_nolocal == [],
+          f'{flat_nolocal} -- with the include bound flat there is nothing to admit it '
+          f'with, so anything here means resolution has become a decision')
+    check('the named gate does admit it, which is what it is for',
+          written(gpi, NOLOCAL_TREE) == ['EfiNoLocal.txt'],
+          f'{written(gpi, NOLOCAL_TREE)} -- this is SmmVarCheck.h, and ADMIT_RESOLVED_ONLY '
+          f'is the constant that decides it')
     check('while moving one of its two typedefs back into the file yields one',
           written(gpi, WITHLOCAL_TREE) == ['EfiNoLocal.txt'],
           f'{written(gpi, WITHLOCAL_TREE)} -- if this were empty too the assertion above '
@@ -580,14 +601,21 @@ def main():
         now = gpi.scan_roots(TREES)
         with flat(gpi):
             then = gpi.scan_roots(TREES)
-        check('the GUID set is unchanged', set(now) == set(then),
+        # Was `set(now) == set(then)`. ADMIT_RESOLVED_ONLY admits the one header whose
+        # whole typedef set is resolved, so the sets now differ by exactly that protocol
+        # and by nothing else -- which is a tighter statement than equality was.
+        check('the GUID set gains only the protocol the later gate was opened for',
+              set(now) - set(then) == {'gEdkiiSmmVarCheckProtocolGuid'}
+              and set(then) - set(now) == set(),
               f'{len(now)} with resolution, {len(then)} without: '
               f'{sorted(set(now) ^ set(then))[:6]}')
         # .get on both sides. a mutation that widens the decision adds a GUID to `now`
         # that `then` has never heard of, and a bare subscript raises: the check would die
         # on its own traceback, print no summary, and be scored as a catch by anything
         # reading exit codes. it was, once, while this line read then[g][1]
-        gained = {g for g in set(now) | set(then)
+        # over the protocols BOTH scans know, so this measures member growth and not the
+        # one protocol the later gate adds outright -- that is asserted on its own above
+        gained = {g for g in set(now) & set(then)
                   if now.get(g, ('', []))[1] != then.get(g, ('', []))[1]}
         check('the protocols that gain members are the two measured',
               gained == {'gEfiEapManagement2ProtocolGuid',
