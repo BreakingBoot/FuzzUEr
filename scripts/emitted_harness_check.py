@@ -150,14 +150,13 @@ def generator():
         sys.modules['fuzzywuzzy'] = package
         sys.modules['fuzzywuzzy.fuzz'] = fuzz
     from common import types as common_types
-    from common import utils
     from data_analysis import analyze
     import uefi_harness.harnesses_template as template
     import uefi_harness.inf_template as inf_template
-    return common_types, utils, analyze, template, inf_template
+    return common_types, analyze, template, inf_template
 
 
-COMMON, UTILS, ANALYZE, TEMPLATE, INF = generator()
+COMMON, ANALYZE, TEMPLATE, INF = generator()
 
 # Fetched by name rather than imported, so that REMOVING one is a failing assertion rather
 # than an ImportError at the top of the file. A check that dies before its first line of
@@ -311,7 +310,24 @@ def statistics(size_dir='IN OUT'):
 
 
 def main():
-    print('the inf is the same file twice, whatever order the mapping arrives in')
+    print('the generator still has the three functions these assertions go through')
+    # Reported, then returned on. Deleting one of these does not make an assertion false
+    # further down -- it makes generate_outputs raise NameError, and a check that dies
+    # inside the code it is testing has reported nothing. Nothing reading exit codes can
+    # tell that from a check that ran, so say it here and stop.
+    missing = [name for name, value in (('pointer_size_clamp', CLAMP),
+                                        ('names_a_size', NAMES_A_SIZE),
+                                        ('base_type_of', BASE_TYPE_OF))
+               if value is None]
+    check('pointer_size_clamp, names_a_size and base_type_of are all there',
+          not missing,
+          f'gone: {", ".join(missing)} -- the generator calls them too, so what follows '
+          f'would be a traceback rather than a result')
+    if missing:
+        print(f'\n{PASSED} passed, {FAILED} failed')
+        return 1
+
+    print('\nthe inf is the same file twice, whatever order the mapping arrives in')
     # update_libs answers a dict built by iterating a set, so the keys arrive in an order
     # that moves between runs. Two orders of ONE set of classes, nothing else different.
     classes = {'UefiLib': 'a.inf', 'BaseLib': 'b.inf', 'DebugLib': 'c.inf',
