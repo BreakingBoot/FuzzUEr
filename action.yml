@@ -43,7 +43,7 @@ inputs:
     required: false
     default: '600'
   jobs:
-    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4, cap 8 -- measured, past 8 more campaigns means fewer results'
+    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4, and capped at 8 under the dxe timing only -- measured, its boots run 4x longer and half the campaigns stop reaching the harness past that'
     required: false
     default: ''
   boot-timeout:
@@ -498,14 +498,41 @@ runs:
         # 8 is the knee the two points bracket, not a measured optimum: boot cost rose
         # about 212s per added job, so boot(8) ~= 1080s, well inside the allowance, giving
         # ~61 min per campaign and ~7.9/h with essentially every campaign reaching its
-        # harness. The quarter-of-cores rule still applies below that; the cap only binds
-        # on a box with more than 32 cores, where it is the difference between finishing a
-        # sweep and being killed by the job timeout with nothing triaged.
+        # harness.
+        #
+        # AND IT APPLIES ONLY TO THE dxe TIMING, because that is the only workload the
+        # numbers above describe. A dxe-timed campaign relinks the whole platform and boots
+        # an SMM_REQUIRE image; an application-timed one boots a prebuilt image and launches
+        # a boot option. Two 18-way sweeps on this same 72-core box, measured from their own
+        # run.logs:
+        #
+        #   dxe,         138 targets   median boot 2923s (max 6374)   69 reached the harness
+        #   application,  95 targets   median boot  663s (max 1692)   76 reached
+        #
+        # Four times the boot and half the reach. Capping the application path would be a
+        # straight loss: this repository's own four-ref sweep measured 31 hours at 8 jobs
+        # against 6.4 hours at 20, and at 80% reach there is no collapse to protect it from.
+        # So the cap binds where the emulator degrades and nowhere else, and the floor and
+        # the quarter-of-cores rule are untouched in both.
+        #
+        # What getting this wrong costs, on the capped path: a boot that outruns its
+        # allowance spends the whole slot and reports nothing, and enough of those push the
+        # sweep past the job timeout -- at which point GitHub kills it before triage, which
+        # is the last stage, so the run produces no report at all and nothing is triaged.
         JOBS="${IN_JOBS:-}"
         if [ -z "$JOBS" ]; then
           JOBS=$(( $(nproc) / 4 ))
           [ "$JOBS" -lt 4 ] && JOBS=4
-          [ "$JOBS" -gt 8 ] && JOBS=8
+          # FIRNESS_HARNESS_TIMING, which this same step already declares from
+          # inputs.harness-timing -- not a second name for the same input. A variable the
+          # step does not declare reads as empty, the test never matches, and the cap
+          # becomes a silent no-op that looks exactly like a cap that works.
+          if [ "${FIRNESS_HARNESS_TIMING:-}" = 'dxe' ] && [ "$JOBS" -gt 8 ]; then
+            JOBS=8
+            echo "capping to 8 campaigns at once: the dxe timing relinks the platform per"\
+                 " campaign and its boots run past 2900s at 18, where half of them never"\
+                 " reach the harness"
+          fi
         fi
 
         # Outside the workspace by default. The pipeline writes a git worktree, a docker

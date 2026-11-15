@@ -42,6 +42,19 @@ def check(what, ok, detail=''):
         print(f'  [FAIL] {what}' + (f'\n         {detail}' if detail else ''))
 
 
+def declares(name):
+    """True when the step that resolves JOBS also declares `name` in its own env."""
+    import yaml
+    try:
+        parsed = yaml.safe_load(io.open(ACTION, encoding='utf-8').read())
+        for step in parsed['runs']['steps']:
+            if 'JOBS="${IN_JOBS' in str(step.get('run') or ''):
+                return name in (step.get('env') or {})
+    except Exception:
+        return False
+    return False
+
+
 def shell_block():
     """The JOBS resolution out of action.yml, as runnable shell.
 
@@ -58,12 +71,18 @@ def shell_block():
                      for line in body.splitlines())
 
 
-def resolve(nproc, given=''):
-    """What the action would choose for this core count and this input."""
+def resolve(nproc, given='', timing='dxe'):
+    """What the action would choose for this core count, input and harness timing.
+
+    `timing` defaults to 'dxe' because that is the workload the cap's measurements come
+    from; the application-timed cases pass it explicitly so the two paths are never
+    conflated again.
+    """
     body = shell_block()
     if body is None:
         return None
-    script = (f'nproc() {{ echo {nproc}; }}\nIN_JOBS="{given}"\n{body}\necho "$JOBS"')
+    script = (f'nproc() {{ echo {nproc}; }}\nIN_JOBS="{given}"\n'
+              f'FIRNESS_HARNESS_TIMING="{timing}"\n{body}\necho "$JOBS"')
     done = subprocess.run(['bash', '-c', script], capture_output=True, text=True)
     out = done.stdout.strip().splitlines()
     return out[-1] if out else None
@@ -95,13 +114,46 @@ def main():
           resolve(4, '2') == '2',
           f'{resolve(4, "2")} -- the floor is a default, not a minimum')
 
+    print('\nand it binds only on the workload its numbers came from')
+    check('the application timing is not capped',
+          resolve(72, timing='application') == '18',
+          f'{resolve(72, timing="application")} -- its median boot is 663s against the dxe '
+          f'path\'s 2923s and 80% of its campaigns reach the harness, so there is no '
+          f'collapse to protect it from; this repository measured 31h at 8 jobs against '
+          f'6.4h at 20 for its own four-ref sweep')
+    check('an unset timing is not capped either',
+          resolve(72, timing='') == '18',
+          'the action default is application, and a cap that fires on an empty string '
+          'would cap every caller who never set the input')
+    check('a large application-timed box still takes a quarter',
+          resolve(256, timing='application') == '64')
+    check('the dxe timing is capped on the same box',
+          resolve(72, timing='dxe') == '8',
+          'this is the only path the measurements describe')
+    check('the floor still applies under both timings',
+          resolve(4, timing='dxe') == '4' and resolve(4, timing='application') == '4')
+    check('and the cap reads a variable this step actually declares',
+          'FIRNESS_HARNESS_TIMING' in io.open(ACTION, encoding='utf-8').read()
+          and declares('FIRNESS_HARNESS_TIMING'),
+          'an undeclared name reads as empty, the test never matches, and the cap is a '
+          'silent no-op indistinguishable from a working one')
+
     print('\nthe number is justified where a reader will look')
     text = io.open(ACTION, encoding='utf-8').read()
-    comment = text[max(0, text.find('        JOBS="${IN_JOBS:-}"') - 1800):
+    # 3200, not 1800: the comment grew when the cap was scoped to one timing mode, and a
+    # window sized to the old text silently stops covering the measurements at its head.
+    comment = text[max(0, text.find('        JOBS="${IN_JOBS:-}"') - 3200):
                    text.find('        JOBS="${IN_JOBS:-}"')]
     check('the comment gives both measured points, not just the conclusion',
           '5.15/h' in comment and '4.3/h' in comment,
           'a cap with no measurement beside it is a number someone will raise again')
+    check('the comment carries BOTH sweeps that justify scoping it to one timing',
+          '2923' in comment and '663' in comment,
+          'the two median boots are the whole reason the cap is conditional; without them '
+          'the next reader sees an unexplained exception and makes it unconditional again')
+    check('and the reach rates beside them',
+          '69 reached' in comment and '76 reached' in comment,
+          'four times the boot is only half the argument -- half the reach is the other')
     check('it says why it is not a core shortage',
           '91% idle' in comment or 'idle' in comment)
     check('it admits 8 is a bracket, not a measured optimum',
@@ -110,9 +162,10 @@ def main():
     check('it names the consequence of getting it wrong',
           'job timeout' in comment and 'triaged' in comment,
           'the cost is not slowness, it is a run killed before triage')
-    check('the input description tells a caller the cap exists',
-          'cap 8' in text,
-          'a caller who passes nothing should not have to read the shell to learn it')
+    check('the input description tells a caller the cap exists and when it binds',
+          'capped at 8 under the dxe timing only' in text,
+          'a caller who passes nothing should not have to read the shell to learn it, and '
+          '"cap 8" alone would read as unconditional')
 
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
