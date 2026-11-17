@@ -373,6 +373,18 @@ jobs:
         shell: bash
         run: python3 scripts/retriage_check.py
 
+      # Run 43704163314: four refs built, instrumented, fuzzed 80-83 campaigns each and
+      # wrote a complete bugs.json -- then all four FAILED in the stage that had just
+      # written it, with the same PermissionError on that file. bugs.json is written by a
+      # container running as root (the .debug files are only in the image) and reown()
+      # does not give the output back until after every stage, so the triage stage's
+      # host-side rewrite was EACCES on every results directory nothing had reowned yet --
+      # which is every first run. A re-triage runs over a reowned one, which is why it was
+      # green by hand and red on every real sweep.
+      - name: A report a container wrote is classified there and never rewritten
+        shell: bash
+        run: python3 scripts/container_write_check.py
+
       - name: No pipeline function reads a name that is never bound
         shell: bash
         run: python3 scripts/unbound_name_check.py

@@ -37,11 +37,18 @@ were a number or a sentence that read as a result and was not one.
      and then files an issue against a driver that did as it was asked.
 
      Two of that sweep's 138 harnesses name an I/O port accessor, EfiCpuIo2 and
-     EfiMmCpuIo. The run now reads that off the harness each campaign actually built and
-     moves a cpu-exception out of `candidates` and into bugs.json's own `filtered.harness`
-     bucket with its reason, which is where file_issues.py stops seeing it. Keeping the
-     harness from driving those ports at all belongs to the generator; this is the half
-     that stops the fault being reported as a finding.
+     EfiMmCpuIo. The run reads that off the harness each campaign actually built and
+     reports the cpu-exception in bugs.json's own `filtered.harness` bucket with its
+     reason rather than among the candidates, which is where file_issues.py stops seeing
+     it. Keeping the harness from driving those ports at all belongs to the generator;
+     this is the half that stops the fault being reported as a finding.
+
+     The classification itself is bug_report.py's, made where that report is written. It
+     was done on the host afterwards for a while instead, which reopened a file a
+     container had just written as root and cost run 43704163314 all four of its refs --
+     scripts/container_write_check.py is that assertion's home. What is asserted here is
+     this run's own verdict line: the count it prints, and the candidates left after the
+     move.
 
   3. scripts/smi_coverage_check.py lifts a region of analyze_smi.py into an isolated
      namespace and execs it. The names that region needs were a hand-maintained list, so
@@ -74,8 +81,12 @@ if HERE not in sys.path:
 
 # Lifted, not restated: fuzz_edk2's own readers of the two recorded facts, and its own
 # detail line. A copy of either here would keep passing after the real one changed.
-from fuzz_edk2 import (harness_io_artefacts, io_port_harness,      # noqa: E402
-                       launched_campaigns, skipped_before_launch)
+from fuzz_edk2 import launched_campaigns, skipped_before_launch   # noqa: E402
+# The harness reader and the predicate moved to the file that writes the report, which is
+# the only process that may write it. Imported from there so this cannot keep asserting
+# against a copy fuzz_edk2 no longer has.
+import bug_report as br                                           # noqa: E402
+from bug_report import io_port_artefact, io_port_drivers, io_port_harness  # noqa: E402
 # smi_coverage_check owns the lift under test. Importing it runs its module-level work
 # (a sys.path insert and a vendor_types import), which is cheap and has no side effects
 # on this check.
@@ -182,7 +193,7 @@ def as_function(body, indent=8):
 DETAIL_OPENS = "        detail = (f'{fuzzed}/{planned} campaign(s) fuzzed"
 DETAIL_CLOSES = '        # Did the guest ever see its testcase?'
 
-TRIAGE_OPENS = '        artefacts = harness_io_artefacts(campaigns, found)'
+TRIAGE_OPENS = "        artefacts = [a for a in ((("
 TRIAGE_CLOSES = '\n    def reuse():'
 
 EMPTY = dict(fuzzed=0, planned=0, iterations=0, stability=[], absent=[], stuck=[],
@@ -200,17 +211,18 @@ def detail_line(**state):
     return names['_run']()
 
 
-def triage_line(campaigns, report, read=1, image_tag='img:latest'):
-    """fuzz_edk2's triage verdict, lifted and run over a bugs.json on disk."""
-    found = region('fuzz_edk2', TRIAGE_OPENS, TRIAGE_CLOSES)
-    if found is None:
-        return None, '<fuzz_edk2 no longer sorts harness artefacts here>', {}
-    names = {'harness_io_artefacts': harness_io_artefacts, 'json': json,
-             'open': open, 'campaigns': campaigns, 'report': report,
-             'found': json.load(open(report)), 'read': read, 'image_tag': image_tag}
-    exec(as_function(found) + '\n', names)
-    ok, said = names['_run']()
-    return ok, said, json.load(open(report))
+def triage_line(found, read=1, image_tag='img:latest'):
+    """fuzz_edk2's triage verdict, lifted and run over a report bug_report has written.
+
+    Over the report and not over a path: the stage reads this file and never opens it for
+    writing, and handing the lift a filename would let a rewrite come back unnoticed.
+    """
+    body = region('fuzz_edk2', TRIAGE_OPENS, TRIAGE_CLOSES)
+    if body is None:
+        return None, '<fuzz_edk2 no longer builds its triage verdict here>'
+    names = {'found': found, 'read': read, 'image_tag': image_tag}
+    exec(as_function(body) + '\n', names)
+    return names['_run']()
 
 
 # ---------------------------------------------------------------- fixtures
@@ -257,13 +269,32 @@ def campaign(root, name, harness=''):
     return where
 
 
-def bugs(path, candidates):
-    with open(path, 'w') as handle:
-        json.dump({'rows': 9, 'clusters': 4, 'candidates': candidates,
-                   'ubiquitous': [],
-                   'filtered': {'harness': [], 'artefact': [], 'background': []}},
-                  handle, indent=2)
-    return path
+def bugs(candidates, filtered=()):
+    """A report in the shape bug_report.py writes one."""
+    return {'rows': 9, 'clusters': 4, 'candidates': list(candidates),
+            'ubiquitous': [],
+            'filtered': {'harness': list(filtered), 'artefact': [], 'background': []}}
+
+
+def artefact(ident, klass, protocols, module='CpuIo2Dxe.efi', site='+0x5296',
+             members=('->Io.Read', '->Io.Write')):
+    """A filtered.harness entry as bug_report writes one for an I/O port fault.
+
+    The reason comes from bug_report's own template rather than being spelled out again,
+    so the sentence this file reads is the sentence that file writes.
+    """
+    return {'id': ident, 'module': module, 'site': site, 'class': klass, 'hits': 1,
+            'reason': br.IO_PORT_ARTEFACT.format(members=', '.join(members),
+                                                 module=module),
+            'io_ports': list(members), 'protocols': sorted(protocols)}
+
+
+def held(candidate, drives):
+    """A triaged candidate as a Cluster, so bug_report's own predicate can judge it."""
+    cluster = br.Cluster((candidate['module'], candidate['class'], candidate['site']))
+    cluster.protocols = set(candidate['protocols'])
+    cluster.io_ports = drives
+    return cluster
 
 
 def candidate(ident, klass, protocols, module='CpuIo2Dxe.efi', site='+0x5296'):
@@ -451,9 +482,14 @@ def main():
     check('a campaign whose generator left no harness answers [] rather than raising',
           io_port_harness(os.path.join(camps, 'EfiNoHarness')) == [])
 
-    report = bugs(os.path.join(root, 'bugs.json'), [
-        candidate('CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c',
-                  'cpu-exception (#DE)', ['EfiCpuIo2']),
+    check('and the host no longer decides it after the fact',
+          'harness_io_artefacts' not in code(source('fuzz_edk2')),
+          'the host cannot write the report it would have to move the cluster in, which '
+          'is why this moved into bug_report.py -- see container_write_check.py')
+
+    # The report as bug_report.py now writes it: the cluster is already in the harness
+    # bucket, and what the stage does with it is count it and name it.
+    report = bugs([
         candidate('CpuIo2Dxe.efi|heap-buffer-overflow (write)|CpuIo2Dxe.c',
                   'heap-buffer-overflow (write)', ['EfiCpuIo2']),
         candidate('HiiDatabase.efi|cpu-exception (#GP)|String.c',
@@ -461,48 +497,36 @@ def main():
         candidate('DxeCore.efi|cpu-exception (#PF)|Timer.c',
                   'cpu-exception (#PF)', ['EfiCpuIo2', 'EfiBlockIo'],
                   module='DxeCore.efi'),
-    ])
-    ok, said, after = triage_line(camps, report)
-    picked = [a.get('id') for a in bucket(after)]
-    kept = [c.get('id') for c in after.get('candidates') or []]
-    reason = (bucket(after)[0].get('reason', '') if bucket(after) else '')
-    check('the #DE from the I/O port campaign is taken out of the candidates',
-          'CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c' not in kept, f'{kept}')
-    check('and lands in bugs.json\'s own harness bucket, which already means this',
-          picked == ['CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c'], f'{picked}')
-    check('with the reason beside it, naming the member and the ports',
+    ], [artefact('CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c',
+                 'cpu-exception (#DE)', ['EfiCpuIo2'])])
+    ok, said = triage_line(report, read=4)
+    reason = (bucket(report)[0].get('reason', '') if bucket(report) else '')
+    check('the reason beside it names the member and the ports',
           all(k in reason for k in ('->Io.Write', '0x40-0x43',
                                     'live platform registers')), f'{reason!r}')
-    check('a sanitizer report from the same campaign is NOT swept up with it',
-          'CpuIo2Dxe.efi|heap-buffer-overflow (write)|CpuIo2Dxe.c' in kept,
-          'an asan report has an address and an extent and is argued on those')
-    check('a fault from a campaign that drives no ports stays a candidate',
-          'HiiDatabase.efi|cpu-exception (#GP)|String.c' in kept, f'{kept}')
-    check('and so does one also seen from a campaign that drives no ports',
-          'DxeCore.efi|cpu-exception (#PF)|Timer.c' in kept,
-          'the same fault reached from an ordinary target is evidence about the firmware')
     check('the stage still passes -- this is a reclassification, not a failure',
           ok is True, f'{ok}')
     check('the verdict says how many were moved and where they came from',
-          'reported as a harness artefact rather than a finding' in said
+          '1 reported as a harness artefact rather than a finding' in said
           and 'CpuIo2Dxe.efi+0x5296' in said and 'EfiCpuIo2' in said, said)
     check('and the candidate count it prints is the one left after the move',
           said.startswith('3 candidate(s) from 4 cluster(s)'), said)
-    check('the file on disk agrees with the count in the sentence',
-          len(after.get('candidates') or []) == 3,
-          f"{len(after.get('candidates') or [])}")
+    check('a harness cluster filtered by NAME is not counted among them',
+          'harness artefact' not in triage_line(
+              bugs([], [{'id': 'Firness.efi|unknown-crash|FirnessHarnesses.c',
+                         'module': 'Firness.efi', 'site': 'FirnessHarnesses.c:91',
+                         'class': 'unknown-crash', 'hits': 2,
+                         'reason': 'generated harness source'}]))[1],
+          'the bucket holds both kinds and only one of them is the I/O ports')
     check('which is what stops it being filed, because that is the key filing reads',
           "json.load(open(args.bugs)).get('candidates')" in code(source('file_issues')),
           'if file_issues stops reading candidates this move stops having any effect')
 
-    nothing = bugs(os.path.join(root, 'clean.json'), [
+    ok, said = triage_line(bugs([
         candidate('HiiDatabase.efi|cpu-exception (#GP)|String.c',
-                  'cpu-exception (#GP)', ['EfiBlockIo'], module='HiiDatabase.efi')])
-    ok, said, after = triage_line(camps, nothing)
+                  'cpu-exception (#GP)', ['EfiBlockIo'], module='HiiDatabase.efi')]))
     check('a run with nothing to move says nothing about it',
           'harness artefact' not in said, said)
-    check('and its report is left exactly as triage wrote it',
-          bucket(after) == [] and len(after.get('candidates') or []) == 1, said)
 
     print('\n3. the lift derives what its region needs')
     path = fixture()
@@ -641,19 +665,18 @@ def evidence(campaigns, log, report):
     check('so the line this run would now print is 66/138, not 66/263',
           said.startswith('66/138 campaign(s) fuzzed the harness (3922229 iteration(s)) '
                           '[263 discovered, 125 skipped before launch]'), said)
-    drives = sorted(d for d in os.listdir(campaigns)
-                    if io_port_harness(os.path.join(campaigns, d)))
+    drives = io_port_drivers(campaigns)
     check('two of its 138 harnesses drive platform I/O ports, and these two',
-          drives == ['EfiCpuIo2', 'EfiMmCpuIo'], f'{drives}')
+          sorted(drives) == ['EfiCpuIo2', 'EfiMmCpuIo'], f'{sorted(drives)}')
     found = json.load(open(report))
     faults = [c for c in found['candidates']
               if str(c.get('class') or '').startswith('cpu-exception')]
-    moved = harness_io_artefacts(campaigns, found)
+    moved = [c for c in faults if io_port_artefact(held(c, drives))]
     check('it triaged three cpu-exception candidates', len(faults) == 3,
           f'{[c["id"] for c in faults]}')
     check('and exactly one of them is the harness driving those ports',
-          [a['id'] for a in moved] == ['CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c'],
-          f'{[a["id"] for a in moved]}')
+          [c['id'] for c in moved] == ['CpuIo2Dxe.efi|cpu-exception (#DE)|IoLibGcc.c'],
+          f'{[c["id"] for c in moved]}')
     serial = os.path.join(campaigns, 'EfiCpuIo2', 'fuzz.txt')
     if os.path.isfile(serial):
         text = io.open(serial, encoding='utf-8', errors='replace').read()

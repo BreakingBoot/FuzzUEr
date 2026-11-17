@@ -814,6 +814,11 @@ class Cluster:
         # Cluster built by hand gets, and never as "no SMM module compiles it".
         self.smm_modules = ()
         self.smm_checked = False
+        # Also filled in by load(), from each campaign's own generated harness: campaign
+        # -> the platform I/O port accessors that harness drives. Empty is what a Cluster
+        # built by hand gets, and it reads as "no campaign in this run drives one", which
+        # is the answer for every campaign of a sweep but a couple.
+        self.io_ports = {}
 
     def add(self, report):
         self.reports.append(report)
@@ -1284,6 +1289,10 @@ def load(root, build_dirs=()):
     # which modules run in SMRAM and what they are built from is one answer. Walking the
     # build trees is not cheap and this walks them once.
     linkage = SmmLinkage(build_dirs)
+    # And once for the same reason: which campaigns' harnesses drive the platform's I/O
+    # ports is a property of the generated harness beside each crashes.csv, and every
+    # cluster asks the same question of it.
+    drives = io_port_drivers(root)
     for protocol in sorted(os.listdir(root)):
         path = os.path.join(root, protocol, 'crashes.csv')
         serial = os.path.join(root, protocol, 'fuzz.txt')
@@ -1484,6 +1493,7 @@ def load(root, build_dirs=()):
             where = next((r.path for r in cluster.reports if r.located), '')
             cluster.smm_checked = linkage.known and bool(where)
             cluster.smm_modules = linkage.modules_for(where)
+            cluster.io_ports = drives
             clusters[key] = cluster
     return clusters, rows
 
@@ -1670,6 +1680,118 @@ def in_mmio(cluster):
     return 0
 
 
+# ---------------------------------------------------------------------------------------
+# A generated harness that drives the platform's I/O PORT space. The EFI_CPU_IO2_PROTOCOL
+# and EFI_MM_CPU_IO_PROTOCOL expose Io.Read/Io.Write beside Mem.Read/Mem.Write, and the
+# generator emits a member-choice switch that picks between them -- so half the iterations
+# go to Io.*, with an Address argument the harness bounds to the raw-buffer size,
+# FIRNESS_BUFFER_BYTES == 4096. That range is not spare address space on this platform: it
+# is the legacy I/O page. The PIC is at 0x20/0xA0, the PIT at 0x40-0x43, the keyboard
+# controller at 0x60/0x64, the CMOS/RTC index and data ports at 0x70/0x71, PCI config at
+# 0xCF8/0xCFC. Writing fuzzer bytes there reprograms live chipset registers, and what
+# follows is a guest that stops rather than a defect that was found.
+#
+# Measured on run 43454245046: EfiCpuIo2 managed 111 iterations in a 1800s budget --
+# 0.065 exec/s against campaigns of that sweep that reached tens of thousands -- its
+# client stopped reporting executions at 1h39m and reported none for the remaining 27
+# minutes, and its fuzz.txt carries `X64 Exception Type - 00(#DE - Divide Error)` at
+# CpuIo2Dxe+0x5296. That fault was triaged as a severity 4 cpu-exception candidate in
+# firmware code. It is neither: nothing in CpuIo2Dxe or CpuIoCheckParameter divides, and
+# the harness had just written to a port of the platform's own choosing.
+#
+# Two of 138 harnesses on that sweep name one of these members -- EfiCpuIo2 and
+# EfiMmCpuIo, and no others -- so this reads the harness the campaign actually built
+# rather than guessing from a protocol name, and it goes quiet of its own accord once the
+# generator stops emitting the Io.* arm.
+#
+# Decided HERE, where the report is written, and not by the pipeline afterwards. This
+# file runs inside the campaign image, as root, over a bind mount that belongs to the
+# user who started the run: a caller that re-opened bugs.json to move a cluster between
+# its buckets was therefore writing a root-owned file as that user, and got EACCES on
+# every results directory nothing had reowned yet -- which is every first run. That cost
+# run 43704163314 all four of its refs, each after 80-odd campaigns had fuzzed to
+# completion and this very report had been written. What the decision needs is the
+# campaign's own generated harness, which sits beside its crashes.csv under the same
+# `-r <root>` the reports are read from, and is only ever read.
+# ---------------------------------------------------------------------------------------
+IO_PORT_MEMBERS = ('->Io.Read', '->Io.Write')
+
+
+def io_port_harness(where):
+    """The platform I/O port accessors this campaign's generated harness calls.
+
+    [] for a campaign that drives none, which is all but a couple of them. The harness
+    source is the evidence because the generator decides which members a harness drives:
+    the protocol's name says only that the members exist.
+    """
+    path = os.path.join(where, 'Firness', 'FirnessHarnesses.c')
+    if not os.path.isfile(path):
+        return []
+    try:
+        text = open(path, errors='ignore').read()
+    except OSError:
+        return []
+    return [member for member in IO_PORT_MEMBERS if member in text]
+
+
+def io_port_drivers(root):
+    """Campaign -> the I/O port accessors its harness drives, for the ones that drive any.
+
+    Once for the run, like the SMM linkage above it: every cluster asks the same question
+    of the same directories. A campaign that drives none is left out rather than mapped
+    to an empty tuple, so membership is the test and an empty mapping is the ordinary
+    answer for a sweep whose generator emitted no Io.* arm at all.
+    """
+    drives = {}
+    for name in (sorted(os.listdir(root)) if os.path.isdir(root) else []):
+        members = io_port_harness(os.path.join(root, name))
+        if members:
+            drives[name] = tuple(members)
+    return drives
+
+
+IO_PORT_ARTEFACT = (
+    'the harness calls this protocol\'s I/O port accessor ({members}) with an Address it '
+    'bounds to the harness buffer size, so the low 4096 ports -- PIC 0x20/0xA0, PIT '
+    '0x40-0x43, keyboard 0x60/0x64, RTC 0x70/0x71 -- take fuzzer bytes. The fault is the '
+    'harness writing to live platform registers, not a defect in {module}')
+
+
+def io_port_artefact(cluster):
+    """The I/O port accessors that make this cluster the harness's own fault, or ().
+
+    Narrow on purpose, and in three ways at once. Only a cpu-exception qualifies -- a
+    sanitizer report has an address and an extent behind it and is argued on those. Only
+    a campaign whose own generated harness names an I/O port accessor qualifies. And
+    EVERY protocol the cluster was seen under has to be one of those campaigns, so a
+    fault that also appears from an ordinary target is left alone: the same #DE reached
+    from a protocol that drives no ports is evidence about the firmware, and this must
+    not swallow it.
+    """
+    if not str(cluster.klass or '').startswith('cpu-exception'):
+        return ()
+    if not cluster.protocols:
+        return ()
+    if any(name not in cluster.io_ports for name in cluster.protocols):
+        return ()
+    return tuple(sorted({member for name in cluster.protocols
+                         for member in cluster.io_ports[name]}))
+
+
+def io_port_payload(cluster):
+    """The fields that mark a filtered entry as the harness driving platform I/O ports.
+
+    {} for every other cluster, so the bucket keeps the shape its readers already expect.
+    The run's own verdict line is built from these: fuzz_edk2.py reads the count and the
+    campaigns back out of this file rather than deciding it again on the host, which is
+    the whole reason the decision moved in here.
+    """
+    members = io_port_artefact(cluster)
+    if not members:
+        return {}
+    return {'io_ports': list(members), 'protocols': sorted(cluster.protocols)}
+
+
 def verdict(cluster, boot_keys, ubiquity):
     """Why a cluster is or is not a candidate firmware bug."""
     sample = cluster.reports[0]
@@ -1746,6 +1868,16 @@ def verdict(cluster, boot_keys, ubiquity):
         return 'ubiquitous', (f'also reported during the boot, before any input was fed, '
                               f'so the input did not provoke it -- review, do not '
                               f'dismiss')
+    # Last of all, so that this can only ever reclassify a cluster that would otherwise
+    # be reported as a finding. Every test above decides something else about the same
+    # report -- the PCI hole, the harness's own sources, a DXE double fetch, ubiquity,
+    # the boot -- and a fault the harness caused by writing to the PIT is still better
+    # described by any of those than by this one. What it must not be described as is a
+    # defect in the driver that was asked to do it.
+    members = io_port_artefact(cluster)
+    if members:
+        return 'harness', IO_PORT_ARTEFACT.format(
+            members=', '.join(members), module=cluster.module or 'the firmware')
     return 'candidate', ''
 
 
@@ -2215,8 +2347,14 @@ def main():
             known = set(json.load(handle))
 
     print(f'{rows} report row(s) -> {len(clusters)} cluster(s)')
+    # Named in the count, because "filtered as harness 4" does not say that one of the
+    # four is the harness having bricked the guest by writing to the PIT -- which is the
+    # one a reader of a 0.065 exec/s campaign is looking for.
+    ports = [c for c, _ in buckets['harness'] if io_port_artefact(c)]
     for kind in ('harness', 'artefact', 'background'):
-        print(f'  filtered as {kind:11} {len(buckets[kind]):4}')
+        said = (f'  ({len(ports)} the harness driving platform I/O ports)'
+                if kind == 'harness' and ports else '')
+        print(f'  filtered as {kind:11} {len(buckets[kind]):4}{said}')
     print(f'  not input driven      {len(buckets["ubiquitous"]):4}  (reported below)')
     print(f'  candidates            {len(buckets["candidate"]):4}')
 
@@ -2307,7 +2445,12 @@ def main():
                 for c, _ in buckets['ubiquitous']],
             'filtered': {
                 kind: [{'id': cluster_id(c), 'module': c.module, 'site': c.site,
-                        'class': c.klass, 'hits': c.hits, 'reason': reason}
+                        'class': c.klass, 'hits': c.hits, 'reason': reason,
+                        # Only on the clusters this file moved for driving I/O ports, so
+                        # that the stage reading it back can tell them from the harness
+                        # sources matched by name -- and does not have to re-derive a
+                        # classification over a report it cannot open for writing.
+                        **io_port_payload(c)}
                        for c, reason in buckets[kind]]
                 for kind in ('harness', 'artefact', 'background')},
         }
