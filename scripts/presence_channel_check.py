@@ -84,6 +84,12 @@ CAPTURE = (f'InstallProtocolInterface: {A} 7F9C1000\n'
            f'MmInstallProtocolInterface: {D} 7FE02000\n')
 
 REAL = '/home/gl055/fuzzuer-eval1/43454245046/detect_capture/debug.log'
+# The install lines of that capture, committed. The two assertions below are the only
+# evidence that the census was ever WRONG about this -- that a real firmware installs
+# interfaces inside SMRAM and nowhere else -- and guarded on REAL they ran on one machine.
+# scripts/presence_evidence_check.py distills the fixture and asserts it against the
+# capture wherever the capture is; --distill regenerates it.
+FIXTURE = os.path.join(HERE, 'presence_fixtures', '43454245046-eval1.installs')
 
 
 def main():
@@ -119,21 +125,29 @@ def main():
           pp.installed_guids(_write(holder.name, 's.log',
                                     f'SmmInstallProtocolInterface: {B} 1\n'))[1] == {B})
 
-    if os.path.isfile(REAL):
-        print('\nand on the capture the sweep actually booted')
-        real_dxe, real_smram = pp.installed_guids(REAL)
-        text = open(REAL, errors='ignore').read().replace('\x00', '')
+    # Both the committed install lines of the capture the sweep booted and, where this host
+    # has it, the capture itself. The fixture is what makes these two run in CI, which is
+    # where the question matters: they are the only assertions here taken on firmware
+    # rather than on a capture this file wrote, and guarded on REAL they ran nowhere but
+    # the machine that wrote them.
+    for label, path in [('the committed install lines of the capture the sweep booted',
+                         FIXTURE), ('the capture itself', REAL)]:
+        if not os.path.isfile(path):
+            print(f'\n  [skip] {path} is not on this host')
+            continue
+        print(f'\nand on {label}')
+        real_dxe, real_smram = pp.installed_guids(path)
+        text = open(path, errors='ignore').read().replace('\x00', '')
         old = {g.upper() for g in
                re.findall(r'InstallProtocolInterface:\s*'
                           r'([0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12})', text)}
-        check('the real capture splits without loss',
+        check('it splits without loss',
               real_dxe | real_smram == old and not (real_dxe & real_smram),
               f'dxe={len(real_dxe)} smram={len(real_smram)} old={len(old)}')
         check('and it really does hold SMRAM-only interfaces',
-              len(real_smram) > 0,
-              'if this is zero the census was never wrong and this check proves nothing')
-    else:
-        print(f'\n  [skip] {REAL} is not on this host')
+              len(real_smram) == 14,
+              f'{len(real_smram)} -- zero means the census was never wrong and this check '
+              f'proves nothing; the capture has fourteen')
 
     print('\nthe census reports the new status')
     psrc = code(source('protocol_presence'))

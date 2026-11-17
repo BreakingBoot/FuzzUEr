@@ -1,0 +1,6 @@
+fixture,source,source_sha256,source_bytes,install_lines,kept_lines,real,null,unsaid,smram
+43704163314-fuzz-edk2-stable202602,/home/gl055/fuzzuer-sweep/43704163314/fuzz-edk2-stable202602/detect_capture/debug.log,4acd7eadb288ae356ec6a0e05fd68f9fc072f4cf428d08f9e419dd959e519f1e,120152,495,124,109,15,0,0
+43704163314-fuzz-edk2-stable202605,/home/gl055/fuzzuer-sweep/43704163314/fuzz-edk2-stable202605/detect_capture/debug.log,c4db8a172ad81c3e784d25597b6f66dbfc291f43f9e7d84dfa348e5ab552b185,108216,500,124,109,15,0,0
+43704163314-fuzz-edk2-stable202608,/home/gl055/fuzzuer-sweep/43704163314/fuzz-edk2-stable202608/detect_capture/debug.log,fc86dfeda23998b71dd2689a9576e9003bd40e7e6990ac0a8116881b63169862,108721,502,124,109,15,0,0
+43704163314-fuzz-master,/home/gl055/fuzzuer-sweep/43704163314/fuzz-master/detect_capture/debug.log,2797b731d03b43f495cf1559e97a339c0e8176f9e6434bd7ecd7c6276d63036a,107564,495,124,109,15,0,0
+43454245046-eval1,/home/gl055/fuzzuer-eval1/43454245046/detect_capture/debug.log,2fe21de13930205496a896004f4b8ec1e778ae2299124db3c006ac2ea8cfa6d9,218044,763,192,152,22,0,18

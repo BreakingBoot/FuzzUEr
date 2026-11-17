@@ -54,11 +54,27 @@ GUID_DECL = re.compile(
 GUID_TAIL = r'([0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12})'
 INSTALLED = re.compile(r'(?<!Smm)(?<!Mm)InstallProtocolInterface:\s*' + GUID_TAIL)
 IN_SMRAM = re.compile(r'(?:Smm|Mm)InstallProtocolInterface:\s*' + GUID_TAIL)
-# Anchored to end of line so the pointer it captures is the interface the DXE core
-# installed and not the first hex run of whatever follows on a wrapped line. See
-# null_interfaces() for what the second field decides.
-WITH_INTERFACE = re.compile(r'(?<!Smm)(?<!Mm)InstallProtocolInterface:\s*' + GUID_TAIL
-                            + r'\s+([0-9A-Fa-f]+)[ \t\r]*$', re.M)
+# Both gaps are [ \t], never \s, and the match is anchored to end of line, so the whole
+# record -- spelling, GUID and pointer -- has to be on ONE line. \s MATCHES A NEWLINE, so
+# the end anchor alone did not give the anchoring this comment used to claim: on
+# `InstallProtocolInterface: <guid>\n7F9C1000\n` the `\s+` ate the line break and the next
+# line's hex run was captured as this install's interface pointer.
+#
+# The census then answered the unwrapped record's verdict for a line that does not carry a
+# pointer at all, which is the one thing present-unverified exists to refuse. A bare 0 on
+# the following line reads as a NULL readiness signal; a bare non-zero run reads as a real
+# interface, which is `present` -- and for a GUID whose only real interface is inside
+# SMRAM, `present` schedules a DXE campaign on a protocol gBS->LocateProtocol cannot
+# reach. That is the ten protocols and the eleven container-hours of fuzzing an early exit
+# that the Smm/Mm lookbehinds above exist to prevent.
+#
+# Latent on everything this project holds: of the 2060 distinct captures on this host that
+# carry an install line, none has a GUID at end of line, and this pattern and the \s one
+# return identical matches on every one of them -- census verdicts included, per capture
+# and per protocol. Not latent on firmware whose debug output nobody here has booted yet,
+# which is what the next run is. See null_interfaces() for what the second field decides.
+WITH_INTERFACE = re.compile(r'(?<!Smm)(?<!Mm)InstallProtocolInterface:[ \t]*' + GUID_TAIL
+                            + r'[ \t]+([0-9A-Fa-f]+)[ \t\r]*$', re.M)
 # the harness names the guid it locates, which beats the naming convention when available
 LOCATED = re.compile(r'LocateProtocol\(&(g\w+Guid)')
 
