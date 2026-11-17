@@ -388,6 +388,44 @@ def main():
           discover.ABSENT_SUFFIX != '.txt' and not discover.ABSENT_SUFFIX.endswith('.txt'),
           f'{discover.ABSENT_SUFFIX}')
 
+    print('\nand a run says which of the three it was, under --smi or not')
+    stage = tempfile.mkdtemp(prefix='swsmi-stage-', dir=work)
+    asked = os.path.join(stage, 'DiscoveredSwSmi.txt')
+    silent = edk2.sw_smi_clause(asked, 0)
+    check('neither a list nor a note is its own answer, not the empty one',
+          'never looked at' in silent and 'EMPTY' not in silent,
+          f'{silent!r} -- reporting that as an empty channel is the claim this cannot '
+          f'support: it is also what a discovery that did not run leaves behind')
+    said, _, note = run(discover, runtime, work)
+    # `or ''` and a stand-in first line, not note.splitlines()[0]: the mutation that stops
+    # the note being written is one of the most important here, and indexing into it made
+    # the check die on exactly that one. A traceback is not a failed assertion -- nothing
+    # reading the exit code can tell the two apart.
+    io.open(os.path.join(stage, 'DiscoveredSwSmi.absent'), 'w',
+            encoding='utf-8').write(note or '')
+    empty = edk2.sw_smi_clause(asked, 0)
+    first = note.splitlines()[0] if note else '(discovery wrote no note)'
+    check('the note discovery wrote is what the stage reports, not a second wording',
+          empty == first, f'{empty!r} vs {first!r} -- two sentences for one fact drift, '
+          f'and the stage has no census of its own')
+    check('and it carries the count and the verdict', counted(empty) == (0, 1)
+          and 'EMPTY' in empty, f'{empty!r}')
+    io.open(asked, 'w', encoding='utf-8').write('AlphaCallback  0x70  // x\n')
+    full = edk2.sw_smi_clause(asked, 1)
+    check('a tree with a target reports that instead',
+          'DiscoveredSwSmi target' in full and 'EMPTY' not in full, f'{full!r}')
+    check('the three answers are three different sentences',
+          len({silent, empty, full}) == 3, f'{(silent, empty, full)}')
+    esrc = code(source('fuzz_edk2'))
+    check('the clause goes out on the run that does not pass --smi as well',
+          esrc.count('sw_smi_clause(swsmi, sw_handlers)') == 2,
+          f'{esrc.count("sw_smi_clause(swsmi, sw_handlers)")} call(s) -- it lived in the '
+          f'--smi branch alone, and across the 86 pipeline.log files on this machine not '
+          f'one printed a word about this channel')
+    check('and the one without --smi still says the handlers are not fuzzed',
+          "(not fuzzed; pass --smi). {sw_smi_clause" in esrc,
+          'the count alone reads as though they were targets')
+
     print('\nand the code says why, where the next reader will be standing')
     dsrc = code(source('discover_smi'))
     check('the note path is derived from the request path, not spelled twice',

@@ -945,6 +945,37 @@ def bound_refusal(limit, explicit, chosen, discovered):
     return ''
 
 
+def sw_smi_clause(request, handlers):
+    """What a run says about the software SMI channel, with or without --smi.
+
+    Said in EVERY run, which is the change. The clause used to live in the --smi branch
+    alone, discovery's own stdout is captured and dropped here, and an absent request file
+    is also what a discovery that never ran leaves behind -- so across the 86 pipeline.log
+    files on this machine, not one printed a word about this channel. A reader could not
+    tell a tree with no addressable software SMI handler from a run that fuzzed one, nor
+    either from a discovery that never looked.
+
+    `request` is the DiscoveredSwSmi.txt path. The note beside it is what discovery leaves
+    when the channel is empty, and its first line is the census; quoting that rather than
+    recomputing it keeps the two from drifting. Neither file means discovery did not write
+    one, which is a third answer and not the empty one.
+    """
+    note = os.path.splitext(request)[0] + '.absent'
+    if handlers:
+        return (f'{handlers} of them register a software SMI command byte this pass can '
+                f'resolve and are the DiscoveredSwSmi target')
+    if os.path.isfile(note):
+        try:
+            said = open(note).readline().strip()
+        except OSError:
+            said = ''
+        if said:
+            return said
+    return ('nothing was written about the software SMI channel: no target list and no '
+            'note, so this run cannot say whether the channel is empty or was never '
+            'looked at')
+
+
 def pick_targets(evalset, limit, smi, explicit=(), presence=''):
     """Which discovered targets to fuzz: all of them, the first `limit`, or named ones.
 
@@ -1911,18 +1942,15 @@ def main():
             # registered on the software dispatch protocol for a command byte it could
             # resolve. Zero of them is a normal answer for an upstream tree, where almost
             # every registration asks the dispatcher for the next free byte instead.
-            port = (f'{sw_handlers} of them register a software SMI command byte this '
-                    f'pass can resolve and are the DiscoveredSwSmi target'
-                    if sw_handlers else
-                    'none of them registers a software SMI command byte a static pass '
-                    'can resolve, so there is no DiscoveredSwSmi target')
             return True, (f'{protos} protocols{scope}, {handlers} SMI handlers found in '
                           f'source; the SMI harness generates and campaigns on this image '
-                          f'do reach it. {port}')
+                          f'do reach it. {sw_smi_clause(swsmi, sw_handlers)}')
         # Said plainly, because the count on its own reads as though they were targets:
-        # without --smi these are discovered and then left alone.
+        # without --smi these are discovered and then left alone. The software SMI clause
+        # goes out here too: a channel this run did not fuzz still has to be
+        # distinguishable from one it could not.
         return True, (f'{protos} protocols{scope}, {handlers} SMI handlers '
-                      f'(not fuzzed; pass --smi)')
+                      f'(not fuzzed; pass --smi). {sw_smi_clause(swsmi, sw_handlers)}')
 
     def stage_image():
         """A campaign image whose harness tree is the version under test.
