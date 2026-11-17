@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assert every presence verdict is backed by the capture, and says so when it is not.
+r"""Assert every presence verdict is backed by the capture, and says so when it is not.
 
 Two verdicts in the census were not readings of the boot capture at all.
 
@@ -28,14 +28,17 @@ gEfiSmmVariableProtocolGuid reads smm-only, which is where its real interface is
 
 A third verdict was not a reading of the install LINE. The pointer was separated from the
 GUID by `\s+`, which matches a newline, so an install line that wrapped after its GUID had
-the next line's leading hex captured as its interface pointer -- a bare `0` there made a
-real interface read as a NULL readiness signal, and a pointer-shaped run made a line with
-no pointer on it read as `present`, including for a protocol whose only real interface is
-inside SMRAM. That one is the ten protocols and the eleven container-hours
-presence_channel_check.py exists to prevent. It was latent on all 2060 distinct captures
-on this host and it is not latent on firmware nobody here has booted yet. Both gaps in
-that pattern are `[ \t]` now, and the assertions for it are behavioural -- on the wrapped
-input, through the census, not on the pattern's text.
+the next line's hex run captured as its interface pointer. The census then answered the
+unwrapped record's verdict for a line that carries no pointer at all: a bare `0` on the
+following line read as a NULL readiness signal, and a bare non-zero run read as a real
+interface -- which is `present`, and for a GUID whose only real interface is inside SMRAM
+`present` schedules a DXE campaign on a protocol gBS->LocateProtocol cannot reach. That
+one is the ten protocols and the eleven container-hours presence_channel_check.py exists
+to prevent. It was latent on all 2060 distinct captures on this host -- that pattern and
+this one return identical matches, and identical census verdicts, on every one of them --
+and it is not latent on firmware nobody here has booted yet. Both gaps in the pattern are
+`[ \t]` now, and the assertions for it are behavioural: on the wrapped input, through the
+census, against the same records unwrapped, not on the pattern's text.
 
 Where the evidence lives. Sixteen of these assertions used to be guarded on run
 directories under /home/gl055, so CI ran none of the ones that bind the verdicts to a real
