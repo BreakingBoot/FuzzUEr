@@ -367,6 +367,19 @@ jobs:
         shell: bash
         run: python3 scripts/presence_channel_check.py
 
+      # Two presence verdicts were not readings of the capture. A service binding that
+      # exists in the tree and was not installed read "unknown", which is never skipped:
+      # on every ref of sweep 43704163314 that was 23 protocols, all 23 launched, all 23
+      # reporting "LocateProtocol never succeeded" over about 40000 iterations of harness
+      # startup. And a NULL interface read "present", although the DXE core's own line
+      # carries the pointer -- so VariableNotifySmmReady()'s readiness signal was
+      # indistinguishable from a working interface. Both directions are asserted, because
+      # a binding that IS installed must still read present: that is the EfiHttp case the
+      # old verdict existed to protect.
+      - name: A presence verdict is backed by the boot capture, or says it is not
+        shell: bash
+        run: python3 scripts/presence_evidence_check.py
+
       - name: Campaign concurrency is capped at the point more campaigns stop helping
         shell: bash
         run: python3 scripts/jobs_cap_check.py
