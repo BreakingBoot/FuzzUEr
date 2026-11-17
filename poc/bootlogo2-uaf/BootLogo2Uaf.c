@@ -798,6 +798,17 @@ UefiMain (
   // The addresses printed in step [8] are what shows which of the two happened; do not
   // take this comment's word for it.
   //
+  // IT HAS BEEN OBSERVED, and the run is kept because it is the only recorded example of
+  // the outcome this PoC exists to tell apart from a real read of freed memory:
+  // evidence/run-recycled-outcome.txt line 30 reads
+  //
+  //   [8] source block 0x000000007E905698, destination block 0x000000007E905698
+  //
+  // the same address twice -- the allocator handed the freed block straight back, so
+  // CopyMem read its own fresh allocation and nothing stale was copied even though the
+  // free at :320 certainly ran. A verdict of REPRODUCED-OBSERVED is only meaningful
+  // because this outcome is distinguishable from it and has been seen.
+  //
   Rpt ("[5] seeding the %u-byte bin with %u freed blocks\r\n", (UINT32)LOGO2_BYTES, PRIME_COUNT);
   Rpt (
     "[6] SetBootLogo2(the driver's own pointer 0x%016lx, %ux%u) -- this is the UAF\r\n",

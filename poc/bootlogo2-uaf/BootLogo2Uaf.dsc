@@ -37,9 +37,13 @@
   RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
   #
   # Stack-cookie support. These two classes were introduced after edk2-stable202502 and
-  # UefiApplicationEntryPoint consumes StackCheckLib on a tree that has them. An edk2 that
-  # predates them never asks for either class, and build.py only opens an INF it has to
-  # resolve, so naming them here does not break an older checkout.
+  # UefiApplicationEntryPoint consumes StackCheckLib on a tree that has them.
+  #
+  # ON AN OLDER TREE THESE TWO LINES MUST GO. The INF paths do not exist before that
+  # release -- measured absent on edk2-stable202211 and on the EVAL-1 tree, present on
+  # master -- and naming an unresolvable path here is not harmless, whatever an earlier
+  # version of this comment claimed. build.sh detects the tree and strips them for you; if
+  # you are running `build` by hand on a pre-202502 checkout, delete them yourself.
   #
   StackCheckLib|MdePkg/Library/StackCheckLibNull/StackCheckLibNull.inf
   StackCheckFailureHookLib|MdePkg/Library/StackCheckFailureHookLibNull/StackCheckFailureHookLibNull.inf

@@ -60,6 +60,20 @@ rm -rf "$EDK2/BootLogo2Uaf"
 mkdir -p "$EDK2/BootLogo2Uaf"
 cp "$HERE/BootLogo2Uaf.c" "$HERE/BootLogo2Uaf.inf" "$HERE/BootLogo2Uaf.dsc" "$EDK2/BootLogo2Uaf/"
 
+# StackCheckLib and StackCheckFailureHookLib arrived after edk2-stable202502, and
+# UefiApplicationEntryPoint consumes StackCheckLib on a tree that has them. The DSC names
+# both, so on an older workspace it names two INF paths that are not there -- measured
+# absent on edk2-stable202211 and on the EVAL-1 tree, present on master. An earlier version
+# of this script asserted in a comment that naming an unresolvable class was harmless
+# because build.py "only opens an INF it has to resolve"; that claim was never tested and
+# is wrong. Detected rather than assumed, the same way the toolchain tag above is, so one
+# DSC builds on both eras and a maintainer on either does not have to edit it.
+if [ ! -f "$EDK2/MdePkg/Library/StackCheckLibNull/StackCheckLibNull.inf" ]; then
+    echo "note: $EDK2 predates StackCheckLib; dropping the two stack-cookie classes"
+    sed -i '/StackCheckLib|/d; /StackCheckFailureHookLib|/d' \
+        "$EDK2/BootLogo2Uaf/BootLogo2Uaf.dsc"
+fi
+
 BUILD="build -a $ARCH -b $TARGET -t $TOOLCHAIN -p BootLogo2Uaf/BootLogo2Uaf.dsc"
 OUT="Build/BootLogo2Uaf/${TARGET}_${TOOLCHAIN}/$ARCH/BootLogo2Uaf.efi"
 
