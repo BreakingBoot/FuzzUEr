@@ -1,0 +1,42 @@
+## @file
+#  Reproducer for the heap use-after-free in BootGraphicsResourceTableDxe.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BootLogo2Uaf
+  FILE_GUID                      = 6E2F1B0C-9C4B-47B6-9D3A-1F0D5B7E42A1
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UefiMain
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources]
+  BootLogo2Uaf.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  UefiBootServicesTableLib
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  PrintLib
+
+[Protocols]
+  gEdkiiBootLogo2ProtocolGuid                   ## CONSUMES
+  gEfiLoadedImageProtocolGuid                   ## CONSUMES
+  gEfiSimpleFileSystemProtocolGuid              ## CONSUMES
+
+[Guids]
+  gEfiAcpiTableGuid                             ## CONSUMES ## SystemTable
+  gEfiAcpi10TableGuid                           ## CONSUMES ## SystemTable
