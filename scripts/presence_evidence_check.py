@@ -339,6 +339,11 @@ def censused(work, capture, protocols=PROTOCOLS):
     for name in protocols:
         open(os.path.join(evalset, f'{name}.txt'), 'w').write('x')
     out = os.path.join(work, 'presence.csv')
+    # Removed first, because this function is called several times against one work
+    # directory and a census that exits before writing would otherwise hand back the
+    # PREVIOUS capture's verdicts -- a stale read that reports as a pass.
+    if os.path.isfile(out):
+        os.remove(out)
     said = io.StringIO()
     argv = sys.argv
     sys.argv = ['protocol_presence.py', '--capture', capture, '--root', work,
