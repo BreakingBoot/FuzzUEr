@@ -366,31 +366,46 @@ def main():
         _own, _total, rows = own_code_instrumented(text, FORK)
         return asan_scope.classify(rows, lambda m: module_type(FORK, m))
 
-    healthy = classify_log('results/fuzz-edk2-stable202608/build.log')
-    check('a healthy DXE build has nothing unexplained',
+    # These two build logs are real corroboration -- a 4.7MB capture of an actual build --
+    # and they are NOT tracked, deliberately: this repository has already had a CI failure
+    # from 15.9 GiB of committed output. So they are present on the box that produced them
+    # and absent on every fresh checkout, which is exactly where CI runs. Asserted when
+    # they are here, skipped by name when they are not; a check that reddens because a
+    # local artefact is missing trains people to ignore the battery. The assertions above
+    # this point are all fixture-driven and run everywhere, which is what makes skipping
+    # these safe rather than a hole.
+    logs = ['results/fuzz-edk2-stable202608/build.log', 'results/smm-qualify/build.log']
+    missing = [rel for rel in logs if not read(os.path.join(ROOT, rel))]
+    corroborate = not missing
+    if missing:
+        print(f'  [skip] corroboration against a real build log: '
+              f'{", ".join(missing)} is not on this host')
+
+    healthy = classify_log('results/fuzz-edk2-stable202608/build.log') if corroborate else None
+    corroborate and check('a healthy DXE build has nothing unexplained',
           healthy is not None and not healthy['unexpected'],
           f'{healthy and healthy["unexpected"]}')
-    check('and the one module it excludes by name is the declared one',
+    corroborate and check('and the one module it excludes by name is the declared one',
           healthy is not None
           and [m for m, _d in healthy['declared']] == [declared],
           f'{healthy and healthy["declared"]}')
-    check('everything else it leaves dark runs before the shadow exists',
+    corroborate and check('everything else it leaves dark runs before the shadow exists',
           healthy is not None
           and all(kind.upper() in asan_scope.PHASE_TYPES
                   for _m, kind in healthy['phase'])
           and len(healthy['phase']) >= 8,
           f'{healthy and healthy["phase"]}')
 
-    stale = classify_log('results/smm-qualify/build.log')
-    check('the SMM build from before ASAN_SMM is called out',
+    stale = classify_log('results/smm-qualify/build.log') if corroborate else None
+    corroborate and check('the SMM build from before ASAN_SMM is called out',
           stale is not None and len(stale['unexpected']) == 9,
           f'{stale and len(stale["unexpected"])} unexplained -- this build is the '
           f'"0 of 17 SMM modules" era and a classifier that calls it clean is useless')
-    check('and every one of the nine is an SMM module type',
+    corroborate and check('and every one of the nine is an SMM module type',
           stale is not None
           and all('SMM' in kind.upper() for _m, kind in stale['unexpected']),
           f'{stale and stale["unexpected"]}')
-    check('its SMM core is among them',
+    corroborate and check('its SMM core is among them',
           stale is not None
           and any(m.endswith('/PiSmmCore') for m, _k in stale['unexpected']),
           f'{stale and [m for m, _k in stale["unexpected"]]}')
