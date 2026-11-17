@@ -156,15 +156,38 @@ def define_index(root):
     return index
 
 
-def discover_sw_smi(root):
-    """Handler -> (command value, source, the spelling the tree uses) for the sw SMI port.
+# Why a registration could not be turned into a command byte. The sentence is attached
+# per registration rather than printed once, because the two causes want opposite things
+# from the reader: the first is upstream edk2 working as designed and there is nothing to
+# do about it, the second is two drivers this tree cannot both address under one name.
+RUNTIME_REASON = ('the dispatcher assigns the command byte at run time, so no static '
+                  'pass can name it')
+CLASH_REASON = ('two registrations claim this handler name for different command bytes, '
+                'so either byte would address the other one')
 
-    Every SwSmiInputValue assignment that feeds a Register call, which is the whole of the
-    channel's address space: a command byte nothing registered reaches no handler, and the
-    dispatcher says so and returns.
+# The note left where the request file would have been. Deliberately not a .txt: the
+# batch makes a campaign out of every .txt in the request directory, so a note spelled
+# that way is a container, an analysis and a build spent to fuzz a sentence.
+ABSENT_SUFFIX = '.absent'
+
+
+def sw_smi_registrations(root):
+    """Every software SMI registration in the tree, one entry per CALL SITE.
+
+    A list rather than a dict keyed by handler name, and that is the whole point: a
+    handler name is not unique across a tree. SecurityPkg registers PhysicalPresenceCallback
+    from both Tcg/Tcg2Smm/Tcg2Smm.c and Tcg/TcgSmm/TcgSmm.c, and MemoryClearCallback from
+    both as well, so a census keyed by name counts four registrations where eval1_edk2
+    has six -- and cites each one to whichever of the two files os.walk reached first,
+    which puts two different drivers in one census. On edk2-master that mixed attribution
+    is observable: MemoryClearCallback came back against TcgSmm.c and PhysicalPresenceCallback
+    against Tcg2Smm.c, from the same scan of the same tree.
+
+    Each entry is (handler, where, spelling, value), with value None for a registration
+    whose command byte this pass cannot resolve to a number the dispatcher would accept.
+    Sorted, so the census and every citation in it are the same on two runs of one tree.
     """
-    found = {}
-    unresolved = {}
+    sites = []
     index = None
     for base, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in ('Build', '.git')]
@@ -188,11 +211,11 @@ def discover_sw_smi(root):
                 # The assignment that reaches the call is the last one before it on the
                 # same context variable. Tcg2Smm registers twice off one SwContext, so
                 # taking the first would give both handlers the first value.
-                before = [m for m in assigned
-                          if m.group(1) == context and m.start() < call.start()]
-                if not before:
+                prior = [m for m in assigned
+                         if m.group(1) == context and m.start() < call.start()]
+                if not prior:
                     continue
-                source = before[-1]
+                source = prior[-1]
                 # The driver's own file first, and the tree only if that fails. B2SWSMI
                 # is a #define in the .c that uses it, which is the common case, so the
                 # whole-tree index is usually never built at all -- and `(UINTN)-1`
@@ -203,56 +226,135 @@ def discover_sw_smi(root):
                     if index is None:
                         index = define_index(root)
                     value = _constant(source.group(2), text, index)
+                if value is not None and not SW_VALUE_MIN <= value <= SW_VALUE_MAX:
+                    value = None
                 line = text.count('\n', 0, source.start()) + 1
                 where = f'{os.path.relpath(path, root)}:{line}'
-                if value is None or not SW_VALUE_MIN <= value <= SW_VALUE_MAX:
-                    unresolved.setdefault(
-                        handler, (_unwrap(source.group(2)), where))
-                    continue
-                found.setdefault(handler, (value, where, _unwrap(source.group(2))))
+                sites.append((handler, where, _unwrap(source.group(2)), value))
+    return sorted(sites, key=lambda site: site[:3])
+
+
+def _resolve(sites):
+    """(found, unresolved, reasons) from a registration list, by handler name.
+
+    By name because that is what the request file and the generator address a handler by,
+    which leaves one case to decide rather than drop: two registrations claiming one
+    handler name for two DIFFERENT command bytes. Either byte would be written against
+    the other registration's handler, so neither is written and the name is reported
+    unaddressable. Port 0xB2 is shared with the platform -- command 0x04 is
+    ICH9_APM_CNT_CPU_HOTPLUG -- and a byte aimed at the wrong handler buys no coverage to
+    weigh against that.
+    """
+    found = {}
+    unresolved = {}
+    reasons = {}
+    clash = set()
+    for handler, where, spelling, value in sites:
+        if value is None:
+            unresolved.setdefault(handler, (spelling, where))
+            reasons.setdefault(handler, RUNTIME_REASON)
+            continue
+        if handler in found and found[handler][0] != value:
+            clash.add(handler)
+            continue
+        found.setdefault(handler, (value, where, spelling))
+    for handler in clash:
+        value, where, spelling = found.pop(handler)
+        unresolved[handler] = (spelling, where)
+        reasons[handler] = CLASH_REASON
     for handler in found:
         unresolved.pop(handler, None)
+        reasons.pop(handler, None)
+    return found, unresolved, reasons
+
+
+def discover_sw_smi(root):
+    """Handler -> (command value, source, the spelling the tree uses) for the sw SMI port.
+
+    Every SwSmiInputValue assignment that feeds a Register call, which is the whole of the
+    channel's address space: a command byte nothing registered reaches no handler, and the
+    dispatcher says so and returns.
+    """
+    found, unresolved, _ = _resolve(sw_smi_registrations(root))
     return found, unresolved
 
 
 def write_sw_smi(root, output):
-    """The software SMI request file, and what it says out loud.
+    """The software SMI request file, or the note that stands in for it, and what both say.
 
     One line per handler: the name, the command byte as the harness will write it, and the
     registration the byte came from. The citation is not decoration -- a command byte is an
     arbitrary-looking number whose only justification is the line of firmware that asked
     for it, and a reader has no other way to tell a discovered value from an invented one.
+
+    An empty channel is written down rather than left to be inferred from a missing file.
+    Upstream OvmfPkgX64 builds no producer of EFI_SMM_SW_DISPATCH2_PROTOCOL at all, so
+    every tree but EVAL-1 lands here -- and "no DiscoveredSwSmi.txt" is also what a
+    discovery that never ran looks like, which made a run that fuzzed this channel and a
+    run that could not read identically. The verdict line goes out either way, and the
+    empty case leaves a DiscoveredSwSmi.absent note beside the request files carrying the
+    census and a reason per registration.
     """
-    found, unresolved = discover_sw_smi(root)
+    sites = sw_smi_registrations(root)
+    found, unresolved, reasons = _resolve(sites)
+    note = os.path.splitext(output)[0] + ABSENT_SUFFIX
     lines = []
     for handler in sorted(found):
         value, where, spelling = found[handler]
-        note = f' ({spelling})' if spelling != f'0x{value:02X}' else ''
-        lines.append(f'{handler}  0x{value:02X}  // {where}{note}')
-    print(f'{len(found)} software SMI handler(s) with a resolvable command value in {root}')
+        tail = f' ({spelling})' if spelling != f'0x{value:02X}' else ''
+        lines.append(f'{handler}  0x{value:02X}  // {where}{tail}')
+    # Registrations, not names: the count a reader judges the channel by has to be the
+    # number of places the tree registers, and dropping it to the number of distinct
+    # names is how eval1_edk2's six became four.
+    verdict = (f'software SMI channel: {len(found)} of {len(sites)} registration(s) '
+               f'addressable in {root}')
+    if not found:
+        verdict += ' -- EMPTY, there is no DiscoveredSwSmi target'
+    print(verdict)
+    # How many registrations claim each name, so the per-name lines below add up to the
+    # count in the verdict. They cannot otherwise: the lines are per name, because that is
+    # what the request file addresses a handler by, and SecurityPkg spends two names on
+    # four registrations.
+    claims = {}
+    for handler, _, _, _ in sites:
+        claims[handler] = claims.get(handler, 0) + 1
+    told = []
+    for handler in sorted(unresolved):
+        spelling, where = unresolved[handler]
+        others = claims.get(handler, 1) - 1
+        also = f' and {others} other place(s)' if others else ''
+        told.append(f'  not addressable: {handler} registers for {spelling} at {where}'
+                    f'{also} -- {reasons[handler]}')
     if not lines:
-        # No file rather than an empty one. The batch takes every .txt in the request
-        # directory as a target, so an empty list is a container, a full analysis and a
-        # build spent to reach "no software SMI handler in this tree has a command byte",
-        # and a stale file from a previous tree is worse than that -- it would aim this
-        # tree's campaign at another tree's command bytes.
+        # No request file rather than an empty one. The batch takes every .txt in the
+        # request directory as a target, so an empty list is a container, a full analysis
+        # and a build spent to reach "no software SMI handler in this tree has a command
+        # byte", and a stale file from a previous tree is worse than that -- it would aim
+        # this tree's campaign at another tree's command bytes.
         if os.path.isfile(output):
             os.remove(output)
             print(f'  removed {output} -- an empty target list is still a campaign')
-        for handler in sorted(unresolved):
-            spelling, where = unresolved[handler]
-            print(f'  not addressable: {handler} registers for {spelling} at {where}')
+        for line in told:
+            print(line)
+        os.makedirs(os.path.dirname(os.path.abspath(note)), exist_ok=True)
+        with open(note, 'w') as handle:
+            handle.write('\n'.join([verdict] + told) + '\n')
+        print(f'  wrote {note} -- an empty channel said out loud, not inferred from an '
+              f'absent file')
         return found
     os.makedirs(os.path.dirname(os.path.abspath(output)), exist_ok=True)
     with open(output, 'w') as handle:
         handle.write('\n'.join(lines) + '\n')
+    # The mirror of the stale-request-file removal above, and the same hazard the other
+    # way round: a note carried over from a tree with no software SMI says this channel
+    # is empty while the request file beside it names a target.
+    if os.path.isfile(note):
+        os.remove(note)
+        print(f'  removed {note} -- this tree does have a target')
     for line in lines:
         print(f'  {line}')
-    for handler in sorted(unresolved):
-        spelling, where = unresolved[handler]
-        print(f'  not addressable: {handler} registers for {spelling} at {where} -- the '
-              f'dispatcher assigns the command byte at run time, so no static pass can '
-              f'name it')
+    for line in told:
+        print(line)
     print(f'  wrote {output}')
     return found
 
@@ -276,7 +378,9 @@ def main():
                              'which is how edk2 proper writes every one of them -- is '
                              'counted and left out, because the byte it gets depends on '
                              'registration order at run time and a guess would address '
-                             'whichever handler landed in that slot')
+                             'whichever handler landed in that slot. A tree with none '
+                             'gets no list and a .absent note in its place, so an empty '
+                             'channel can be told from a discovery that never ran')
     args = parser.parse_args()
 
     if not os.path.isdir(args.src):

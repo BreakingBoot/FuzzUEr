@@ -270,6 +270,18 @@ jobs:
         shell: bash
         run: python3 scripts/sw_smi_check.py
 
+      # DiscoveredSwSmi.txt has never been written on any tree here, and no presence.csv
+      # of the 79 on this machine mentions the channel: upstream OvmfPkgX64 builds no
+      # producer of EFI_SMM_SW_DISPATCH2_PROTOCOL at all, so there is nothing to address.
+      # That is the honest answer and it was also invisible -- an absent request file is
+      # what a discovery that never ran leaves behind too. The census it was reported
+      # with counted handler NAMES, so eval1_edk2's seven registrations read as five and
+      # edk2-master's five as four, each cited to whichever of two same-named drivers
+      # os.walk reached first.
+      - name: The software SMI census counts registrations, and an empty channel says so
+        shell: bash
+        run: python3 scripts/sw_smi_census_check.py
+
       - name: The harness reaches the DXE firmware volume, unconditionally
         shell: bash
         run: python3 scripts/fv_harness_check.py

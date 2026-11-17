@@ -922,7 +922,22 @@ asks the dispatcher for the next free byte **at registration time**. There is no
 answer to that, so those handlers are counted, named in `smi-handler-inventory.json` with
 their channel, and left out of the target list rather than guessed at. On the EVAL-1 tree
 that is one target (`B2SmiDispatchHandle`, `0xB4`, `OvmfPkg/B2SmiDispatch/B2SmiDispatch.c:238`)
-and four handlers with no static address.
+out of seven registrations -- counted per registration and not per handler name, because
+`SecurityPkg` registers `PhysicalPresenceCallback` and `MemoryClearCallback` from
+`Tcg2Smm.c` and again from `TcgSmm.c`, and a count keyed by name reported five.
+
+**Upstream this target is empty, and for a reason earlier than the command byte.**
+`OvmfPkgX64.dsc` builds no producer of `EFI_SMM_SW_DISPATCH2_PROTOCOL` on `edk2-master` or
+on `eval_source/edk2`: the only one in edk2 is `UefiPayloadPkg/PchSmiDispatchSmm`, which
+that platform does not include, and none of the four drivers that register on the protocol
+is in the build either. EVAL-1 adds both, under its own `SMM_SUPPORT` define. So discovery
+writes no `DiscoveredSwSmi.txt` upstream -- and because an absent request file is also what
+a discovery that never ran leaves behind, it writes `DiscoveredSwSmi.absent` instead,
+carrying the census and one reason per registration. The verdict line
+(`software SMI channel: N of M registration(s) addressable`) is printed either way, and
+`scripts/sw_smi_census_check.py` asserts the count, the note and the one case that could
+cost a guest: a handler name claimed by two registrations at two different bytes is dropped
+rather than resolved to either.
 
 `scripts/sw_smi_check.py` asserts the discovery, the confinement, the port order -- the data
 byte first, because writing `0xB2` is what raises the SMI -- and that `IoLib` survives the
