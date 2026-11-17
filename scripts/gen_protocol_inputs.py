@@ -13,7 +13,18 @@ import argparse
 # same file as the member -- see INCLUDE_DEPTH below
 GUID_RE = re.compile(r'extern\s+EFI_GUID\s+(g\w*ProtocolGuid)\s*;')
 FPTYPE_RE = re.compile(r'\(\s*EFIAPI\s*\*\s*(\w+)\s*\)')
-MEMBER_RE = re.compile(r'^\s*([A-Za-z_]\w*)\s+([A-Za-z_]\w*)\s*;\s*$')
+# the trailing comment is part of the member line, not a reason to lose it. edk2
+# documents a struct member with `///< ...` or `// ...` after the semicolon, and
+# with the pattern anchored straight at end-of-line one such member cost the WHOLE
+# struct, because struct_blocks() registers a struct only when it collected at
+# least one member and a struct whose members are ALL documented that way collected
+# none. Measured: gEfiSwapAddressRangeProtocolGuid (6 members, every one with a
+# trailing //) and gEfiIpSecProtocolGuid (Process, with ///<) got no request file at
+# all. Still anchored, and still `TYPE NAME;` and nothing else -- a pointer member
+# is `TYPE *NAME;` and must keep not matching, because the nested walk descends
+# only into members held by value.
+MEMBER_RE = re.compile(r'^\s*([A-Za-z_]\w*)\s+([A-Za-z_]\w*)\s*;'
+                       r'\s*(?://[^\n]*|/\*.*)?$')
 # a struct definition names itself either at the opening, "struct _EFI_X_PROTOCOL {",
 # or at the closing, "} EFI_X_PROTOCOL;"
 STRUCT_OPEN_RE = re.compile(r'^\s*(?:typedef\s+)?struct\s+([A-Za-z_]\w*)?\s*\{')
@@ -277,24 +288,59 @@ INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"]+)[>"]', re.M)
 # the point of the change rather than a side effect of it, and is written down here
 # because de728582 recorded the opposite property for the member-list widening.
 #
-# What the request file buys today, and what it does not. firness builds a target either
+# What the request file buys, and what it took to buy it. firness builds a target either
 # from a call site or, failing that, from the protocol's own header -- and
-# data_analysis/analyze.py's protocol_member_params() reads only the member's own header,
-# so an include-typed member returns None and is dropped. Run offline against the
-# EdkiiVarCheck campaign of sweep 43454245046 (same tree, same databases, same command,
-# only the request file swapped): the DXE sibling EdkiiVarCheck.txt gives "Total
-# Functions: 3" and rc 0, while EdkiiSmmVarCheck.txt gives three "was not able to be
-# harnessed" warnings, "Total Functions: 0" and the ValueError fuzz_edk2.py already
-# classifies as NO_CALL_SITES -- named, and explicitly not a failure. With
-# protocol_member_params() resolving the include in a scratch copy, the same command emits
+# data_analysis/analyze.py's protocol_member_params() used to read only the member's own
+# header, so an include-typed member returned None and was dropped. Run offline against
+# the EdkiiVarCheck campaign of sweep 43454245046 (same tree, same databases, same
+# command, only the request file swapped): the DXE sibling EdkiiVarCheck.txt gave "Total
+# Functions: 3" and rc 0, while EdkiiSmmVarCheck.txt gave three "was not able to be
+# harnessed" warnings, "Total Functions: 0" and the ValueError fuzz_edk2.py classifies as
+# NO_CALL_SITES -- named, and explicitly not a failure. That half is now landed in the
+# submodule: protocol_member_params() and protocol_member_return() both resolve the
+# include through _declaring_source(), and the same command emits
 # FuzzSmmRegisterSetVariableCheckHandler, FuzzSmmVariablePropertySet and
-# FuzzSmmVariablePropertyGet: 3 of 3. The request file is the prerequisite and the only
-# part of it that lives here; that fix is firness's. Landing this first costs nothing,
-# because the protocol is installed only by gMmst->MmInstallProtocolInterface and the
-# presence census marks it smm-only, which fuzz_batch skips by name into skipped.csv --
-# which is the whole complaint being answered, a protocol that says it was skipped instead
-# of one nobody can see.
+# FuzzSmmVariablePropertyGet: 3 of 3, rc 0. See scripts/member_typedef_check.py. The
+# request file was the prerequisite and is the only part of it that lives here. Landing
+# this first cost nothing either way, because the protocol is installed only by
+# gMmst->MmInstallProtocolInterface and the presence census marks it smm-only, which
+# fuzz_batch skips by name into skipped.csv -- which is the whole complaint being
+# answered, a protocol that says it was skipped instead of one nobody can see.
 ADMIT_RESOLVED_ONLY = True
+
+# The fourth hole in the family, MEASURED AND REFUSED. Of the 56 that name no struct in
+# their own header, roughly a dozen are typedef aliases whose struct lives in an included
+# one -- gEfiSmmCpuIo2ProtocolGuid is EFI_MM_CPU_IO_PROTOCOL from <Protocol/MmCpuIo.h> --
+# and admitting them needs struct_blocks() to resolve across includes, not just typedefs.
+# It is not worth doing, and the reason is a number rather than a preference.
+#
+# Censused over the 356 protocol headers of edk2-master: 24 have a GUID, no struct of
+# their own, and a typedef alias naming the protocol the GUID names. 14 of the 24 spell
+# their GUID `#define EFI_SMM_X_PROTOCOL_GUID EFI_MM_X_PROTOCOL_GUID` -- literally the
+# same 128-bit value as an MM-named sibling, 13 of which already have a request file
+# (SmmControl2, SmmSxDispatch2, SmmIoTrapDispatch2, SmmCpuIo2, SmmGpiDispatch2,
+# SmmStatusCode, SmmUsbDispatch2, SmmStandbyButtonDispatch2, SmmCommunication,
+# SmmAccess2, SmmPowerButtonDispatch2, SmmCpu, SmmReportStatusCodeHandler). A campaign
+# for one of those calls LocateProtocol with a GUID VALUE an existing campaign already
+# uses, against the same struct, the same members and the same function-pointer typedefs:
+# a duplicate, costing a container, a ~10-minute cached analysis, a firmware build and a
+# whole boot budget, for no surface that is not already fuzzed.
+#
+# Nor would they be skipped as smm-only, which is the reason that looks obvious and is
+# wrong. presence.csv for run 43454245046 records
+# `EfiMmCpuIo,3242A9D8-CE70-4AA0-955D-5E7B140DE4D2,present` and EfiMmControl present too;
+# the census reads a GUID VALUE, so an alias of that value is present by the same
+# evidence and fuzz_batch would run it rather than write it into skipped.csv.
+#
+# The 10 with a GUID value of their own are a different question and are not answered
+# here. Nine of them get no request file (EfiPciOverride, EfiS3SmmSaveState, EfiRng,
+# EfiMmPciRootBridgeIo, EfiSmmPciRootBridgeIo, EfiSmmSwapAddressRange,
+# EfiSmmFirmwareVolumeBlock, EfiSmmFaultTolerantWrite and the two
+# EdkiiPlatformSpecificReset* filters, which share EFI_RESET_NOTIFICATION_PROTOCOL), and
+# five of those nine are SMM-side. Admitting them is a defensible change on its own
+# evidence -- the narrow gate is "the GUID macro is not a #define of another protocol's"
+# -- and it adds nine protocols nobody has presence evidence for, which is nine analyses
+# and nine boot budgets chosen the way e6dd94c6's comment above says not to choose them.
 
 # path -> (the function-pointer typedefs declared there, the paths it includes)
 _HEADER_FACTS = {}
