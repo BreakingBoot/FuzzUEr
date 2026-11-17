@@ -1809,14 +1809,13 @@ def main():
             own, total, dark = own_code_instrumented(open(log, errors='replace').read(),
                                                     tree)
             detail += f'; {own}/{total} modules have their own code instrumented'
-            # Name the remainder, all of it, with a reason per group. The number
-            # alone reads as near-total coverage while something specific is
-            # uncovered: on eval1 run 43454245046 "314/327" carried thirteen
-            # unnamed exclusions, and the only way to find out which was to re-run
-            # a snippet over the build log. Twelve of the thirteen were PEI/SEC,
-            # where the sanitizer structurally cannot report, and one was a
-            # declared DXE exclusion -- but a dark DXE or SMM driver would have
-            # looked exactly the same from here.
+            # Name the remainder, all of it, with a reason per group. The number alone
+            # reads as near-total coverage while something specific is uncovered: on
+            # eval1 run 43454245046 "314/327" carried thirteen unnamed exclusions, and
+            # the only way to find out which was to re-run a snippet over the build log.
+            # Twelve of the thirteen were PEI/SEC, where the sanitizer structurally
+            # cannot report, and one was a declared DXE exclusion -- but a dark DXE or
+            # SMM driver would have looked exactly the same from here.
             said = asan_scope.describe(dark, lambda m: module_type(tree, m))
             detail += f'. {said}' if said else '; every one of them'
             smm = [m for m, kind in dark if 'SMM' in (kind or '').upper()]
