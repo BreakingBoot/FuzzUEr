@@ -26,6 +26,24 @@ SmmControl2 Trigger writes for every SmmCommunicate. A byte nothing registered r
 handler either way, so a sweep of 0..255 buys no coverage and can forfeit a campaign's
 whole budget on a guest that never comes back.
 
+**And it must not name a handler it cannot address unambiguously.** A handler name is not
+unique across an edk2 tree -- SecurityPkg registers `PhysicalPresenceCallback` from two
+drivers -- so a name claimed by two registrations at two DIFFERENT resolvable bytes has no
+address: either byte would be written against the other registration's handler. Both passes
+refuse it, and that is asserted here on one fixture pair differing in a single integer,
+because the refusal has to be about the ambiguity and not about the duplicated name.
+
+That rule is written twice on purpose and so is checkable only from here.
+`scripts/discover_smi.py` guards the request FILE and
+`firness/harness_generator/data_analysis/analyze_smi.py` guards the BYTE, and neither can
+import the other: the generator runs from `/workspace/harness_generator` with `scripts/` at
+a different relative path than in a checkout, and a safety rule reached through an import
+that can fail fails open. So the two are held equal here instead -- and were not, until
+this fixture existed. The generator's pass was name-keyed with a `setdefault` and no clash
+test, so on the clash fixture below `discover_smi.py` wrote no request file at all while the
+generator resolved the same tree on its own, put `0x55` in `FIRNESS_SWSMI_CLASHING` and
+reported `1 of 1 registered handler(s) harnessed`.
+
 The rest is the wiring a harness needs to survive the pipeline: the data byte written
 before the command byte, because writing 0xB2 is what raises the SMI and the other order
 sends the previous iteration's data; the sanitizer armed across the write, or a fault
@@ -99,13 +117,26 @@ def c_code(text):
 
 
 def py_code(text):
-    """Python with its docstring and comments removed, for the same reason."""
+    """Python with its docstrings and comments removed, for the same reason.
+
+    Trailing comments too, not only whole-line ones. Both passes this file reads explain,
+    in a comment beside the statement, the name of the thing the statement does -- so an
+    assertion that the generator never calls `discover_sw_smi` passes on a comment saying
+    it does not.
+    """
     found = re.search(r'"""', text)
     while found:
-        closing = text.index('"""', found.end())
+        try:
+            closing = text.index('"""', found.end())
+        except ValueError:
+            # An odd number of them, which 18 of the scripts beside this one have: a
+            # `"""` inside a '''-quoted fixture counts as an opening here. Keep what is
+            # left rather than raising -- a check that dies reading a file reads to
+            # whatever is checking its exit code as a failed assertion.
+            break
         text = text[:found.start()] + text[closing + 3:]
         found = re.search(r'"""', text)
-    return '\n'.join(line for line in text.splitlines()
+    return '\n'.join(line.split('  #')[0] for line in text.splitlines()
                      if not line.strip().startswith('#'))
 
 
@@ -324,6 +355,109 @@ FarEntryPoint (
 '''
 
 
+#
+# The clash fixture. One handler name registered from three drivers -- two with a command
+# byte of their own and one asking the dispatcher for the next free one -- which is the
+# shape SecurityPkg has for real, where PhysicalPresenceCallback is registered from both
+# Tcg/Tcg2Smm/Tcg2Smm.c and Tcg/TcgSmm/TcgSmm.c. It is its own tree rather than three more
+# drivers in the one above, because every assertion there is about a target set this would
+# change.
+#
+# The pair of trees it builds differs in ONE integer: the number behind the second
+# package's #define. Same packages, same file names, same handler name, same spellings,
+# same call shapes, same run-time registration. So "the clashing tree has no target and the
+# agreeing tree does" is a statement about the two bytes being different and about nothing
+# else -- a refusal that fired on the duplicated NAME would refuse both, and would be
+# refusing most of SecurityPkg.
+#
+# The third driver is there so the two causes compete for one name. Both passes have a
+# sentence for each and they send a reader to different files, so the one that wins has to
+# be the clash: "the dispatcher assigns it at run time" is true of ThirdPkg and says
+# nothing about the two drivers that disagree.
+#
+CLASH_HANDLER = 'TwiceNamed'
+CLASH_FIRST = 0x61
+CLASH_SECOND = 0x62
+CLASH_C = '''\
+#include <Protocol/SmmSwDispatch2.h>
+{defines}
+EFI_STATUS
+EFIAPI
+{handler} (
+  IN EFI_HANDLE DispatchHandle,
+  IN CONST VOID *RegisterContext OPTIONAL,
+  IN OUT VOID   *CommBuffer     OPTIONAL,
+  IN OUT UINTN  *CommBufferSize OPTIONAL
+  )
+{{
+  return EFI_SUCCESS;
+}}
+
+EFI_STATUS
+EFIAPI
+{package}EntryPoint (
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
+  )
+{{
+  EFI_SMM_SW_REGISTER_CONTEXT  SwContext;
+  EFI_HANDLE                   SwHandle;
+
+  SwContext.SwSmiInputValue = {init};
+  Status = mSwDispatch->Register (mSwDispatch, {handler}, &SwContext, &SwHandle);
+
+  return EFI_SUCCESS;
+}}
+'''
+
+#
+# Two registrations in ONE file, the alphabetically LATER handler written first. Inside a
+# file the scan finds them in textual order, so this fixture's walk order and its sorted
+# order differ whatever the filesystem does -- which is what makes "the site list comes
+# back sorted" an assertion rather than a coincidence of this machine's directory order.
+#
+ORDER_C = '''\
+#include <Protocol/SmmSwDispatch2.h>
+
+#define ZULU_SWSMI   0x63
+#define ALPHA_SWSMI  0x64
+
+EFI_STATUS
+EFIAPI
+OrderEntryPoint (
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
+  )
+{
+  EFI_SMM_SW_REGISTER_CONTEXT  SwContext;
+  EFI_HANDLE                   SwHandle;
+
+  SwContext.SwSmiInputValue = ZULU_SWSMI;
+  Status = mSwDispatch->Register (mSwDispatch, ZuluOrdered, &SwContext, &SwHandle);
+
+  SwContext.SwSmiInputValue = ALPHA_SWSMI;
+  Status = mSwDispatch->Register (mSwDispatch, AlphaOrdered, &SwContext, &SwHandle);
+
+  return EFI_SUCCESS;
+}
+'''
+
+
+def clash_tree(second):
+    """A tree registering CLASH_HANDLER three times: CLASH_FIRST, `second`, (UINTN)-1."""
+    root = tempfile.mkdtemp(prefix='swsmi-clash-')
+    for package, spelling, value in (('First', 'CLASH_ONE_SWSMI', CLASH_FIRST),
+                                     ('Second', 'CLASH_TWO_SWSMI', second),
+                                     ('Third', None, None)):
+        path = os.path.join(root, f'{package}Pkg', f'{package}.c')
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        defines = '' if spelling is None else f'\n#define {spelling}  0x{value:02X}\n'
+        io.open(path, 'w', encoding='utf-8').write(
+            CLASH_C.format(package=package, defines=defines, handler=CLASH_HANDLER,
+                           init='(UINTN)-1' if spelling is None else spelling))
+    return root
+
+
 def fixture_tree():
     """A tree shaped like edk2, with the two fixture drivers and IoLib's header in it."""
     root = tempfile.mkdtemp(prefix='swsmi-tree-')
@@ -377,6 +511,9 @@ def assignments(text, variable):
 def main():
     tree = fixture_tree()
     work = tempfile.mkdtemp(prefix='swsmi-work-')
+    # Every fixture tree and work directory, so one removal at the end covers the ones
+    # made part-way through rather than leaving them in /tmp on the runner.
+    trees = [tree, work]
     discover = load(os.path.join(HERE, 'discover_smi.py'), 'discover_smi')
     space = lift(os.path.join(GEN, 'data_analysis', 'analyze_smi.py'), [
         'load_discovered', 'load_sw_discovered', 'load_smi_inventory',
@@ -385,8 +522,9 @@ def main():
         'DEFINITE_DISPATCH', 'DISPATCH_REASON', 'DISPATCH_CHANNEL',
         'SW_COMMAND_PORT', 'SW_DATA_PORT', 'SW_VALUE_MIN', 'SW_VALUE_MAX',
         '_SW_REGISTER', '_SW_VALUE', '_SW_CAST', '_SW_DEFINE',
-        '_sw_unwrap', '_sw_constant', '_sw_define_index', 'sw_smi_commands',
-        'analyze_sw_smi'])
+        'SW_RUNTIME_REASON', 'SW_CLASH_REASON',
+        '_sw_unwrap', '_sw_constant', '_sw_define_index', 'sw_smi_registrations',
+        'sw_smi_commands', 'analyze_sw_smi'])
 
     print('discovery finds the value the tree registers, through the name it spells it with')
     found, unresolved = discover.discover_sw_smi(tree)
@@ -441,6 +579,170 @@ def main():
           f'repositories, and a disagreement is drift no campaign can see')
     check('and leaves the same one unaddressable',
           sorted(stuck) == sorted(unresolved), f'{sorted(stuck)} != {sorted(unresolved)}')
+    # Rooted, because the one thing the two site lists differ in is the form of the
+    # citation: discover_smi.py cites relative to the tree it was given and the generator
+    # cites the absolute path, which is the form every other File in its inventory takes.
+    check('the generator reads the tree as a list of registration sites',
+          rooted(space['sw_smi_registrations'](tree), tree)
+          == rooted(discover.sw_smi_registrations(tree), tree),
+          f'{rooted(space["sw_smi_registrations"](tree), tree)} != '
+          f'{rooted(discover.sw_smi_registrations(tree), tree)} -- a pass that cannot see '
+          f'two sites under one name cannot refuse them, and a name-keyed walk has '
+          f'already thrown the second one away before any rule runs')
+
+    print('\nand they refuse the same name claimed at two different command bytes')
+    clash, agree = clash_tree(CLASH_SECOND), clash_tree(CLASH_FIRST)
+    trees.extend((clash, agree))
+    asked_clash, stuck_clash = space['sw_smi_commands'](clash)
+    found_clash, unresolved_clash, reasons_clash = discover._resolve(
+        discover.sw_smi_registrations(clash))
+    check('all three registrations are seen, which is what makes it a clash not a dedup',
+          len(space['sw_smi_registrations'](clash)) == 3,
+          f'{space["sw_smi_registrations"](clash)}')
+    check('and the two passes read the same three sites out of it',
+          rooted(space['sw_smi_registrations'](clash), clash)
+          == rooted(discover.sw_smi_registrations(clash), clash),
+          f'{rooted(space["sw_smi_registrations"](clash), clash)} != '
+          f'{rooted(discover.sw_smi_registrations(clash), clash)}')
+    check('the generator gives the clashing name no command byte',
+          CLASH_HANDLER not in asked_clash,
+          f'{asked_clash} -- it took 0x{CLASH_SECOND:02X} here, the second registration\'s '
+          f'byte, under the name of the first one\'s handler')
+    check('and the request file gives it none either',
+          CLASH_HANDLER not in found_clash, f'{found_clash}')
+    check('the two passes agree on the clash fixture, both halves',
+          sorted(asked_clash) == sorted(found_clash)
+          and sorted(stuck_clash) == sorted(unresolved_clash),
+          f'{sorted(asked_clash)}/{sorted(stuck_clash)} != '
+          f'{sorted(found_clash)}/{sorted(unresolved_clash)} -- this is the assertion that '
+          f'was passing because no fixture had a clash in it')
+    check('the generator counts it unaddressable rather than dropping it silently',
+          CLASH_HANDLER in stuck_clash,
+          f'{stuck_clash} -- a handler in neither half reads as a tree that has no such '
+          f'handler, and this one is registered three times')
+    check('for the clash, and not for the run-time registration beside it',
+          'two registrations claim this handler name' in stuck_clash.get(CLASH_HANDLER, '')
+          and 'next free command byte' not in stuck_clash.get(CLASH_HANDLER, ''),
+          f'{stuck_clash.get(CLASH_HANDLER)!r} -- ThirdPkg does ask the dispatcher for a '
+          f'byte, so that sentence is true and is not the answer: it says nothing about '
+          f'the two drivers that disagree, and sends the reader to the wrong file')
+    check('and the request file\'s pass picks the same one of the two reasons',
+          reasons_clash.get(CLASH_HANDLER) == discover.CLASH_REASON
+          and reasons_clash.get(CLASH_HANDLER) != discover.RUNTIME_REASON,
+          f'{reasons_clash.get(CLASH_HANDLER)!r} -- both causes are present under one '
+          f'name in this tree, so which one is reported is a decision, not the only '
+          f'thing it could say')
+    check('and it cites both registrations, since either one alone explains nothing',
+          stuck_clash.get(CLASH_HANDLER, '').count('First.c:') == 1
+          and stuck_clash.get(CLASH_HANDLER, '').count('Second.c:') == 1,
+          f'{stuck_clash.get(CLASH_HANDLER)!r}')
+    check('the reason the two passes give is the same fact in both files',
+          reasons_clash.get(CLASH_HANDLER, '').startswith('two registrations claim this '
+                                                          'handler name'),
+          f'{reasons_clash.get(CLASH_HANDLER)!r} vs '
+          f'{stuck_clash.get(CLASH_HANDLER)!r}')
+
+    #
+    # The end of the pipeline, not the middle of it. The refusal above is a dict; what
+    # costs a guest is a byte in the generated C, and the only thing that proves the byte
+    # is gone is running the real analysis and the real template over the clash tree.
+    #
+    clash_work = tempfile.mkdtemp(prefix='swsmi-clash-work-')
+    trees.append(clash_work)
+    with contextlib.redirect_stdout(io.StringIO()):
+        clash_data = space['analyze_sw_smi'](
+            {}, clash, [CLASH_HANDLER],
+            os.path.join(clash_work, 'smi-function-guid-map.json'))
+    check('no target is built for it, so no harness is named after it',
+          clash_data == {}, f'{sorted(clash_data)}')
+    clash_c = c_code(generated(clash_data)[0])
+    check('and neither byte reaches the generated harness',
+          macros(clash_c) == {} and f'0x{CLASH_FIRST:02X}' not in clash_c
+          and f'0x{CLASH_SECOND:02X}' not in clash_c,
+          f'{macros(clash_c)} -- this is the byte that goes to port 0xB2, and a handler '
+          f'whose name two drivers claim is the one case where it addresses a driver the '
+          f'harness is not named after')
+    #
+    # And a file cannot put it back. A name with no addressable byte has no line in the
+    # request file by construction, so the generator's own scan is the only thing standing
+    # between a line that does exist -- carried over from another tree, written by a
+    # discovery older than the clash rule, edited by hand -- and the port.
+    #
+    with contextlib.redirect_stdout(io.StringIO()):
+        insisted = space['analyze_sw_smi'](
+            {CLASH_HANDLER: {'value': CLASH_FIRST, 'file': 'FirstPkg/First.c:1',
+                             'spelling': 'CLASH_ONE_SWSMI'}},
+            clash, [CLASH_HANDLER],
+            os.path.join(clash_work, 'smi-function-guid-map.json'))
+    check('a request file that names it anyway does not get it harnessed',
+          insisted == {},
+          f'{ {k: v.sw_smi_value for k, v in insisted.items()} } -- the tree is the '
+          f'authority where the two disagree, and that has to hold where the tree says '
+          f'"no byte" as well as where it says a different one')
+
+    #
+    # The control. The pair of trees differs in one integer, so a refusal that fired on
+    # the duplicated NAME would refuse this one too -- and SecurityPkg registers two of
+    # its handlers from two drivers each.
+    #
+    agreed, agreed_stuck = space['sw_smi_commands'](agree)
+    agreed_found, _ = discover.discover_sw_smi(agree)
+    check('two registrations that agree on the byte are still a target',
+          agreed.get(CLASH_HANDLER, {}).get('value') == CLASH_FIRST
+          and agreed_found.get(CLASH_HANDLER, (None,))[0] == CLASH_FIRST,
+          f'{agreed} / {agreed_found} -- the two fixtures differ in one integer, so '
+          f'refusing this one refuses every name two drivers share')
+    check('and nothing about it is unaddressable', agreed_stuck == {}, f'{agreed_stuck}')
+    with contextlib.redirect_stdout(io.StringIO()):
+        agreed_data = space['analyze_sw_smi'](
+            {}, agree, [CLASH_HANDLER],
+            os.path.join(clash_work, 'smi-function-guid-map.json'))
+    agreed_c, agreed_template = generated(agreed_data)
+    check('its byte does reach the harness, so the refusal above is about the ambiguity',
+          macros(c_code(agreed_c))
+          == {agreed_template.command_macro(CLASH_HANDLER): CLASH_FIRST},
+          f'{macros(c_code(agreed_c))} -- a check whose clash fixture passes because '
+          f'nothing ever reaches the template is no check')
+
+    print('\nand the registration list is ordered by what it holds, not by what it met')
+    order = tempfile.mkdtemp(prefix='swsmi-order-')
+    trees.append(order)
+    where = os.path.join(order, 'OrderPkg', 'Order.c')
+    os.makedirs(os.path.dirname(where), exist_ok=True)
+    io.open(where, 'w', encoding='utf-8').write(ORDER_C)
+    sites = space['sw_smi_registrations'](order)
+    check('both registrations in one file are found', len(sites) == 2, f'{sites}')
+    check('and come back sorted, so the citation in the harness is the same twice',
+          [site[:3] for site in sites] == sorted(site[:3] for site in sites),
+          f'{[site[0] for site in sites]} -- the file registers ZuluOrdered first, so an '
+          f'unsorted pass returns them in that order and which of two registrations under '
+          f'one name is cited beside the command byte depends on the filesystem')
+
+    print('\nand the convenience wrapper over the rule has the caller its comment names')
+    rule = py_code(io.open(os.path.join(HERE, 'discover_smi.py'),
+                           encoding='utf-8').read())
+    gen_src = py_code(io.open(os.path.join(GEN, 'data_analysis', 'analyze_smi.py'),
+                              encoding='utf-8').read())
+    check('the reasons come from one place, which is what the writer reads',
+          '_resolve(sw_smi_registrations(root))' in rule
+          and rule.count('def _resolve') == 1,
+          f'{rule.count("def _resolve")} -- write_sw_smi needs the reason per '
+          f'registration, so it takes all three values; discover_sw_smi is the two-value '
+          f'convenience over the same call')
+    callers = sorted(name for name in os.listdir(HERE) if name.endswith('.py')
+                     and 'discover_sw_smi(' in py_code(
+                         io.open(os.path.join(HERE, name), encoding='utf-8').read()))
+    check('and its only caller is this check',
+          callers == ['discover_smi.py', 'sw_smi_check.py'],
+          f'{callers} -- the landed reason for keeping the two-value return was that '
+          f'firness\'s parallel pass depends on that shape. It does not call it at all; '
+          f'the shape is kept for this check and for a reader, and a comment carrying the '
+          f'other reason is how the next person gives _resolve\'s reasons to the wrong '
+          f'caller')
+    check('the generator really does not call it',
+          'discover_sw_smi' not in gen_src,
+          'the two passes share no code at all, which is why the agreement above is '
+          'asserted rather than assumed')
 
     request = os.path.join(work, 'DiscoveredSwSmi.txt')
     discover.write_sw_smi(tree, request)
@@ -697,10 +999,26 @@ def main():
           'container, an analysis and a build -- and a stale one aims this tree\'s '
           'campaign at another tree\'s command bytes')
 
-    for path in (tree, work, empty):
+    for path in trees + [empty]:
         shutil.rmtree(path, ignore_errors=True)
     print(f'\n{PASSED} passed, {FAILED} failed')
     return 1 if FAILED else 0
+
+
+def rooted(sites, tree):
+    """A registration site list with its citations relative to the tree, for comparing.
+
+    discover_smi.py cites relative to the root it was handed and the generator cites the
+    absolute path -- the form every other File in its inventory takes. That is the one
+    thing the two site lists may differ in, so it is the one thing taken out here.
+    """
+    rebased = []
+    for handler, where, spelling, value in sites:
+        path, _, line = where.rpartition(':')
+        if os.path.isabs(path):
+            path = os.path.relpath(path, tree)
+        rebased.append((handler, f'{path}:{line}', spelling, value))
+    return rebased
 
 
 def seen_far(space, tree):

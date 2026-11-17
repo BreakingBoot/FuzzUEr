@@ -244,6 +244,17 @@ def _resolve(sites):
     unaddressable. Port 0xB2 is shared with the platform -- command 0x04 is
     ICH9_APM_CNT_CPU_HOTPLUG -- and a byte aimed at the wrong handler buys no coverage to
     weigh against that.
+
+    This guards the request FILE and it is not the only place the rule has to hold. The
+    byte that reaches the port comes from sw_smi_commands() in
+    firness/harness_generator/data_analysis/analyze_smi.py, which resolves the same tree
+    itself and takes the union with this file rather than trusting it, so a name refused
+    here arrives there with nothing said about it. That pass had no clash test at all and
+    emitted a byte for exactly this case. The two cannot share the code -- the generator
+    runs from a flattened image layout where scripts/ is somewhere else, and a safety rule
+    reached through an import that can fail fails open -- so they are held equal by
+    scripts/sw_smi_check.py over one fixture pair differing in a single integer. Change
+    either one and change the other.
     """
     found = {}
     unresolved = {}
@@ -274,6 +285,15 @@ def discover_sw_smi(root):
     Every SwSmiInputValue assignment that feeds a Register call, which is the whole of the
     channel's address space: a command byte nothing registered reaches no handler, and the
     dispatcher says so and returns.
+
+    Two values and not the three _resolve has, and the reason is NOT that firness depends
+    on this shape -- firness never calls this function, and its own pass is separate code
+    in a separate repository that happens to return a pair of its own. The reason is that
+    the reasons belong to whatever writes them down: write_sw_smi prints one per
+    registration and so calls _resolve itself, and this is the convenience for a caller
+    that wants the address space and nothing else. Its only caller is
+    scripts/sw_smi_check.py, which sw_smi_check asserts, because the next caller to want a
+    reason should take _resolve rather than find one missing here.
     """
     found, unresolved, _ = _resolve(sw_smi_registrations(root))
     return found, unresolved
