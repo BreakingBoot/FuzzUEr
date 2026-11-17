@@ -306,6 +306,19 @@ jobs:
         shell: bash
         run: python3 scripts/smm_asan_check.py
 
+      # Two completed runs reported the detection board differently -- 16 of 16 on the
+      # SMM tree, 11 of 11 on four upstream refs -- and nothing said whether the 11 was a
+      # correct subset or a silent shortfall. It is correct: 18 rows, two exempt in every
+      # configuration, five that need an SMM core to raise an SMI into. This asserts that
+      # arithmetic through bench_cases' own tally, and the other half of the question
+      # with it: the instrumented stage printed "314/327" and named none of the thirteen
+      # modules behind the shortfall unless they were SMM, so a ratio that reads as
+      # near-total coverage hid a specific list. It names all of them now, grouped by
+      # reason, and a dark DXE or SMM driver is called UNEXPLAINED rather than counted.
+      - name: Every module the sanitizer does not check is named with its reason
+        shell: bash
+        run: python3 scripts/asan_scope_check.py
+
       - name: An SMM report is attributed from its own ip
         shell: bash
         run: python3 scripts/smm_attribution_check.py
