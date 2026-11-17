@@ -8,8 +8,8 @@ not installed. It was chosen to protect a measurement -- skipping the upper netw
 once cost the four most productive targets in a sweep -- and 'unknown' is never skipped,
 so the whole stack ran. Sweep 43704163314 then measured the other side: this arm selects
 exactly 23 protocols on each of its four refs, every one launched, and every one printed
-"LocateProtocol never succeeded" -- 41778, 36593, 41446 and 40371 iterations per ref of
-harness startup and nothing else, about a fifth of the launched set. The protected case
+"LocateProtocol never succeeded" -- 41262, 36173, 38208 and 38939 iterations per ref of
+harness startup and nothing else, 23 of a launched 112. The protected case
 holds on capture 43454245046, where PXE connected the NIC: the same four read present
 there, three by their own child GUID and EfiHttp by its service binding, and EfiArp,
 EfiIp6, EfiTcp4, EfiTcp6 and EfiUdp6 each recorded a fuzz-phase finding inside their own
@@ -259,6 +259,21 @@ def main():
     check('an unresolvable name is still never skipped',
           rows.get('FakeNoGuid') == 'unknown', f'got {rows.get("FakeNoGuid")!r}')
 
+    print('\na capture with no real interface in it is refused, not answered')
+    all_null = os.path.join(work, 'all-null.log')
+    open(all_null, 'w').write(f'InstallProtocolInterface: {DIRECT} 0\n'
+                              f'InstallProtocolInterface: {BOUND_SB} 0\n')
+    null_rc, null_rows, null_said = censused(work, all_null)
+    check('it exits non-zero', null_rc == 1,
+          f'rc={null_rc!r} -- the existing guard counts install LINES, which this capture '
+          f'has, so it passes that one and empties present in the subtraction')
+    check('and says why, rather than reporting a firmware that installs nothing',
+          'no install line' in null_said and 'read absent' in null_said,
+          f'every target absent is a sweep that skips everything and finishes green\n'
+          f'         {null_said}')
+    check('it does not write a census that says absent for everything',
+          null_rows.get('FakeDirect') != 'absent', f'got {null_rows.get("FakeDirect")!r}')
+
     print('\nand the run says what it decided and why')
     check('the unbound ones are named, not just counted',
           'FakeUnbound' in said and 'nothing connected their controller' in said,
@@ -299,8 +314,10 @@ def main():
     # number -- so editing that sentence away fails the check rather than moving it.
     raw = source('protocol_presence')
     check('the four refs that falsify "the harness connects the controller" are counted',
-          all(n in raw for n in ('41778', '36593', '41446', '40371')),
-          'the per-ref iteration totals are the whole evidence for skipping')
+          all(n in raw for n in ('41262', '36173', '38208', '38939')),
+          'the per-ref iteration totals the 23 spent on harness startup are the whole '
+          'evidence for skipping, and they are the 23 alone -- a per-ref total that also '
+          'counted EfiHash2 and EfiWatchdogTimerArch would be a different claim')
     check('the protected measurement is still recorded, so nobody re-flips it blind',
           all(n in raw for n in ('16972', '15566', '8802', '7643')),
           'without it the next reader sees only a skip and no reason it was ever unsafe')

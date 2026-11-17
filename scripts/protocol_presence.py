@@ -196,6 +196,15 @@ def main():
               f'boot capture, so every protocol would look absent.')
         return 1
     signal, unsaid, smram_any = null_interfaces(args.capture)
+    if not present - signal - unsaid:
+        # Reachable only if no install line in the capture named a real interface, which
+        # would leave `present` empty after the subtraction below and report the whole
+        # evalset absent -- a sweep that skips every target and finishes green. The guard
+        # above cannot see it, because it runs on the count of install LINES. No capture in
+        # either body of evidence is near this: 109 to 152 real interfaces each.
+        print(f'Error: no install line in {args.capture} names a real interface -- every '
+              f'one is NULL or has no pointer, so the whole evalset would read absent.')
+        return 1
     # installed_guids() took every DXE install line as a DXE install, so it subtracted the
     # NULL readiness signals from the SMRAM side as well. Putting them back is what lets
     # gEfiSmmVariableProtocolGuid reach the smm-only arm, which is the true answer for it:
@@ -265,12 +274,11 @@ def main():
             # What is NOT true is the claim that the campaign's own harness connects the
             # controller. Sweep 43704163314 falsifies it on all four refs: this arm
             # selects exactly 23 protocols there, every one of them launched, and every
-            # one of the 23 printed "LocateProtocol never succeeded" -- 41778, 36593,
-            # 41446 and 40371 iterations per ref of harness startup and nothing else,
-            # about a fifth of the launched set. Not one member of the arm was productive
-            # on any ref. So this is 'absent' on the firmware's own evidence, and the
-            # protected case keeps its answer because the evidence for it is also the
-            # firmware's own.
+            # one of the 23 printed "LocateProtocol never succeeded" -- 41262, 36173,
+            # 38208 and 38939 iterations per ref of harness startup and nothing else, 23
+            # of a launched 112. Not one member of the arm was productive on any ref. So
+            # this is 'absent' on the firmware's own evidence, and the protected case
+            # keeps its answer because the evidence for it is also the firmware's own.
             status = 'absent'
             unbound.append(protocol)
         else:
