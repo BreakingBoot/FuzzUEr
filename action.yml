@@ -43,7 +43,7 @@ inputs:
     required: false
     default: '600'
   jobs:
-    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4, and capped at 8 under the dxe timing only -- measured, its boots run 4x longer and half the campaigns stop reaching the harness past that'
+    description: 'Targets fuzzed at once. Blank: a quarter of the runner''s cores, floor 4, and capped at 8 on an SMM_REQUIRE build only (smm or smi) -- measured, its boots run 4x longer and half the campaigns stop reaching the harness past that'
     required: false
     default: ''
   boot-timeout:
@@ -500,20 +500,27 @@ runs:
         # ~61 min per campaign and ~7.9/h with essentially every campaign reaching its
         # harness.
         #
-        # AND IT APPLIES ONLY TO THE dxe TIMING, because that is the only workload the
-        # numbers above describe. A dxe-timed campaign relinks the whole platform and boots
-        # an SMM_REQUIRE image; an application-timed one boots a prebuilt image and launches
-        # a boot option. Two 18-way sweeps on this same 72-core box, measured from their own
+        # AND IT APPLIES ONLY TO AN SMM_REQUIRE BUILD, which is the workload the numbers
+        # above describe. Two 18-way sweeps on this same 72-core box, from their own
         # run.logs:
         #
-        #   dxe,         138 targets   median boot 2923s (max 6374)   69 reached the harness
-        #   application,  95 targets   median boot  663s (max 1692)   76 reached
+        #   SMM_REQUIRE=TRUE,  138 targets   median boot 2923s (max 6374)   69 reached
+        #   no SMM_REQUIRE,     95 targets   median boot  663s (max 1692)   76 reached
         #
-        # Four times the boot and half the reach. Capping the application path would be a
+        # Four times the boot and half the reach. Capping the plain build would be a
         # straight loss: this repository's own four-ref sweep measured 31 hours at 8 jobs
         # against 6.4 hours at 20, and at 80% reach there is no collapse to protect it from.
-        # So the cap binds where the emulator degrades and nowhere else, and the floor and
-        # the quarter-of-cores rule are untouched in both.
+        #
+        # THE CAUSE IS THE BUILD, NOT THE HARNESS PLACEMENT, and this condition said
+        # otherwise until it was measured. The slow sweep was read as "the dxe timing
+        # relinks the platform per campaign", but 136 of its 137 generated harness INFs are
+        # MODULE_TYPE = UEFI_APPLICATION and only DiscoveredSmi is a DXE_DRIVER -- fuzz_batch
+        # pops the dxe timing for every protocol campaign and its own log says so. So those
+        # 2923s boots were application-timed; what they shared was SMM_REQUIRE, an SMM core
+        # and a q35,smm=on guest. Keying on dxe also left a hole: `smi` without `dxe` builds
+        # SMM_REQUIRE just the same and was not capped, which is exactly the configuration
+        # that reached 48%. Keying on the build closes it, and still covers dxe, since dxe
+        # requires smi and smi implies smm.
         #
         # What getting this wrong costs, on the capped path: a boot that outruns its
         # allowance spends the whole slot and reports nothing, and enough of those push the
@@ -523,15 +530,17 @@ runs:
         if [ -z "$JOBS" ]; then
           JOBS=$(( $(nproc) / 4 ))
           [ "$JOBS" -lt 4 ] && JOBS=4
-          # FIRNESS_HARNESS_TIMING, which this same step already declares from
-          # inputs.harness-timing -- not a second name for the same input. A variable the
-          # step does not declare reads as empty, the test never matches, and the cap
-          # becomes a silent no-op that looks exactly like a cap that works.
-          if [ "${FIRNESS_HARNESS_TIMING:-}" = 'dxe' ] && [ "$JOBS" -gt 8 ]; then
+          # IN_SMM and IN_SMI, both of which this same step already declares -- not new
+          # names. A variable the step does not declare reads as empty, the test never
+          # matches, and the cap becomes a silent no-op that looks exactly like a cap that
+          # works. `smi` is tested as well as `smm` because it implies it: the driver turns
+          # SMM_REQUIRE on for either.
+          if { [ "${IN_SMM:-}" = 'true' ] || [ "${IN_SMI:-}" = 'true' ]; } \
+             && [ "$JOBS" -gt 8 ]; then
             JOBS=8
-            echo "capping to 8 campaigns at once: the dxe timing relinks the platform per"\
-                 " campaign and its boots run past 2900s at 18, where half of them never"\
-                 " reach the harness"
+            echo "capping to 8 campaigns at once: this is an SMM_REQUIRE build, whose"\
+                 " boots run past 2900s at 18 jobs against 663s without it, and half of"\
+                 " them then never reach the harness"
           fi
         fi
 
