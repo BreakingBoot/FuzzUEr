@@ -359,6 +359,17 @@ jobs:
         shell: bash
         run: python3 scripts/jobs_cap_check.py
 
+      # "253 protocols from 11 package(s), 17 SMI handlers (not fuzzed; pass --smi)" is
+      # what sweep 43704163314's own discover stage printed on each of its four refs, and
+      # every one of them then fuzzed 0 of those 17. The selection mechanism was the
+      # cause: -p named protocols and the handler channel was a separate boolean whose
+      # default was off, so an empty selection meant "every protocol and no handler".
+      # It is both channels now, and this asserts the default in the direction no green
+      # run can show -- a selection that silently narrows.
+      - name: A caller who selects nothing gets every protocol and every SMI handler
+        shell: bash
+        run: python3 scripts/channel_selection_check.py
+
       # "66/263 campaign(s) fuzzed the harness" on a sweep where 138 campaigns ran: 125
       # protocols were skipped before launch, so the headline halved the run and could
       # not be compared with any other run either. Also the other direction -- a #DE the

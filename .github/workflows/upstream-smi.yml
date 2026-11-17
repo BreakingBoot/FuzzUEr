@@ -77,10 +77,19 @@ jobs:
           out: ${{ steps.where.outputs.out }}
           source: eval_source/edk2
           ref: ${{ github.event.inputs.ref || env.STABLE_REF }}
-          # The handler list discovery builds is one target, named for the file it comes
-          # from. Without --smi fuzz_batch excludes it by name, which is why `smi` below is
-          # not optional for this gate.
-          targets: DiscoveredSmi
+          # The handler CHANNEL, not one request file by name. Discovery writes two --
+          # DiscoveredSmi for the GUID-dispatched handlers that take a comm buffer, and
+          # DiscoveredSwSmi for the ones addressed only by a command byte on port 0xB2 --
+          # and naming the first meant this gate could never cover the second, on a tree
+          # that has one, without anything saying so. The word expands to whichever of
+          # them discovery actually wrote, so a release that registers no resolvable
+          # command byte does not get a target whose request file is missing. On
+          # edk2-stable202608 today that is DiscoveredSmi alone, which is why this reads
+          # as no change on the runs on disk.
+          #
+          # `smi` stays: it is what builds SMM_REQUIRE=TRUE, without which the firmware
+          # has no handler to reach whatever the selection says.
+          targets: handlers
           smi: true
           harness-timing: dxe
           budget: ${{ github.event.inputs.budget || '300' }}

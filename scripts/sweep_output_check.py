@@ -246,7 +246,12 @@ def simulate(body, extra_env):
         GITHUB_ACTIONS='true', GITHUB_RUN_ID=RUN_ID, GITHUB_WORKSPACE=ws,
         GITHUB_EVENT_NAME='schedule', EVENT_SCHEDULE='',
         IN_REFS='', IN_BUDGET='', IN_JOBS='4', IN_BOOT_TIMEOUT='',
-        IN_QUALIFY='true', IN_SMI='', IN_HARNESS_TIMING='application',
+        # IN_CHANNELS, not IN_SMI: the boolean was replaced by a three-way selector that
+        # spans both channels. Both are empty here on purpose -- a schedule carries no
+        # dispatch inputs at all, so the empty string is what the step really reads, and
+        # the old literal 'application' was the one value that would have stopped the
+        # Wednesday pass choosing its own dxe default.
+        IN_QUALIFY='true', IN_CHANNELS='', IN_HARNESS_TIMING='',
         FIRNESS_QEMU_ICOUNT='shift=auto,sleep=off', FIRNESS_CONTAINER_PREFIX='ci',
     )
     env.update(extra_env)
@@ -420,7 +425,10 @@ def unchanged(wf, sim_wed):
     check('the Wednesday pass is still master only',
           [c['ref'] for c in calls] == ['master'], f'{[c["ref"] for c in calls]}')
     argv = calls[0]['argv'] if calls else []
-    for flag, value in (('--targets', 'DiscoveredSmi'), ('--harness-timing', 'dxe'),
+    # `handlers`, the channel word, not `DiscoveredSmi`, the one request file. Discovery
+    # writes two -- the comm-buffer handlers and the software SMI ones -- and naming the
+    # first meant this pass could never reach the second on a tree that has it.
+    for flag, value in (('--targets', 'handlers'), ('--harness-timing', 'dxe'),
                         ('--budget', '600')):
         check(f'the Wednesday pass still passes {flag} {value}',
               flag in argv and argv[argv.index(flag) + 1] == value,

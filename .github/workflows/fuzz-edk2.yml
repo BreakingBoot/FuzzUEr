@@ -28,28 +28,55 @@ on:
         description: 'Seconds a target may spend booting to the harness (blank: scale with jobs)'
         required: false
         default: ''
-      smi:
-        description: 'Also fuzz the SMI handlers discovery finds, not just the protocols. Implies SMM_REQUIRE=TRUE, which changes the firmware every target is fuzzed against'
-        type: boolean
+      # One selector for both channels, replacing the `smi` boolean. That boolean could say
+      # "handlers as well as protocols" and nothing else: not "handlers only", not one
+      # handler, and -- because its default was false and an input a schedule does not
+      # carry arrives as the empty string either way -- it could not tell "the caller said
+      # no" from "the caller said nothing". So the answer to "does this workflow fuzz all
+      # the SMI handlers" was no, four refs at a time, with discovery printing the handler
+      # count on every one of them.
+      #
+      # all is the default because that is what fuzzing a firmware means. The cost is
+      # real and belongs in the description: --smi implies SMM_REQUIRE=TRUE, so it is not
+      # one extra target, it is a different firmware under every target. Measured, 18-way
+      # both sides -- sweep 43704163314/fuzz-master against eval1 sweep 43454245046:
+      # median boot 625s -> 2923s, harness reach 83/112 -> 66/138, and a per-ref fuzz
+      # stage of 3.6h -> about 12.6h. Four refs of that is ~52h against this job's 24h
+      # timeout, which is why the Sunday cron below pins `protocols` and the Wednesday one
+      # pins `handlers` instead of either of them taking the default.
+      channels:
+        description: 'What to fuzz: all (every protocol AND every discovered SMI handler), protocols (the fast sweep -- no SMM_REQUIRE), or handlers (the SMI pass only)'
+        type: choice
         required: false
-        default: false
+        default: 'all'
+        options: ['all', 'protocols', 'handlers']
       harness_timing:
-        description: 'application (a boot option, after EndOfDxe) or dxe (a DXE_DRIVER in the firmware volume, before it). dxe needs smi'
+        description: 'application (a boot option, after EndOfDxe) or dxe (a DXE_DRIVER in the firmware volume, before it). dxe needs a channel selection that includes the handlers; it is applied to the SMI campaigns and to nothing else'
         required: false
-        default: 'application'
+        default: ''
       qualify_only:
         description: 'Qualify each version -- port, build, instrument, detect -- without spending the fuzzing budget'
         type: boolean
         required: false
         default: false
   schedule:
-    # Sunday: the protocol sweep, four refs, SMM off. What this workflow has always done.
+    # Sunday: the protocol sweep, four refs, SMM off -- channels=protocols, pinned rather
+    # than defaulted. The default is `all`, and `all` on four refs does not fit: the
+    # measured per-ref fuzz stage goes from 3.6h to about 12.6h on an SMM_REQUIRE image
+    # (boot 625s -> 2923s at the same 18-way concurrency, from sweep 43704163314 against
+    # eval1 sweep 43454245046), so four refs is ~52h against the 24h timeout below. The
+    # job would be killed inside the second ref, and triage is the LAST stage, so refs
+    # three and four would produce no findings at all rather than fewer.
     - cron: '0 3 * * 0'
     # Wednesday: the SMI pass, master only, with the dxe harness timing. A SEPARATE cron
-    # rather than --smi on the Sunday one, because --smi implies SMM_REQUIRE=TRUE and that
-    # rebuilds the firmware every protocol target is fuzzed against -- the two sweeps would
-    # no longer be comparable, and together they do not fit the 24h timeout. Keeping them
-    # apart also keeps the Sunday verdict meaning what it has always meant.
+    # rather than channels=all on the Sunday one, because --smi implies SMM_REQUIRE=TRUE
+    # and that rebuilds the firmware every protocol target is fuzzed against -- the two
+    # sweeps would no longer be comparable, and together they do not fit the 24h timeout.
+    # Keeping them apart also keeps the Sunday verdict meaning what it has always meant.
+    #
+    # Between the two crons mainline gets BOTH channels every week, which is what "all"
+    # can honestly mean under a 24h ceiling. A dispatch with nothing typed still gets
+    # `all`, because a caller choosing one tree is not paying the four-ref multiplier.
     #
     # This is the pass that can reach what the protocol sweep cannot: BreakingBoot/eval1_edk2
     # issue #52 is upstream MdeModulePkg code behind `if (mEndOfDxe)`, so 246665
@@ -106,7 +133,11 @@ jobs:
           IN_JOBS: ${{ github.event.inputs.jobs }}
           IN_BOOT_TIMEOUT: ${{ github.event.inputs.boot_timeout }}
           IN_QUALIFY: ${{ github.event.inputs.qualify_only }}
-          IN_SMI: ${{ github.event.inputs.smi }}
+          # Declared here, in the env of the step that reads it. A name this step does not
+          # declare reads as the empty string, the resolution below takes its default arm,
+          # and the flag silently never applies -- which has happened twice on this
+          # project and both times looked exactly like a working run.
+          IN_CHANNELS: ${{ github.event.inputs.channels }}
           IN_HARNESS_TIMING: ${{ github.event.inputs.harness_timing }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
@@ -151,39 +182,77 @@ jobs:
           [ -n "${REFS// /}" ] || { echo "::error::no ref to fuzz: the tree has no"; \
             echo "::error::edk2-stable tag. Did the tag fetch step run?"; exit 1; }
           BUDGET="${IN_BUDGET:-600}"
-          # The SMI pass. Three ways in: the Wednesday cron, which carries no inputs at
-          # all, so the mode has to come from the cron expression; an explicit dispatch;
-          # and nothing else. A push stays protocol-only on purpose -- it is the
-          # control-flow test, and --smi would make it a build it does not have time for.
-          SMI=''
-          TARGETS=''
-          TIMING="${IN_HARNESS_TIMING:-application}"
-          if [ "${EVENT_SCHEDULE:-}" = '0 3 * * 3' ]; then
-            SMI='--smi'
-            TIMING='dxe'
+          # Which channels this run fuzzes. ONE selector, resolved in one place, so the
+          # answer to "did this run fuzz the SMI handlers" is a variable a reader can
+          # follow rather than the interaction of a boolean, a cron expression and a
+          # target list. `all` is the default, and each cron pins the channel it exists
+          # for, with the cost that pins it stated beside the schedule above.
+          #
+          # A push stays protocol-only on purpose: it is the control-flow test, and the
+          # SMM_REQUIRE build it would otherwise do is minutes it does not have.
+          CHANNELS="${IN_CHANNELS:-all}"
+          TIMING="${IN_HARNESS_TIMING:-}"
+          if [ "${GITHUB_EVENT_NAME:-}" = 'push' ]; then
+            CHANNELS='protocols'
+          elif [ "${EVENT_SCHEDULE:-}" = '0 3 * * 0' ]; then
+            CHANNELS='protocols'
+          elif [ "${EVENT_SCHEDULE:-}" = '0 3 * * 3' ]; then
+            CHANNELS='handlers'
             # master only. The SMM_REQUIRE build is slower, the relink is per campaign, and
             # the point of this pass is the handlers in current upstream code -- not a
             # matrix.
             REFS='master'
             QUALIFY=''
-            # DiscoveredSmi and nothing else. Without this the pass fuzzes every protocol
-            # discover finds as well -- 254 of them on master -- and the SMI target waits
-            # at the back of that queue. Measured on the first firing, 2026-11-11: 36
-            # protocol campaigns in the first two hours, about thirteen hours of wall
-            # clock re-covering the surface the Sunday sweep had already swept, before the
-            # one target this pass exists for. DiscoveredSmi is the single request file
-            # that carries the handlers.
-            TARGETS='--targets DiscoveredSmi'
-            echo "SMI pass: $REFS with the dxe harness timing, DiscoveredSmi only"
-          elif [ "${IN_SMI:-}" = 'true' ]; then
-            SMI='--smi'
           fi
+          case "$CHANNELS" in
+            all)
+              # Both channels. An EMPTY target list is what fuzz_batch.py reads as "every
+              # discovered target", and under --smi that now includes the handler request
+              # files -- so `all` is expressed by passing no --targets at all, which also
+              # keeps fuzz_edk2.py's own campaign-count arithmetic right: it sizes the
+              # fuzz stage's timeout from len(--targets) when there is one, and a channel
+              # word there would count a 112-campaign queue as a single campaign and kill
+              # the stage partway through.
+              SMI='--smi'; TARGETS='' ;;
+            protocols)
+              SMI=''; TARGETS='' ;;
+            handlers)
+              SMI='--smi'
+              # The channel word, not a hardcoded DiscoveredSmi. There are TWO handler
+              # request files -- DiscoveredSmi, the comm-buffer handlers, and
+              # DiscoveredSwSmi, the ones addressed by a command byte on port 0xB2 -- and
+              # naming only the first meant a tree that registers a resolvable software
+              # SMI never had that channel fuzzed by this workflow at all. The word
+              # expands to whichever of them discovery actually wrote, so a tree with no
+              # software SMI does not get a target whose request file is missing.
+              #
+              # Bounding it at all is what the first firing, 2026-11-11, cost: without a
+              # selection the pass fuzzed every protocol discover found as well -- 254 on
+              # master -- and spent about thirteen hours re-covering the surface the
+              # Sunday sweep had already swept before the one target it exists for.
+              TARGETS='--targets handlers'
+              # dxe by default here and nowhere else: this is the pass whose whole purpose
+              # is to reach a handler before the EndOfDxe latch shuts.
+              [ -n "$TIMING" ] || TIMING='dxe' ;;
+            *)
+              echo "::error::channels must be all, protocols or handlers, got '$CHANNELS'"
+              exit 1 ;;
+          esac
+          [ -n "$TIMING" ] || TIMING='application'
+          echo "channels=$CHANNELS -> ${SMI:-no --smi} ${TARGETS:-(every discovered target)}, $TIMING timing"
           # dxe without --smi builds a UEFI_APPLICATION, places it in the firmware volume
           # and boots an empty ESP: it BUILDS, and then every target reports "the boot
           # never reached the harness". fuzz_edk2.py rejects it and so does firness.py --
           # this is just the earliest of the three places, before a 24h job starts.
+          #
+          # It is NOT a reason to refuse dxe alongside the protocols under `all`: the
+          # timing is applied per target, and fuzz_batch.py drops it for a campaign that
+          # is not an SMI one. Measured on eval1 sweep 43454245046, which ran with
+          # FIRNESS_HARNESS_TIMING=dxe set: every one of its 138 protocol harnesses was
+          # built MODULE_TYPE = UEFI_APPLICATION and only DiscoveredSmi got the DXE_DRIVER.
           if [ "$TIMING" = 'dxe' ] && [ -z "$SMI" ]; then
-            echo "::error::harness_timing=dxe needs smi=true: the dxe harness is a"
+            echo "::error::harness_timing=dxe needs a channel that includes the handlers"
+            echo "::error::(channels=all or channels=handlers): the dxe harness is a"
             echo "::error::DXE_DRIVER whose depex floor is gEfiSmmCommunicationProtocolGuid,"
             echo "::error::emitted only on the SMI path."
             exit 1

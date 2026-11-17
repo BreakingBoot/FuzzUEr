@@ -47,6 +47,222 @@ SMI_TARGETS = {
 }
 SMI_REQUEST_FILES = {SMI_REQUEST_FILE, SW_SMI_REQUEST_FILE}
 
+# One selection vocabulary for both channels, because "what did this run fuzz" has to have
+# one answer and it used to have two: -p named protocols, and whether the SMI handlers were
+# in the run at all was a separate boolean. A caller could not ask for one handler, could
+# not ask for the handlers without the protocols, and -- the expensive half -- an empty -p
+# meant "every protocol and no handler", so the four-ref sweep 43704163314 discovered 17
+# SMI handlers on every one of its refs and fuzzed none of them, four times over, with its
+# own discover line saying so and nothing failing.
+#
+# A channel word in -p expands to every target in that channel. Empty -p is both channels,
+# which is what "all" means now; --no-smi is the one obvious way back to protocols only.
+PROTOCOL_CHANNEL = 'protocols'
+HANDLER_CHANNEL = 'handlers'
+# 'smi' as an alias because that is what every flag, input and log line in this pipeline
+# already calls the channel; a caller who types it should not get "no such target".
+CHANNEL_WORDS = {
+    PROTOCOL_CHANNEL: PROTOCOL_CHANNEL, 'protocol': PROTOCOL_CHANNEL,
+    HANDLER_CHANNEL: HANDLER_CHANNEL, 'handler': HANDLER_CHANNEL,
+    'smi': HANDLER_CHANNEL,
+}
+
+# How a caller names ONE handler inside the handler channel: DiscoveredSmi:SmmVariableHandler,
+# or handlers:SmmVariableHandler to let the channel find its own request file. The handler
+# list is a plain newline-separated file, so one handler is one filtered copy of it -- there
+# is nothing to teach the generator, which is why this is a real selector and not a flag
+# that would silently fuzz all of them anyway.
+SELECTOR_SEP = ':'
+# ...and the separator in the TARGET name the filtered copy gets, which is not the same
+# character. A target name becomes a container name, an output directory and a docker -v
+# argument, and a colon in a -v argument is docker's own field separator: the campaign
+# would mount somewhere nobody asked for. A protocol name never contains a dot.
+TARGET_SEP = '.'
+
+
+def smi_base(target):
+    """The SMI request file this target reads, or None when it is a protocol.
+
+    Keyed on the name rather than asked of the caller, because the two decisions that
+    follow from it -- the firness.py flags and the dxe harness placement -- are one
+    decision, and the last time they were taken apart a target got the placement without
+    the flag and firness.py refused it at startup.
+    """
+    if target in SMI_TARGETS:
+        return target
+    base = target.split(TARGET_SEP, 1)[0]
+    return base if base != target and base in SMI_TARGETS else None
+
+
+def handler_target(base, handler):
+    """The target name a single-handler campaign runs under."""
+    return f'{base}{TARGET_SEP}{handler}'
+
+
+def channel_of(target):
+    return HANDLER_CHANNEL if smi_base(target) else PROTOCOL_CHANNEL
+
+
+def derived(target):
+    """True for a single-handler request file this mechanism wrote, not one discovery did.
+
+    A channel is what DISCOVERY offers. A filtered copy is an artefact of somebody's
+    selection, and a request directory that outlives a run keeps it: list it as a channel
+    member and the next run with no selection at all fuzzes that handler twice -- once on
+    its own and once inside the full list -- which costs a container and makes the target
+    count of two identical runs differ. Reachable by naming it, and by nothing else.
+    """
+    base = smi_base(target)
+    return base is not None and base != target
+
+
+def request_targets(requests):
+    """Every target the request directory offers, by channel.
+
+    Reads the directory rather than a carried list: a tree that adds a protocol is the
+    case where a carried list is green and the new code was never touched. The handler
+    channel is whichever SMI request files discovery actually wrote -- never a name, so a
+    tree that registers no resolvable software SMI command byte does not get a target whose
+    request file is missing, which costs a container and a full analysis to discover.
+    """
+    try:
+        names = os.listdir(requests)
+    except OSError:
+        return {PROTOCOL_CHANNEL: [], HANDLER_CHANNEL: []}
+    found = {PROTOCOL_CHANNEL: [], HANDLER_CHANNEL: []}
+    for name in sorted(names):
+        if not name.endswith('.txt'):
+            continue
+        target = name[:-len('.txt')]
+        if derived(target):
+            continue
+        found[channel_of(target)].append(target)
+    return found
+
+
+def resolve_selection(requests, chosen, with_handlers=True):
+    """(targets to fuzz, {target: [handler]} for the filtered request files to write).
+
+    The precedence, which is the part worth asserting: an explicit selection wins over
+    everything, an empty one is EVERY channel, and --no-smi narrows only the empty case.
+    A caller who names DiscoveredSmi has said what they want and does not also have to
+    remember a flag -- that pairing is what used to be forgotten in the other direction.
+
+    The handler channel leads, as it does in fuzz_edk2.py's pick_targets and for the same
+    reason: it is one or two targets against a couple of hundred, and at the back of an
+    alphabetical queue the run that exists to reach it ends before it starts. Measured on
+    the Wednesday cron's first firing, 2026-11-11: thirteen hours of protocol campaigns
+    before the SMI target.
+    """
+    offered = request_targets(requests)
+    known = set(offered[PROTOCOL_CHANNEL]) | set(offered[HANDLER_CHANNEL])
+    if not chosen:
+        wanted = ([HANDLER_CHANNEL] if with_handlers else []) + [PROTOCOL_CHANNEL]
+        chosen = wanted
+    targets, filtered = [], {}
+
+    def add(target):
+        if target not in targets:
+            targets.append(target)
+
+    for token in chosen:
+        word = CHANNEL_WORDS.get(token.lower())
+        if word:
+            for target in offered[word]:
+                add(target)
+            continue
+        base, sep, handler = token.partition(SELECTOR_SEP)
+        if not sep:
+            add(token)
+            continue
+        # A handler named under the channel word rather than under a request file: resolve
+        # it to the comm-buffer list, which is the one that carries handler names. Said
+        # rather than guessed, so a tree with no such file reports a missing target instead
+        # of quietly fuzzing every handler -- a selection that silently widens is the shape
+        # this whole mechanism exists to stop.
+        if CHANNEL_WORDS.get(base.lower()) == HANDLER_CHANNEL:
+            base = SMI_PROTOCOL
+        if base not in SMI_TARGETS:
+            raise SystemExit(
+                f'-p {token}: {base} is not an SMI target, and {SELECTOR_SEP} names a '
+                f'handler inside one. The SMI targets are '
+                f'{", ".join(sorted(SMI_TARGETS))}; a protocol member is chosen in its '
+                f'request file, not here.')
+        if f'{base}.txt' not in SMI_REQUEST_FILES or base not in known:
+            raise SystemExit(
+                f'-p {token}: {requests} has no {base}.txt, so there is no handler list '
+                f'to take {handler} out of. Discovery writes that file only for a channel '
+                f'this tree registers a handler on.')
+        name = handler_target(base, handler)
+        filtered.setdefault(name, []).append(handler)
+        add(name)
+    return targets, filtered
+
+
+# What fuzz_edk2.py puts in the analysis defines when it built the firmware with an SMM
+# core. Read rather than assumed, because "fuzz everything" cannot mean "fuzz the handlers"
+# on an image that has none: SMM_REQUIRE=FALSE leaves OVMF with zero SMM modules, the
+# analyser then writes a null smi-function-guid-map.json, and the handler campaign dies in
+# the generator after a container, a full analysis and ten minutes -- once per ref.
+#
+# This is the same shape as the protocol side, which has always skipped a protocol the
+# firmware does not install and said so. A channel the firmware does not have is the same
+# fact about a different channel.
+SMM_BUILD_MARK = 'SMM_REQUIRE=TRUE'
+
+
+def handlers_wanted(flag, environ):
+    """Whether an EMPTY selection reaches for the handler request files.
+
+    `flag` is True for --smi, False for --no-smi, and None when the caller passed neither.
+    Three states rather than two, because the two-state version could not tell "the caller
+    said no" from "the caller said nothing" -- and "nothing" is the case that has to mean
+    everything. Sweep 43704163314 is what the old default cost: `17 SMI handlers (not
+    fuzzed; pass --smi)` in its own discover line, on each of four refs, and 0 fuzzed.
+
+    Unset resolves to the handler channel whenever the firmware under test was built with
+    an SMM core. That is read from the environment fuzz_edk2.py already exports and
+    forwards into every campaign, so it describes THIS image rather than a hope about it.
+    """
+    if flag is not None:
+        return flag
+    return SMM_BUILD_MARK in (environ.get('FIRNESS_ANALYSIS_DEFINES') or '')
+
+
+def write_handler_requests(requests, filtered):
+    """Write one request file per single-handler target, and say which lines it kept.
+
+    The filtered file goes beside the full list so the container reaches it at the same
+    /input path; nothing else can be mounted into a running campaign. A handler the list
+    does not name is refused here rather than at the far end: the generator would resolve
+    no target function, and that failure arrives after a container, a full analysis and a
+    build, reading exactly like a tree whose handler has no fuzzable surface.
+    """
+    written = {}
+    for target, handlers in sorted(filtered.items()):
+        base = smi_base(target)
+        source = os.path.join(requests, f'{base}.txt')
+        try:
+            available = [line.strip() for line in open(source, errors='ignore')
+                         if line.strip()]
+        except OSError as exc:
+            raise SystemExit(f'cannot read {source}: {exc}')
+        missing = [h for h in handlers if h not in available]
+        if missing:
+            raise SystemExit(
+                f'-p {target}: {source} does not name {", ".join(missing)}. It lists '
+                f'{len(available)} handler(s): {", ".join(available[:8])}'
+                f'{"..." if len(available) > 8 else ""}')
+        keep = [h for h in available if h in handlers]
+        path = os.path.join(requests, f'{target}.txt')
+        try:
+            with open(path, 'w') as handle:
+                handle.write('\n'.join(keep) + '\n')
+        except OSError as exc:
+            raise SystemExit(f'cannot write {path}: {exc}')
+        written[target] = keep
+    return written
+
 
 # Launching against an image built before a flag existed wastes a whole batch: every
 # container exits instantly with "unrecognized arguments" and the run looks like a fuzzing
@@ -177,9 +393,19 @@ def launch(protocol, args):
     # Per target, the pipeline does what it already says it does: fuzz_edk2.py counts the
     # SMI harness as one target BESIDE the protocols, and its --smi help says "also fuzz
     # the SMI handlers, not just the protocols".
-    smi_campaign = args.smi and protocol in SMI_TARGETS
+    # Still gated on args.smi, and deliberately: the flag and the dxe pop below have to
+    # turn on the same thing or a campaign gets the timing without the flag and firness.py
+    # refuses it at startup. main() resolves args.smi BEFORE here and turns it on whenever
+    # the selection holds a handler target, so a caller who names one always gets it --
+    # the gate is the resolved answer, not the raw flag.
+    #
+    # The FLAGS are looked up by base rather than by the target name, because a
+    # single-handler target is DiscoveredSmi.SmmVariableHandler and that is not a key:
+    # indexing SMI_TARGETS with it would be a KeyError in the launch loop.
+    base = smi_base(protocol)
+    smi_campaign = args.smi and base is not None
     if smi_campaign:
-        command += SMI_TARGETS[protocol]
+        command += SMI_TARGETS[base]
     if args.backend != 'tsffs':
         command += f' --backend {args.backend}'
     if args.iteration_timeout:
@@ -433,7 +659,11 @@ def main():
     parser.add_argument('-o', '--output', type=str, required=True,
                         help='Directory to hold one subdirectory per protocol')
     parser.add_argument('-p', '--protocols', type=str, nargs='*',
-                        help='Protocols to run (default: every request file that has a harness)')
+                        help='What to fuzz, in either channel. A protocol name; an SMI '
+                             'target name; the channel word "protocols" or "handlers" for '
+                             'every target in it; or "handlers:SmmVariableHandler" for one '
+                             'handler. Default: BOTH channels -- every protocol this '
+                             'firmware installs and every SMI handler discovery found.')
     parser.add_argument('--presence', type=str, default=None,
                         help='A csv from scripts/protocol_presence.py. Protocols this '
                              'firmware does not install are skipped, with the reason '
@@ -485,11 +715,22 @@ def main():
     parser.add_argument('--backend', type=str, default='qemu',
                         choices=['tsffs', 'qemu', 'nyx', 'none'],
                         help='QEMU by default -- it needs no licence. tsffs needs Simics')
-    parser.add_argument('--smi', action='store_true',
-                        help='Fuzz SMI handlers rather than protocols. The request file '
-                             'lists handler names and the cache must hold a '
-                             'smi-function-guid-map.json, so these are separate targets '
-                             'from the protocol ones, not a mode on top of them.')
+    # THREE states, not two: --smi, --no-smi, and neither. The two-state version defaulted
+    # to off and could not tell a caller who said no from one who said nothing, and
+    # "nothing" is the case that has to mean everything -- see handlers_wanted().
+    parser.add_argument('--smi', dest='smi', action='store_const', const=True,
+                        default=None,
+                        help='Include the SMI handler channel when no selection is given. '
+                             'Default: included whenever the firmware under test was built '
+                             'with an SMM core, which is the only firmware a handler '
+                             'campaign can reach anything in.')
+    parser.add_argument('--no-smi', dest='smi', action='store_const', const=False,
+                        help='Protocols only: the one way to ask for the fast sweep. An '
+                             'SMM_REQUIRE firmware boots several times slower -- 625s '
+                             'against 2923s median at the same concurrency -- and on a '
+                             'multi-ref sweep that is the difference between finishing and '
+                             'being killed before triage. Does not override a selection '
+                             'that names an SMI target.')
     parser.add_argument('--max-load', type=float, default=0.0,
                         help='Wait rather than launch while the 1 minute load is above this')
     parser.add_argument('--dry-run', action='store_true',
@@ -498,13 +739,55 @@ def main():
 
     requests = resolve_requests(args)
     args.request_rel = request_dir_in_container(requests, args.repo)
-    if args.protocols:
-        todo = list(args.protocols)
-    else:
-        todo = sorted(f[:-4] for f in os.listdir(requests)
-                      if f.endswith('.txt')
-                      and (args.smi or f not in SMI_REQUEST_FILES))
-    print(f'  {len(todo)} target(s) from {requests}')
+    asked = args.smi
+    # Resolved ONCE, here, and read everywhere else. launch() gates both the firness flag
+    # and the dxe pop on it, and they have to be gated on the same thing: keyed apart, a
+    # campaign gets the timing without the flag and firness.py refuses it at startup.
+    args.smi = handlers_wanted(asked, os.environ)
+    todo, filtered = resolve_selection(requests, args.protocols, args.smi)
+    for target, handlers in sorted(write_handler_requests(requests, filtered).items()):
+        print(f'  {target}: {len(handlers)} of the handler list '
+              f'({", ".join(handlers)})')
+    by_channel = {}
+    for target in todo:
+        by_channel.setdefault(channel_of(target), []).append(target)
+    print(f'  {len(todo)} target(s) from {requests}: '
+          + ', '.join(f'{len(v)} {k}' for k, v in sorted(by_channel.items())))
+    # Said out loud when the run has none, because that is the shape a regression takes
+    # here: a selection that resolves to no handler reads exactly like a tree that has
+    # none, and the run then reports every protocol fuzzed and calls itself complete.
+    #
+    # Keyed on the SELECTION, not on the mode. Keyed on the mode it printed "no SMI
+    # handler target in this run" for a run whose selection was a handler target and
+    # nothing else, which is a sentence a reader cannot act on.
+    handlers = by_channel.get(HANDLER_CHANNEL) or []
+    if not handlers:
+        offered = request_targets(requests)[HANDLER_CHANNEL]
+        if not offered:
+            why = (f'{requests} has no handler list -- discovery writes one only for a '
+                   f'channel this tree registers a handler on')
+        elif args.protocols:
+            why = 'the selection named none'
+        elif asked is False:
+            why = '--no-smi'
+        else:
+            why = (f'this firmware was not built with an SMM core, so it has no handler '
+                   f'to reach: no {SMM_BUILD_MARK} in FIRNESS_ANALYSIS_DEFINES. Build with '
+                   f'--smi one layer up, or pass --smi here to override')
+        print(f'  no SMI handler target in this run: {why}')
+    # Named, but not armed. The flag and the campaign cannot be decided apart -- that is
+    # what the dxe pop exists for -- so a selection that holds a handler target while the
+    # mode resolved off runs that request file as though it were a protocol:
+    # load_functions() files every handler under the empty service, nothing resolves, and
+    # the campaign dies in the generator after a container and a full analysis. Said here
+    # rather than fixed by overriding the mode, because overriding it would hand a
+    # campaign the dxe timing without the flag and firness.py refuses that at startup.
+    orphans = handlers if not args.smi else []
+    if orphans:
+        print(f'Warning: {", ".join(orphans)} is an SMI handler list and this run is not '
+              f'in SMI mode, so it will be analysed as a protocol and fail in the '
+              f'generator. Pass --smi, or build the firmware with {SMM_BUILD_MARK} so the '
+              f'mode resolves on its own.')
 
     # A protocol the firmware never installs cannot be fuzzed: the harness's opening
     # LocateProtocol fails and every Fuzz* function returns at once, but the campaign still
@@ -520,7 +803,12 @@ def main():
         except OSError as exc:
             print(f'Error: cannot read {args.presence}: {exc}')
             return 1
-        stale = [p for p in todo if p not in status]
+        # An SMI target is not in the census and must not be: protocol_presence.py answers
+        # "does gBS->LocateProtocol find this", and a handler list is not a protocol. It
+        # was reported as a census gap -- "1 protocol(s) are absent from the census
+        # (DiscoveredSmi...)" on every --smi run -- which trains a reader to ignore the one
+        # warning that would tell them the census was taken against different firmware.
+        stale = [p for p in todo if p not in status and not smi_base(p)]
         absent = [p for p in todo if status.get(p) == 'absent']
         # Installed, but inside SMRAM, where gBS->LocateProtocol does not look. Skipped for
         # a DIFFERENT reason and said differently: "not installed" would be false about the

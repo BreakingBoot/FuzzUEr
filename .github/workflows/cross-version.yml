@@ -37,6 +37,29 @@
 # fuzzed nothing would finish fast with every stage green. scripts/fuzz_edk2.py's
 # pick_targets owns that choice and scripts/target_choice_check.py asserts it.
 #
+# PROTOCOLS ONLY, and that is a decision rather than an omission. Both channels is the
+# default everywhere else in this repository -- fuzz_batch.py resolves an empty selection
+# to every protocol AND every discovered SMI handler, and fuzz-edk2.yml's `channels` input
+# defaults to `all`. This gate pins the protocol channel for two measured reasons:
+#
+#   * The SMI path has only ever been run on ONE release. All eleven upstream-smi.yml runs
+#     on this host are edk2-stable202608 (~/fuzzuer-smi-out/*/run.json). This gate spans
+#     edk2-stable202305 to master and its policy is that a RELEASE which does not qualify
+#     is an error, not a warning -- so turning the handler channel on here would judge four
+#     releases by a path nothing has ever shown works on them, and the first red run would
+#     say "the port broke this release" about a channel that was never ported to it.
+#   * It changes what the other six stages measure. `smi` implies SMM_REQUIRE=TRUE, so
+#     port, build, instrumented, discover, image and detects would all be answering a
+#     different question than they answer on every run of this gate so far, and
+#     release-to-release comparability is the whole product here.
+#
+# The cost of adding it was costed, not assumed: at --jobs 1 a handler campaign is cheap
+# (upstream-smi run 43280210229 reached its harness in 38s, against the 2923s median of an
+# 18-way SMM sweep), so it would be about +1.4h on a run measured at 5.4h of a 7.0h
+# timeout -- affordable, and still not worth a gate that reports the wrong thing. The SMI
+# channel is covered per-release by upstream-smi.yml and on mainline by fuzz-edk2.yml's
+# Wednesday cron. Widening it to a second release belongs there, as a ref, not here.
+#
 # Push a branch whose name starts with "ci-versions-" to run it, or dispatch it.
 name: Cross-version qualify
 
