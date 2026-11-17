@@ -141,10 +141,31 @@ def syntax_check(harness_dir, edk2_dir, backend='qemu'):
     fatal = ['-Werror=implicit-function-declaration', '-Werror=int-conversion',
              '-Werror=incompatible-pointer-types', '-Werror=return-type']
     if COMPILER.startswith('clang'):
-        dialect = ['-target', 'x86_64-pc-linux-gnu', '-Wno-everything'] + fatal
+        # -Wno-everything first and the promotions after it, because clang takes the LAST
+        # flag that names a diagnostic. The const-qualifier case is spelled out rather
+        # than left to its parent group, so a clang that regroups it cannot quietly drop
+        # it: it is the one that failed the real build on EfiPcd and Pcd.
+        dialect = (['-target', 'x86_64-pc-linux-gnu', '-Wno-everything'] + fatal
+                   + ['-Werror=incompatible-pointer-types-discards-qualifiers'])
     else:
-        # gcc has no -Wno-everything and no -target; it is x86_64 already
-        dialect = ['-w'] + fatal
+        # gcc has no -Wno-everything and no -target; it is x86_64 already.
+        #
+        # And no -w either, which is what this arm used to carry. gcc's -w is a global
+        # inhibit and is NOT undone by a later -Werror=<name>: measured on gcc 11.4, each
+        # of the four promotions above passes rc 0 with -w in front of it and rc 1
+        # without. So this arm had its whole fatal list inert and reported only hard
+        # errors -- 136 of 136 OK on the 138 cached analyses of run 43454245046 while
+        # three of those harnesses do not build. Dropped rather than replaced, because
+        # gcc's default warning set outside -Wall is small and a warning that is not
+        # promoted does not change the exit status; the noise only reaches a reader when
+        # a compile has already failed.
+        #
+        # -Wdiscarded-qualifiers is gcc's spelling of the clang diagnostic that failed
+        # the CLANGSAN build of EfiPcd and Pcd at FirnessHarnesses.c:966:22 and :1468:22
+        # on all four upstream refs of sweep 43704163314. It is not in
+        # -Wincompatible-pointer-types for gcc the way it is for clang, so it has to be
+        # named.
+        dialect = fatal + ['-Werror=discarded-qualifiers']
     # the backend arm is chosen by a -D the generated Firness.dsc carries, so without
     # restating it here every backend compiles the tsffs arm and a break in the
     # libafl-qemu asm passes the check
