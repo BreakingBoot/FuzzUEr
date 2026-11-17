@@ -554,11 +554,20 @@ def main():
               'was not able to be harnessed' in asrc,
               'that message is how the blocker was found, and it is the only sign of it')
         params_body = body_of(asrc, 'protocol_member_params')
-        check('and protocol_member_params still reads one file, which is the blocker',
-              bool(params_body) and 'open(header_path' in params_body
-              and '#include' not in params_body,
-              f'{params_body[:200]!r} -- if this now resolves the include, the three '
-              f'members stop being synthesised-only and this check should be retired')
+        # This used to assert the opposite -- that protocol_member_params reads one file
+        # and nothing else -- and said in its own detail text that it should be retired
+        # once the include resolved. It has: the submodule's protocol_member_params and
+        # protocol_member_return both ask _declaring_source(), and EdkiiSmmVarCheck goes
+        # from 0 of 3 targets and rc 1 to 3 of 3 and rc 0. The subject is the same, so
+        # the assertion stays here rather than being deleted: the request file this check
+        # owns is only worth making while the generator can consume it, and if that side
+        # regresses this is the check that says which half broke. The behaviour itself is
+        # asserted in scripts/member_typedef_check.py.
+        check('and protocol_member_params resolves the include, so the file is consumable',
+              bool(params_body) and '_declaring_source(' in params_body
+              and 'open(header_path' not in params_body,
+              f'{params_body[:200]!r} -- without this the three members are requested, '
+              f'dropped with a warning, and the campaign exits 1 on no targets')
         check('the member path that depends on it is still there to be unblocked',
               'protocol_member_signature(header, protocol_name, name' in asrc
               and 'built from their header' in asrc,

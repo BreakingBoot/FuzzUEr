@@ -39,14 +39,17 @@ What this fix still owns, and what is still asserted here, is that RESOLUTION is
 gate: with the include bound flat, nothing is admitted, and structs_in() is still
 untouched.
 
-Known limitation, measured and not fixed here: firness has the same one-file assumption.
-data_analysis/analyze.py's protocol_member_params() looks for the member's typedef in the
-protocol header's own text, so for a member with no call sites it returns None and the
-member is dropped with "WARNING: <name> was not able to be harnessed!!". Run offline on
-the EdkiiFormBrowserEx2 campaign of sweep 43454245046, the generator read all 6 request
-lines and emitted 3 Fuzz functions; with protocol_member_params() resolving the include in
-a scratch copy it emitted 6. 10 of the 11 members have no call site in eval1_edk2 and so
-depend on that path. The request file is the prerequisite, not the whole fix.
+Known limitation when this landed, measured here and since fixed in the submodule:
+firness had the same one-file assumption. data_analysis/analyze.py's
+protocol_member_params() looked for the member's typedef in the protocol header's own
+text, so for a member with no call sites it returned None and the member was dropped with
+"WARNING: <name> was not able to be harnessed!!". Run offline on the EdkiiFormBrowserEx2
+campaign of sweep 43454245046, the generator read all 6 request lines and emitted 3 Fuzz
+functions; with protocol_member_params() resolving the include in a scratch copy it
+emitted 6. 10 of the 11 members have no call site in eval1_edk2 and so depend on that
+path. The request file is the prerequisite, not the whole fix -- the rest is
+_declaring_source() in analyze.py, asserted by scripts/member_typedef_check.py, which
+took that campaign to 6 Fuzz functions and 224 lines of FirnessHarnesses.c.
 
 Run: python3 scripts/include_typedef_check.py
 """
