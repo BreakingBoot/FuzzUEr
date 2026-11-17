@@ -142,8 +142,8 @@ def null_interfaces(capture):
     capture 43454245046 that GUID is on one DXE install line, pointer 0, and the SMM core
     installed the real one -- so this is what makes it read smm-only instead of present.
     22 GUIDs in that capture and 15 in each of sweep 43704163314's four are installed only
-    as NULL; gEfiConsoleOutDeviceGuid, gEfiVariableArchProtocolGuid and gLockBox are the
-    rest of the shape.
+    as NULL; gEfiConsoleOutDeviceGuid, gEfiVariableArchProtocolGuid and
+    gEfiLockBoxProtocolGuid are the rest of the shape.
 
     The second set is the census admitting what it cannot see. All 2720 install lines over
     those five captures carry a pointer, but a capture taken with DEBUG_INFO suppressed or
